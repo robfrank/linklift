@@ -13,7 +13,7 @@
     <artifactId>linklift-api</artifactId>
 
     <properties>
-        <javalin.version>6.3.0</javalin.version>
+        <javalin.version>6.4.0</javalin.version>
         <arcadedb.version>24.11.1</arcadedb.version>
 
         <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>

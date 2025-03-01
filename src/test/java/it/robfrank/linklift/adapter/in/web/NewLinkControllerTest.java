@@ -1,10 +1,8 @@
 package it.robfrank.linklift.adapter.in.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.testtools.JavalinTest;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
-import net.javacrumbs.jsonunit.assertj.JsonAssertions;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,23 +39,21 @@ class NewLinkControllerTest {
               "title":"Google",
               "description":"Search engine"}
               """);
+//      System.out.println("response = " + response.body().string());
       assertThat(response.code()).isEqualTo(201);
       assertThatJson(response.body().string())
-          .node("linkCommand")
-          .isObject()
-          .isEqualTo("""
-              {
-                "url": "http://www.google.com",
-                "title": "Google",
-                "description": "Search engine"
-              }
-              """)
-          .node("status").isEqualTo("Link received");
-//      ResponseBody body = response.body();
-//      System.out.println("body.string() = " + body.string());
-//      ObjectMapper objectMapper = new ObjectMapper();
-//      NewLinkController.LinkResponse linkResponse = objectMapper.readValue(body.string(), NewLinkController.LinkResponse.class);
-//      assertThat(linkResponse.status()).isEqualTo("Link received");
+          .and(
+              json -> json.node("linkCommand")
+                  .isObject()
+                  .isEqualTo("""
+                      {
+                        "url": "http://www.google.com",
+                        "title": "Google",
+                        "description": "Search engine"
+                      }
+                      """),
+              json -> json.node("status").isString().isEqualTo("Link received")
+          );
     });
   }
 

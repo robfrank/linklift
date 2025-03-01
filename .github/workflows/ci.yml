@@ -57,7 +57,7 @@ jobs:
       - name: Build and Test
         run: |
           mvn -ntp verify
-          mvn package -DskipTests -Pnative -Pdocker
+          mvn package -DskipTests  -Pdocker
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -1,16 +1,19 @@
 <project
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
 >
     <modelVersion>4.0.0</modelVersion>
     <groupId>it.robfrank</groupId>
     <artifactId>linklift</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <version>24.11.1-SNAPSHOT</version>
     <name>linklift</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <docker-maven-plugin.version>0.45.1</docker-maven-plugin.version>
+        <docker-maven-plugin.platform>linux/amd64,linux/arm64</docker-maven-plugin.platform>
 
         <junit.version>5.11.4</junit.version>
         <assertj.version>3.27.3</assertj.version>
@@ -19,6 +22,14 @@
         <archunit-junit5.version>1.3.0</archunit-junit5.version>
         <commons-logging.version>1.3.4</commons-logging.version>
         <slf4j-api.version>2.0.16</slf4j-api.version>
+        <javalin.version>6.4.0</javalin.version>
+        <arcadedb.version>24.11.2</arcadedb.version>
+
+        <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
+        <testcontainers.version>1.20.4</testcontainers.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <mockito-core.version>5.15.2</mockito-core.version>
+        <json-unit-assertj.version>4.1.0</json-unit-assertj.version>
 
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
@@ -34,9 +45,6 @@
         <rewrite-migrate-java.version>3.1.0</rewrite-migrate-java.version>
         <rewrite-testing-frameworks.version>3.1.0</rewrite-testing-frameworks.version>
     </properties>
-    <modules>
-        <module>api</module>
-    </modules>
     <scm>
         <developerConnection>scm:git:https://github.com/robfrank/linklift.git</developerConnection>
         <url>https://github.com/robfrank/linklift</url>
@@ -104,42 +112,42 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>com.societegenerale.commons</groupId>
-                <artifactId>arch-unit-maven-plugin</artifactId>
-                <version>${arch-unit-maven-plugin.version}</version>
-                <configuration>
-                    <noFailOnError>false</noFailOnError>
-                    <rules>
-                        <configurableRules>
-                            <configurableRule>
-                                <rule>it.robfrank.linklift.fizzbuzz.archtests.CommonArchTest</rule>
-                                <applyOn>
-                                    <packageName>it.robfrank.linklift.fizzbuzz</packageName>
-                                    <scope>main</scope>
-                                </applyOn>
-                            </configurableRule>
-                            <configurableRule>
-                                <rule>it.robfrank.linklift.fizzbuzz.archtests.ComponentArchTest</rule>
-                                <applyOn>
-                                    <packageName>it.robfrank.linklift.fizzbuzz</packageName>
-                                    <scope>main</scope>
-                                </applyOn>
-                            </configurableRule>
-                        </configurableRules>
-                    </rules>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>arch-test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                </dependencies>
-            </plugin>
+            <!--            <plugin>-->
+            <!--                <groupId>com.societegenerale.commons</groupId>-->
+            <!--                <artifactId>arch-unit-maven-plugin</artifactId>-->
+            <!--                <version>${arch-unit-maven-plugin.version}</version>-->
+            <!--                <configuration>-->
+            <!--                    <noFailOnError>false</noFailOnError>-->
+            <!--                    <rules>-->
+            <!--                        <configurableRules>-->
+            <!--                            <configurableRule>-->
+            <!--                                <rule>it.robfrank.linklift.fizzbuzz.archtests.CommonArchTest</rule>-->
+            <!--                                <applyOn>-->
+            <!--                                    <packageName>it.robfrank.linklift.fizzbuzz</packageName>-->
+            <!--                                    <scope>main</scope>-->
+            <!--                                </applyOn>-->
+            <!--                            </configurableRule>-->
+            <!--                            <configurableRule>-->
+            <!--                                <rule>it.robfrank.linklift.fizzbuzz.archtests.ComponentArchTest</rule>-->
+            <!--                                <applyOn>-->
+            <!--                                    <packageName>it.robfrank.linklift.fizzbuzz</packageName>-->
+            <!--                                    <scope>main</scope>-->
+            <!--                                </applyOn>-->
+            <!--                            </configurableRule>-->
+            <!--                        </configurableRules>-->
+            <!--                    </rules>-->
+            <!--                </configuration>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <phase>test</phase>-->
+            <!--                        <goals>-->
+            <!--                            <goal>arch-test</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--                <dependencies>-->
+            <!--                </dependencies>-->
+            <!--            </plugin>-->
             <plugin>
                 <groupId>org.openrewrite.maven</groupId>
                 <artifactId>rewrite-maven-plugin</artifactId>
@@ -177,22 +185,53 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>${maven-release-plugin.version}</version>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>it.robfrank.linklift.Application</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven-shade-plugin.version}</version>
+                <configuration>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>it.robfrank.linklift.Application</mainClass>
+                        </transformer>
+                    </transformers>
+                    <filters>
+                        <filter> <!-- This filter is needed to avoid a bug in the shade plugin -->
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>${maven-jar-plugin.version}</version>
-                    <configuration>
-                        <archive>
-                            <manifest>
-                                <addClasspath>true</addClasspath>
-                                <mainClass>it.robfrank.linklift.fizzbuzz.FizzBuzzMain</mainClass>
-                            </manifest>
-                        </archive>
-                    </configuration>
-                </plugin>
                 <plugin>
                     <groupId>org.graalvm.buildtools</groupId>
                     <artifactId>native-maven-plugin</artifactId>
@@ -228,6 +267,60 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>io.javalin</groupId>
+            <artifactId>javalin-bundle</artifactId>
+            <version>${javalin.version}</version>
+        </dependency>
+        <!-- OpenApi plugin -->
+        <dependency>
+            <groupId>io.javalin.community.openapi</groupId>
+            <artifactId>javalin-openapi-plugin</artifactId>
+            <version>${javalin.version}</version>
+        </dependency>
+        <!-- Swagger plugin -->
+        <dependency>
+            <groupId>io.javalin.community.openapi</groupId>
+            <artifactId>javalin-swagger-plugin</artifactId>
+            <version>${javalin.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
+        <!-- ArcadeDB -->
+        <dependency>
+            <groupId>com.arcadedb</groupId>
+            <artifactId>arcadedb-network</artifactId>
+            <version>${arcadedb.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.javalin</groupId>
+            <artifactId>javalin-testtools</artifactId>
+            <version>${javalin.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.json-unit</groupId>
+            <artifactId>json-unit-assertj</artifactId>
+            <version>${json-unit-assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
@@ -250,4 +343,70 @@
             <version>${slf4j-api.version}</version>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>${docker-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>default</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>deploy</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>push</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <verbose>true</verbose>
+                            <images>
+                                <image>
+                                    <name>robfrank/linklift</name>
+                                    <build>
+                                        <assembly>
+                                            <descriptorRef>artifact</descriptorRef>
+                                        </assembly>
+                                        <dockerFile>${project.basedir}/src/main/docker/Dockerfile</dockerFile>
+                                        <buildx>
+                                            <platforms>
+                                                <platform>${docker-maven-plugin.platform}</platform>
+                                            </platforms>
+                                        </buildx>
+                                        <tags>
+                                            <tag>latest</tag>
+                                            <tag>${project.version}</tag>
+                                        </tags>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

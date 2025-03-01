@@ -11,38 +11,34 @@ import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 import it.robfrank.linklift.config.WebBuilder;
 
 public class Application {
+
   public static void main(String[] args) {
-
-
     RemoteDatabase database = new RemoteDatabase("localhost", 2480, "linklift", "root", "playwithdata");
     ArcadeLinkRepository repository = new ArcadeLinkRepository(database, new LinkMapper());
     LinkPersistenceAdapter persistenceAdapter = new LinkPersistenceAdapter(repository);
     NewLinkUseCase useCase = new NewLinkService(persistenceAdapter);
     NewLinkController newLinkController = new NewLinkController(useCase);
 
-    Javalin app = new WebBuilder()
-        .withLinkController(newLinkController)
-        .build();
+    Javalin app = new WebBuilder().withLinkController(newLinkController).build();
 
     app.start(7070);
   }
-
-//  @NotNull
-//  private static Javalin getApp(NewLinkController newLinkController) {
-//    Javalin app = Javalin.create(config -> {
-//      config.bundledPlugins.enableCors(cors -> {
-//        cors.addRule(it -> {
-//          it.anyHost();
-//        });
-//      });
-//      config.router.apiBuilder(() -> {
-//        get("/", ctx -> ctx.result("Hello World"));
-//        get("/up", ctx -> ctx.status(200));
-//        path("/api/v1", () -> {
-//          post(newLinkController::processLink);
-//        });
-//      });
-//    });
-//    return app;
-//  }
+  //  @NotNull
+  //  private static Javalin getApp(NewLinkController newLinkController) {
+  //    Javalin app = Javalin.create(config -> {
+  //      config.bundledPlugins.enableCors(cors -> {
+  //        cors.addRule(it -> {
+  //          it.anyHost();
+  //        });
+  //      });
+  //      config.router.apiBuilder(() -> {
+  //        get("/", ctx -> ctx.result("Hello World"));
+  //        get("/up", ctx -> ctx.status(200));
+  //        path("/api/v1", () -> {
+  //          post(newLinkController::processLink);
+  //        });
+  //      });
+  //    });
+  //    return app;
+  //  }
 }

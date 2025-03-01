@@ -1,11 +1,12 @@
 package it.robfrank.linklift.config;
 
+import static io.javalin.apibuilder.ApiBuilder.get;
+
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.NewLinkController;
 
-import static io.javalin.apibuilder.ApiBuilder.get;
-
 public class WebBuilder {
+
   private Javalin app;
 
   public WebBuilder() {
@@ -21,7 +22,6 @@ public class WebBuilder {
   }
 
   public WebBuilder withLinkController(NewLinkController newLinkController) {
-
     app.post("/api/v1/link", newLinkController::processLink);
 
     return this;

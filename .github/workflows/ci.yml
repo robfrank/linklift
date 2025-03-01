@@ -75,14 +75,14 @@ jobs:
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: exercises-${{ matrix.os }}-${{ runner.arch }}
-          path: ./cli/target/exercises-cli
+          path: ./target/linklift
 
       - name: Scan Image
         uses: anchore/scan-action@7c05671ae9be166aeb155bad2d7df9121823df32 # v6.1.0
         id: scan
         with:
           fail-build: false
-          image: robfrank/exercises-web:latest
+          image: robfrank/linklift:latest
           output-format: sarif
           severity-cutoff: critical
 

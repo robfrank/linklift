@@ -13,7 +13,6 @@ public class LinkPersistenceAdapter implements SaveLinkPort {
 
   @Override
   public Link saveLink(Link link) {
-    return linkRepository.findLinkByUrl(link.url())
-        .orElseGet(() -> linkRepository.saveLink(link));
+    return linkRepository.findLinkByUrl(link.url()).orElseGet(() -> linkRepository.saveLink(link));
   }
 }

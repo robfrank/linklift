@@ -4,7 +4,6 @@ import it.robfrank.linklift.adapter.out.persitence.LinkPersistenceAdapter;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -18,18 +17,12 @@ public class NewLinkService implements NewLinkUseCase {
 
   @Override
   public boolean newLink(NewLinkCommand newLinkCommand) {
-
     var id = UUID.randomUUID().toString();
 
     var savedLink = linkPersistenceAdapter.saveLink(
-        new Link(id,
-            newLinkCommand.url(),
-            newLinkCommand.title(),
-            newLinkCommand.description(),
-            LocalDateTime.now(),
-            "text/html"));
+      new Link(id, newLinkCommand.url(), newLinkCommand.title(), newLinkCommand.description(), LocalDateTime.now(), "text/html")
+    );
 
     return savedLink.id().equals(id);
-
   }
 }

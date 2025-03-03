@@ -6,9 +6,6 @@ import com.arcadedb.remote.RemoteDatabase;
 import com.arcadedb.remote.RemoteServer;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.config.DatabaseConfig;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +13,10 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Testcontainers
 class ArcadeLinkRepositoryTest {
@@ -54,7 +55,7 @@ class ArcadeLinkRepositoryTest {
   }
 
   @Test
-  void testLinkPersistence() {
+  void linkPersistence() {
     Link testLink = new Link(UUID.randomUUID().toString(), "https://example.com", "Test Title", "Test Description", LocalDateTime.now(), "text/html");
 
     var savedLink = linkRepository.saveLink(testLink);

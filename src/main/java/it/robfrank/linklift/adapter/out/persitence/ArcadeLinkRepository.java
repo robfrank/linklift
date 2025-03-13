@@ -3,6 +3,7 @@ package it.robfrank.linklift.adapter.out.persitence;
 import com.arcadedb.query.sql.executor.Result;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.model.Link;
+
 import java.util.Optional;
 
 public class ArcadeLinkRepository {

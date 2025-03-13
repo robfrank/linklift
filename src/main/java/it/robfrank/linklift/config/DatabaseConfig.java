@@ -1,11 +1,8 @@
 package it.robfrank.linklift.config;
 
 import com.arcadedb.database.Database;
-import com.arcadedb.database.DatabaseFactory;
 import com.arcadedb.remote.RemoteDatabase;
-import com.arcadedb.schema.Schema;
-import com.arcadedb.schema.VertexType;
-import io.javalin.util.FileUtil;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

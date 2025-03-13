@@ -4,7 +4,6 @@ import com.arcadedb.graph.MutableVertex;
 import com.arcadedb.graph.Vertex;
 import com.arcadedb.remote.RemoteMutableVertex;
 import it.robfrank.linklift.application.domain.model.Link;
-import java.util.UUID;
 
 public class LinkMapper {
 

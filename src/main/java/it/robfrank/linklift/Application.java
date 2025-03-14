@@ -13,7 +13,8 @@ import it.robfrank.linklift.config.WebBuilder;
 public class Application {
 
   public static void main(String[] args) {
-    RemoteDatabase database = new RemoteDatabase("localhost", 2480, "linklift", "root", "playwithdata");
+    String arcadedbServer = System.getProperty("linklift.arcadedb.url", "localhost");
+    RemoteDatabase database = new RemoteDatabase(arcadedbServer, 2480, "linklift", "root", "playwithdata");
     ArcadeLinkRepository repository = new ArcadeLinkRepository(database, new LinkMapper());
     LinkPersistenceAdapter persistenceAdapter = new LinkPersistenceAdapter(repository);
     NewLinkUseCase useCase = new NewLinkService(persistenceAdapter);

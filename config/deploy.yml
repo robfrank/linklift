@@ -31,6 +31,9 @@ env:
     JAVA_OPTS: "-Xmx8G \
       -Dlinklift.arcadedb.url=arcadedb"
 
+ssh:
+  user: player
+
 accessories:
   arcadedb:
     image: arcadedata/arcadedb-headless:25.3.1

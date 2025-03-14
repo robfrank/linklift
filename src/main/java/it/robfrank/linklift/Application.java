@@ -17,6 +17,8 @@ public class Application {
   public static void main(String[] args) {
     String arcadedbServer = System.getProperty("linklift.arcadedb.host", "localhost");
 
+    System.out.println("arcadedbServer = " + arcadedbServer);
+
     initializeDatabase(arcadedbServer);
 
     RemoteDatabase database = new RemoteDatabase(arcadedbServer, 2480, "linklift", "root", "playwithdata");

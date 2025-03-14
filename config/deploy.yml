@@ -44,4 +44,4 @@ accessories:
       - /home/player/linklift/log:/home/arcadedb/log
     env:
       clear:
-        JAVA_OPTS: "-Darcadedb.server.rootPassword=playwithdata -Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin"
+        JAVA_OPTS: "-Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin"

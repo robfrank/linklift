@@ -15,7 +15,7 @@ import it.robfrank.linklift.config.WebBuilder;
 public class Application {
 
   public static void main(String[] args) {
-    String arcadedbServer = System.getProperty("linklift.arcadedb.url", "localhost");
+    String arcadedbServer = System.getProperty("linklift.arcadedb.host", "localhost");
 
     initializeDatabase(arcadedbServer);
 

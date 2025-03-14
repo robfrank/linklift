@@ -29,7 +29,7 @@ builder:
 env:
   clear:
     JAVA_OPTS: "-Xmx8G \
-      -Dlinklift.arcadedb.url=arcadedb"
+      -Dlinklift.arcadedb.url=linklift-arcadedb"
 
 ssh:
   user: player

@@ -28,8 +28,7 @@ builder:
   arch: amd64
 env:
   clear:
-    JAVA_OPTS: "-Xmx8G \
-      -Dlinklift.arcadedb.host=linklift-arcadedb"
+    JAVA_OPTS: "-Xmx8G -Dlinklift.arcadedb.host=linklift-arcadedb"
 
 ssh:
   user: player

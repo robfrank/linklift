@@ -20,7 +20,13 @@ public class ArcadeLinkRepository {
       database.command(
         "sql",
         """
-        INSERT INTO Link SET id= ?, url = ?, title = ?, description = ?, extractedAt = ?, contentType = ?
+        INSERT INTO Link SET
+        id= ?,
+        url = ?,
+        title = ?,
+        description = ?,
+        extractedAt = ?,
+        contentType = ?
         """,
         link.id(),
         link.url(),
@@ -35,7 +41,7 @@ public class ArcadeLinkRepository {
 
   public Optional<Link> findLinkByUrl(String url) {
     return database
-      .query("SELECT FROM Link WHERE url = ?", url)
+      .query("sql", "SELECT FROM Link WHERE url = ?", url)
       .stream()
       .findFirst()
       .flatMap(Result::getVertex)
@@ -44,6 +50,12 @@ public class ArcadeLinkRepository {
   }
 
   public Optional<Link> findLinkById(String id) {
-    return database.query("SELECT FROM Link WHERE id = ?", id).stream().findFirst().flatMap(Result::getVertex).map(linkMapper::mapToDomain).or(Optional::empty);
+    return database
+      .query("sql", "SELECT FROM Link WHERE id = ?", id)
+      .stream()
+      .findFirst()
+      .flatMap(Result::getVertex)
+      .map(linkMapper::mapToDomain)
+      .or(Optional::empty);
   }
 }

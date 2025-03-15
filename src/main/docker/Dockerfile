@@ -24,4 +24,4 @@ EXPOSE 7070
 
 # Run the application
 WORKDIR /app
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS:--Xmx512M} -jar app.jar"]

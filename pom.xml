@@ -265,6 +265,13 @@
         </pluginManagement>
     </build>
     <dependencies>
+        <!-- ArcadeDB -->
+        <dependency>
+            <groupId>com.arcadedb</groupId>
+            <artifactId>arcadedb-network</artifactId>
+            <version>${arcadedb.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>io.javalin</groupId>
             <artifactId>javalin-bundle</artifactId>
@@ -288,11 +295,10 @@
             <artifactId>commons-lang3</artifactId>
             <version>${commons-lang3.version}</version>
         </dependency>
-        <!-- ArcadeDB -->
         <dependency>
-            <groupId>com.arcadedb</groupId>
-            <artifactId>arcadedb-network</artifactId>
-            <version>${arcadedb.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-api.version}</version>
         </dependency>
 
         <dependency>
@@ -330,11 +336,6 @@
             <artifactId>assertj-core</artifactId>
             <version>${assertj.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-api.version}</version>
         </dependency>
     </dependencies>
 

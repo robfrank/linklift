@@ -16,13 +16,11 @@ public class NewLinkService implements NewLinkUseCase {
   }
 
   @Override
-  public boolean newLink(NewLinkCommand newLinkCommand) {
+  public Link newLink(NewLinkCommand newLinkCommand) {
     var id = UUID.randomUUID().toString();
 
-    var savedLink = linkPersistenceAdapter.saveLink(
+    return linkPersistenceAdapter.saveLink(
       new Link(id, newLinkCommand.url(), newLinkCommand.title(), newLinkCommand.description(), LocalDateTime.now(), "text/html")
     );
-
-    return savedLink.id().equals(id);
   }
 }

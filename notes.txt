@@ -1,0 +1,11 @@
+
+curl -X POST https://linklift.arcadebrain.ai/api/v1/link \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com/article",
+    "title": "Example Article",
+    "description": "This is an interesting article about technology"
+  }'
+
+
+curl -X GET https://linklift.arcadebrain.ai/

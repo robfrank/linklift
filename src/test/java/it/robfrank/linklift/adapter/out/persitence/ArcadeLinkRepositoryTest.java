@@ -54,7 +54,7 @@ class ArcadeLinkRepositoryTest {
   }
 
   @Test
-  void testLinkPersistence() {
+  void linkPersistence() {
     Link testLink = new Link(UUID.randomUUID().toString(), "https://example.com", "Test Title", "Test Description", LocalDateTime.now(), "text/html");
 
     var savedLink = linkRepository.saveLink(testLink);

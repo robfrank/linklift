@@ -2,7 +2,6 @@ package it.robfrank.linklift.application.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public record Link(
   @JsonProperty("id") String id,

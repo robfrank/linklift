@@ -6,8 +6,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.javalin.testtools.JavalinTest;
+import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
+import java.time.LocalDateTime;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +29,9 @@ class NewLinkControllerTest {
 
   @Test
   void processLink_shouldReturn201_whenLinkIsValid() {
-    when(newLinkUseCase.newLink(any(NewLinkCommand.class))).thenReturn(true);
+    when(newLinkUseCase.newLink(any(NewLinkCommand.class))).thenReturn(
+      new Link("123456", "http://www.google.com", "Google", "Search engine", LocalDateTime.now(), "text/html")
+    );
 
     JavalinTest.test((app, client) -> {
       app.post("/link", newLinkController::processLink);
@@ -63,7 +67,9 @@ class NewLinkControllerTest {
 
   @Test
   void processLink_shouldReturn400_whenLinkIsInvalid() {
-    when(newLinkUseCase.newLink(any(NewLinkCommand.class))).thenReturn(false);
+    when(newLinkUseCase.newLink(any(NewLinkCommand.class))).thenReturn(
+      new Link("123456", "http://www.google.com", "Google", "Search engine", LocalDateTime.now(), "text/html")
+    );
 
     JavalinTest.test((app, client) -> {
       app.post("/link", newLinkController::processLink);

@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <docker-maven-plugin.version>0.45.1</docker-maven-plugin.version>
+        <docker-maven-plugin.version>0.46.0</docker-maven-plugin.version>
         <docker-maven-plugin.platform>linux/amd64,linux/arm64</docker-maven-plugin.platform>
 
         <junit.version>5.12.1</junit.version>

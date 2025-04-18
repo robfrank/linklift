@@ -6,12 +6,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.javalin.testtools.JavalinTest;
+import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
+import it.robfrank.linklift.application.domain.exception.LinkAlreadyExistsException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 import java.time.LocalDateTime;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,6 +35,8 @@ class NewLinkControllerTest {
     );
 
     JavalinTest.test((app, client) -> {
+      // Configure exception handlers
+      GlobalExceptionHandler.configure(app);
       app.post("/link", newLinkController::processLink);
 
       Response response = client.post(
@@ -44,7 +47,6 @@ class NewLinkControllerTest {
         "description":"Search engine"}
         """
       );
-      //            System.out.println("response = " + response.body().string());
       assertThat(response.code()).isEqualTo(201);
 
       assertThatJson(response.body().string()).and(
@@ -56,11 +58,9 @@ class NewLinkControllerTest {
 
   @Test
   void processLink_shouldReturn400_whenLinkIsInvalid() {
-    when(newLinkUseCase.newLink(any(NewLinkCommand.class))).thenReturn(
-      new Link("123456", "http://www.google.com", "Google", "Search engine", LocalDateTime.now(), "text/html")
-    );
-
     JavalinTest.test((app, client) -> {
+      // Configure exception handlers
+      GlobalExceptionHandler.configure(app);
       app.post("/link", newLinkController::processLink);
 
       Response response = client.post(
@@ -71,9 +71,42 @@ class NewLinkControllerTest {
         """
       );
       assertThat(response.code()).isEqualTo(400);
-      ResponseBody body = response.body();
+      String body = response.body().string();
 
-      assertThatJson(body.string()).node("REQUEST_BODY").isArray().element(0).node("message").isEqualTo("Title cannot be empty");
+      assertThatJson(body).and(
+        json -> json.node("status").isEqualTo(400),
+        json -> json.node("code").isEqualTo(1001),
+        json -> json.node("message").isString(),
+        json -> json.node("fieldErrors").isObject().containsKey("title")
+      );
+    });
+  }
+
+  @Test
+  void processLink_shouldReturn409_whenLinkAlreadyExists() {
+    when(newLinkUseCase.newLink(any(NewLinkCommand.class))).thenThrow(new LinkAlreadyExistsException("http://www.google.com"));
+
+    JavalinTest.test((app, client) -> {
+      // Configure exception handlers
+      GlobalExceptionHandler.configure(app);
+      app.post("/link", newLinkController::processLink);
+
+      Response response = client.post(
+        "/link",
+        """
+        {"url":"http://www.google.com",
+        "title":"Google",
+        "description":"Search engine"}
+        """
+      );
+      assertThat(response.code()).isEqualTo(409);
+      String body = response.body().string();
+
+      assertThatJson(body).and(
+        json -> json.node("status").isEqualTo(409),
+        json -> json.node("code").isEqualTo(2001),
+        json -> json.node("message").isString().contains("http://www.google.com")
+      );
     });
   }
 }

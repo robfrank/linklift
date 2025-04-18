@@ -4,6 +4,7 @@ import static io.javalin.apibuilder.ApiBuilder.get;
 
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.NewLinkController;
+import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 
 public class WebBuilder {
 
@@ -18,11 +19,18 @@ public class WebBuilder {
         get("/", ctx -> ctx.result("LinkLift"));
         get("/up", ctx -> ctx.status(200));
       });
+
+      // Enable detailed logging
+      config.bundledPlugins.enableDevLogging();
     });
+
+    // Configure global exception handlers
+    GlobalExceptionHandler.configure(app);
   }
 
   public WebBuilder withLinkController(NewLinkController newLinkController) {
     app.post("/api/v1/link", newLinkController::processLink);
+    app.post("/link", newLinkController::processLink); // For backward compatibility
 
     return this;
   }

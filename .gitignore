@@ -17,3 +17,6 @@ buildNumber.properties
 .classpath
 
 notes.txt
+
+**/CLAUDE.local.md
+**/CLAUDE.md

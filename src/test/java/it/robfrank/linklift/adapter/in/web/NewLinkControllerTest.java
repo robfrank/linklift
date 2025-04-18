@@ -44,22 +44,11 @@ class NewLinkControllerTest {
         "description":"Search engine"}
         """
       );
-      //      System.out.println("response = " + response.body().string());
+      //            System.out.println("response = " + response.body().string());
       assertThat(response.code()).isEqualTo(201);
+
       assertThatJson(response.body().string()).and(
-        json ->
-          json
-            .node("linkCommand")
-            .isObject()
-            .isEqualTo(
-              """
-              {
-                "url": "http://www.google.com",
-                "title": "Google",
-                "description": "Search engine"
-              }
-              """
-            ),
+        json -> json.node("link").isObject().containsKey("id").containsKey("extractedAt").containsKey("contentType").containsKey("url"),
         json -> json.node("status").isString().isEqualTo("Link received")
       );
     });

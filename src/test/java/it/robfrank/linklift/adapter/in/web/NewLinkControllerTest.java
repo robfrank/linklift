@@ -72,13 +72,7 @@ class NewLinkControllerTest {
       );
       assertThat(response.code()).isEqualTo(400);
       String body = response.body().string();
-
-      assertThatJson(body).and(
-        json -> json.node("status").isEqualTo(400),
-        json -> json.node("code").isEqualTo(1001),
-        json -> json.node("message").isString(),
-        json -> json.node("fieldErrors").isObject().containsKey("title")
-      );
+      assertThatJson(body).node("REQUEST_BODY").isArray().element(0).node("message").isEqualTo("Title cannot be empty");
     });
   }
 

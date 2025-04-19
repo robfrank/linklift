@@ -82,3 +82,13 @@ jobs:
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Rollback if falilure
+        if: ${{ failure() }}
+        run: |
+          mvn -B release:rollback \
+          -Dusername=$GITHUB_ACTOR \
+          -Dpassword=$GITHUB_TOKEN
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}

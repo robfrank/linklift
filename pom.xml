@@ -10,7 +10,10 @@
     <version>25.5.1-SNAPSHOT</version>
     <name>linklift</name>
     <properties>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <normalized.os.name>${os.name}</normalized.os.name>
 
         <docker-maven-plugin.version>0.46.0</docker-maven-plugin.version>
         <docker-maven-plugin.platform>linux/amd64,linux/arm64</docker-maven-plugin.platform>
@@ -246,14 +249,16 @@
                         </execution>
                     </executions>
                     <configuration>
+                        <imageName>${project.artifactId}-${project.version}-${normalized.os.name}-${os.arch}</imageName>
                         <skipNativeTests>true</skipNativeTests>
                         <metadataRepository>
                             <enabled>true</enabled>
                         </metadataRepository>
                         <fallback>false</fallback>
                         <buildArgs combine.children="append">
-                            <arg>--enable-preview</arg>
-                            <!--                            <arg>-H:DashboardDump=fortune -H:+DashboardAll &#45;&#45;enable-url-protocols=http</arg>-->
+<!--                            <arg>&#45;&#45;enable-preview</arg>-->
+<!--                            <arg>-H:+EnableAllSecurityServices</arg>-->
+<!--                            <arg>&#45;&#45;initialize-at-build-time=com.oracle.truffle.runtime.enterprise.EnableEnterpriseFeature</arg>-->
                             <arg>--enable-url-protocols=http</arg>
                         </buildArgs>
                         <agent>
@@ -401,6 +406,17 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>macos</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <normalized.os.name>macos</normalized.os.name>
+            </properties>
         </profile>
     </profiles>
 

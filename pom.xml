@@ -3,7 +3,7 @@
     <groupId>it.robfrank</groupId>
     <artifactId>linklift</artifactId>
     <packaging>jar</packaging>
-    <version>25.4.1</version>
+    <version>25.5.1-SNAPSHOT</version>
     <name>linklift</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -43,7 +43,7 @@
     <scm>
         <developerConnection>scm:git:https://github.com/robfrank/linklift.git</developerConnection>
         <url>https://github.com/robfrank/linklift</url>
-        <tag>v25.4.1</tag>
+        <tag>v25..4.1</tag>
     </scm>
     <distributionManagement>
         <repository>

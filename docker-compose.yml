@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  arcadedb:
+    image: arcadedata/arcadedb:25.3.2
+    container_name: arcadedb
+    environment:
+      - JAVA_OPTS=-Darcadedb.server.rootPassword=playwithdata -Darcadedb.server.plugins=Prometheus:com.arcadedb.metrics.prometheus.PrometheusMetricsPlugin
+    ports:
+      - "2480:2480" # HTTP/REST API
+      - "2424:2424" # Binary protocol
+    volumes:
+      - arcadedb_data:/arcadedb/databases
+    healthcheck:
+      test: "curl --fail http://localhost:2480/api/v1/ready"
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  linklift:
+    image: robfrank/linklift:latest
+    container_name: linklift
+    environment:
+      - JAVA_OPTS=-Dlinklift.arcadedb.host=arcadedb -Xmx512M -XX:+UseZGC -XX:+ZGenerational
+    ports:
+      - "7070:7070"
+    depends_on:
+      arcadedb:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  arcadedb_data:
+    driver: local

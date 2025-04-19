@@ -30,6 +30,15 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  webapp:
+    build: ./webapp
+    container_name: linklift-webapp
+    ports:
+      - "80:80"
+    depends_on:
+      - linklift
+    restart: unless-stopped
+
 volumes:
   arcadedb_data:
     driver: local

@@ -107,8 +107,7 @@ jobs:
         uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
         with:
           files: |
-            cli/target/exercises-cli-*
-            web-javalin/target/exercises-web-javalin-*
+            ./target/linklift-*
           name: Release v${{ steps.get_version.outputs.VERSION }}
           draft: false
           prerelease: false

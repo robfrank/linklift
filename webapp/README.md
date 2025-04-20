@@ -4,12 +4,13 @@ This is the frontend application for LinkLift, a link management system built wi
 
 ## Technologies Used
 
-- React 19
-- React Router v7
+- React 18
+- React Router v6
 - Material UI v7
 - Axios for API communication
 - Webpack for bundling
 - Babel for transpilation
+- Jest and React Testing Library for testing
 
 ## Development
 
@@ -70,3 +71,38 @@ The application communicates with the LinkLift backend API:
 - **Home**: Landing page with an introduction to LinkLift
 - **Add Link**: Form to add a new link to the system
 - **404 Not Found**: Custom page for invalid routes
+
+## Testing
+
+The webapp uses Jest and React Testing Library for tests. To run tests:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Generate test coverage report
+npm run test:coverage
+```
+
+The test suite includes:
+
+- Component tests for all UI components
+- API service tests
+- Integration tests for key user flows
+- Route testing
+
+Test files are located alongside the components in `__tests__` directories.
+
+## Continuous Integration
+
+This project uses GitHub Actions for continuous integration. The webapp-ci workflow:
+
+1. Runs on every push or pull request that affects the webapp directory
+2. Installs dependencies
+3. Runs all tests
+4. Builds the project
+
+You can view the CI status on the GitHub repository or check the badge in the main README.

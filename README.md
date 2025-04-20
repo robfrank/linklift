@@ -1,4 +1,5 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/78972e21471a44e794375fe00ac862ea)](https://app.codacy.com/gh/robfrank/linklift/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Webapp CI](https://github.com/robfrank/linklift/actions/workflows/webapp-ci.yml/badge.svg)](https://github.com/robfrank/linklift/actions/workflows/webapp-ci.yml)
 
 # Linklift
 
@@ -37,7 +38,50 @@ Docker Compose provides an easy way to run the application with its dependencies
 docker-compose up -d
 ```
 
-The application will be available at http://localhost:7070.
+The backend API will be available at http://localhost:7070.
+
+## Accessing the Web UI
+
+After starting the application with Docker Compose, you can access the web UI at:
+
+```
+http://localhost:80
+```
+
+Or simply:
+
+```
+http://localhost
+```
+
+The web interface allows you to view and add new links through a user-friendly interface.
+
+### React Frontend Development
+
+The web UI is built with React. If you want to develop the frontend separately:
+
+```bash
+# Navigate to the webapp directory
+cd webapp
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+```
+
+The React app includes:
+
+- Component tests with React Testing Library
+- API mocking for isolated testing
+- Material UI for component styling
 
 ## Testing the API
 

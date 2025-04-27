@@ -2,7 +2,7 @@ package it.robfrank.linklift.application.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.time.temporal.ChronoUnit;
 
 public record Link(
   @JsonProperty("id") String id,
@@ -13,6 +13,6 @@ public record Link(
   @JsonProperty("contentType") String contentType
 ) {
   public Link {
-    extractedAt = extractedAt == null ? LocalDateTime.now() : extractedAt;
+    extractedAt = extractedAt == null ? LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS) : extractedAt;
   }
 }

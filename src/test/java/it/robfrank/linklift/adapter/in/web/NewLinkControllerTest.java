@@ -37,9 +37,9 @@ class NewLinkControllerTest {
     JavalinTest.test((app, client) -> {
       // Configure exception handlers
       GlobalExceptionHandler.configure(app);
-      app.post("/link", newLinkController::processLink);
+      app.put("/link", newLinkController::processLink);
 
-      Response response = client.post(
+      Response response = client.put(
         "/link",
         """
         {"url":"http://www.google.com",
@@ -61,9 +61,9 @@ class NewLinkControllerTest {
     JavalinTest.test((app, client) -> {
       // Configure exception handlers
       GlobalExceptionHandler.configure(app);
-      app.post("/link", newLinkController::processLink);
+      app.put("/link", newLinkController::processLink);
 
-      Response response = client.post(
+      Response response = client.put(
         "/link",
         """
         {"url":"http://www.google.com"
@@ -83,9 +83,9 @@ class NewLinkControllerTest {
     JavalinTest.test((app, client) -> {
       // Configure exception handlers
       GlobalExceptionHandler.configure(app);
-      app.post("/link", newLinkController::processLink);
+      app.put("/link", newLinkController::processLink);
 
-      Response response = client.post(
+      Response response = client.put(
         "/link",
         """
         {"url":"http://www.google.com",

@@ -29,8 +29,7 @@ public class WebBuilder {
   }
 
   public WebBuilder withLinkController(NewLinkController newLinkController) {
-    app.post("/api/v1/link", newLinkController::processLink);
-    app.post("/link", newLinkController::processLink); // For backward compatibility
+    app.put("/api/v1/link", newLinkController::processLink);
 
     return this;
   }

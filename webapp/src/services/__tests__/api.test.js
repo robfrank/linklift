@@ -10,7 +10,7 @@ describe("API Service", () => {
   });
 
   describe("createLink", () => {
-    test("calls POST with correct URL and data", async () => {
+    test("calls PUT with correct URL and data", async () => {
       const mockData = {
         url: "https://example.com",
         title: "Example Website",
@@ -30,11 +30,11 @@ describe("API Service", () => {
         }
       };
 
-      axios.post.mockResolvedValueOnce(mockResponse);
+      axios.put.mockResolvedValueOnce(mockResponse);
 
       const result = await api.createLink(mockData);
 
-      expect(axios.post).toHaveBeenCalledWith("/api/v1/link", mockData);
+      expect(axios.put).toHaveBeenCalledWith("/api/v1/link", mockData);
       expect(result).toEqual(mockResponse.data);
     });
 
@@ -46,7 +46,7 @@ describe("API Service", () => {
       };
 
       const mockError = new Error("Network error");
-      axios.post.mockRejectedValueOnce(mockError);
+      axios.put.mockRejectedValueOnce(mockError);
 
       // Temporarily mock console.error to prevent test output noise
       const originalConsoleError = console.error;

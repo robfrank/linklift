@@ -1,7 +1,6 @@
 package it.robfrank.linklift;
 
 import com.arcadedb.remote.RemoteDatabase;
-import com.arcadedb.remote.RemoteServer;
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.NewLinkController;
 import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
@@ -11,8 +10,7 @@ import it.robfrank.linklift.adapter.out.persitence.LinkPersistenceAdapter;
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.service.NewLinkService;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
-import it.robfrank.linklift.application.port.out.DomainEventPublisher;
-import it.robfrank.linklift.config.DatabaseConfig;
+import it.robfrank.linklift.config.DatabaseInitializer;
 import it.robfrank.linklift.config.WebBuilder;
 
 public class Application {
@@ -22,7 +20,7 @@ public class Application {
 
     System.out.println("arcadedbServer = " + arcadedbServer);
 
-    initializeDatabase(arcadedbServer);
+    new DatabaseInitializer(arcadedbServer, 2480, "root", "playwithdata").initializeDatabase();
 
     RemoteDatabase database = new RemoteDatabase(arcadedbServer, 2480, "linklift", "root", "playwithdata");
     ArcadeLinkRepository repository = new ArcadeLinkRepository(database, new LinkMapper());
@@ -47,20 +45,10 @@ public class Application {
     });
   }
 
-  private static void initializeDatabase(String arcadedbServer) {
-    RemoteServer server = new RemoteServer(arcadedbServer, 2480, "root", "playwithdata");
-
-    if (!server.exists("linklift")) {
-      server.create("linklift");
-    }
-    RemoteDatabase database = new RemoteDatabase(arcadedbServer, 2480, "linklift", "root", "playwithdata");
-    DatabaseConfig.initializeSchema(database);
-  }
-
   // Method to start the application - useful for testing
   public Javalin start(int port) {
     String arcadedbServer = System.getProperty("linklift.arcadedb.host", "localhost");
-    initializeDatabase(arcadedbServer);
+    new DatabaseInitializer(arcadedbServer, 2480, "root", "playwithdata").initializeDatabase();
 
     RemoteDatabase database = new RemoteDatabase(arcadedbServer, 2480, "linklift", "root", "playwithdata");
     ArcadeLinkRepository repository = new ArcadeLinkRepository(database, new LinkMapper());

@@ -39,6 +39,8 @@ public class NewLinkService implements NewLinkUseCase {
 
     var savedLink = linkPersistenceAdapter.saveLink(link);
 
+    System.out.println("savedLink = " + savedLink);
+
     eventPublisher.publish(new LinkCreatedEvent(savedLink));
 
     return savedLink;

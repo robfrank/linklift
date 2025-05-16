@@ -4,7 +4,7 @@ image: arcadedata/linklift
 
 servers:
   web:
-    - 135.181.227.77
+    - <HOST_IP>
 
 proxy:
   ssl: false
@@ -35,7 +35,7 @@ ssh:
 
 accessories:
   arcadedb:
-    image: arcadedata/arcadedb-headless:25.3.2
+    image: arcadedata/arcadedb-headless:25.4.1
     host: 135.181.227.77
     volumes:
       - /home/player/linklift/config:/home/arcadedb/config

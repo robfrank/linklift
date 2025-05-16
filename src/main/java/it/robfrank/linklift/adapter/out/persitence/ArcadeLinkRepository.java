@@ -20,8 +20,6 @@ public class ArcadeLinkRepository {
     public ArcadeLinkRepository(RemoteDatabase database, LinkMapper linkMapper) {
         this.linkMapper = linkMapper;
         this.database = database;
-
-
     }
 
 
@@ -89,7 +87,6 @@ public class ArcadeLinkRepository {
                                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                         link.contentType()
                 );
-                System.out.println("resultSet = " + resultSet.stream().findFirst().orElse(null).toJSON());
             });
             return link;
         } catch (ArcadeDBException e) {

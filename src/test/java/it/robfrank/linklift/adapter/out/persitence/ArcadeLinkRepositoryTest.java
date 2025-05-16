@@ -69,8 +69,8 @@ class ArcadeLinkRepositoryTest {
                 LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html");
 
         var savedLink = linkRepository.saveLink(testLink);
-
         var foundLink = linkRepository.findLinkByUrl("https://example3.com");
+
         assertThat(foundLink).isPresent();
         assertThat(foundLink.get()).isEqualTo(testLink);
     }
@@ -79,9 +79,10 @@ class ArcadeLinkRepositoryTest {
     void shouldFindLinkByid() {
         Link testLink = new Link(UUID.randomUUID().toString(), "https://example4.com", "Test Title", "Test Description",
                 LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html");
+
         var savedLink = linkRepository.saveLink(testLink);
-        System.out.println("savedLink = " + savedLink);
         var foundLink = linkRepository.findLinkById(testLink.id());
+
         assertThat(foundLink).isPresent();
         assertThat(foundLink.get()).isEqualTo(testLink);
 

@@ -4,7 +4,7 @@ image: arcadedata/linklift
 
 servers:
   web:
-    - <HOST_IP>
+    - <%= ENV["HOST_IP"] %>
 
 proxy:
   ssl: false
@@ -36,7 +36,7 @@ ssh:
 accessories:
   arcadedb:
     image: arcadedata/arcadedb-headless:25.4.1
-    host: 135.181.227.77
+    host: <%= ENV["HOST_IP"] %>
     volumes:
       - /home/player/linklift/config:/home/arcadedb/config
       - /home/player/linklift/databases:/home/arcadedb/databases

@@ -1,6 +1,6 @@
-service: linklift-api
+service: linklift
 
-image: robfrank/linklift-api
+image: robfrank/linklift
 
 servers:
   web:
@@ -8,8 +8,8 @@ servers:
 
 proxy:
   ssl: false
-  host: linklift-api.arcadebrain.ai
-  app_port: 7070
+  host: linklift.arcadebrain.ai
+  app_port: 80
   healthcheck:
     path: /up
 

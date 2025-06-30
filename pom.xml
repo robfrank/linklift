@@ -28,7 +28,7 @@
         <arcadedb.version>25.4.1</arcadedb.version>
 
         <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
-        <testcontainers.version>1.21.0</testcontainers.version>
+        <testcontainers.version>1.21.3</testcontainers.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <mockito-core.version>5.17.0</mockito-core.version>
         <json-unit-assertj.version>4.1.0</json-unit-assertj.version>

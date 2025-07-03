@@ -3,7 +3,6 @@ package it.robfrank.linklift.adapter.out.persitence;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.out.SaveLinkPort;
-
 import java.util.Optional;
 
 public class LinkPersistenceAdapter implements SaveLinkPort {

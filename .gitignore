@@ -152,4 +152,4 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-notes.txt
+./notes.txt

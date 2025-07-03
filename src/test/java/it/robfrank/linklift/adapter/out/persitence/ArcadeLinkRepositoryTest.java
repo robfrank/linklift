@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ArcadeLinkRepositoryTest {
 
     @Container
-    private static final GenericContainer arcadeDBContainer = new GenericContainer("arcadedata/arcadedb:25.4.1")
+    private static final GenericContainer arcadeDBContainer = new GenericContainer("arcadedata/arcadedb:25.5.1")
             .withExposedPorts(2480)
             .withStartupTimeout(Duration.ofSeconds(90))
             .withEnv("JAVA_OPTS", """

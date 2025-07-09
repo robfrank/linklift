@@ -16,7 +16,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class DatabaseInitializerTest {
 
   @Container
-  private static final GenericContainer arcadeDBContainer = new GenericContainer("arcadedata/arcadedb:25.4.1")
+  private static final GenericContainer arcadeDBContainer = new GenericContainer("arcadedata/arcadedb:25.6.1")
     .withExposedPorts(2480)
     .withStartupTimeout(Duration.ofSeconds(90))
     .withEnv(

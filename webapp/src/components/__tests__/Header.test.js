@@ -11,7 +11,7 @@ describe("Header Component", () => {
   test("renders navigation links", () => {
     renderWithRouter(<Header />);
 
-    const homeLink = screen.getByRole("link", { name: /home/i });
+    const homeLink = screen.getByRole("link", { name: /links/i });
     const addLink = screen.getByRole("link", { name: /add link/i });
 
     expect(homeLink).toBeInTheDocument();
@@ -20,7 +20,7 @@ describe("Header Component", () => {
 
   test("home link navigates to root path", () => {
     renderWithRouter(<Header />);
-    const homeLink = screen.getByRole("link", { name: /home/i });
+    const homeLink = screen.getByRole("link", { name: /links/i });
     expect(homeLink).toHaveAttribute("href", "/");
   });
 

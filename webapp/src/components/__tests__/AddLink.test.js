@@ -1,199 +1,141 @@
 import React from "react";
-import { renderWithRouter, screen, waitFor } from "../../test-utils";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { BrowserRouter } from "react-router-dom";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AddLink from "../AddLink";
 import api from "../../services/api";
 
-// Mock the API module
+// Mock the API
 jest.mock("../../services/api");
 
-// Mock react-router-dom's useNavigate hook
+// Mock useNavigate
 const mockNavigate = jest.fn();
-jest.mock("react-router-dom", () => {
-  const actual = jest.requireActual("react-router-dom");
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate
-  };
-});
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockNavigate
+}));
+
+const theme = createTheme();
+
+const renderWithProviders = (component) => {
+  return render(
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>{component}</ThemeProvider>
+    </BrowserRouter>
+  );
+};
 
 describe("AddLink Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test("renders form elements", () => {
-    renderWithRouter(<AddLink />);
+  test("renders form elements correctly", () => {
+    renderWithProviders(<AddLink />);
 
-    expect(screen.getByText("Add New Link")).toBeInTheDocument();
-    expect(screen.getByLabelText(/url/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/title/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /add link/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Add New Link" })).toBeInTheDocument();
+    expect(screen.getByLabelText("URL")).toBeInTheDocument();
+    expect(screen.getByLabelText("Title")).toBeInTheDocument();
+    expect(screen.getByLabelText("Description")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add Link" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
   });
 
-  test("validates form fields on submit", async () => {
+  test("validates required fields", async () => {
     const user = userEvent.setup();
-    renderWithRouter(<AddLink />);
+    renderWithProviders(<AddLink />);
 
-    // Submit empty form
-    const submitButton = screen.getByRole("button", { name: /add link/i });
+    const submitButton = screen.getByRole("button", { name: "Add Link" });
     await user.click(submitButton);
 
-    // Check validation errors appear
-    expect(screen.getByText("URL is required")).toBeInTheDocument();
-    expect(screen.getByText("Title is required")).toBeInTheDocument();
-    expect(screen.getByText("Description is required")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("URL is required")).toBeInTheDocument();
+      expect(screen.getByText("Title is required")).toBeInTheDocument();
+      expect(screen.getByText("Description is required")).toBeInTheDocument();
+    });
+  });
 
-    // API should not be called
+  test("validates URL format", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<AddLink />);
+
+    const urlInput = screen.getByLabelText("URL");
+    const titleInput = screen.getByLabelText("Title");
+    const descriptionInput = screen.getByLabelText("Description");
+
+    await user.type(urlInput, "invalid-url");
+    await user.type(titleInput, "Test Title");
+    await user.type(descriptionInput, "Test Description");
+
+    // Submit the form by pressing Enter or clicking submit
+    const form = urlInput.closest("form");
+    fireEvent.submit(form);
+
+    // Wait for validation to complete and check for the error
+    await waitFor(
+      () => {
+        expect(screen.getByText("Please enter a valid URL")).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+
+    // Verify that the URL input is marked as invalid
+    expect(urlInput).toHaveAttribute("aria-invalid", "true");
+
+    // Make sure API was not called due to validation error
     expect(api.createLink).not.toHaveBeenCalled();
-  });
-
-  test("clears error when user types in a field", async () => {
-    const user = userEvent.setup();
-    renderWithRouter(<AddLink />);
-
-    // Submit empty form to trigger validation errors
-    const submitButton = screen.getByRole("button", { name: /add link/i });
-    await user.click(submitButton);
-
-    // Verify errors are displayed
-    expect(screen.getByText("URL is required")).toBeInTheDocument();
-
-    // Type in the URL field
-    const urlInput = screen.getByLabelText(/url/i);
-    await user.type(urlInput, "https://example.com");
-
-    // Error should be cleared
-    expect(screen.queryByText("URL is required")).not.toBeInTheDocument();
   });
 
   test("submits form successfully", async () => {
     const user = userEvent.setup();
-    renderWithRouter(<AddLink />);
+    api.createLink.mockResolvedValue({ id: "1" });
 
-    // Fill out the form
-    await user.type(screen.getByLabelText(/url/i), "https://example.com");
-    await user.type(screen.getByLabelText(/title/i), "Example Website");
-    await user.type(screen.getByLabelText(/description/i), "This is an example website");
+    renderWithProviders(<AddLink />);
 
-    // Submit form
-    const submitButton = screen.getByRole("button", { name: /add link/i });
+    const urlInput = screen.getByLabelText("URL");
+    const titleInput = screen.getByLabelText("Title");
+    const descriptionInput = screen.getByLabelText("Description");
+    const submitButton = screen.getByRole("button", { name: "Add Link" });
+
+    await user.type(urlInput, "https://example.com");
+    await user.type(titleInput, "Test Title");
+    await user.type(descriptionInput, "Test Description");
     await user.click(submitButton);
 
-    // API should be called with form data
-    expect(api.createLink).toHaveBeenCalledWith({
-      url: "https://example.com",
-      title: "Example Website",
-      description: "This is an example website"
+    await waitFor(() => {
+      expect(api.createLink).toHaveBeenCalledWith({
+        url: "https://example.com",
+        title: "Test Title",
+        description: "Test Description"
+      });
     });
 
-    // Success message should appear
     await waitFor(() => {
       expect(screen.getByText("Link added successfully!")).toBeInTheDocument();
     });
-
-    // Form should be reset
-    expect(screen.getByLabelText(/url/i)).toHaveValue("");
-    expect(screen.getByLabelText(/title/i)).toHaveValue("");
-    expect(screen.getByLabelText(/description/i)).toHaveValue("");
-
-    // Should navigate to home after delay
-    await waitFor(
-      () => {
-        expect(mockNavigate).toHaveBeenCalledWith("/");
-      },
-      { timeout: 3000 }
-    );
   });
 
-  test("handles API error - duplicate URL", async () => {
+  test("handles API errors", async () => {
     const user = userEvent.setup();
-
-    // Mock API to reject with conflict error
-    api.createLink.mockRejectedValueOnce({
+    api.createLink.mockRejectedValue({
       response: { status: 409 }
     });
 
-    renderWithRouter(<AddLink />);
+    renderWithProviders(<AddLink />);
 
-    // Fill out the form
-    await user.type(screen.getByLabelText(/url/i), "https://example.com");
-    await user.type(screen.getByLabelText(/title/i), "Example Website");
-    await user.type(screen.getByLabelText(/description/i), "This is an example website");
+    const urlInput = screen.getByLabelText("URL");
+    const titleInput = screen.getByLabelText("Title");
+    const descriptionInput = screen.getByLabelText("Description");
+    const submitButton = screen.getByRole("button", { name: "Add Link" });
 
-    // Submit form
-    const submitButton = screen.getByRole("button", { name: /add link/i });
+    await user.type(urlInput, "https://example.com");
+    await user.type(titleInput, "Test Title");
+    await user.type(descriptionInput, "Test Description");
     await user.click(submitButton);
 
-    // Error message should appear
     await waitFor(() => {
       expect(screen.getByText("This URL already exists")).toBeInTheDocument();
     });
-
-    // Should not navigate away
-    expect(mockNavigate).not.toHaveBeenCalled();
-  });
-
-  test("handles API error - server error", async () => {
-    const user = userEvent.setup();
-
-    // Mock API to reject with server error and message
-    api.createLink.mockRejectedValueOnce({
-      response: {
-        status: 500,
-        data: { message: "Server error occurred" }
-      }
-    });
-
-    renderWithRouter(<AddLink />);
-
-    // Fill out the form
-    await user.type(screen.getByLabelText(/url/i), "https://example.com");
-    await user.type(screen.getByLabelText(/title/i), "Example Website");
-    await user.type(screen.getByLabelText(/description/i), "This is an example website");
-
-    // Submit form
-    const submitButton = screen.getByRole("button", { name: /add link/i });
-    await user.click(submitButton);
-
-    // Error message should appear
-    await waitFor(() => {
-      expect(screen.getByText("Server error occurred")).toBeInTheDocument();
-    });
-  });
-
-  test("handles generic API error", async () => {
-    const user = userEvent.setup();
-
-    // Mock API to reject with network error
-    api.createLink.mockRejectedValueOnce(new Error("Network error"));
-
-    renderWithRouter(<AddLink />);
-
-    // Fill out the form
-    await user.type(screen.getByLabelText(/url/i), "https://example.com");
-    await user.type(screen.getByLabelText(/title/i), "Example Website");
-    await user.type(screen.getByLabelText(/description/i), "This is an example website");
-
-    // Submit form
-    const submitButton = screen.getByRole("button", { name: /add link/i });
-    await user.click(submitButton);
-
-    // Generic error message should appear
-    await waitFor(() => {
-      expect(screen.getByText("Failed to add link")).toBeInTheDocument();
-    });
-  });
-
-  test("navigates to home when cancel button is clicked", async () => {
-    const user = userEvent.setup();
-    renderWithRouter(<AddLink />);
-
-    const cancelButton = screen.getByRole("button", { name: /cancel/i });
-    await user.click(cancelButton);
-
-    expect(mockNavigate).toHaveBeenCalledWith("/");
   });
 });

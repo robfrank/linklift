@@ -7,9 +7,12 @@ import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.LinkPage;
+import it.robfrank.linklift.application.port.in.ListLinksQuery;
 
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 public class ArcadeLinkRepository {
@@ -128,5 +131,79 @@ public class ArcadeLinkRepository {
 
     public Link getLinkById(String id) {
         return findLinkById(id).orElseThrow(() -> new LinkNotFoundException(id));
+    }
+
+    public LinkPage findLinksWithPagination(ListLinksQuery query) {
+        try {
+            // First, get the total count
+            long totalCount = getTotalLinkCount();
+
+            // Build the ORDER BY clause
+            String orderClause = buildOrderClause(query.sortBy(), query.sortDirection());
+
+            // Calculate offset
+            int offset = query.page() * query.size();
+
+            // Query for the actual data
+            String sql = String.format(
+                "SELECT FROM Link %s SKIP %d LIMIT %d",
+                orderClause, offset, query.size()
+            );
+
+            List<Link> links = database
+                .query("sql", sql)
+                .stream()
+                .map(Result::getVertex)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(linkMapper::mapToDomain)
+                .toList();
+
+            return new LinkPage(
+                links,
+                query.page(),
+                query.size(),
+                totalCount,
+                0, // Will be calculated in constructor
+                false, // Will be calculated in constructor
+                false // Will be calculated in constructor
+            );
+
+        } catch (ArcadeDBException e) {
+            throw new DatabaseException("Failed to load links with pagination", e);
+        }
+    }
+
+    private long getTotalLinkCount() {
+        try {
+            return database
+                .query("sql", "SELECT count(*) as count FROM Link")
+                .stream()
+                .findFirst()
+                .map(result -> result.getProperty("count"))
+                .map(count -> ((Number) count).longValue())
+                .orElse(0L);
+        } catch (ArcadeDBException e) {
+            throw new DatabaseException("Failed to count total links", e);
+        }
+    }
+
+    private String buildOrderClause(String sortBy, String sortDirection) {
+        // Map domain fields to database fields if needed
+        String dbField = mapSortField(sortBy);
+        return String.format("ORDER BY %s %s", dbField, sortDirection.toUpperCase());
+    }
+
+    private String mapSortField(String sortBy) {
+        // In ArcadeDB, we can directly use the field names as they match our domain model
+        return switch (sortBy) {
+            case "id" -> "id";
+            case "url" -> "url";
+            case "title" -> "title";
+            case "description" -> "description";
+            case "extractedAt" -> "extractedAt";
+            case "contentType" -> "contentType";
+            default -> "extractedAt"; // Default fallback
+        };
     }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, Typography, Paper, Box, TextField, Button, Snackbar, Alert } from "@mui/material";
+import { Container, Typography, Paper, Box, TextField, Button, Snackbar, Alert, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
@@ -11,6 +11,7 @@ const AddLink = () => {
     description: ""
   });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -35,7 +36,18 @@ const AddLink = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.url) newErrors.url = "URL is required";
+
+    if (!formData.url) {
+      newErrors.url = "URL is required";
+    } else {
+      // Basic URL validation
+      try {
+        new URL(formData.url);
+      } catch {
+        newErrors.url = "Please enter a valid URL";
+      }
+    }
+
     if (!formData.title) newErrors.title = "Title is required";
     if (!formData.description) newErrors.description = "Description is required";
 
@@ -48,6 +60,7 @@ const AddLink = () => {
 
     if (!validateForm()) return;
 
+    setLoading(true);
     try {
       await api.createLink(formData);
       setSnackbar({
@@ -63,10 +76,10 @@ const AddLink = () => {
         description: ""
       });
 
-      // Redirect to home after short delay
+      // Redirect to home after short delay to show success message
       setTimeout(() => {
         navigate("/");
-      }, 2000);
+      }, 1500);
     } catch (error) {
       let errorMessage = "Failed to add link";
 
@@ -76,7 +89,13 @@ const AddLink = () => {
           errorMessage = "This URL already exists";
         } else if (error.response.data && error.response.data.message) {
           errorMessage = error.response.data.message;
+        } else if (error.response.status === 400) {
+          errorMessage = "Invalid link data. Please check your input.";
+        } else if (error.response.status >= 500) {
+          errorMessage = "Server error. Please try again later.";
         }
+      } else if (error.request) {
+        errorMessage = "Unable to connect to server. Please check your connection.";
       }
 
       setSnackbar({
@@ -84,6 +103,8 @@ const AddLink = () => {
         message: errorMessage,
         severity: "error"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,6 +122,9 @@ const AddLink = () => {
           <Typography variant="h4" component="h1" gutterBottom>
             Add New Link
           </Typography>
+          <Typography variant="body2" color="text.secondary" paragraph>
+            Add a new link to your collection. Make sure to provide a descriptive title and description.
+          </Typography>
 
           <form onSubmit={handleSubmit}>
             <TextField
@@ -108,11 +132,13 @@ const AddLink = () => {
               margin="normal"
               label="URL"
               name="url"
+              type="url"
               value={formData.url}
               onChange={handleChange}
               error={!!errors.url}
-              helperText={errors.url}
+              helperText={errors.url || "Enter the full URL including https://"}
               placeholder="https://example.com"
+              disabled={loading}
             />
 
             <TextField
@@ -123,8 +149,9 @@ const AddLink = () => {
               value={formData.title}
               onChange={handleChange}
               error={!!errors.title}
-              helperText={errors.title}
+              helperText={errors.title || "A short, descriptive title for the link"}
               placeholder="Website Title"
+              disabled={loading}
             />
 
             <TextField
@@ -135,18 +162,19 @@ const AddLink = () => {
               value={formData.description}
               onChange={handleChange}
               error={!!errors.description}
-              helperText={errors.description}
-              placeholder="A brief description of the website"
+              helperText={errors.description || "Brief description of what this link is about"}
+              placeholder="A brief description of the website content"
               multiline
               rows={3}
+              disabled={loading}
             />
 
-            <Box mt={3} display="flex" justifyContent="flex-end">
-              <Button type="button" variant="outlined" color="secondary" onClick={() => navigate("/")} sx={{ mr: 2 }}>
+            <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
+              <Button type="button" variant="outlined" color="secondary" onClick={() => navigate("/")} disabled={loading}>
                 Cancel
               </Button>
-              <Button type="submit" variant="contained" color="primary">
-                Add Link
+              <Button type="submit" variant="contained" color="primary" disabled={loading} startIcon={loading ? <CircularProgress size={20} /> : null}>
+                {loading ? "Adding..." : "Add Link"}
               </Button>
             </Box>
           </form>

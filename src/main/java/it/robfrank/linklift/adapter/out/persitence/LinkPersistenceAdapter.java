@@ -2,11 +2,14 @@ package it.robfrank.linklift.adapter.out.persitence;
 
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.LinkPage;
+import it.robfrank.linklift.application.port.in.ListLinksQuery;
+import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import it.robfrank.linklift.application.port.out.SaveLinkPort;
 
 import java.util.Optional;
 
-public class LinkPersistenceAdapter implements SaveLinkPort {
+public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort {
 
     private final ArcadeLinkRepository linkRepository;
 
@@ -29,5 +32,10 @@ public class LinkPersistenceAdapter implements SaveLinkPort {
 
     public Link getLinkById(String id) {
         return linkRepository.findLinkById(id).orElseThrow(() -> new LinkNotFoundException(id));
+    }
+
+    @Override
+    public LinkPage loadLinks(ListLinksQuery query) {
+        return linkRepository.findLinksWithPagination(query);
     }
 }

@@ -30,7 +30,7 @@
         <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
         <testcontainers.version>1.21.3</testcontainers.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
-        <mockito-core.version>5.18.0</mockito-core.version>
+        <mockito-core.version>5.19.0</mockito-core.version>
         <json-unit-assertj.version>4.1.1</json-unit-assertj.version>
 
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>

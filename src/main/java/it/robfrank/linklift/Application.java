@@ -52,17 +52,21 @@ public class Application {
   private static void configureEventSubscribers(SimpleEventPublisher eventPublisher) {
     // Configure event subscribers - this is where different components can subscribe to events
     eventPublisher.subscribe(LinkCreatedEvent.class, event -> {
-      logger.info("Link created: {} at {}", event.getLink().url(), event.getTimestamp());
+      if (logger.isInfoEnabled()) {
+        logger.info("Link created: {} at {}", event.getLink().url(), event.getTimestamp());
+      }
     });
 
     eventPublisher.subscribe(LinksQueryEvent.class, event -> {
-      logger.info(
-        "Links queried: page={}, size={}, results={} at {}",
-        event.getQuery().page(),
-        event.getQuery().size(),
-        event.getResultCount(),
-        event.getTimestamp()
-      );
+      if (logger.isInfoEnabled()) {
+        logger.info(
+          "Links queried: page={}, size={}, results={} at {}",
+          event.getQuery().page(),
+          event.getQuery().size(),
+          event.getResultCount(),
+          event.getTimestamp()
+        );
+      }
     });
   }
 

@@ -9,7 +9,6 @@ import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
-
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -145,17 +144,15 @@ public class ArcadeLinkRepository {
             int offset = query.page() * query.size();
 
             // Query for the actual data
-            String sql = String.format(
-                "SELECT FROM Link %s SKIP %d LIMIT %d",
-                orderClause, offset, query.size()
+            String sql = "SELECT FROM Link %s SKIP %d LIMIT %d".formatted(
+              orderClause, offset, query.size()
             );
 
             List<Link> links = database
                 .query("sql", sql)
                 .stream()
                 .map(Result::getVertex)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .map(linkMapper::mapToDomain)
                 .toList();
 
@@ -191,7 +188,7 @@ public class ArcadeLinkRepository {
     private String buildOrderClause(String sortBy, String sortDirection) {
         // Map domain fields to database fields if needed
         String dbField = mapSortField(sortBy);
-        return String.format("ORDER BY %s %s", dbField, sortDirection.toUpperCase());
+        return "ORDER BY %s %s".formatted(dbField, sortDirection.toUpperCase());
     }
 
     private String mapSortField(String sortBy) {

@@ -16,13 +16,17 @@ import it.robfrank.linklift.application.port.in.ListLinksUseCase;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import it.robfrank.linklift.config.WebBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Application {
+
+  private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
   public static void main(String[] args) {
     String arcadedbServer = System.getProperty("linklift.arcadedb.host", "localhost");
 
-    System.out.println("arcadedbServer = " + arcadedbServer);
+    logger.info("Starting LinkLift application with ArcadeDB server: {}", arcadedbServer);
 
     new DatabaseInitializer(arcadedbServer, 2480, "root", "playwithdata").initializeDatabase();
 
@@ -48,18 +52,15 @@ public class Application {
   private static void configureEventSubscribers(SimpleEventPublisher eventPublisher) {
     // Configure event subscribers - this is where different components can subscribe to events
     eventPublisher.subscribe(LinkCreatedEvent.class, event -> {
-      System.out.println("Link created: " + event.getLink().url() + " at " + event.getTimestamp());
+      logger.info("Link created: {} at {}", event.getLink().url(), event.getTimestamp());
     });
 
     eventPublisher.subscribe(LinksQueryEvent.class, event -> {
-      System.out.println(
-        "Links queried: page=" +
-        event.getQuery().page() +
-        ", size=" +
-        event.getQuery().size() +
-        ", results=" +
-        event.getResultCount() +
-        " at " +
+      logger.info(
+        "Links queried: page={}, size={}, results={} at {}",
+        event.getQuery().page(),
+        event.getQuery().size(),
+        event.getResultCount(),
         event.getTimestamp()
       );
     });

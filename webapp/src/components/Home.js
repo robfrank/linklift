@@ -1,35 +1,45 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Box, Button, Paper } from "@mui/material";
+import { Container, Typography, Box, Button, Paper, CircularProgress } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
 import LinkList from "./LinkList";
 import api from "../services/api";
 
 const Home = () => {
-  const [hasLinks, setHasLinks] = useState(false);
+  const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const checkForLinks = async () => {
+    const fetchLinks = async () => {
       try {
-        const response = await api.listLinks({ page: 0, size: 1 });
-        setHasLinks(response.totalElements > 0);
-      } catch (error) {
-        // If there's an error, assume no links and show welcome
-        setHasLinks(false);
+        setLoading(true);
+        setError(null);
+        const response = await api.listLinks({ page: 0, size: 20 });
+        setLinks(response.content || []);
+      } catch (err) {
+        console.error("Error fetching links:", err);
+        setError(err);
+        setLinks([]);
       } finally {
         setLoading(false);
       }
     };
 
-    checkForLinks();
+    fetchLinks();
   }, []);
 
   if (loading) {
-    return <LinkList />; // Let LinkList handle its own loading state
+    return (
+      <Container maxWidth="lg">
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+          <CircularProgress size={60} />
+        </Box>
+      </Container>
+    );
   }
 
-  if (!hasLinks) {
+  if (links.length === 0 && !error) {
     return (
       <Container maxWidth="md">
         <Box my={8} textAlign="center">

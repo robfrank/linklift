@@ -59,7 +59,7 @@ LinkLift is a RESTful web service for managing web links with comprehensive CRUD
 docker run -d --name arcadedb \
   -p 2480:2480 -p 2424:2424 \
   -e JAVA_OPTS="-Darcadedb.server.rootPassword=playwithdata" \
-  arcadedata/arcadedb:25.6.1
+  arcadedata/arcadedb:25.7.1
 
 # 2. Build and run application
 mvn clean package

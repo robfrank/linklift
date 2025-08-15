@@ -12,7 +12,7 @@ services:
     volumes:
       - arcadedb_data:/arcadedb/databases
     healthcheck:
-      test: "curl --fail http://localhost:2480/api/v1/ready"
+      test: "wget --spider http://localhost:2480/api/v1/ready || exit 1"
       interval: 5s
       timeout: 5s
       retries: 10

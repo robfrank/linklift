@@ -6,6 +6,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Header from "./components/Header";
 import Home from "./components/Home";
 import AddLink from "./components/AddLink";
+import LinkList from "./components/LinkList";
 import NotFound from "./components/NotFound";
 
 const theme = createTheme({
@@ -28,6 +29,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/add" element={<AddLink />} />
+          <Route path="/links" element={<LinkList />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

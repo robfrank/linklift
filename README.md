@@ -1,46 +1,160 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/78972e21471a44e794375fe00ac862ea)](https://app.codacy.com/gh/robfrank/linklift/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Webapp CI](https://github.com/robfrank/linklift/actions/workflows/webapp-ci.yml/badge.svg)](https://github.com/robfrank/linklift/actions/workflows/webapp-ci.yml)
 
-# Linklift
+# LinkLift
 
-Linklift is a link management service built using a hexagonal (ports and adapters) architecture. It allows you to store, manage, and retrieve links with metadata.
+A modern link management system built with Java and hexagonal architecture principles.
 
-## Getting Started
+## Overview
+
+LinkLift is a RESTful web service for managing web links with comprehensive CRUD operations. It features a clean, maintainable architecture that separates business logic from infrastructure concerns, making it highly testable and adaptable to changing requirements.
+
+### Key Features
+
+- **🔗 Link Management**: Create and list web links with metadata
+- **🏗️ Clean Architecture**: Hexagonal architecture with strict layer separation
+- **📊 Pagination & Sorting**: Efficient data retrieval with flexible sorting options
+- **⚡ Event-Driven**: Domain events for loose coupling and extensibility
+- **🧪 Comprehensive Testing**: Unit, integration, and acceptance tests
+- **🛡️ Error Handling**: Centralized exception handling with meaningful error codes
+- **🔄 Database Agnostic**: Repository pattern enables flexible data storage
+
+## Quick Start
 
 ### Prerequisites
 
-- Java 24 or later
-- Maven 3.8 or later
-- Docker and Docker Compose (for containerized testing)
+- **Java 17+** - [Download here](https://adoptium.net/)
+- **Maven 3.8+** - [Installation guide](https://maven.apache.org/install.html)
+- **Docker & Docker Compose** - [Get Docker](https://docs.docker.com/get-docker/)
 
-## Building the Application
+### Installation
 
-### Build JAR file
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd linklift
+   ```
+
+2. **Start with Docker Compose** (Recommended)
+
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Verify installation**
+
+   ```bash
+   curl http://localhost:7070/up
+   # Expected: OK
+
+   curl http://localhost:7070/api/v1/links
+   # Expected: {"data": {"content": [], ...}, "message": "Links retrieved successfully"}
+   ```
+
+### Alternative: Manual Setup
 
 ```bash
-# Clean and package the application
+# 1. Start ArcadeDB
+docker run -d --name arcadedb \
+  -p 2480:2480 -p 2424:2424 \
+  -e JAVA_OPTS="-Darcadedb.server.rootPassword=playwithdata" \
+  arcadedata/arcadedb:25.6.1
+
+# 2. Build and run application
 mvn clean package
+java -jar target/linklift-1.0-SNAPSHOT.jar
 ```
 
-### Build Docker Image
+## Usage Examples
+
+### Create a Link
 
 ```bash
-# Build Docker image
-mvn clean package -Pdocker
+curl -X PUT http://localhost:7070/api/v1/link \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://github.com",
+    "title": "GitHub",
+    "description": "The world'\''s leading software development platform"
+  }'
 ```
 
-## Running with Docker Compose
+**Response:**
 
-Docker Compose provides an easy way to run the application with its dependencies.
+```json
+{
+  "link": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "url": "https://github.com",
+    "title": "GitHub",
+    "description": "The world's leading software development platform",
+    "extractedAt": "2025-08-15T18:12:39",
+    "contentType": "text/html"
+  },
+  "status": "Link received"
+}
+```
+
+### List Links with Pagination
 
 ```bash
-# Start all services
-docker-compose up -d
+# Basic listing
+curl http://localhost:7070/api/v1/links
+
+# With pagination and sorting
+curl "http://localhost:7070/api/v1/links?page=0&size=10&sortBy=title&sortDirection=ASC"
 ```
 
-The backend API will be available at http://localhost:7070.
+**Response:**
 
-## Accessing the Web UI
+```json
+{
+  "data": {
+    "content": [...],
+    "page": 0,
+    "size": 10,
+    "totalElements": 25,
+    "totalPages": 3,
+    "hasNext": true,
+    "hasPrevious": false
+  },
+  "message": "Links retrieved successfully"
+}
+```
+
+## Architecture
+
+LinkLift follows **Hexagonal Architecture** (Ports and Adapters) with clear separation between:
+
+- **Domain Layer**: Pure business logic and rules
+- **Application Layer**: Use cases and service coordination
+- **Infrastructure Layer**: External adapters (web, database, events)
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Web Layer     │    │ Application     │    │   Persistence   │
+│  (Javalin)      │◄───┤   Services      ├───►│   (ArcadeDB)    │
+│                 │    │                 │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                               │
+                       ┌─────────────────┐
+                       │  Domain Model   │
+                       │  (Entities &    │
+                       │   Events)       │
+                       └─────────────────┘
+```
+
+### Technology Stack
+
+- **☕ Java 17**: Modern language features and performance
+- **🚀 Javalin**: Lightweight, fast web framework
+- **🗄️ ArcadeDB**: Multi-model database (Graph, Document, Key-Value)
+- **🔨 Maven**: Build automation and dependency management
+- **🧪 JUnit 5**: Modern testing framework with comprehensive assertions
+- **🐳 Docker**: Containerization for consistent environments
+
+## Web Interface
 
 After starting the application with Docker Compose, you can access the web UI at:
 
@@ -54,7 +168,7 @@ Or simply:
 http://localhost
 ```
 
-The web interface allows you to view and add new links through a user-friendly interface.
+The web interface allows you to view and add new links through a user-friendly React interface.
 
 ### React Frontend Development
 
@@ -83,35 +197,146 @@ The React app includes:
 - API mocking for isolated testing
 - Material UI for component styling
 
-## Testing the API
+## API Reference
 
-You can test the API using curl:
+### Endpoints Overview
 
-```bash
-# Create a new link
-curl -X POST http://localhost:7070/api/v1/link \
-  -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://example.com",
-    "title": "Example Website",
-    "description": "This is an example website"
-  }'
-```
+| Method | Endpoint        | Description            | Status |
+| ------ | --------------- | ---------------------- | ------ |
+| GET    | `/up`           | Health check           | ✅     |
+| PUT    | `/api/v1/link`  | Create new link        | ✅     |
+| GET    | `/api/v1/links` | List links (paginated) | ✅     |
 
-A successful response will look like:
+### Query Parameters for `/api/v1/links`
+
+| Parameter       | Type    | Default       | Description                                                       |
+| --------------- | ------- | ------------- | ----------------------------------------------------------------- |
+| `page`          | Integer | 0             | Page number (0-based)                                             |
+| `size`          | Integer | 20            | Items per page (max: 100)                                         |
+| `sortBy`        | String  | "extractedAt" | Sort field: id, url, title, description, extractedAt, contentType |
+| `sortDirection` | String  | "DESC"        | Sort direction: ASC, DESC                                         |
+
+### Error Handling
+
+All errors return a consistent JSON format:
 
 ```json
 {
-  "link": {
-    "id": "...",
-    "url": "https://example.com",
-    "title": "Example Website",
-    "description": "This is an example website",
-    "createdAt": "..."
+  "status": 400,
+  "code": 1001,
+  "message": "Validation error",
+  "fieldErrors": {
+    "url": "URL cannot be empty"
   },
-  "status": "Link received"
+  "path": "/api/v1/link",
+  "timestamp": "2025-08-15T18:12:39"
 }
 ```
+
+**Common HTTP Status Codes:**
+
+- `200` - Success
+- `201` - Created
+- `400` - Bad Request (validation errors)
+- `409` - Conflict (duplicate URL)
+- `500` - Internal Server Error
+
+## Development
+
+### Build Commands
+
+```bash
+# Clean and build
+mvn clean package
+
+# Run tests
+mvn test
+
+# Run specific test
+mvn test -Dtest=NewLinkServiceTest
+
+# Run with coverage (if configured)
+mvn test jacoco:report
+```
+
+### Project Structure
+
+```
+src/
+├── main/java/it/robfrank/linklift/
+│   ├── Application.java         # Main entry point
+│   ├── adapter/                 # Infrastructure adapters
+│   │   ├── in/web/             # REST controllers
+│   │   └── out/                # Database, event adapters
+│   ├── application/            # Application layer
+│   │   ├── domain/             # Business logic
+│   │   └── port/               # Interface definitions
+│   └── config/                 # Configuration
+└── test/                       # Test classes (mirrors main structure)
+```
+
+### Testing
+
+The project includes comprehensive testing at multiple levels:
+
+**Test Categories:**
+
+- **Unit Tests**: Fast, isolated tests for business logic
+- **Integration Tests**: Tests with real database interactions
+- **Controller Tests**: API endpoint testing using JavalinTest
+
+```bash
+# Run all tests
+mvn test
+
+# View test reports
+open target/surefire-reports/index.html
+```
+
+## Configuration
+
+### Environment Variables
+
+| Variable                 | Default   | Description              |
+| ------------------------ | --------- | ------------------------ |
+| `linklift.arcadedb.host` | localhost | ArcadeDB server hostname |
+
+### Database Configuration
+
+**ArcadeDB Connection:**
+
+- Host: localhost:2480 (HTTP API)
+- Database: linklift
+- Username: root
+- Password: playwithdata
+
+**Web UI:** http://localhost:2480 (ArcadeDB Studio)
+
+## Documentation
+
+- **[📖 API Reference](API.md)** - Complete API documentation with examples
+- **[🏗️ Architecture Guide](ARCHITECTURE.md)** - System design and architectural decisions
+- **[👨‍💻 Developer Guide](DEVELOPER_GUIDE.md)** - Setup and development workflow
+
+## Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. **Fork the repository**
+2. **Create feature branch**: `git checkout -b feature/amazing-feature`
+3. **Make changes with tests**
+4. **Ensure tests pass**: `mvn test`
+5. **Commit with clear message**: `git commit -m "feat: add amazing feature"`
+6. **Push to fork**: `git push origin feature/amazing-feature`
+7. **Create Pull Request**
+
+### Development Guidelines
+
+- ✅ Follow hexagonal architecture principles
+- ✅ Write tests for all new features
+- ✅ Use meaningful commit messages ([Conventional Commits](https://conventionalcommits.org/))
+- ✅ Update documentation as needed
+- ✅ Ensure code passes style checks
 
 ## Stopping the Services
 
@@ -119,3 +344,21 @@ A successful response will look like:
 # Stop all services
 docker-compose down
 ```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support & Community
+
+**Getting Help:**
+
+- 📚 Check the [Developer Guide](DEVELOPER_GUIDE.md) for detailed setup
+- 🐛 Create an [Issue](../../issues) for bugs or feature requests
+- 💬 Start a [Discussion](../../discussions) for questions
+
+---
+
+**Built with ❤️ using modern Java, clean architecture principles, and developer-friendly tools.**
+
+LinkLift is designed to be a solid foundation for link management that can evolve with your needs while maintaining clean architecture and high code quality.

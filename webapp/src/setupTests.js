@@ -1,6 +1,13 @@
 // Add Jest extended matchers
 import "@testing-library/jest-dom";
 
+// Polyfill for TextEncoder/TextDecoder (needed for React Router v7+)
+if (typeof global.TextEncoder === "undefined") {
+  const { TextEncoder, TextDecoder } = require("util");
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
+
 // Suppress console errors in tests
 const originalConsoleError = console.error;
 console.error = (...args) => {

@@ -14,8 +14,7 @@ public record LinkPage(
 ) {
   public LinkPage {
     // Calculate derived fields
-    int calculatedTotalPages = size > 0 ? (int) Math.ceil((double) totalElements / size) : 0;
-    totalPages = calculatedTotalPages;
+    totalPages = size > 0 ? (int) Math.ceil((double) totalElements / size) : 0;
     hasNext = page < totalPages - 1;
     hasPrevious = page > 0;
   }

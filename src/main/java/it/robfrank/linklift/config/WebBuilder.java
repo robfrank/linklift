@@ -10,7 +10,6 @@ import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 public class WebBuilder {
 
   private Javalin app;
-  private ListLinksController listLinksController;
 
   public WebBuilder() {
     app = Javalin.create(config -> {
@@ -36,7 +35,6 @@ public class WebBuilder {
   }
 
   public WebBuilder withListLinksController(ListLinksController listLinksController) {
-    this.listLinksController = listLinksController;
     app.get("/api/v1/links", listLinksController::listLinks);
     return this;
   }

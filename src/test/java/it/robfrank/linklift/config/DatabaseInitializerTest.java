@@ -2,6 +2,7 @@ package it.robfrank.linklift.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
 import com.arcadedb.remote.RemoteSchema;
 import com.arcadedb.schema.Type;
@@ -16,7 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class DatabaseInitializerTest {
 
   @Container
-  private static final GenericContainer arcadeDBContainer = new GenericContainer("arcadedata/arcadedb:25.6.1")
+  private static final GenericContainer arcadeDBContainer = new GenericContainer("arcadedata/arcadedb:" + Constants.getRawVersion())
     .withExposedPorts(2480)
     .withStartupTimeout(Duration.ofSeconds(90))
     .withEnv(

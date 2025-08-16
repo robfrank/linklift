@@ -1,5 +1,6 @@
 package it.robfrank.linklift.adapter.out.persitence;
 
+import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.config.DatabaseInitializer;
@@ -14,7 +15,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ArcadeLinkRepositoryTest {
 
     @Container
-    private static final GenericContainer arcadeDBContainer = new GenericContainer("arcadedata/arcadedb:25.5.1")
+    private static final GenericContainer arcadeDBContainer = new GenericContainer("arcadedata/arcadedb:" + Constants.getRawVersion())
             .withExposedPorts(2480)
             .withStartupTimeout(Duration.ofSeconds(90))
             .withEnv("JAVA_OPTS", """

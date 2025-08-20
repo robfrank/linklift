@@ -27,7 +27,7 @@ class SimpleEventPublisherTest {
         AtomicBoolean linkCreatedHandlerCalled = new AtomicBoolean(false);
         AtomicBoolean genericEventHandlerCalled = new AtomicBoolean(false);
 
-        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
+        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", "user1");
         LinkCreatedEvent event = new LinkCreatedEvent(link);
 
         // Subscribe to specific event type
@@ -55,8 +55,7 @@ class SimpleEventPublisherTest {
         AtomicInteger handlerCallCount = new AtomicInteger(0);
 
         // Create a test-specific event type
-        class TestEvent extends DomainEvent {
-
+        class TestEvent implements DomainEvent {
             private final String message;
 
             public TestEvent(String message) {
@@ -69,7 +68,7 @@ class SimpleEventPublisherTest {
         }
 
         TestEvent testEvent = new TestEvent("test");
-        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
+        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", "user1");
         LinkCreatedEvent linkEvent = new LinkCreatedEvent(link);
 
         // Subscribe only to LinkCreatedEvent
@@ -95,7 +94,7 @@ class SimpleEventPublisherTest {
         // Arrange
         AtomicInteger handlerCallCount = new AtomicInteger(0);
 
-        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
+        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", "user1");
         LinkCreatedEvent event = new LinkCreatedEvent(link);
 
         eventPublisher.subscribe(LinkCreatedEvent.class, e -> {

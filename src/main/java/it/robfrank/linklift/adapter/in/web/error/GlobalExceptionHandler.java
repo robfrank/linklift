@@ -20,6 +20,8 @@ public class GlobalExceptionHandler {
     app.exception(LinkNotFoundException.class, GlobalExceptionHandler::handleLinkNotFoundException);
     app.exception(LinkAlreadyExistsException.class, GlobalExceptionHandler::handleLinkAlreadyExistsException);
     app.exception(ValidationException.class, GlobalExceptionHandler::handleValidationException);
+    app.exception(AuthenticationException.class, GlobalExceptionHandler::handleAuthenticationException);
+    app.exception(UserAlreadyExistsException.class, GlobalExceptionHandler::handleUserAlreadyExistsException);
     app.exception(DatabaseException.class, GlobalExceptionHandler::handleDatabaseException);
     app.exception(LinkLiftException.class, GlobalExceptionHandler::handleLinkLiftException);
     app.exception(Exception.class, GlobalExceptionHandler::handleGenericException);
@@ -54,6 +56,25 @@ public class GlobalExceptionHandler {
         .fieldErrors(exception.getFieldErrors())
         .path(ctx.path())
         .build()
+    );
+  }
+
+  private static void handleAuthenticationException(AuthenticationException exception, Context ctx) {
+    ctx.status(HttpStatus.UNAUTHORIZED);
+    ctx.json(
+      ErrorResponse.builder()
+        .status(HttpStatus.UNAUTHORIZED.getCode())
+        .errorCode(exception.getErrorCode())
+        .message(exception.getMessage())
+        .path(ctx.path())
+        .build()
+    );
+  }
+
+  private static void handleUserAlreadyExistsException(UserAlreadyExistsException exception, Context ctx) {
+    ctx.status(HttpStatus.CONFLICT);
+    ctx.json(
+      ErrorResponse.builder().status(HttpStatus.CONFLICT.getCode()).errorCode(exception.getErrorCode()).message(exception.getMessage()).path(ctx.path()).build()
     );
   }
 

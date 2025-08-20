@@ -1,0 +1,29 @@
+-- Create Role vertex type for authorization
+CREATE VERTEX TYPE Role;
+CREATE PROPERTY Role.id STRING (MANDATORY TRUE, NOTNULL TRUE);
+CREATE PROPERTY Role.name STRING (MANDATORY TRUE, NOTNULL TRUE);
+CREATE PROPERTY Role.description STRING;
+CREATE PROPERTY Role.permissions LIST OF STRING;
+CREATE PROPERTY Role.isActive BOOLEAN (MANDATORY TRUE, NOTNULL TRUE, DEFAULT true);
+
+-- Create indexes for Role
+CREATE INDEX ON Role(id) UNIQUE;
+CREATE INDEX ON Role(name) UNIQUE;
+
+-- Create edge relationships between User and Link
+CREATE EDGE TYPE OwnsLink;
+CREATE PROPERTY OwnsLink.in LINK OF User;
+CREATE PROPERTY OwnsLink.out LINK OF Link;
+CREATE PROPERTY OwnsLink.createdAt DATETIME_SECOND (MANDATORY TRUE, NOTNULL TRUE);
+CREATE PROPERTY OwnsLink.accessLevel STRING (MANDATORY TRUE, NOTNULL TRUE, DEFAULT 'OWNER');
+
+-- Create edge relationships between User and Role
+CREATE EDGE TYPE HasRole;
+CREATE PROPERTY HasRole.in LINK OF User;
+CREATE PROPERTY HasRole.out LINK OF Role;
+CREATE PROPERTY HasRole.assignedAt DATETIME_SECOND (MANDATORY TRUE, NOTNULL TRUE);
+CREATE PROPERTY HasRole.assignedBy STRING;
+
+-- Create indexes for edge relationships
+CREATE INDEX ON OwnsLink(accessLevel) NOTUNIQUE;
+CREATE INDEX ON OwnsLink(accessLevel, createdAt) NOTUNIQUE;

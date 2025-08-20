@@ -27,40 +27,34 @@ public class ArcadeLinkRepository {
 
 
     public Link saveLink(Link link) {
-        database.begin();
-
         try {
-            ResultSet resultSet = database.command(
-                    "sql",
-                    """
-                            INSERT INTO Link SET
-                            id= ?,
-                            url = ?,
-                            title = ?,
-                            description = ?,
-                            extractedAt = ?,
-                            contentType = ?
-                            """,
-                    link.id(),
-                    link.url(),
-                    link.title(),
-                    link.description(),
-                    link.extractedAt()
-                            .truncatedTo(ChronoUnit.SECONDS)
-                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                    link.contentType()
-            );
-            return resultSet.stream()
-                    .findFirst()
-                    .flatMap(Result::getVertex)
-                    .map(linkMapper::mapToDomain)
-                    .orElseThrow(() -> new DatabaseException("Failed to save link: " + link.url()));
-
+            database.transaction(() -> {
+                database.command(
+                        "sql",
+                        """
+                                INSERT INTO Link SET
+                                id= ?,
+                                url = ?,
+                                title = ?,
+                                description = ?,
+                                extractedAt = ?,
+                                contentType = ?,
+                                userId = ?
+                                """,
+                        link.id(),
+                        link.url(),
+                        link.title(),
+                        link.description(),
+                        link.extractedAt()
+                                .truncatedTo(ChronoUnit.SECONDS)
+                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                        link.contentType(),
+                        link.userId()
+                );
+            });
+            return link;
         } catch (ArcadeDBException e) {
-            database.rollback();
             throw new DatabaseException("Failed to save link: " + link.url(), e);
-        } finally {
-            database.commit();
         }
     }
 
@@ -79,7 +73,8 @@ public class ArcadeLinkRepository {
                                 title = ?,
                                 description = ?,
                                 extractedAt = ?,
-                                contentType = ?
+                                contentType = ?,
+                                userId = ?
                                 """,
                         link.id(),
                         link.url(),
@@ -88,7 +83,8 @@ public class ArcadeLinkRepository {
                         link.extractedAt()
                                 .truncatedTo(ChronoUnit.SECONDS)
                                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                        link.contentType()
+                        link.contentType(),
+                        link.userId()
                 );
             });
             return link;
@@ -134,9 +130,14 @@ public class ArcadeLinkRepository {
     }
 
     public LinkPage findLinksWithPagination(ListLinksQuery query) {
+        // Use the userId from the query to filter user-specific links
+        return findLinksWithPaginationForUser(query, query.userId());
+    }
+
+    public LinkPage findLinksWithPaginationForUser(ListLinksQuery query, String userId) {
         try {
             // First, get the total count
-            long totalCount = getTotalLinkCount();
+            long totalCount = getTotalLinkCountForUser(userId);
 
             // Build the ORDER BY clause
             String orderClause = buildOrderClause(query.sortBy(), query.sortDirection());
@@ -145,10 +146,18 @@ public class ArcadeLinkRepository {
             int offset = query.page() * query.size();
 
             // Query for the actual data
-            String sql = String.format(
-                "SELECT FROM Link %s SKIP %d LIMIT %d",
-                orderClause, offset, query.size()
-            );
+            String sql;
+            if (userId != null) {
+                sql = String.format(
+                    "SELECT FROM Link WHERE userId = '%s' %s SKIP %d LIMIT %d",
+                    userId, orderClause, offset, query.size()
+                );
+            } else {
+                sql = String.format(
+                    "SELECT FROM Link %s SKIP %d LIMIT %d",
+                    orderClause, offset, query.size()
+                );
+            }
 
             List<Link> links = database
                 .query("sql", sql)
@@ -175,9 +184,17 @@ public class ArcadeLinkRepository {
     }
 
     private long getTotalLinkCount() {
+        return getTotalLinkCountForUser(null);
+    }
+
+    private long getTotalLinkCountForUser(String userId) {
         try {
+            String countSql = userId != null ?
+                "SELECT count(*) as count FROM Link WHERE userId = '" + userId + "'" :
+                "SELECT count(*) as count FROM Link";
+
             return database
-                .query("sql", "SELECT count(*) as count FROM Link")
+                .query("sql", countSql)
                 .stream()
                 .findFirst()
                 .map(result -> result.getProperty("count"))

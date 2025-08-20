@@ -54,6 +54,11 @@ public class ListLinksService implements ListLinksUseCase {
       validationException.addFieldError("sortDirection", "Sort direction must be ASC or DESC");
     }
 
+    // Validate userId is provided (required for user-owned links)
+    if (query.userId() == null || query.userId().isBlank()) {
+      validationException.addFieldError("userId", "User ID is required");
+    }
+
     if (!validationException.getFieldErrors().isEmpty()) {
       throw validationException;
     }

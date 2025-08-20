@@ -28,14 +28,29 @@ public class NewLinkService implements NewLinkUseCase {
     // Validate the link URL
     validateLinkUrl(newLinkCommand.url());
 
-    // Check if link already exists
+    // Validate userId is provided (required for user-owned links)
+    if (newLinkCommand.userId() == null || newLinkCommand.userId().isBlank()) {
+      ValidationException validationException = new ValidationException("Invalid link data");
+      validationException.addFieldError("userId", "User ID is required");
+      throw validationException;
+    }
+
+    // Check if link already exists for this user
     if (linkPersistenceAdapter.findLinkByUrl(newLinkCommand.url()).isPresent()) {
       throw new LinkAlreadyExistsException(newLinkCommand.url());
     }
 
     var id = UUID.randomUUID().toString();
 
-    var link = new Link(id, newLinkCommand.url(), newLinkCommand.title(), newLinkCommand.description(), LocalDateTime.now(), "text/html");
+    var link = new Link(
+      id,
+      newLinkCommand.url(),
+      newLinkCommand.title(),
+      newLinkCommand.description(),
+      LocalDateTime.now(),
+      "text/html",
+      newLinkCommand.userId()
+    );
 
     var savedLink = linkPersistenceAdapter.saveLink(link);
 

@@ -9,7 +9,8 @@ import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 import it.robfrank.linklift.application.port.out.DomainEventPublisher;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -70,8 +71,8 @@ public class NewLinkService implements NewLinkUseCase {
     }
 
     try {
-      new URL(url);
-    } catch (MalformedURLException e) {
+      new URI(url).toURL();
+    } catch (MalformedURLException | URISyntaxException e) {
       validationException.addFieldError("url", "Invalid URL format");
       throw validationException;
     }

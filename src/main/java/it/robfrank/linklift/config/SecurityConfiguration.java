@@ -3,7 +3,7 @@ package it.robfrank.linklift.config;
 import it.robfrank.linklift.adapter.in.web.AuthenticationController;
 import it.robfrank.linklift.adapter.out.persitence.AuthTokenPersistenceAdapter;
 import it.robfrank.linklift.adapter.out.persitence.UserPersistenceAdapter;
-import it.robfrank.linklift.adapter.out.persitence.UserRolesPersistenceAdapter;
+import it.robfrank.linklift.adapter.out.persitence.UserRolePersistenceAdapter;
 import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
 import it.robfrank.linklift.adapter.out.security.JwtTokenAdapter;
 import it.robfrank.linklift.application.domain.service.AuthenticationService;
@@ -40,7 +40,7 @@ public class SecurityConfiguration {
    */
   public static AuthorizationService createAuthorizationService(UserPersistenceAdapter userPersistenceAdapter) {
     var jwtTokenAdapter = createJwtTokenAdapter();
-    var userRolesAdapter = new UserRolesPersistenceAdapter();
+    var userRolesAdapter = new UserRolePersistenceAdapter();
 
     return new AuthorizationService(jwtTokenAdapter, userPersistenceAdapter, userRolesAdapter);
   }

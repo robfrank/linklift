@@ -1,6 +1,7 @@
 package it.robfrank.linklift.application.port.out;
 
 import it.robfrank.linklift.application.domain.model.AuthToken;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,37 +14,37 @@ public interface AuthTokenPort {
     /**
      * Saves a new authentication token.
      */
-    AuthToken saveToken(AuthToken token);
+    @NonNull AuthToken saveToken(@NonNull AuthToken token);
 
     /**
      * Finds a token by its value.
      */
-    Optional<AuthToken> findByToken(String token);
+    @NonNull Optional<AuthToken> findByToken(@NonNull String token);
 
     /**
      * Finds all valid tokens for a user and token type.
      */
-    List<AuthToken> findValidTokensByUserAndType(String userId, AuthToken.TokenType tokenType);
+    @NonNull List<AuthToken> findValidTokensByUserAndType(@NonNull String userId, AuthToken.@NonNull TokenType tokenType);
 
     /**
      * Marks a token as used.
      */
-    AuthToken markTokenAsUsed(String tokenId);
+    @NonNull AuthToken markTokenAsUsed(@NonNull String tokenId);
 
     /**
      * Revokes a token.
      */
-    AuthToken revokeToken(String tokenId);
+    @NonNull AuthToken revokeToken(@NonNull String tokenId);
 
     /**
      * Revokes all tokens for a user.
      */
-    void revokeAllUserTokens(String userId);
+    void revokeAllUserTokens(@NonNull String userId);
 
     /**
      * Revokes all tokens of a specific type for a user.
      */
-    void revokeUserTokensByType(String userId, AuthToken.TokenType tokenType);
+    void revokeUserTokensByType(@NonNull String userId, AuthToken.@NonNull TokenType tokenType);
 
     /**
      * Cleans up expired tokens.
@@ -53,10 +54,10 @@ public interface AuthTokenPort {
     /**
      * Gets all tokens for a user (for admin purposes).
      */
-    List<AuthToken> findAllTokensForUser(String userId);
+    @NonNull List<AuthToken> findAllTokensForUser(@NonNull String userId);
 
     /**
      * Deletes used tokens older than the specified cutoff date.
      */
-    int deleteUsedTokensOlderThan(java.time.LocalDateTime cutoffDate);
+    int deleteUsedTokensOlderThan(java.time.@NonNull LocalDateTime cutoffDate);
 }

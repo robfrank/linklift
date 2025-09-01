@@ -1,6 +1,7 @@
 package it.robfrank.linklift.application.port.out;
 
 import it.robfrank.linklift.application.domain.model.User;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Port interface for saving user data.
@@ -11,10 +12,10 @@ public interface SaveUserPort {
     /**
      * Saves a new user to the persistence layer.
      */
-    User saveUser(User user);
+    @NonNull User saveUser(@NonNull User user);
 
     /**
      * Updates an existing user in the persistence layer.
      */
-    User updateUser(User user);
+    @NonNull User updateUser(@NonNull User user);
 }

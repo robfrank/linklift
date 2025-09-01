@@ -13,19 +13,20 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
 
 public class NewLinkService implements NewLinkUseCase {
 
   private final LinkPersistenceAdapter linkPersistenceAdapter;
   private final DomainEventPublisher eventPublisher;
 
-  public NewLinkService(LinkPersistenceAdapter linkPersistenceAdapter, DomainEventPublisher eventPublisher) {
+  public NewLinkService(@NonNull LinkPersistenceAdapter linkPersistenceAdapter, @NonNull DomainEventPublisher eventPublisher) {
     this.linkPersistenceAdapter = linkPersistenceAdapter;
     this.eventPublisher = eventPublisher;
   }
 
   @Override
-  public Link newLink(NewLinkCommand newLinkCommand) {
+  public @NonNull Link newLink(@NonNull NewLinkCommand newLinkCommand) {
     // Validate the link URL
     validateLinkUrl(newLinkCommand.url());
 
@@ -62,7 +63,7 @@ public class NewLinkService implements NewLinkUseCase {
     return savedLink;
   }
 
-  private void validateLinkUrl(String url) {
+  private void validateLinkUrl(@NonNull String url) {
     ValidationException validationException = new ValidationException("Invalid link data");
 
     if (url == null || url.isBlank()) {

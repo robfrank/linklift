@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Domain service implementing authentication use cases.
@@ -37,12 +38,12 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
   private final DomainEventPublisher eventPublisher;
 
   public AuthenticationService(
-    LoadUserPort loadUserPort,
-    SaveUserPort saveUserPort,
-    PasswordSecurityPort passwordSecurityPort,
-    JwtTokenPort jwtTokenPort,
-    AuthTokenPort authTokenPort,
-    DomainEventPublisher eventPublisher
+    @NonNull LoadUserPort loadUserPort,
+    @NonNull SaveUserPort saveUserPort,
+    @NonNull PasswordSecurityPort passwordSecurityPort,
+    @NonNull JwtTokenPort jwtTokenPort,
+    @NonNull AuthTokenPort authTokenPort,
+    @NonNull DomainEventPublisher eventPublisher
   ) {
     this.loadUserPort = loadUserPort;
     this.saveUserPort = saveUserPort;
@@ -53,7 +54,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
   }
 
   @Override
-  public AuthenticateUserUseCase.AuthenticationResult authenticate(AuthenticateUserCommand command) {
+  public AuthenticateUserUseCase.@NonNull AuthenticationResult authenticate(@NonNull AuthenticateUserCommand command) {
     // Find user by username or email
     var user = findUserForAuthentication(command);
 
@@ -89,7 +90,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
   }
 
   @Override
-  public AuthenticateUserUseCase.AuthenticationResult refreshToken(RefreshTokenCommand command) {
+  public AuthenticateUserUseCase.@NonNull AuthenticationResult refreshToken(@NonNull RefreshTokenCommand command) {
     // Validate refresh token JWT
     var tokenClaims = jwtTokenPort.validateToken(command.refreshToken()).orElseThrow(AuthenticationException::tokenInvalid);
 
@@ -131,7 +132,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
     );
   }
 
-  private User findUserForAuthentication(AuthenticateUserCommand command) {
+  private @NonNull User findUserForAuthentication(@NonNull AuthenticateUserCommand command) {
     if (command.isEmailLogin()) {
       return loadUserPort.findUserByEmail(command.loginIdentifier()).orElseThrow(() -> AuthenticationException.invalidCredentials());
     } else {
@@ -139,7 +140,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
     }
   }
 
-  private void verifyPassword(String plainPassword, User user) {
+  private void verifyPassword(@NonNull String plainPassword, @NonNull User user) {
     boolean isValid = passwordSecurityPort.verifyPassword(plainPassword, user.passwordHash(), user.salt());
 
     if (!isValid) {
@@ -147,7 +148,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
     }
   }
 
-  private TokenPair generateTokens(User user, AuthenticateUserCommand command) {
+  private @NonNull TokenPair generateTokens(@NonNull User user, @NonNull AuthenticateUserCommand command) {
     var now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
     var accessTokenExpiry = now.plusMinutes(ACCESS_TOKEN_EXPIRY_MINUTES);
     var refreshTokenExpiry = now.plusDays(command.rememberMe() ? REMEMBER_ME_REFRESH_TOKEN_EXPIRY_DAYS : REFRESH_TOKEN_EXPIRY_DAYS);
@@ -190,7 +191,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
     return days * 24 * 60 * 60; // Convert to seconds
   }
 
-  private record TokenPair(String accessToken, String refreshToken) {}
+  private record TokenPair(@NonNull String accessToken, @NonNull String refreshToken) {}
 
   /**
    * Domain event published when a user successfully authenticates.

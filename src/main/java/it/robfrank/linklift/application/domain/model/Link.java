@@ -3,15 +3,17 @@ package it.robfrank.linklift.application.domain.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public record Link(
-  @JsonProperty("id") String id,
-  @JsonProperty("url") String url,
-  @JsonProperty("title") String title,
-  @JsonProperty("description") String description,
-  @JsonProperty("extractedAt") LocalDateTime extractedAt,
-  @JsonProperty("contentType") String contentType,
-  @JsonProperty("userId") String userId
+  @JsonProperty("id") @NonNull String id,
+  @JsonProperty("url") @NonNull String url,
+  @JsonProperty("title") @Nullable String title,
+  @JsonProperty("description") @Nullable String description,
+  @JsonProperty("extractedAt") @NonNull LocalDateTime extractedAt,
+  @JsonProperty("contentType") @Nullable String contentType,
+  @JsonProperty("userId") @NonNull String userId
 ) {
   public Link {
     extractedAt = extractedAt == null ? LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS) : extractedAt;

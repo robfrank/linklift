@@ -1,6 +1,7 @@
 package it.robfrank.linklift.application.port.out;
 
 import it.robfrank.linklift.application.domain.model.User;
+import org.jspecify.annotations.NonNull;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -19,7 +20,7 @@ public interface JwtTokenPort {
      * @param expirationTime when the token should expire
      * @return the generated JWT token
      */
-    String generateAccessToken(User user, LocalDateTime expirationTime);
+    @NonNull String generateAccessToken(@NonNull User user, @NonNull LocalDateTime expirationTime);
 
     /**
      * Generates a JWT refresh token for a user.
@@ -28,7 +29,7 @@ public interface JwtTokenPort {
      * @param expirationTime when the token should expire
      * @return the generated JWT refresh token
      */
-    String generateRefreshToken(User user, LocalDateTime expirationTime);
+    @NonNull String generateRefreshToken(@NonNull User user, @NonNull LocalDateTime expirationTime);
 
     /**
      * Validates and parses a JWT token.
@@ -36,7 +37,7 @@ public interface JwtTokenPort {
      * @param token the JWT token to validate
      * @return TokenClaims if valid, empty if invalid
      */
-    Optional<TokenClaims> validateToken(String token);
+    @NonNull Optional<TokenClaims> validateToken(@NonNull String token);
 
     /**
      * Extracts user ID from a JWT token without full validation.
@@ -45,7 +46,7 @@ public interface JwtTokenPort {
      * @param token the JWT token
      * @return user ID if extractable, empty otherwise
      */
-    Optional<String> extractUserIdFromToken(String token);
+    @NonNull Optional<String> extractUserIdFromToken(@NonNull String token);
 
     /**
      * Gets the expiration time from a JWT token.
@@ -53,18 +54,18 @@ public interface JwtTokenPort {
      * @param token the JWT token
      * @return expiration time if extractable, empty otherwise
      */
-    Optional<LocalDateTime> getTokenExpiration(String token);
+    @NonNull Optional<LocalDateTime> getTokenExpiration(@NonNull String token);
 
     /**
      * Container for JWT token claims.
      */
     record TokenClaims(
-        String userId,
-        String username,
-        String email,
-        LocalDateTime issuedAt,
-        LocalDateTime expiresAt,
-        String tokenType,
-        Map<String, Object> customClaims
+        @NonNull String userId,
+        @NonNull String username,
+        @NonNull String email,
+        @NonNull LocalDateTime issuedAt,
+        @NonNull LocalDateTime expiresAt,
+        @NonNull String tokenType,
+        @NonNull Map<String, Object> customClaims
     ) {}
 }

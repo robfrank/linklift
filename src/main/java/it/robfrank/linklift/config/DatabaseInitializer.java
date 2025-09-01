@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.Collections;
 import java.util.stream.Stream;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public class DatabaseInitializer {
 
@@ -73,60 +73,7 @@ public class DatabaseInitializer {
     }
   }
 
-  private void executeStatements(RemoteDatabase db, String script) {
-    // Split script into individual statements, handling multi-line statements properly
-    String[] lines = script.split("\n");
-    StringBuilder currentStatement = new StringBuilder();
-
-    for (String line : lines) {
-      String trimmedLine = line.trim();
-
-      // Skip empty lines and comments
-      if (trimmedLine.isEmpty() || trimmedLine.startsWith("--")) {
-        continue;
-      }
-
-      currentStatement.append(trimmedLine);
-
-      // If line ends with semicolon, execute the statement
-      if (trimmedLine.endsWith(";")) {
-        String statement = currentStatement.toString();
-        // Remove the trailing semicolon as ArcadeDB doesn't like it
-        statement = statement.substring(0, statement.length() - 1);
-
-        executeStatement(db, statement);
-        currentStatement.setLength(0); // Clear for next statement
-      } else {
-        currentStatement.append(" "); // Add space between lines
-      }
-    }
-
-    // Execute any remaining statement
-    if (currentStatement.length() > 0) {
-      String statement = currentStatement.toString().trim();
-      if (!statement.isEmpty()) {
-        executeStatement(db, statement);
-      }
-    }
-  }
-
-  private void executeStatement(RemoteDatabase db, String statement) {
-    try {
-      db.transaction(() -> {
-        try {
-          db.command("sql", statement);
-          System.out.printf("Successfully executed: %s%n", statement);
-        } catch (Exception e) {
-          System.out.printf("Error executing statement '%s': %s%n", statement, e.getMessage());
-          throw e; // Re-throw to rollback transaction
-        }
-      });
-    } catch (Exception e) {
-      // Statement failed, but continue with next ones
-    }
-  }
-
-  @NotNull
+  @NonNull
   private static String readScript(Path sqlFile) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(sqlFile), StandardCharsets.UTF_8));
     StringBuilder sb = new StringBuilder();

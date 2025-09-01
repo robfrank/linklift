@@ -1,6 +1,7 @@
 package it.robfrank.linklift.application.port.out;
 
 import it.robfrank.linklift.application.domain.model.User;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,35 +15,35 @@ public interface LoadUserPort {
     /**
      * Finds a user by their unique ID.
      */
-    Optional<User> findUserById(String id);
+    @NonNull Optional<User> findUserById(@NonNull String id);
 
     /**
      * Finds a user by their username.
      */
-    Optional<User> findUserByUsername(String username);
+    @NonNull Optional<User> findUserByUsername(@NonNull String username);
 
     /**
      * Finds a user by their email address.
      */
-    Optional<User> findUserByEmail(String email);
+    @NonNull Optional<User> findUserByEmail(@NonNull String email);
 
     /**
      * Checks if a username already exists.
      */
-    boolean existsByUsername(String username);
+    boolean existsByUsername(@NonNull String username);
 
     /**
      * Checks if an email already exists.
      */
-    boolean existsByEmail(String email);
+    boolean existsByEmail(@NonNull String email);
 
     /**
      * Gets all active users.
      */
-    List<User> findAllActiveUsers();
+    @NonNull List<User> findAllActiveUsers();
 
     /**
      * Deactivates a user (soft delete).
      */
-    User deactivateUser(String userId);
+    @NonNull User deactivateUser(@NonNull String userId);
 }

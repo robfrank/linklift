@@ -3,23 +3,25 @@ package it.robfrank.linklift.application.domain.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * User domain model representing a user in the LinkLift system.
  * This is an immutable record following the established pattern in the codebase.
  */
 public record User(
-  @JsonProperty("id") String id,
-  @JsonProperty("username") String username,
-  @JsonProperty("email") String email,
-  @JsonProperty("passwordHash") String passwordHash,
-  @JsonProperty("salt") String salt,
-  @JsonProperty("createdAt") LocalDateTime createdAt,
-  @JsonProperty("updatedAt") LocalDateTime updatedAt,
+  @JsonProperty("id") @NonNull String id,
+  @JsonProperty("username") @NonNull String username,
+  @JsonProperty("email") @NonNull String email,
+  @JsonProperty("passwordHash") @Nullable String passwordHash,
+  @JsonProperty("salt") @Nullable String salt,
+  @JsonProperty("createdAt") @NonNull LocalDateTime createdAt,
+  @JsonProperty("updatedAt") @Nullable LocalDateTime updatedAt,
   @JsonProperty("isActive") boolean isActive,
-  @JsonProperty("firstName") String firstName,
-  @JsonProperty("lastName") String lastName,
-  @JsonProperty("lastLoginAt") LocalDateTime lastLoginAt
+  @JsonProperty("firstName") @Nullable String firstName,
+  @JsonProperty("lastName") @Nullable String lastName,
+  @JsonProperty("lastLoginAt") @Nullable LocalDateTime lastLoginAt
 ) {
   public User {
     // Ensure timestamps are truncated to seconds for ArcadeDB compatibility
@@ -32,7 +34,7 @@ public record User(
    * Creates a new User instance with updated last login timestamp.
    * Following immutable pattern for domain model updates.
    */
-  public User withLastLogin(LocalDateTime lastLoginAt) {
+  public @NonNull User withLastLogin(@Nullable LocalDateTime lastLoginAt) {
     return new User(
       id,
       username,
@@ -51,7 +53,7 @@ public record User(
   /**
    * Creates a new User instance with updated active status.
    */
-  public User withActiveStatus(boolean isActive) {
+  public @NonNull User withActiveStatus(boolean isActive) {
     return new User(
       id,
       username,
@@ -70,7 +72,7 @@ public record User(
   /**
    * Creates a new User instance with updated password.
    */
-  public User withPassword(String passwordHash, String salt) {
+  public @NonNull User withPassword(@NonNull String passwordHash, @NonNull String salt) {
     return new User(
       id,
       username,
@@ -89,7 +91,7 @@ public record User(
   /**
    * Returns a user instance without sensitive information for API responses.
    */
-  public User toPublic() {
+  public @NonNull User toPublic() {
     return new User(
       id,
       username,
@@ -108,7 +110,7 @@ public record User(
   /**
    * Gets the full name of the user, combining first and last names.
    */
-  public String getFullName() {
+  public @NonNull String getFullName() {
     if (firstName == null && lastName == null) {
       return username;
     }

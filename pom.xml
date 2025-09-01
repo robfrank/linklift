@@ -34,6 +34,7 @@
         <json-unit-assertj.version>4.1.1</json-unit-assertj.version>
         <jwt.version>4.4.0</jwt.version>
         <bcrypt.version>0.10.2</bcrypt.version>
+        <jspecify.version>1.0.0</jspecify.version>
 
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
@@ -313,6 +314,12 @@
             <groupId>at.favre.lib</groupId>
             <artifactId>bcrypt</artifactId>
             <version>${bcrypt.version}</version>
+        </dependency>
+        <!-- JSpecify annotations -->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>${jspecify.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -146,27 +146,34 @@ public class ArcadeLinkRepository {
             int offset = query.page() * query.size();
 
             // Query for the actual data
-            String sql;
+            List<Link> links;
             if (userId != null) {
-                sql = String.format(
-                    "SELECT FROM Link WHERE userId = '%s' %s SKIP %d LIMIT %d",
-                    userId, orderClause, offset, query.size()
+                String sql = String.format(
+                    "SELECT FROM Link WHERE userId = ? %s SKIP %d LIMIT %d",
+                    orderClause, offset, query.size()
                 );
+                links = database
+                    .query("sql", sql, userId)
+                    .stream()
+                    .map(Result::getVertex)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(linkMapper::mapToDomain)
+                    .toList();
             } else {
-                sql = String.format(
+                String sql = String.format(
                     "SELECT FROM Link %s SKIP %d LIMIT %d",
                     orderClause, offset, query.size()
                 );
+                links = database
+                    .query("sql", sql)
+                    .stream()
+                    .map(Result::getVertex)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(linkMapper::mapToDomain)
+                    .toList();
             }
-
-            List<Link> links = database
-                .query("sql", sql)
-                .stream()
-                .map(Result::getVertex)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(linkMapper::mapToDomain)
-                .toList();
 
             return new LinkPage(
                 links,
@@ -189,17 +196,23 @@ public class ArcadeLinkRepository {
 
     private long getTotalLinkCountForUser(String userId) {
         try {
-            String countSql = userId != null ?
-                "SELECT count(*) as count FROM Link WHERE userId = '" + userId + "'" :
-                "SELECT count(*) as count FROM Link";
-
-            return database
-                .query("sql", countSql)
-                .stream()
-                .findFirst()
-                .map(result -> result.getProperty("count"))
-                .map(count -> ((Number) count).longValue())
-                .orElse(0L);
+            if (userId != null) {
+                return database
+                    .query("sql", "SELECT count(*) as count FROM Link WHERE userId = ?", userId)
+                    .stream()
+                    .findFirst()
+                    .map(result -> result.getProperty("count"))
+                    .map(count -> ((Number) count).longValue())
+                    .orElse(0L);
+            } else {
+                return database
+                    .query("sql", "SELECT count(*) as count FROM Link")
+                    .stream()
+                    .findFirst()
+                    .map(result -> result.getProperty("count"))
+                    .map(count -> ((Number) count).longValue())
+                    .orElse(0L);
+            }
         } catch (ArcadeDBException e) {
             throw new DatabaseException("Failed to count total links", e);
         }

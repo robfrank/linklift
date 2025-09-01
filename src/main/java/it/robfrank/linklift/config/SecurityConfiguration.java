@@ -17,10 +17,12 @@ import it.robfrank.linklift.application.port.out.DomainEventPublisher;
  */
 public class SecurityConfiguration {
 
-  private static final String JWT_SECRET_KEY = "your-secret-key-here-change-in-production-must-be-256-bits-long";
+  // JWT secret loaded from secure configuration (environment variables)
+  private static final String JWT_SECRET_KEY = it.robfrank.linklift.config.SecureConfiguration.getJwtSecret();
 
   /**
-   * Creates a JWT token adapter with the configured secret key.
+   * Creates a JWT token adapter with the securely configured secret key.
+   * The secret is loaded from environment variables following security best practices.
    */
   public static JwtTokenAdapter createJwtTokenAdapter() {
     return new JwtTokenAdapter(JWT_SECRET_KEY);

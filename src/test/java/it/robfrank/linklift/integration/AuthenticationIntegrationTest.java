@@ -46,7 +46,8 @@ class AuthenticationIntegrationTest {
     )
     .waitingFor(Wait.forHttp("/api/v1/ready").forPort(2480).forStatusCode(204));
 
-  private static final String JWT_SECRET = "test-secret-key-for-integration-tests-must-be-long-enough-to-be-secure";
+  // Test-specific JWT secret (256-bit minimum for security)
+  private static final String JWT_SECRET = "test-integration-secret-key-for-authentication-tests-minimum-32-chars-for-256bit-security-compliance";
 
   private RemoteDatabase database;
   private CreateUserService createUserService;

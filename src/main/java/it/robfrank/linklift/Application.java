@@ -31,6 +31,7 @@ import it.robfrank.linklift.application.port.in.ListLinksUseCase;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 import it.robfrank.linklift.application.port.in.RefreshTokenUseCase;
 import it.robfrank.linklift.config.DatabaseInitializer;
+import it.robfrank.linklift.config.SecureConfiguration;
 import it.robfrank.linklift.config.WebBuilder;
 import java.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -39,12 +40,14 @@ import org.slf4j.LoggerFactory;
 public class Application {
 
   private static final Logger logger = LoggerFactory.getLogger(Application.class);
-  private static final String JWT_SECRET = "your-super-secret-jwt-key-change-in-production";
+  // JWT secret loaded from secure configuration (environment variables)
+  private static final String JWT_SECRET = SecureConfiguration.getJwtSecret();
 
   public static void main(String[] args) {
     String arcadedbServer = System.getProperty("linklift.arcadedb.host", "localhost");
 
     logger.info("Starting LinkLift application with ArcadeDB server: {}", arcadedbServer);
+    logger.info("Security configuration: {}", SecureConfiguration.getConfigurationHints());
 
     new DatabaseInitializer(arcadedbServer, 2480, "root", "playwithdata").initializeDatabase();
 

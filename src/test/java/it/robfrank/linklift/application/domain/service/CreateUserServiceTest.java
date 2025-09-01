@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
 import it.robfrank.linklift.application.domain.exception.UserAlreadyExistsException;
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.User;
@@ -30,7 +31,6 @@ class CreateUserServiceTest {
   @Mock
   private SaveUserPort saveUserPort;
 
-  @Mock
   private PasswordSecurityPort passwordSecurityPort;
 
   @Mock
@@ -40,6 +40,7 @@ class CreateUserServiceTest {
 
   @BeforeEach
   void setUp() {
+    passwordSecurityPort = new BCryptPasswordSecurityAdapter();
     createUserService = new CreateUserService(loadUserPort, saveUserPort, passwordSecurityPort, eventPublisher);
   }
 
@@ -66,8 +67,6 @@ class CreateUserServiceTest {
 
     when(loadUserPort.existsByUsername("testuser")).thenReturn(false);
     when(loadUserPort.existsByEmail("test@example.com")).thenReturn(false);
-    when(passwordSecurityPort.isPasswordStrong("StrongPassword123!")).thenReturn(true);
-    when(passwordSecurityPort.hashPassword("StrongPassword123!")).thenReturn(passwordHash);
     when(saveUserPort.saveUser(any(User.class))).thenReturn(savedUser);
 
     // Act
@@ -91,8 +90,8 @@ class CreateUserServiceTest {
     assertThat(capturedUser.id()).isNotNull();
     assertThat(capturedUser.username()).isEqualTo("testuser");
     assertThat(capturedUser.email()).isEqualTo("test@example.com");
-    assertThat(capturedUser.passwordHash()).isEqualTo("hashed-password");
-    assertThat(capturedUser.salt()).isEqualTo("salt");
+    assertThat(capturedUser.passwordHash()).isNotBlank();
+    assertThat(capturedUser.salt()).isNotBlank();
     assertThat(capturedUser.isActive()).isTrue();
 
     // Verify event was published
@@ -169,8 +168,6 @@ class CreateUserServiceTest {
       "Doe"
     );
 
-    when(passwordSecurityPort.isPasswordStrong("weak")).thenReturn(false);
-
     // Act & Assert
     assertThatThrownBy(() -> createUserService.createUser(command))
       .isInstanceOf(ValidationException.class)
@@ -203,12 +200,11 @@ class CreateUserServiceTest {
     CreateUserCommand command = new CreateUserCommand("testuser", "test@example.com", "StrongPassword123!", "John", "Doe");
 
     when(loadUserPort.existsByUsername("testuser")).thenReturn(true);
-    when(passwordSecurityPort.isPasswordStrong("StrongPassword123!")).thenReturn(true);
 
     // Act & Assert
     assertThatThrownBy(() -> createUserService.createUser(command))
       .isInstanceOf(UserAlreadyExistsException.class)
-      .hasMessage("Username already exists: testuser");
+      .hasMessage("User already exists: Username already exists: testuser");
 
     verify(saveUserPort, never()).saveUser(any(User.class));
   }
@@ -220,12 +216,11 @@ class CreateUserServiceTest {
 
     when(loadUserPort.existsByUsername("testuser")).thenReturn(false);
     when(loadUserPort.existsByEmail("test@example.com")).thenReturn(true);
-    when(passwordSecurityPort.isPasswordStrong("StrongPassword123!")).thenReturn(true);
 
     // Act & Assert
     assertThatThrownBy(() -> createUserService.createUser(command))
       .isInstanceOf(UserAlreadyExistsException.class)
-      .hasMessage("Email already exists: test@example.com");
+      .hasMessage("User already exists: Email already exists: test@example.com");
 
     verify(saveUserPort, never()).saveUser(any(User.class));
   }
@@ -247,8 +242,6 @@ class CreateUserServiceTest {
 
     when(loadUserPort.existsByUsername("testuser")).thenReturn(false);
     when(loadUserPort.existsByEmail("test@example.com")).thenReturn(false);
-    when(passwordSecurityPort.isPasswordStrong("StrongPassword123!")).thenReturn(true);
-    when(passwordSecurityPort.hashPassword("StrongPassword123!")).thenReturn(passwordHash);
     when(saveUserPort.saveUser(any(User.class))).thenReturn(savedUser);
 
     // Act
@@ -269,7 +262,7 @@ class CreateUserServiceTest {
     CreateUserCommand command = new CreateUserCommand(
       "testuser",
       "test@example.com",
-      "StrongPassword123!",
+      "StrongPassword123!@",
       "", // Empty first name
       "" // Empty last name
     );

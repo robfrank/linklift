@@ -15,6 +15,8 @@ import it.robfrank.linklift.application.port.out.LoadUserPort;
 import it.robfrank.linklift.application.port.out.PasswordSecurityPort;
 import it.robfrank.linklift.application.port.out.SaveUserPort;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 /**
@@ -89,10 +91,10 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
   @Override
   public AuthenticateUserUseCase.AuthenticationResult refreshToken(RefreshTokenCommand command) {
     // Validate refresh token JWT
-    var tokenClaims = jwtTokenPort.validateToken(command.refreshToken()).orElseThrow(() -> AuthenticationException.tokenInvalid());
+    var tokenClaims = jwtTokenPort.validateToken(command.refreshToken()).orElseThrow(AuthenticationException::tokenInvalid);
 
     // Find stored refresh token
-    var storedToken = authTokenPort.findByToken(command.refreshToken()).orElseThrow(() -> AuthenticationException.tokenInvalid());
+    var storedToken = authTokenPort.findByToken(command.refreshToken()).orElseThrow(AuthenticationException::tokenInvalid);
 
     // Verify token is valid and not revoked
     if (!storedToken.isValid() || storedToken.tokenType() != AuthToken.TokenType.REFRESH) {
@@ -100,7 +102,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
     }
 
     // Find user
-    var user = loadUserPort.findUserById(storedToken.userId()).orElseThrow(() -> AuthenticationException.tokenInvalid());
+    var user = loadUserPort.findUserById(storedToken.userId()).orElseThrow(AuthenticationException::tokenInvalid);
 
     // Check if user is still active
     if (!user.isActive()) {
@@ -146,7 +148,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
   }
 
   private TokenPair generateTokens(User user, AuthenticateUserCommand command) {
-    var now = LocalDateTime.now();
+    var now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
     var accessTokenExpiry = now.plusMinutes(ACCESS_TOKEN_EXPIRY_MINUTES);
     var refreshTokenExpiry = now.plusDays(command.rememberMe() ? REMEMBER_ME_REFRESH_TOKEN_EXPIRY_DAYS : REFRESH_TOKEN_EXPIRY_DAYS);
 

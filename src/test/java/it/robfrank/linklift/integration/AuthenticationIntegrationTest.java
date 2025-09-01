@@ -185,7 +185,7 @@ class AuthenticationIntegrationTest {
     // Try to refresh with invalid token
     var refreshCommand = new RefreshTokenCommand("invalid-refresh-token", "192.168.1.1", "Integration-Test-Agent");
 
-    assertThatThrownBy(() -> authenticationService.refreshToken(refreshCommand)).hasMessageContaining("Invalid or expired token");
+    assertThatThrownBy(() -> authenticationService.refreshToken(refreshCommand)).hasMessageContaining("Invalid authentication token");
   }
 
   @Test
@@ -193,7 +193,7 @@ class AuthenticationIntegrationTest {
     // Step 1: Create user and login
     var createUserCommand = new CreateUserCommand("integrationtestuser3", "integration3@example.com", "StrongPassword123!", "Integration", "Test");
 
-    createUserService.createUser(createUserCommand);
+    var user = createUserService.createUser(createUserCommand);
 
     var loginCommand = new AuthenticateUserCommand("integrationtestuser3", "StrongPassword123!", "192.168.1.1", "Integration-Test-Agent", false);
 

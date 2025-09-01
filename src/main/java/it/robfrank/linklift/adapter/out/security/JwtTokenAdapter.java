@@ -10,10 +10,8 @@ import it.robfrank.linklift.application.port.out.JwtTokenPort;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -47,7 +45,7 @@ public class JwtTokenAdapter implements JwtTokenPort {
             .withClaim("firstName", user.firstName())
             .withClaim("lastName", user.lastName())
             .withClaim(TOKEN_TYPE_CLAIM, ACCESS_TOKEN_TYPE)
-            .withIssuedAt(Date.from(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC)))
+            .withIssuedAt(new Date())
             .withExpiresAt(Date.from(expirationTime.toInstant(ZoneOffset.UTC)))
             .sign(algorithm);
     }
@@ -59,7 +57,7 @@ public class JwtTokenAdapter implements JwtTokenPort {
             .withSubject(user.id())
             .withClaim("username", user.username())
             .withClaim(TOKEN_TYPE_CLAIM, REFRESH_TOKEN_TYPE)
-            .withIssuedAt(Date.from(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC)))
+            .withIssuedAt(new Date())
             .withExpiresAt(Date.from(expirationTime.toInstant(ZoneOffset.UTC)))
             .sign(algorithm);
     }
@@ -68,8 +66,8 @@ public class JwtTokenAdapter implements JwtTokenPort {
     public Optional<TokenClaims> validateToken(String token) {
         try {
             var verifier = JWT.require(algorithm)
-                .withIssuer(ISSUER)
-                .build();
+                    .withIssuer(ISSUER)
+                    .build();
 
             DecodedJWT decodedJWT = verifier.verify(token);
 
@@ -79,13 +77,13 @@ public class JwtTokenAdapter implements JwtTokenPort {
             customClaims.put("lastName", decodedJWT.getClaim("lastName").asString());
 
             return Optional.of(new TokenClaims(
-                decodedJWT.getSubject(),
-                decodedJWT.getClaim("username").asString(),
-                decodedJWT.getClaim("email").asString(),
-                LocalDateTime.ofInstant(decodedJWT.getIssuedAt().toInstant(), ZoneOffset.UTC),
-                LocalDateTime.ofInstant(decodedJWT.getExpiresAt().toInstant(), ZoneOffset.UTC),
-                decodedJWT.getClaim(TOKEN_TYPE_CLAIM).asString(),
-                customClaims
+                    decodedJWT.getSubject(),
+                    decodedJWT.getClaim("username").asString(),
+                    decodedJWT.getClaim("email").asString(),
+                    LocalDateTime.ofInstant(decodedJWT.getIssuedAt().toInstant(), ZoneOffset.UTC),
+                    LocalDateTime.ofInstant(decodedJWT.getExpiresAt().toInstant(), ZoneOffset.UTC),
+                    decodedJWT.getClaim(TOKEN_TYPE_CLAIM).asString(),
+                    customClaims
             ));
 
         } catch (JWTVerificationException e) {

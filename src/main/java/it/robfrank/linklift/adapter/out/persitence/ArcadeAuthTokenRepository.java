@@ -5,7 +5,6 @@ import com.arcadedb.query.sql.executor.ResultSet;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
 import it.robfrank.linklift.application.domain.model.AuthToken;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -147,7 +146,7 @@ public class ArcadeAuthTokenRepository {
                             """,
                     userId,
                     tokenType.name(),
-                    java.time.LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(formatter)
+                    LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(formatter)
             );
             return result.stream()
                     .map(r -> r.toElement().asVertex())
@@ -164,7 +163,7 @@ public class ArcadeAuthTokenRepository {
                 database.command(
                         "sql",
                         "UPDATE AuthToken SET usedAt = ? WHERE id = ?",
-                        java.time.LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(formatter),
+                        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(formatter),
                         tokenId
                 );
             });
@@ -250,7 +249,7 @@ public class ArcadeAuthTokenRepository {
         }
     }
 
-    public int deleteUsedTokensOlderThan(java.time.LocalDateTime cutoffDate) {
+    public int deleteUsedTokensOlderThan(LocalDateTime cutoffDate) {
         try {
             database.transaction(() -> {
                 database.command(

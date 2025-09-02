@@ -18,7 +18,7 @@ import it.robfrank.linklift.application.port.out.DomainEventPublisher;
 public class SecurityConfiguration {
 
   // JWT secret loaded from secure configuration (environment variables)
-  private static final String JWT_SECRET_KEY = it.robfrank.linklift.config.SecureConfiguration.getJwtSecret();
+  private static final String JWT_SECRET_KEY = SecureConfiguration.getJwtSecret();
 
   /**
    * Creates a JWT token adapter with the securely configured secret key.

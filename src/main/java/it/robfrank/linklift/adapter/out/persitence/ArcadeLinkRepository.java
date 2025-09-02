@@ -9,7 +9,6 @@ import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
-
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -148,29 +147,25 @@ public class ArcadeLinkRepository {
             // Query for the actual data
             List<Link> links;
             if (userId != null) {
-                String sql = String.format(
-                    "SELECT FROM Link WHERE userId = ? %s SKIP %d LIMIT %d",
-                    orderClause, offset, query.size()
+                String sql = "SELECT FROM Link WHERE userId = ? %s SKIP %d LIMIT %d".formatted(
+                  orderClause, offset, query.size()
                 );
                 links = database
                     .query("sql", sql, userId)
                     .stream()
                     .map(Result::getVertex)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Optional::stream)
                     .map(linkMapper::mapToDomain)
                     .toList();
             } else {
-                String sql = String.format(
-                    "SELECT FROM Link %s SKIP %d LIMIT %d",
-                    orderClause, offset, query.size()
+                String sql = "SELECT FROM Link %s SKIP %d LIMIT %d".formatted(
+                  orderClause, offset, query.size()
                 );
                 links = database
                     .query("sql", sql)
                     .stream()
                     .map(Result::getVertex)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Optional::stream)
                     .map(linkMapper::mapToDomain)
                     .toList();
             }
@@ -221,7 +216,7 @@ public class ArcadeLinkRepository {
     private String buildOrderClause(String sortBy, String sortDirection) {
         // Map domain fields to database fields if needed
         String dbField = mapSortField(sortBy);
-        return String.format("ORDER BY %s %s", dbField, sortDirection.toUpperCase());
+        return "ORDER BY %s %s".formatted(dbField, sortDirection.toUpperCase());
     }
 
     private String mapSortField(String sortBy) {

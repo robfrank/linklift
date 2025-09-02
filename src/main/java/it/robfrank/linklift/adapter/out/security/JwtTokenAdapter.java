@@ -6,10 +6,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import it.robfrank.linklift.application.domain.model.User;
 import it.robfrank.linklift.application.port.out.JwtTokenPort;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Optional;

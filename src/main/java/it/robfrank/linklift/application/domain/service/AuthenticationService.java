@@ -1,5 +1,6 @@
 package it.robfrank.linklift.application.domain.service;
 
+import it.robfrank.linklift.application.domain.event.DomainEvent;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.exception.ErrorCode;
 import it.robfrank.linklift.application.domain.model.AuthToken;
@@ -8,14 +9,8 @@ import it.robfrank.linklift.application.port.in.AuthenticateUserCommand;
 import it.robfrank.linklift.application.port.in.AuthenticateUserUseCase;
 import it.robfrank.linklift.application.port.in.RefreshTokenCommand;
 import it.robfrank.linklift.application.port.in.RefreshTokenUseCase;
-import it.robfrank.linklift.application.port.out.AuthTokenPort;
-import it.robfrank.linklift.application.port.out.DomainEventPublisher;
-import it.robfrank.linklift.application.port.out.JwtTokenPort;
-import it.robfrank.linklift.application.port.out.LoadUserPort;
-import it.robfrank.linklift.application.port.out.PasswordSecurityPort;
-import it.robfrank.linklift.application.port.out.SaveUserPort;
+import it.robfrank.linklift.application.port.out.*;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
@@ -197,7 +192,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
    * Domain event published when a user successfully authenticates.
    */
   public record UserAuthenticatedEvent(String userId, String username, String ipAddress, String userAgent, LocalDateTime timestamp)
-    implements it.robfrank.linklift.application.domain.event.DomainEvent {
+    implements DomainEvent {
     public String getEventType() {
       return "USER_AUTHENTICATED";
     }
@@ -207,7 +202,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
    * Domain event published when a token is refreshed.
    */
   public record TokenRefreshedEvent(String userId, String username, String ipAddress, LocalDateTime timestamp)
-    implements it.robfrank.linklift.application.domain.event.DomainEvent {
+    implements DomainEvent {
     public String getEventType() {
       return "TOKEN_REFRESHED";
     }

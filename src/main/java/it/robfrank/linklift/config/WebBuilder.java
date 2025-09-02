@@ -1,9 +1,6 @@
 package it.robfrank.linklift.config;
 
-import static io.javalin.apibuilder.ApiBuilder.before;
 import static io.javalin.apibuilder.ApiBuilder.get;
-import static io.javalin.apibuilder.ApiBuilder.post;
-import static io.javalin.apibuilder.ApiBuilder.put;
 
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.AuthenticationController;

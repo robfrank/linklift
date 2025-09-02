@@ -3,6 +3,7 @@ package it.robfrank.linklift.adapter.in.web;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import io.javalin.http.Context;
+import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
@@ -16,17 +17,26 @@ public class NewLinkController {
   }
 
   public void processLink(Context ctx) {
-    NewLinkCommand linkCommand = ctx
-      .bodyValidator(NewLinkCommand.class)
-      .check(command -> isNotEmpty(command.url()), "Url cannot be empty")
-      .check(command -> isNotEmpty(command.title()), "Title cannot be empty")
-      .check(command -> isNotEmpty(command.description()), "Description cannot be empty")
+    // Get current user from security context
+    String currentUserId = SecurityContext.getCurrentUserId(ctx);
+
+    // Parse and validate the request body
+    var requestBody = ctx
+      .bodyValidator(LinkRequest.class)
+      .check(request -> isNotEmpty(request.url()), "Url cannot be empty")
+      .check(request -> isNotEmpty(request.title()), "Title cannot be empty")
+      .check(request -> isNotEmpty(request.description()), "Description cannot be empty")
       .get();
+
+    // Create command with user context
+    NewLinkCommand linkCommand = new NewLinkCommand(requestBody.url(), requestBody.title(), requestBody.description(), currentUserId);
 
     Link saved = newLinkUseCase.newLink(linkCommand);
 
     ctx.status(201).json(new LinkResponse(saved, "Link received"));
   }
+
+  public record LinkRequest(String url, String title, String description) {}
 
   public record LinkResponse(Link link, String status) {}
 

@@ -35,9 +35,9 @@ class NewLinkServiceTest {
   @Test
   void newLink_shouldCreateLinkWithCorrectData() {
     // Arrange
-    NewLinkCommand command = new NewLinkCommand("https://example.com", "Example Title", "Example Description");
+    NewLinkCommand command = new NewLinkCommand("https://example.com", "Example Title", "Example Description", "user-123");
 
-    Link expectedLink = new Link("test-id", "https://example.com", "Example Title", "Example Description", LocalDateTime.now(), "text/html");
+    Link expectedLink = new Link("test-id", "https://example.com", "Example Title", "Example Description", LocalDateTime.now(), "text/html", "user-123");
 
     when(linkPersistenceAdapter.saveLink(any(Link.class))).thenReturn(expectedLink);
 

@@ -10,10 +10,26 @@ public enum ErrorCode {
   INTERNAL_ERROR(1000, "Internal server error"),
   VALIDATION_ERROR(1001, "Validation error"),
 
-  // Domain-specific errors
+  // Domain-specific errors - Links
   LINK_NOT_FOUND(2000, "Link not found"),
   LINK_ALREADY_EXISTS(2001, "Link already exists"),
   INVALID_LINK_URL(2002, "Invalid link URL"),
+
+  // Domain-specific errors - Users
+  USER_NOT_FOUND(2100, "User not found"),
+  USER_ALREADY_EXISTS(2101, "User already exists"),
+  INVALID_USERNAME(2102, "Invalid username"),
+  INVALID_EMAIL(2103, "Invalid email address"),
+  WEAK_PASSWORD(2104, "Password does not meet security requirements"),
+  USER_INACTIVE(2105, "User account is inactive"),
+
+  // Authentication errors
+  INVALID_CREDENTIALS(2200, "Invalid username or password"),
+  TOKEN_EXPIRED(2201, "Authentication token has expired"),
+  TOKEN_INVALID(2202, "Invalid authentication token"),
+  TOKEN_REVOKED(2203, "Authentication token has been revoked"),
+  UNAUTHORIZED_ACCESS(2204, "Unauthorized access"),
+  INSUFFICIENT_PERMISSIONS(2205, "Insufficient permissions"),
 
   // Infrastructure errors
   DATABASE_ERROR(3000, "Database error"),

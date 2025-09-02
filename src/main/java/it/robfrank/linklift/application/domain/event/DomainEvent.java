@@ -3,21 +3,26 @@ package it.robfrank.linklift.application.domain.event;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public abstract class DomainEvent {
-
-  private final String eventId;
-  private final LocalDateTime timestamp;
-
-  protected DomainEvent() {
-    this.eventId = UUID.randomUUID().toString();
-    this.timestamp = LocalDateTime.now();
+/**
+ * Base interface for domain events.
+ * All domain events should implement this interface.
+ */
+public interface DomainEvent {
+  /**
+   * Gets the unique identifier for this event.
+   *
+   * @return the event ID
+   */
+  default String getEventId() {
+    return UUID.randomUUID().toString();
   }
 
-  public String getEventId() {
-    return eventId;
-  }
-
-  public LocalDateTime getTimestamp() {
-    return timestamp;
+  /**
+   * Gets the timestamp when the event occurred.
+   *
+   * @return the event timestamp
+   */
+  default LocalDateTime getTimestamp() {
+    return LocalDateTime.now();
   }
 }

@@ -16,7 +16,8 @@ public class LinkMapper {
                 vertex.getString("title"),
                 vertex.getString("description"),
                 vertex.getLocalDateTime("extractedAt"),
-                vertex.getString("contentType")
+                vertex.getString("contentType"),
+                vertex.getString("userId")
         );
     }
 
@@ -27,6 +28,7 @@ public class LinkMapper {
         vertex.set("description", link.description());
         vertex.set("extractedAt", link.extractedAt());
         vertex.set("contentType", link.contentType());
+        vertex.set("userId", link.userId());
         return vertex;
     }
 }

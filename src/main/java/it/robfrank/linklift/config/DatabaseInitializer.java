@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.Collections;
 import java.util.stream.Stream;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public class DatabaseInitializer {
 
@@ -73,7 +73,7 @@ public class DatabaseInitializer {
     }
   }
 
-  @NotNull
+  @NonNull
   private static String readScript(Path sqlFile) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(sqlFile), StandardCharsets.UTF_8));
     StringBuilder sb = new StringBuilder();

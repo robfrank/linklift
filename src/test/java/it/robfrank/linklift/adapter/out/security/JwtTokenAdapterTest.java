@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
@@ -104,10 +105,13 @@ class JwtTokenAdapterTest {
     }
 
     @Test
-    void validateToken_shouldReturnEmpty_whenTokenIsExpired() {
-        // Arrange
-        LocalDateTime expirationTime = LocalDateTime.now().minusHours(1); // Already expired
+    void validateToken_shouldReturnEmpty_whenTokenIsExpired() throws InterruptedException {
+        // Arrange - Create a token that expires in 1 second
+        LocalDateTime expirationTime = LocalDateTime.now(ZoneOffset.UTC).plusSeconds(1);
         String token = jwtTokenAdapter.generateAccessToken(testUser, expirationTime);
+
+        // Wait for the token to expire
+        Thread.sleep(1100); // Wait 1.1 seconds to ensure expiration
 
         // Act
         Optional<JwtTokenPort.TokenClaims> result = jwtTokenAdapter.validateToken(token);
@@ -168,7 +172,7 @@ class JwtTokenAdapterTest {
     @Test
     void extractUserIdFromToken_shouldReturnUserId_evenWhenTokenIsExpired() {
         // Arrange
-        LocalDateTime expirationTime = LocalDateTime.now().minusHours(1); // Expired
+        LocalDateTime expirationTime = LocalDateTime.now(ZoneOffset.UTC).minusHours(1); // Expired
         String token = jwtTokenAdapter.generateAccessToken(testUser, expirationTime);
 
         // Act

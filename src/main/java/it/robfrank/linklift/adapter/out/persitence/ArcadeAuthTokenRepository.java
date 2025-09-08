@@ -49,7 +49,7 @@ public class ArcadeAuthTokenRepository {
                         authToken.userId(),
                         authToken.token(),
                         authToken.tokenType().name(),
-                        authToken.expiresAt().truncatedTo(ChronoUnit.SECONDS).format(formatter),
+                        authToken.expiresAt() != null ? authToken.expiresAt().truncatedTo(ChronoUnit.SECONDS).format(formatter) : null,
                         authToken.usedAt() != null ? authToken.usedAt().truncatedTo(ChronoUnit.SECONDS).format(formatter) : null,
                         authToken.isRevoked(),
                         authToken.createdAt().truncatedTo(ChronoUnit.SECONDS).format(formatter),
@@ -59,7 +59,9 @@ public class ArcadeAuthTokenRepository {
             });
             return authToken;
         } catch (ArcadeDBException e) {
-            throw new DatabaseException("Failed to save auth token", e);
+            throw new DatabaseException("Failed to save auth token with ID: " + authToken.id() + ". Cause: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new DatabaseException("Unexpected error while saving auth token with ID: " + authToken.id(), e);
         }
     }
 
@@ -111,7 +113,7 @@ public class ArcadeAuthTokenRepository {
             });
             return authToken;
         } catch (ArcadeDBException e) {
-            throw new DatabaseException("Failed to update auth token", e);
+            throw new DatabaseException("Failed to update auth token with ID: " + authToken.id(), e);
         }
     }
 
@@ -175,10 +177,10 @@ public class ArcadeAuthTokenRepository {
                 var vertex = result.next().toElement().asVertex();
                 return authTokenMapper.toDomainModel(vertex);
             }
-            throw new DatabaseException("Failed to mark token as used");
+            throw new DatabaseException("Failed to mark token as used - token not found with ID: " + tokenId);
 
         } catch (ArcadeDBException e) {
-            throw new DatabaseException("Failed to mark token as used", e);
+            throw new DatabaseException("Failed to mark token as used with ID: " + tokenId, e);
         }
     }
 
@@ -198,10 +200,10 @@ public class ArcadeAuthTokenRepository {
                 var vertex = result.next().toElement().asVertex();
                 return authTokenMapper.toDomainModel(vertex);
             }
-            throw new DatabaseException("Failed to revoke token");
+            throw new DatabaseException("Failed to revoke token - token not found with ID: " + tokenId);
 
         } catch (ArcadeDBException e) {
-            throw new DatabaseException("Failed to revoke token", e);
+            throw new DatabaseException("Failed to revoke token with ID: " + tokenId, e);
         }
     }
 
@@ -215,7 +217,7 @@ public class ArcadeAuthTokenRepository {
                 );
             });
         } catch (ArcadeDBException e) {
-            throw new DatabaseException("Failed to revoke all user tokens", e);
+            throw new DatabaseException("Failed to revoke all user tokens for user ID: " + userId, e);
         }
     }
 
@@ -230,7 +232,7 @@ public class ArcadeAuthTokenRepository {
                 );
             });
         } catch (ArcadeDBException e) {
-            throw new DatabaseException("Failed to revoke user tokens by type", e);
+            throw new DatabaseException("Failed to revoke user tokens by type for user ID: " + userId + ", type: " + tokenType, e);
         }
     }
 
@@ -246,7 +248,7 @@ public class ArcadeAuthTokenRepository {
                     .map(authTokenMapper::toDomainModel)
                     .toList();
         } catch (ArcadeDBException e) {
-            throw new DatabaseException("Failed to find all auth tokens by user", e);
+            throw new DatabaseException("Failed to find all auth tokens by user ID: " + userId, e);
         }
     }
 
@@ -262,7 +264,7 @@ public class ArcadeAuthTokenRepository {
             // Return approximate count since DELETE doesn't return affected rows in this context
             return 1;
         } catch (ArcadeDBException e) {
-            throw new DatabaseException("Failed to delete used tokens older than cutoff date", e);
+            throw new DatabaseException("Failed to delete used tokens older than cutoff date: " + cutoffDate, e);
         }
     }
 

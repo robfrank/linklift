@@ -32,7 +32,7 @@
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <mockito-core.version>5.19.0</mockito-core.version>
         <json-unit-assertj.version>4.1.1</json-unit-assertj.version>
-        <jwt.version>4.4.0</jwt.version>
+        <jwt.version>4.5.0</jwt.version>
         <bcrypt.version>0.10.2</bcrypt.version>
         <jspecify.version>1.0.0</jspecify.version>
 

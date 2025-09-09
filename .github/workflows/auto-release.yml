@@ -2,115 +2,115 @@
 name: Auto Release
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
+    push:
+        tags:
+            - "v*.*.*"
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
-      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+    check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+            - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+            - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
 
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    needs: check
-    permissions:
-      contents: write
-      packages: write
-      attestations: write
-      id-token: write
-    env:
-      DOCKER_BUILDKIT: 1
-      DOCKER_REGISTRY: ghcr.io
-
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          fetch-depth: 0
-
-      - name: Cache local Maven repository
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Log in to the ghcr.io
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up QEMU
-        if: ${{ matrix.os != 'windows-latest' }}
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
-
-      - name: Set up Docker Buildx
-        if: ${{ matrix.os != 'windows-latest' }}
-        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
-
-      - name: Set up JDK 24 (only to have settings.xml)
-        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
-        with:
-          distribution: "temurin"
-          java-version: "24"
-
-      - name: Set up GraalVM 24
-        uses: graalvm/setup-graalvm@7a1da54cb7fdef4ea19f6ecdfa9ecf59dc5a48fe # v1.3.6
-        with:
-          distribution: graalvm-community
-          java-version: "24"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          native-image-job-reports: "true"
-
-      - name: Cache local Maven repository
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Extract version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Build with Maven
-        run: |
-          mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${{ steps.get_version.outputs.VERSION }}
-          mvn -B deploy -Pdocker  \
-              -Ddocker.username=$GITHUB_ACTOR \
-              -Ddocker.password=$GITHUB_TOKEN  \
-              -Ddocker.registry=${{ env.DOCKER_REGISTRY }}
+    build:
+        strategy:
+            matrix:
+                os: [ubuntu-latest]
+        runs-on: ${{ matrix.os }}
+        needs: check
+        permissions:
+            contents: write
+            packages: write
+            attestations: write
+            id-token: write
         env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            DOCKER_BUILDKIT: 1
+            DOCKER_REGISTRY: ghcr.io
 
-      - name: Build Changelog
-        if: ${{ success() }}
-        id: release_notes
-        uses: mikepenz/release-changelog-builder-action@c9dc8369bccbc41e0ac887f8fd674f5925d315f7 # v5.4.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        steps:
+            - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+              with:
+                  fetch-depth: 0
 
-      - name: Create GitHub Release
-        if: ${{ success() }}
-        id: create_release
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
-        with:
-          files: |
-            ./target/linklift-*
-          name: Release v${{ steps.get_version.outputs.VERSION }}
-          draft: false
-          prerelease: false
-          body: ${{steps.release_notes.outputs.changelog}}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Cache local Maven repository
+              uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+              with:
+                  path: ~/.m2/repository
+                  key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+                  restore-keys: |
+                      ${{ runner.os }}-maven-
+
+            - name: Log in to the ghcr.io
+              uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Set up QEMU
+              if: ${{ matrix.os != 'windows-latest' }}
+              uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
+
+            - name: Set up Docker Buildx
+              if: ${{ matrix.os != 'windows-latest' }}
+              uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+
+            - name: Set up JDK 24 (only to have settings.xml)
+              uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+              with:
+                  distribution: "temurin"
+                  java-version: "24"
+
+            - name: Set up GraalVM 24
+              uses: graalvm/setup-graalvm@7a1da54cb7fdef4ea19f6ecdfa9ecf59dc5a48fe # v1.3.6
+              with:
+                  distribution: graalvm-community
+                  java-version: "24"
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  native-image-job-reports: "true"
+
+            - name: Cache local Maven repository
+              uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+              with:
+                  path: ~/.m2/repository
+                  key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+                  restore-keys: |
+                      ${{ runner.os }}-maven-
+
+            - name: Extract version from tag
+              id: get_version
+              run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+            - name: Build with Maven
+              run: |
+                  mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${{ steps.get_version.outputs.VERSION }}
+                  mvn -B deploy -Pdocker  \
+                      -Ddocker.username=$GITHUB_ACTOR \
+                      -Ddocker.password=$GITHUB_TOKEN  \
+                      -Ddocker.registry=${{ env.DOCKER_REGISTRY }}
+              env:
+                  GITHUB_ACTOR: ${{ github.actor }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Build Changelog
+              if: ${{ success() }}
+              id: release_notes
+              uses: mikepenz/release-changelog-builder-action@c9dc8369bccbc41e0ac887f8fd674f5925d315f7 # v5.4.1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Create GitHub Release
+              if: ${{ success() }}
+              id: create_release
+              uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
+              with:
+                  files: |
+                      ./target/linklift-*
+                  name: Release v${{ steps.get_version.outputs.VERSION }}
+                  draft: false
+                  prerelease: false
+                  body: ${{steps.release_notes.outputs.changelog}}
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

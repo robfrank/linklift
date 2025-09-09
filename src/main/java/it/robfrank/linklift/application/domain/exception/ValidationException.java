@@ -9,24 +9,24 @@ import java.util.Map;
  */
 public class ValidationException extends LinkLiftException {
 
-  private final Map<String, String> fieldErrors;
+    private final Map<String, String> fieldErrors;
 
-  public ValidationException(String message) {
-    super(message, ErrorCode.VALIDATION_ERROR);
-    this.fieldErrors = new HashMap<>();
-  }
+    public ValidationException(String message) {
+        super(message, ErrorCode.VALIDATION_ERROR);
+        this.fieldErrors = new HashMap<>();
+    }
 
-  public ValidationException(String message, Map<String, String> fieldErrors) {
-    super(message, ErrorCode.VALIDATION_ERROR);
-    this.fieldErrors = new HashMap<>(fieldErrors);
-  }
+    public ValidationException(String message, Map<String, String> fieldErrors) {
+        super(message, ErrorCode.VALIDATION_ERROR);
+        this.fieldErrors = new HashMap<>(fieldErrors);
+    }
 
-  public Map<String, String> getFieldErrors() {
-    return fieldErrors;
-  }
+    public Map<String, String> getFieldErrors() {
+        return fieldErrors;
+    }
 
-  public ValidationException addFieldError(String field, String message) {
-    this.fieldErrors.put(field, message);
-    return this;
-  }
+    public ValidationException addFieldError(String field, String message) {
+        this.fieldErrors.put(field, message);
+        return this;
+    }
 }

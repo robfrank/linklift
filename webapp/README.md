@@ -4,20 +4,20 @@ This is the frontend application for LinkLift, a link management system built wi
 
 ## Technologies Used
 
-- React 18
-- React Router v6
-- Material UI v7
-- Axios for API communication
-- Webpack for bundling
-- Babel for transpilation
-- Jest and React Testing Library for testing
+-   React 18
+-   React Router v6
+-   Material UI v7
+-   Axios for API communication
+-   Webpack for bundling
+-   Babel for transpilation
+-   Jest and React Testing Library for testing
 
 ## Development
 
 ### Prerequisites
 
-- Node.js (v18+)
-- npm (v9+)
+-   Node.js (v18+)
+-   npm (v9+)
 
 ### Installation
 
@@ -48,29 +48,29 @@ This will create a `dist` directory with the compiled application.
 
 This frontend application is designed to work in a Docker environment:
 
-- A Dockerfile is provided to build the application into an Nginx container
-- The Nginx configuration proxies API requests to the backend service
-- The application is integrated into the main docker-compose.yml file
+-   A Dockerfile is provided to build the application into an Nginx container
+-   The Nginx configuration proxies API requests to the backend service
+-   The application is integrated into the main docker-compose.yml file
 
 ## API Integration
 
 The application communicates with the LinkLift backend API:
 
-- Endpoint: `/api/v1/link`
-- Request format:
-  ```json
-  {
-    "url": "https://example.com",
-    "title": "Example Website",
-    "description": "A brief description of the website"
-  }
-  ```
+-   Endpoint: `/api/v1/link`
+-   Request format:
+    ```json
+    {
+        "url": "https://example.com",
+        "title": "Example Website",
+        "description": "A brief description of the website"
+    }
+    ```
 
 ## Available Pages
 
-- **Home**: Landing page with an introduction to LinkLift
-- **Add Link**: Form to add a new link to the system
-- **404 Not Found**: Custom page for invalid routes
+-   **Home**: Landing page with an introduction to LinkLift
+-   **Add Link**: Form to add a new link to the system
+-   **404 Not Found**: Custom page for invalid routes
 
 ## Testing
 
@@ -89,10 +89,10 @@ npm run test:coverage
 
 The test suite includes:
 
-- Component tests for all UI components
-- API service tests
-- Integration tests for key user flows
-- Route testing
+-   Component tests for all UI components
+-   API service tests
+-   Integration tests for key user flows
+-   Route testing
 
 Test files are located alongside the components in `__tests__` directories.
 

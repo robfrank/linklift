@@ -18,54 +18,54 @@ import org.mockito.MockitoAnnotations;
 
 class NewLinkServiceTest {
 
-  @Mock
-  private LinkPersistenceAdapter linkPersistenceAdapter;
+    @Mock
+    private LinkPersistenceAdapter linkPersistenceAdapter;
 
-  @Mock
-  private DomainEventPublisher eventPublisher;
+    @Mock
+    private DomainEventPublisher eventPublisher;
 
-  private NewLinkService newLinkService;
+    private NewLinkService newLinkService;
 
-  @BeforeEach
-  void setUp() {
-    MockitoAnnotations.openMocks(this);
-    newLinkService = new NewLinkService(linkPersistenceAdapter, eventPublisher);
-  }
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        newLinkService = new NewLinkService(linkPersistenceAdapter, eventPublisher);
+    }
 
-  @Test
-  void newLink_shouldCreateLinkWithCorrectData() {
-    // Arrange
-    NewLinkCommand command = new NewLinkCommand("https://example.com", "Example Title", "Example Description", "user-123");
+    @Test
+    void newLink_shouldCreateLinkWithCorrectData() {
+        // Arrange
+        NewLinkCommand command = new NewLinkCommand("https://example.com", "Example Title", "Example Description", "user-123");
 
-    Link expectedLink = new Link("test-id", "https://example.com", "Example Title", "Example Description", LocalDateTime.now(), "text/html", "user-123");
+        Link expectedLink = new Link("test-id", "https://example.com", "Example Title", "Example Description", LocalDateTime.now(), "text/html", "user-123");
 
-    when(linkPersistenceAdapter.saveLink(any(Link.class))).thenReturn(expectedLink);
+        when(linkPersistenceAdapter.saveLink(any(Link.class))).thenReturn(expectedLink);
 
-    // Act
-    Link result = newLinkService.newLink(command);
+        // Act
+        Link result = newLinkService.newLink(command);
 
-    // Assert
-    assertThat(result).isNotNull();
-    assertThat(result.url()).isEqualTo(command.url());
-    assertThat(result.title()).isEqualTo(command.title());
-    assertThat(result.description()).isEqualTo(command.description());
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.url()).isEqualTo(command.url());
+        assertThat(result.title()).isEqualTo(command.title());
+        assertThat(result.description()).isEqualTo(command.description());
 
-    // Verify link was saved with correct data
-    ArgumentCaptor<Link> linkCaptor = ArgumentCaptor.forClass(Link.class);
-    verify(linkPersistenceAdapter, times(1)).saveLink(linkCaptor.capture());
+        // Verify link was saved with correct data
+        ArgumentCaptor<Link> linkCaptor = ArgumentCaptor.forClass(Link.class);
+        verify(linkPersistenceAdapter, times(1)).saveLink(linkCaptor.capture());
 
-    Link capturedLink = linkCaptor.getValue();
-    assertThat(capturedLink.id()).isNotNull();
-    assertThat(capturedLink.url()).isEqualTo(command.url());
-    assertThat(capturedLink.title()).isEqualTo(command.title());
-    assertThat(capturedLink.description()).isEqualTo(command.description());
-    assertThat(capturedLink.contentType()).isEqualTo("text/html");
+        Link capturedLink = linkCaptor.getValue();
+        assertThat(capturedLink.id()).isNotNull();
+        assertThat(capturedLink.url()).isEqualTo(command.url());
+        assertThat(capturedLink.title()).isEqualTo(command.title());
+        assertThat(capturedLink.description()).isEqualTo(command.description());
+        assertThat(capturedLink.contentType()).isEqualTo("text/html");
 
-    // Verify event was published
-    ArgumentCaptor<LinkCreatedEvent> eventCaptor = ArgumentCaptor.forClass(LinkCreatedEvent.class);
-    verify(eventPublisher, times(1)).publish(eventCaptor.capture());
+        // Verify event was published
+        ArgumentCaptor<LinkCreatedEvent> eventCaptor = ArgumentCaptor.forClass(LinkCreatedEvent.class);
+        verify(eventPublisher, times(1)).publish(eventCaptor.capture());
 
-    LinkCreatedEvent capturedEvent = eventCaptor.getValue();
-    assertThat(capturedEvent.getLink()).isEqualTo(expectedLink);
-  }
+        LinkCreatedEvent capturedEvent = eventCaptor.getValue();
+        assertThat(capturedEvent.getLink()).isEqualTo(expectedLink);
+    }
 }

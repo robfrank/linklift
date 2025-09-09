@@ -4,35 +4,35 @@ import NotFound from "../NotFound";
 import userEvent from "@testing-library/user-event";
 
 describe("NotFound Component", () => {
-  test("renders 404 message", () => {
-    renderWithRouter(<NotFound />);
+    test("renders 404 message", () => {
+        renderWithRouter(<NotFound />);
 
-    expect(screen.getByText("404")).toBeInTheDocument();
-    expect(screen.getByText("Page Not Found")).toBeInTheDocument();
-  });
+        expect(screen.getByText("404")).toBeInTheDocument();
+        expect(screen.getByText("Page Not Found")).toBeInTheDocument();
+    });
 
-  test("renders error description", () => {
-    renderWithRouter(<NotFound />);
+    test("renders error description", () => {
+        renderWithRouter(<NotFound />);
 
-    expect(screen.getByText("The page you are looking for does not exist.")).toBeInTheDocument();
-  });
+        expect(screen.getByText("The page you are looking for does not exist.")).toBeInTheDocument();
+    });
 
-  test("renders return to home button", () => {
-    renderWithRouter(<NotFound />);
+    test("renders return to home button", () => {
+        renderWithRouter(<NotFound />);
 
-    const homeButton = screen.getByRole("link", { name: /return to home/i });
-    expect(homeButton).toBeInTheDocument();
-    expect(homeButton).toHaveAttribute("href", "/");
-  });
+        const homeButton = screen.getByRole("link", { name: /return to home/i });
+        expect(homeButton).toBeInTheDocument();
+        expect(homeButton).toHaveAttribute("href", "/");
+    });
 
-  test("navigates to home page when button is clicked", async () => {
-    const user = userEvent.setup();
-    renderWithRouter(<NotFound />);
+    test("navigates to home page when button is clicked", async () => {
+        const user = userEvent.setup();
+        renderWithRouter(<NotFound />);
 
-    const homeButton = screen.getByRole("link", { name: /return to home/i });
-    await user.click(homeButton);
+        const homeButton = screen.getByRole("link", { name: /return to home/i });
+        await user.click(homeButton);
 
-    // Since we're using MemoryRouter in tests, verify the href attribute
-    expect(homeButton).toHaveAttribute("href", "/");
-  });
+        // Since we're using MemoryRouter in tests, verify the href attribute
+        expect(homeButton).toHaveAttribute("href", "/");
+    });
 });

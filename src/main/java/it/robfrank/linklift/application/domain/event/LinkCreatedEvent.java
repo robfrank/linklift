@@ -5,27 +5,27 @@ import java.time.LocalDateTime;
 
 public class LinkCreatedEvent implements DomainEvent {
 
-  private final Link link;
-  private final String eventId;
-  private final LocalDateTime timestamp;
+    private final Link link;
+    private final String eventId;
+    private final LocalDateTime timestamp;
 
-  public LinkCreatedEvent(Link link) {
-    this.link = link;
-    this.eventId = DomainEvent.super.getEventId();
-    this.timestamp = LocalDateTime.now();
-  }
+    public LinkCreatedEvent(Link link) {
+        this.link = link;
+        this.eventId = DomainEvent.super.getEventId();
+        this.timestamp = LocalDateTime.now();
+    }
 
-  public Link getLink() {
-    return link;
-  }
+    public Link getLink() {
+        return link;
+    }
 
-  @Override
-  public String getEventId() {
-    return eventId;
-  }
+    @Override
+    public String getEventId() {
+        return eventId;
+    }
 
-  @Override
-  public LocalDateTime getTimestamp() {
-    return timestamp;
-  }
+    @Override
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }

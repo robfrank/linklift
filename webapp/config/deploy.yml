@@ -3,44 +3,44 @@ service: linklift
 image: robfrank/linklift
 
 servers:
-  web:
-    - <%= ENV["HOST_IP"] %>
+    web:
+        - <%= ENV["HOST_IP"] %>
 
 proxy:
-  ssl: false
-  host: linklift.arcadebrain.ai
-  app_port: 80
-  healthcheck:
-    path: /up
+    ssl: false
+    host: linklift.arcadebrain.ai
+    app_port: 80
+    healthcheck:
+        path: /up
 
 # Credentials for your image host.
 registry:
-  # Specify the registry server, if you're not using Docker Hub
-  server: ghcr.io
-  username: robfrank
+    # Specify the registry server, if you're not using Docker Hub
+    server: ghcr.io
+    username: robfrank
 
-  # Always use an access token rather than real password (pulled from .kamal/secrets).
-  password:
-    - KAMAL_REGISTRY_PASSWORD
+    # Always use an access token rather than real password (pulled from .kamal/secrets).
+    password:
+        - KAMAL_REGISTRY_PASSWORD
 
 # Configure builder setup.
 builder:
-  arch: amd64
+    arch: amd64
 env:
-  clear:
-    JAVA_OPTS: "-Xmx2G -Dlinklift.arcadedb.host=linklift-arcadedb"
+    clear:
+        JAVA_OPTS: "-Xmx2G -Dlinklift.arcadedb.host=linklift-arcadedb"
 
 ssh:
-  user: player
+    user: player
 
 accessories:
-  arcadedb:
-    image: arcadedata/arcadedb-headless:25.4.1
-    host: <%= ENV["HOST_IP"] %>
-    volumes:
-      - /home/player/linklift/config:/home/arcadedb/config
-      - /home/player/linklift/databases:/home/arcadedb/databases
-      - /home/player/linklift/log:/home/arcadedb/log
-    env:
-      clear:
-        JAVA_OPTS: "-Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin"
+    arcadedb:
+        image: arcadedata/arcadedb-headless:25.4.1
+        host: <%= ENV["HOST_IP"] %>
+        volumes:
+            - /home/player/linklift/config:/home/arcadedb/config
+            - /home/player/linklift/databases:/home/arcadedb/databases
+            - /home/player/linklift/log:/home/arcadedb/log
+        env:
+            clear:
+                JAVA_OPTS: "-Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin"

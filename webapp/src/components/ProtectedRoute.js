@@ -4,23 +4,23 @@ import { useAuth } from "../contexts/AuthContext";
 import { CircularProgress, Box } from "@mui/material";
 
 function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth();
-  const location = useLocation();
+    const { user, loading } = useAuth();
+    const location = useLocation();
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
 
-  if (!user) {
-    // Redirect to login page with return url
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+    if (!user) {
+        // Redirect to login page with return url
+        return <Navigate to="/login" state={{ from: location }} replace />;
+    }
 
-  return children;
+    return children;
 }
 
 export default ProtectedRoute;

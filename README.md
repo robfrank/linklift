@@ -11,46 +11,46 @@ LinkLift is a RESTful web service for managing web links with comprehensive CRUD
 
 ### Key Features
 
-- **🔗 Link Management**: Create and list web links with metadata
-- **🏗️ Clean Architecture**: Hexagonal architecture with strict layer separation
-- **📊 Pagination & Sorting**: Efficient data retrieval with flexible sorting options
-- **⚡ Event-Driven**: Domain events for loose coupling and extensibility
-- **🧪 Comprehensive Testing**: Unit, integration, and acceptance tests
-- **🛡️ Error Handling**: Centralized exception handling with meaningful error codes
-- **🔄 Database Agnostic**: Repository pattern enables flexible data storage
+-   **🔗 Link Management**: Create and list web links with metadata
+-   **🏗️ Clean Architecture**: Hexagonal architecture with strict layer separation
+-   **📊 Pagination & Sorting**: Efficient data retrieval with flexible sorting options
+-   **⚡ Event-Driven**: Domain events for loose coupling and extensibility
+-   **🧪 Comprehensive Testing**: Unit, integration, and acceptance tests
+-   **🛡️ Error Handling**: Centralized exception handling with meaningful error codes
+-   **🔄 Database Agnostic**: Repository pattern enables flexible data storage
 
 ## Quick Start
 
 ### Prerequisites
 
-- **Java 17+** - [Download here](https://adoptium.net/)
-- **Maven 3.8+** - [Installation guide](https://maven.apache.org/install.html)
-- **Docker & Docker Compose** - [Get Docker](https://docs.docker.com/get-docker/)
+-   **Java 17+** - [Download here](https://adoptium.net/)
+-   **Maven 3.8+** - [Installation guide](https://maven.apache.org/install.html)
+-   **Docker & Docker Compose** - [Get Docker](https://docs.docker.com/get-docker/)
 
 ### Installation
 
 1. **Clone the repository**
 
-   ```bash
-   git clone <repository-url>
-   cd linklift
-   ```
+    ```bash
+    git clone <repository-url>
+    cd linklift
+    ```
 
 2. **Start with Docker Compose** (Recommended)
 
-   ```bash
-   docker-compose up -d
-   ```
+    ```bash
+    docker-compose up -d
+    ```
 
 3. **Verify installation**
 
-   ```bash
-   curl http://localhost:7070/up
-   # Expected: OK
+    ```bash
+    curl http://localhost:7070/up
+    # Expected: OK
 
-   curl http://localhost:7070/api/v1/links
-   # Expected: {"data": {"content": [], ...}, "message": "Links retrieved successfully"}
-   ```
+    curl http://localhost:7070/api/v1/links
+    # Expected: {"data": {"content": [], ...}, "message": "Links retrieved successfully"}
+    ```
 
 ### Alternative: Manual Setup
 
@@ -84,15 +84,15 @@ curl -X PUT http://localhost:7070/api/v1/link \
 
 ```json
 {
-  "link": {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "url": "https://github.com",
-    "title": "GitHub",
-    "description": "The world's leading software development platform",
-    "extractedAt": "2025-08-15T18:12:39",
-    "contentType": "text/html"
-  },
-  "status": "Link received"
+    "link": {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "url": "https://github.com",
+        "title": "GitHub",
+        "description": "The world's leading software development platform",
+        "extractedAt": "2025-08-15T18:12:39",
+        "contentType": "text/html"
+    },
+    "status": "Link received"
 }
 ```
 
@@ -127,9 +127,9 @@ curl "http://localhost:7070/api/v1/links?page=0&size=10&sortBy=title&sortDirecti
 
 LinkLift follows **Hexagonal Architecture** (Ports and Adapters) with clear separation between:
 
-- **Domain Layer**: Pure business logic and rules
-- **Application Layer**: Use cases and service coordination
-- **Infrastructure Layer**: External adapters (web, database, events)
+-   **Domain Layer**: Pure business logic and rules
+-   **Application Layer**: Use cases and service coordination
+-   **Infrastructure Layer**: External adapters (web, database, events)
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -147,12 +147,12 @@ LinkLift follows **Hexagonal Architecture** (Ports and Adapters) with clear sepa
 
 ### Technology Stack
 
-- **☕ Java 17**: Modern language features and performance
-- **🚀 Javalin**: Lightweight, fast web framework
-- **🗄️ ArcadeDB**: Multi-model database (Graph, Document, Key-Value)
-- **🔨 Maven**: Build automation and dependency management
-- **🧪 JUnit 5**: Modern testing framework with comprehensive assertions
-- **🐳 Docker**: Containerization for consistent environments
+-   **☕ Java 17**: Modern language features and performance
+-   **🚀 Javalin**: Lightweight, fast web framework
+-   **🗄️ ArcadeDB**: Multi-model database (Graph, Document, Key-Value)
+-   **🔨 Maven**: Build automation and dependency management
+-   **🧪 JUnit 5**: Modern testing framework with comprehensive assertions
+-   **🐳 Docker**: Containerization for consistent environments
 
 ## Web Interface
 
@@ -193,9 +193,9 @@ npm run build
 
 The React app includes:
 
-- Component tests with React Testing Library
-- API mocking for isolated testing
-- Material UI for component styling
+-   Component tests with React Testing Library
+-   API mocking for isolated testing
+-   Material UI for component styling
 
 ## API Reference
 
@@ -222,24 +222,24 @@ All errors return a consistent JSON format:
 
 ```json
 {
-  "status": 400,
-  "code": 1001,
-  "message": "Validation error",
-  "fieldErrors": {
-    "url": "URL cannot be empty"
-  },
-  "path": "/api/v1/link",
-  "timestamp": "2025-08-15T18:12:39"
+    "status": 400,
+    "code": 1001,
+    "message": "Validation error",
+    "fieldErrors": {
+        "url": "URL cannot be empty"
+    },
+    "path": "/api/v1/link",
+    "timestamp": "2025-08-15T18:12:39"
 }
 ```
 
 **Common HTTP Status Codes:**
 
-- `200` - Success
-- `201` - Created
-- `400` - Bad Request (validation errors)
-- `409` - Conflict (duplicate URL)
-- `500` - Internal Server Error
+-   `200` - Success
+-   `201` - Created
+-   `400` - Bad Request (validation errors)
+-   `409` - Conflict (duplicate URL)
+-   `500` - Internal Server Error
 
 ## Development
 
@@ -281,9 +281,9 @@ The project includes comprehensive testing at multiple levels:
 
 **Test Categories:**
 
-- **Unit Tests**: Fast, isolated tests for business logic
-- **Integration Tests**: Tests with real database interactions
-- **Controller Tests**: API endpoint testing using JavalinTest
+-   **Unit Tests**: Fast, isolated tests for business logic
+-   **Integration Tests**: Tests with real database interactions
+-   **Controller Tests**: API endpoint testing using JavalinTest
 
 ```bash
 # Run all tests
@@ -305,18 +305,18 @@ open target/surefire-reports/index.html
 
 **ArcadeDB Connection:**
 
-- Host: localhost:2480 (HTTP API)
-- Database: linklift
-- Username: root
-- Password: playwithdata
+-   Host: localhost:2480 (HTTP API)
+-   Database: linklift
+-   Username: root
+-   Password: playwithdata
 
 **Web UI:** http://localhost:2480 (ArcadeDB Studio)
 
 ## Documentation
 
-- **[📖 API Reference](API.md)** - Complete API documentation with examples
-- **[🏗️ Architecture Guide](ARCHITECTURE.md)** - System design and architectural decisions
-- **[👨‍💻 Developer Guide](DEVELOPER_GUIDE.md)** - Setup and development workflow
+-   **[📖 API Reference](API.md)** - Complete API documentation with examples
+-   **[🏗️ Architecture Guide](ARCHITECTURE.md)** - System design and architectural decisions
+-   **[👨‍💻 Developer Guide](DEVELOPER_GUIDE.md)** - Setup and development workflow
 
 ## Contributing
 
@@ -332,11 +332,11 @@ We welcome contributions! Please follow these steps:
 
 ### Development Guidelines
 
-- ✅ Follow hexagonal architecture principles
-- ✅ Write tests for all new features
-- ✅ Use meaningful commit messages ([Conventional Commits](https://conventionalcommits.org/))
-- ✅ Update documentation as needed
-- ✅ Ensure code passes style checks
+-   ✅ Follow hexagonal architecture principles
+-   ✅ Write tests for all new features
+-   ✅ Use meaningful commit messages ([Conventional Commits](https://conventionalcommits.org/))
+-   ✅ Update documentation as needed
+-   ✅ Ensure code passes style checks
 
 ## Stopping the Services
 
@@ -353,9 +353,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Getting Help:**
 
-- 📚 Check the [Developer Guide](DEVELOPER_GUIDE.md) for detailed setup
-- 🐛 Create an [Issue](../../issues) for bugs or feature requests
-- 💬 Start a [Discussion](../../discussions) for questions
+-   📚 Check the [Developer Guide](DEVELOPER_GUIDE.md) for detailed setup
+-   🐛 Create an [Issue](../../issues) for bugs or feature requests
+-   💬 Start a [Discussion](../../discussions) for questions
 
 ---
 

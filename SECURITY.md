@@ -14,10 +14,10 @@ This application uses JWT tokens for authentication. The JWT secret must be prop
 
 ### Security Requirements
 
-- JWT secret must be at least 256 bits (32 characters when UTF-8 encoded)
-- Different secrets should be used for different environments
-- Secrets should be randomly generated with high entropy
-- Secrets must never be committed to version control
+-   JWT secret must be at least 256 bits (32 characters when UTF-8 encoded)
+-   Different secrets should be used for different environments
+-   Secrets should be randomly generated with high entropy
+-   Secrets must never be committed to version control
 
 ### Production Deployment
 
@@ -61,18 +61,18 @@ WARN - Set LINKLIFT_JWT_SECRET environment variable or LINKLIFT_JWT_SECRET_FILE 
 
 This is normal and expected in development. The auto-generated development secret:
 
-- Is deterministic per installation (same secret for the same development setup)
-- Provides adequate security for development
-- Includes sufficient entropy for testing
-- Will fail to start in production environments without proper configuration
+-   Is deterministic per installation (same secret for the same development setup)
+-   Provides adequate security for development
+-   Includes sufficient entropy for testing
+-   Will fail to start in production environments without proper configuration
 
 ### Security Features
 
-- **Environment Detection**: Automatically detects development vs production environments
-- **Validation**: Enforces minimum secret length (256 bits)
-- **Multiple Sources**: Supports both direct environment variables and file-based secrets
-- **Secure Fallbacks**: Provides secure development fallbacks while preventing production misuse
-- **Logging**: Provides clear guidance on security configuration issues
+-   **Environment Detection**: Automatically detects development vs production environments
+-   **Validation**: Enforces minimum secret length (256 bits)
+-   **Multiple Sources**: Supports both direct environment variables and file-based secrets
+-   **Secure Fallbacks**: Provides secure development fallbacks while preventing production misuse
+-   **Logging**: Provides clear guidance on security configuration issues
 
 ### Migration from Hardcoded Secrets
 

@@ -9,38 +9,38 @@ import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 
 public class LinksController {
 
-  private final NewLinkUseCase newLinkUseCase;
+    private final NewLinkUseCase newLinkUseCase;
 
-  public LinksController(NewLinkUseCase newLinkUseCase) {
-    this.newLinkUseCase = newLinkUseCase;
-  }
-
-  public void processLink(Context ctx) {
-    NewLinkCommand linkCommand = ctx
-      .bodyValidator(NewLinkCommand.class)
-      .check(command -> isNotEmpty(command.url()), "Url cannot be empty")
-      .check(command -> isNotEmpty(command.title()), "Title cannot be empty")
-      .check(command -> isNotEmpty(command.description()), "Description cannot be empty")
-      .get();
-
-    Link saved = newLinkUseCase.newLink(linkCommand);
-
-    ctx.status(201).json(new LinkResponse(saved, "Link received"));
-  }
-
-  public record LinkResponse(Link link, String status) {}
-
-  public static class Builder {
-
-    private NewLinkUseCase newLinkUseCase;
-
-    public Builder withNewLinkUseCase(NewLinkUseCase newLinkUseCase) {
-      this.newLinkUseCase = newLinkUseCase;
-      return this;
+    public LinksController(NewLinkUseCase newLinkUseCase) {
+        this.newLinkUseCase = newLinkUseCase;
     }
 
-    public LinksController build() {
-      return new LinksController(newLinkUseCase);
+    public void processLink(Context ctx) {
+        NewLinkCommand linkCommand = ctx
+            .bodyValidator(NewLinkCommand.class)
+            .check(command -> isNotEmpty(command.url()), "Url cannot be empty")
+            .check(command -> isNotEmpty(command.title()), "Title cannot be empty")
+            .check(command -> isNotEmpty(command.description()), "Description cannot be empty")
+            .get();
+
+        Link saved = newLinkUseCase.newLink(linkCommand);
+
+        ctx.status(201).json(new LinkResponse(saved, "Link received"));
     }
-  }
+
+    public record LinkResponse(Link link, String status) {}
+
+    public static class Builder {
+
+        private NewLinkUseCase newLinkUseCase;
+
+        public Builder withNewLinkUseCase(NewLinkUseCase newLinkUseCase) {
+            this.newLinkUseCase = newLinkUseCase;
+            return this;
+        }
+
+        public LinksController build() {
+            return new LinksController(newLinkUseCase);
+        }
+    }
 }

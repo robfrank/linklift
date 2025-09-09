@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -159,7 +160,7 @@ class ListLinksServiceTest {
             listLinksService.listLinks(query);
         }
 
-        verify(loadLinksPort, org.mockito.Mockito.times(validFields.length)).loadLinks(any(ListLinksQuery.class));
+        verify(loadLinksPort, Mockito.times(validFields.length)).loadLinks(any(ListLinksQuery.class));
     }
 
     @Test
@@ -177,6 +178,6 @@ class ListLinksServiceTest {
             listLinksService.listLinks(query);
         }
 
-        verify(loadLinksPort, org.mockito.Mockito.times(validDirections.length)).loadLinks(any(ListLinksQuery.class));
+        verify(loadLinksPort, Mockito.times(validDirections.length)).loadLinks(any(ListLinksQuery.class));
     }
 }

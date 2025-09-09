@@ -1,44 +1,45 @@
 version: "3.8"
 
 services:
-  arcadedb:
-    image: arcadedata/arcadedb:25.7.1
-    container_name: arcadedb
-    environment:
-      - JAVA_OPTS=-Darcadedb.server.rootPassword=playwithdata -Darcadedb.server.plugins=Prometheus:com.arcadedb.metrics.prometheus.PrometheusMetricsPlugin
-    ports:
-      - "2480:2480" # HTTP/REST API
-      - "2424:2424" # Binary protocol
-    volumes:
-      - arcadedb_data:/arcadedb/databases
-    healthcheck:
-      test: "wget --spider http://localhost:2480/api/v1/ready || exit 1"
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
+    arcadedb:
+        image: arcadedata/arcadedb:25.7.1
+        container_name: arcadedb
+        environment:
+            - JAVA_OPTS=-Darcadedb.server.rootPassword=playwithdata -Darcadedb.server.plugins=Prometheus:com.arcadedb.metrics.prometheus.PrometheusMetricsPlugin
+        ports:
+            - "2480:2480" # HTTP/REST API
+            - "2424:2424" # Binary protocol
+        volumes:
+            - arcadedb_data:/arcadedb/databases
+        healthcheck:
+            test: "wget --spider http://localhost:2480/api/v1/ready || exit 1"
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 10s
 
-  linklift:
-    image: robfrank/linklift:latest
-    container_name: linklift
-    environment:
-      - JAVA_OPTS=-Dlinklift.arcadedb.host=arcadedb -Xmx512M -XX:+UseZGC -XX:+ZGenerational
-    ports:
-      - "7070:7070"
-    depends_on:
-      arcadedb:
-        condition: service_healthy
-    restart: unless-stopped
+    linklift:
+        image: robfrank/linklift:latest
+        container_name: linklift
+        environment:
+            - LINKLIFT_JWT_SECRET=whatthefuckisajwtsecretandwhyishouldsetit
+            - JAVA_OPTS=-Dlinklift.arcadedb.host=arcadedb -Xmx512M -XX:+UseZGC -XX:+ZGenerational
+        ports:
+            - "7070:7070"
+        depends_on:
+            arcadedb:
+                condition: service_healthy
+        restart: unless-stopped
 
-  webapp:
-    build: ./webapp
-    container_name: linklift-webapp
-    ports:
-      - "80:80"
-    depends_on:
-      - linklift
-    restart: unless-stopped
+    webapp:
+        build: ./webapp
+        container_name: linklift-webapp
+        ports:
+            - "80:80"
+        depends_on:
+            - linklift
+        restart: unless-stopped
 
 volumes:
-  arcadedb_data:
-    driver: local
+    arcadedb_data:
+        driver: local

@@ -27,7 +27,7 @@
         <javalin.version>6.7.0</javalin.version>
         <arcadedb.version>25.7.1</arcadedb.version>
 
-        <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
+        <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>
         <testcontainers.version>1.21.3</testcontainers.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <mockito-core.version>5.19.0</mockito-core.version>

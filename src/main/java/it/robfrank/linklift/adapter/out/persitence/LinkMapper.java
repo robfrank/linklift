@@ -8,16 +8,13 @@ import it.robfrank.linklift.application.domain.model.Link;
 public class LinkMapper {
 
     Link mapToDomain(Vertex vertex) {
-        System.out.println("vertex = " + vertex.toJSON(true));
-
         return new Link(
                 vertex.getString("id"),
                 vertex.getString("url"),
                 vertex.getString("title"),
                 vertex.getString("description"),
                 vertex.getLocalDateTime("extractedAt"),
-                vertex.getString("contentType"),
-                vertex.getString("userId")
+                vertex.getString("contentType")
         );
     }
 
@@ -28,7 +25,6 @@ public class LinkMapper {
         vertex.set("description", link.description());
         vertex.set("extractedAt", link.extractedAt());
         vertex.set("contentType", link.contentType());
-        vertex.set("userId", link.userId());
         return vertex;
     }
 }

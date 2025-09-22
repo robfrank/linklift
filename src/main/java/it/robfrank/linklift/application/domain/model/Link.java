@@ -12,8 +12,7 @@ public record Link(
     @JsonProperty("title") @Nullable String title,
     @JsonProperty("description") @Nullable String description,
     @JsonProperty("extractedAt") @NonNull LocalDateTime extractedAt,
-    @JsonProperty("contentType") @Nullable String contentType,
-    @JsonProperty("userId") @NonNull String userId
+    @JsonProperty("contentType") @Nullable String contentType
 ) {
     public Link {
         extractedAt = extractedAt == null ? LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS) : extractedAt;

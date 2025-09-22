@@ -2,6 +2,7 @@ package it.robfrank.linklift.application.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import it.robfrank.linklift.adapter.out.persitence.LinkPersistenceAdapter;
@@ -37,9 +38,9 @@ class NewLinkServiceTest {
         // Arrange
         NewLinkCommand command = new NewLinkCommand("https://example.com", "Example Title", "Example Description", "user-123");
 
-        Link expectedLink = new Link("test-id", "https://example.com", "Example Title", "Example Description", LocalDateTime.now(), "text/html", "user-123");
+        Link expectedLink = new Link("test-id", "https://example.com", "Example Title", "Example Description", LocalDateTime.now(), "text/html");
 
-        when(linkPersistenceAdapter.saveLink(any(Link.class))).thenReturn(expectedLink);
+        when(linkPersistenceAdapter.saveLinkForUser(any(Link.class), eq("user-123"))).thenReturn(expectedLink);
 
         // Act
         Link result = newLinkService.newLink(command);
@@ -52,7 +53,7 @@ class NewLinkServiceTest {
 
         // Verify link was saved with correct data
         ArgumentCaptor<Link> linkCaptor = ArgumentCaptor.forClass(Link.class);
-        verify(linkPersistenceAdapter, times(1)).saveLink(linkCaptor.capture());
+        verify(linkPersistenceAdapter, times(1)).saveLinkForUser(linkCaptor.capture(), eq("user-123"));
 
         Link capturedLink = linkCaptor.getValue();
         assertThat(capturedLink.id()).isNotNull();
@@ -67,5 +68,6 @@ class NewLinkServiceTest {
 
         LinkCreatedEvent capturedEvent = eventCaptor.getValue();
         assertThat(capturedEvent.getLink()).isEqualTo(expectedLink);
+        assertThat(capturedEvent.getUserId()).isEqualTo("user-123");
     }
 }

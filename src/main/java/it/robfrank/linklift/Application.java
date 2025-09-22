@@ -113,7 +113,7 @@ public class Application {
     private static void configureEventSubscribers(SimpleEventPublisher eventPublisher) {
         // Configure event subscribers - this is where different components can subscribe to events
         eventPublisher.subscribe(LinkCreatedEvent.class, event -> {
-            logger.info("Link created: {} for user: {} at {}", event.getLink().url(), event.getLink().userId(), event.getTimestamp());
+            logger.info("Link created: {} for user: {} at {}", event.getLink().url(), event.getUserId(), event.getTimestamp());
         });
 
         eventPublisher.subscribe(LinksQueryEvent.class, event -> {

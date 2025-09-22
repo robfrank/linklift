@@ -27,8 +27,8 @@ class SimpleEventPublisherTest {
         AtomicBoolean linkCreatedHandlerCalled = new AtomicBoolean(false);
         AtomicBoolean genericEventHandlerCalled = new AtomicBoolean(false);
 
-        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", "user1");
-        LinkCreatedEvent event = new LinkCreatedEvent(link);
+        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
+        LinkCreatedEvent event = new LinkCreatedEvent(link, "user1");
 
         // Subscribe to specific event type
         eventPublisher.subscribe(LinkCreatedEvent.class, e -> {
@@ -68,8 +68,8 @@ class SimpleEventPublisherTest {
         }
 
         TestEvent testEvent = new TestEvent("test");
-        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", "user1");
-        LinkCreatedEvent linkEvent = new LinkCreatedEvent(link);
+        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
+        LinkCreatedEvent linkEvent = new LinkCreatedEvent(link, "user1");
 
         // Subscribe only to LinkCreatedEvent
         eventPublisher.subscribe(LinkCreatedEvent.class, e -> {
@@ -94,8 +94,8 @@ class SimpleEventPublisherTest {
         // Arrange
         AtomicInteger handlerCallCount = new AtomicInteger(0);
 
-        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", "user1");
-        LinkCreatedEvent event = new LinkCreatedEvent(link);
+        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
+        LinkCreatedEvent event = new LinkCreatedEvent(link, "user1");
 
         eventPublisher.subscribe(LinkCreatedEvent.class, e -> {
             handlerCallCount.incrementAndGet();

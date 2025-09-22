@@ -10,6 +10,7 @@ import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -38,8 +39,7 @@ public class ArcadeLinkRepository {
                                 title = ?,
                                 description = ?,
                                 extractedAt = ?,
-                                contentType = ?,
-                                userId = ?
+                                contentType = ?
                                 """,
                         link.id(),
                         link.url(),
@@ -48,8 +48,7 @@ public class ArcadeLinkRepository {
                         link.extractedAt()
                                 .truncatedTo(ChronoUnit.SECONDS)
                                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                        link.contentType(),
-                        link.userId()
+                        link.contentType()
                 );
             });
             return link;
@@ -59,12 +58,15 @@ public class ArcadeLinkRepository {
     }
 
 
-    public Link saveLink2(Link link) {
+    /**
+     * Save a link and create an OwnsLink relationship to the specified user.
+     * This method properly uses ArcadeDB's graph capabilities.
+     */
+    public Link saveLinkForUser(Link link, String userId) {
         try {
-
-
             database.transaction(() -> {
-                ResultSet resultSet = database.command(
+                // First, create the Link vertex
+                database.command(
                         "sql",
                         """
                                 INSERT INTO Link SET
@@ -73,8 +75,7 @@ public class ArcadeLinkRepository {
                                 title = ?,
                                 description = ?,
                                 extractedAt = ?,
-                                contentType = ?,
-                                userId = ?
+                                contentType = ?
                                 """,
                         link.id(),
                         link.url(),
@@ -83,9 +84,26 @@ public class ArcadeLinkRepository {
                         link.extractedAt()
                                 .truncatedTo(ChronoUnit.SECONDS)
                                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                        link.contentType(),
-                        link.userId()
+                        link.contentType()
                 );
+
+                // Then, create the OwnsLink relationship
+                ResultSet resultSet = database.command(
+                        "sql",
+                        """
+                                CREATE EDGE OwnsLink
+                                FROM (SELECT FROM User WHERE id = ?)
+                                TO (SELECT FROM Link WHERE id = ?)
+                                SET createdAt = ?, accessLevel = 'OWNER'
+                                """,
+                        userId,
+                        link.id(),
+                        link.extractedAt()
+                                .truncatedTo(ChronoUnit.SECONDS)
+                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                );
+
+                System.out.println("resultSet.next().getEdge().get().getIn().asVertex().toJSON(true) = " + resultSet.next().getEdge().get().getInVertex().toJSON(true));
             });
             return link;
         } catch (ArcadeDBException e) {
@@ -136,7 +154,7 @@ public class ArcadeLinkRepository {
 
     public LinkPage findLinksWithPaginationForUser(ListLinksQuery query, String userId) {
         try {
-            // First, get the total count
+            // First, get the total count using graph traversal
             long totalCount = getTotalLinkCountForUser(userId);
 
             // Build the ORDER BY clause
@@ -145,44 +163,52 @@ public class ArcadeLinkRepository {
             // Calculate offset
             int offset = query.page() * query.size();
 
-            // Query for the actual data
+            // Query for the actual data using graph traversal
             List<Link> links;
             if (userId != null) {
-                String sql = String.format(
-                    "SELECT FROM Link WHERE userId = ? %s SKIP %d LIMIT %d",
-                    orderClause, offset, query.size()
+                // Use graph traversal to get user's links
+                String sql = String.format("""
+                                SELECT expand(out('OwnsLink'))
+                                FROM User
+                                WHERE id = ?
+                                %s
+                                SKIP %d
+                                LIMIT %d
+                                """,
+                        orderClause, offset, query.size()
                 );
                 links = database
-                    .query("sql", sql, userId)
-                    .stream()
-                    .map(Result::getVertex)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .map(linkMapper::mapToDomain)
-                    .toList();
+                        .query("sql", sql, userId)
+                        .stream()
+                        .map(Result::getVertex)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .map(linkMapper::mapToDomain)
+                        .toList();
             } else {
+                // Query all links (admin use case)
                 String sql = String.format(
-                    "SELECT FROM Link %s SKIP %d LIMIT %d",
-                    orderClause, offset, query.size()
+                        "SELECT FROM Link %s SKIP %d LIMIT %d",
+                        orderClause, offset, query.size()
                 );
                 links = database
-                    .query("sql", sql)
-                    .stream()
-                    .map(Result::getVertex)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .map(linkMapper::mapToDomain)
-                    .toList();
+                        .query("sql", sql)
+                        .stream()
+                        .map(Result::getVertex)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .map(linkMapper::mapToDomain)
+                        .toList();
             }
 
             return new LinkPage(
-                links,
-                query.page(),
-                query.size(),
-                totalCount,
-                0, // Will be calculated in constructor
-                false, // Will be calculated in constructor
-                false // Will be calculated in constructor
+                    links,
+                    query.page(),
+                    query.size(),
+                    totalCount,
+                    0, // Will be calculated in constructor
+                    false, // Will be calculated in constructor
+                    false // Will be calculated in constructor
             );
 
         } catch (ArcadeDBException e) {
@@ -197,24 +223,162 @@ public class ArcadeLinkRepository {
     private long getTotalLinkCountForUser(String userId) {
         try {
             if (userId != null) {
-                return database
-                    .query("sql", "SELECT count(*) as count FROM Link WHERE userId = ?", userId)
-                    .stream()
-                    .findFirst()
-                    .map(result -> result.getProperty("count"))
-                    .map(count -> ((Number) count).longValue())
-                    .orElse(0L);
+                // Use graph traversal to count user's links
+                return database.query("sql",
+                                """
+                                        SELECT count(out('OwnsLink')) as count
+                                        FROM User
+                                        WHERE id = ?
+                                        """,
+                                userId)
+                        .stream()
+                        .findFirst()
+                        .map(result -> result.getProperty("count"))
+                        .map(count -> ((Number) count).longValue())
+                        .orElse(0L);
             } else {
-                return database
-                    .query("sql", "SELECT count(*) as count FROM Link")
-                    .stream()
-                    .findFirst()
-                    .map(result -> result.getProperty("count"))
-                    .map(count -> ((Number) count).longValue())
-                    .orElse(0L);
+                // Count all links (admin use case)
+                return database.query("sql", "SELECT count(*) as count FROM Link")
+                        .stream()
+                        .findFirst()
+                        .map(result -> result.getProperty("count"))
+                        .map(count -> ((Number) count).longValue())
+                        .orElse(0L);
             }
         } catch (ArcadeDBException e) {
             throw new DatabaseException("Failed to count total links", e);
+        }
+    }
+
+    /**
+     * Find links owned by a specific user using graph traversal.
+     * This method leverages ArcadeDB's graph capabilities for optimal performance.
+     */
+    public List<Link> findLinksByUserId(String userId) {
+        try {
+            return database.query("sql",
+                            """
+                                    SELECT expand(out('OwnsLink'))
+                                    FROM User
+                                    WHERE id = ?
+                                    ORDER BY extractedAt DESC
+                                    """,
+                            userId)
+                    .stream()
+                    .map(Result::getVertex)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(linkMapper::mapToDomain)
+                    .toList();
+        } catch (ArcadeDBException e) {
+            throw new DatabaseException("Failed to find links for user: " + userId, e);
+        }
+    }
+
+    /**
+     * Check if a user owns a specific link using graph traversal.
+     */
+    public boolean userOwnsLink(String userId, String linkId) {
+        try {
+            return database.query("sql",
+                            """
+                                    SELECT count(*) as count
+                                    FROM User
+                                    WHERE id = ?
+                                    AND out('OwnsLink').id CONTAINS ?
+                                    """,
+                            userId, linkId)
+                    .stream()
+                    .findFirst()
+                    .map(result -> result.<Integer>getProperty("count"))
+                    .map(count -> count > 0)
+                    .orElse(false);
+        } catch (ArcadeDBException e) {
+            throw new DatabaseException("Failed to check link ownership", e);
+        }
+    }
+
+    /**
+     * Get the owner of a specific link using graph traversal.
+     */
+    public Optional<String> getLinkOwner(String linkId) {
+        try {
+            return database
+                    .query("sql",
+                            """
+                                    SELECT expand(in('OwnsLink').id)
+                                    FROM Link
+                                    WHERE id = ?
+                                    """,
+                            linkId)
+                    .stream()
+                    .findFirst()
+                    .map(result -> result.getProperty("value"))
+                    .map(String::valueOf);
+        } catch (ArcadeDBException e) {
+            throw new DatabaseException("Failed to get link owner for: " + linkId, e);
+        }
+    }
+
+    /**
+     * Delete a link and its relationships.
+     */
+    public void deleteLink(String linkId) {
+        try {
+            database.transaction(() -> {
+                // Delete the link vertex (edges will be cascade deleted)
+                database.command("sql", "DELETE FROM Link WHERE id = ?", linkId);
+            });
+        } catch (ArcadeDBException e) {
+            throw new DatabaseException("Failed to delete link: " + linkId, e);
+        }
+    }
+
+    /**
+     * Transfer ownership of a link from one user to another.
+     */
+    public void transferLinkOwnership(String linkId, String fromUserId, String toUserId) {
+        try {
+//            "7666936a-4c4e-4acd-8146-ab1bf60088ec"
+            System.out.println("linkId = " + linkId);
+            database.transaction(() -> {
+                // Delete existing ownership
+                ResultSet resultSet = database.query("sql",
+                        """
+                                SELECT FROM OwnsLink
+                                WHERE @out in (SELECT FROM User where id = '?')
+                                AND @in in (SELECT FROM Link where id  = '?')
+                                """,
+                        fromUserId, linkId);
+
+                System.out.println("resultSet.hasNext() = " + resultSet.next().getEdge().get().toJSON(true));
+            });
+            database.transaction(() -> {
+                database.command("sql",
+                        """
+                                DELETE FROM OwnsLink
+                                WHERE @in in (SELECT FROM Link WHERE id = '?')
+                                AND @out in (SELECT FROM User WHERE id = '?')
+                                """,
+                        linkId, fromUserId);
+            });
+
+            database.transaction(() -> {
+                // Create new ownership
+                database.command("sql",
+                        """
+                                CREATE EDGE OwnsLink
+                                FROM (SELECT FROM User WHERE id = '?')
+                                TO (SELECT FROM Link WHERE id = '?')
+                                SET createdAt = ?, accessLevel = 'OWNER'
+                                """,
+                        toUserId, linkId,
+                        LocalDateTime.now()
+                                .truncatedTo(ChronoUnit.SECONDS)
+                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            });
+        } catch (ArcadeDBException e) {
+            throw new DatabaseException("Failed to transfer link ownership", e);
         }
     }
 

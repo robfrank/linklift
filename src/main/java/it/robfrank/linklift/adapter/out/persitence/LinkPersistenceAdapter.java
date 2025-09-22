@@ -22,6 +22,13 @@ public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort {
         return linkRepository.saveLink(link);
     }
 
+    /**
+     * Save a link with user ownership using graph relationships.
+     */
+    public Link saveLinkForUser(Link link, String userId) {
+        return linkRepository.saveLinkForUser(link, userId);
+    }
+
     public Optional<Link> findLinkByUrl(String url) {
         return linkRepository.findLinkByUrl(url);
     }
@@ -37,5 +44,40 @@ public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort {
     @Override
     public LinkPage loadLinks(ListLinksQuery query) {
         return linkRepository.findLinksWithPagination(query);
+    }
+
+    /**
+     * Load links for a specific user using graph traversal.
+     */
+    public LinkPage loadLinksForUser(ListLinksQuery query, String userId) {
+        return linkRepository.findLinksWithPaginationForUser(query, userId);
+    }
+
+    /**
+     * Check if a user owns a specific link.
+     */
+    public boolean userOwnsLink(String userId, String linkId) {
+        return linkRepository.userOwnsLink(userId, linkId);
+    }
+
+    /**
+     * Get the owner of a specific link.
+     */
+    public Optional<String> getLinkOwner(String linkId) {
+        return linkRepository.getLinkOwner(linkId);
+    }
+
+    /**
+     * Delete a link and its relationships.
+     */
+    public void deleteLink(String linkId) {
+        linkRepository.deleteLink(linkId);
+    }
+
+    /**
+     * Transfer ownership of a link between users.
+     */
+    public void transferLinkOwnership(String linkId, String fromUserId, String toUserId) {
+        linkRepository.transferLinkOwnership(linkId, fromUserId, toUserId);
     }
 }

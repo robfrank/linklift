@@ -47,7 +47,7 @@ jobs:
               uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
             - name: Set up GraalVM 24
-              uses: graalvm/setup-graalvm@7a1da54cb7fdef4ea19f6ecdfa9ecf59dc5a48fe # v1.3.6
+              uses: graalvm/setup-graalvm@aba6a077d71fbfc02138d7470c4ad6e7f85bd2a9 # v1.3.7
               with:
                   distribution: graalvm-community
                   java-version: "24"

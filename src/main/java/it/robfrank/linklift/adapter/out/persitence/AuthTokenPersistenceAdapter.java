@@ -2,7 +2,7 @@ package it.robfrank.linklift.adapter.out.persitence;
 
 import it.robfrank.linklift.application.domain.model.AuthToken;
 import it.robfrank.linklift.application.port.out.AuthTokenPort;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +64,7 @@ public class AuthTokenPersistenceAdapter implements AuthTokenPort {
     }
 
     @Override
-    public int deleteUsedTokensOlderThan(java.time.LocalDateTime cutoffDate) {
+    public int deleteUsedTokensOlderThan(LocalDateTime cutoffDate) {
         return authTokenRepository.deleteUsedTokensOlderThan(cutoffDate);
     }
 

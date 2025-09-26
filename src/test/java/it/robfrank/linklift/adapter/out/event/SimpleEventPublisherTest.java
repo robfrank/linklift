@@ -1,16 +1,15 @@
 package it.robfrank.linklift.adapter.out.event;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import it.robfrank.linklift.application.domain.event.DomainEvent;
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.model.Link;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class SimpleEventPublisherTest {
 

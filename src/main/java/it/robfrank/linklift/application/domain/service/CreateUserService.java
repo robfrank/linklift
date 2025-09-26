@@ -1,5 +1,6 @@
 package it.robfrank.linklift.application.domain.service;
 
+import it.robfrank.linklift.application.domain.event.DomainEvent;
 import it.robfrank.linklift.application.domain.exception.UserAlreadyExistsException;
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.User;
@@ -115,7 +116,7 @@ public class CreateUserService implements CreateUserUseCase {
     /**
      * Domain event published when a user is created.
      */
-    public record UserCreatedEvent(String userId, String username, String email) implements it.robfrank.linklift.application.domain.event.DomainEvent {
+    public record UserCreatedEvent(String userId, String username, String email) implements DomainEvent {
         public String getEventType() {
             return "USER_CREATED";
         }

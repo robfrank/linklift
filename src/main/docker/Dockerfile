@@ -1,6 +1,4 @@
-#FROM eclipse-temurin:24-jdk-alpine-3.22@sha256:8fdbcb6bc6b846640cea7058e6eeb56c311fae4efaa506a213789134065c6b90
-
-FROM amazoncorretto:25-alpine3.22@sha256:807ea3c4000a052986cd1e7097a883f9cd7a6e527f73841f462e3d04851b8835
+FROM eclipse-temurin:25-alpine@sha256:f4c0b771cfed29902e1dd2e5c183b9feca633c7686fb85e278a0486b03d27369
 
 # Update packages
 RUN apk --no-cache -U upgrade

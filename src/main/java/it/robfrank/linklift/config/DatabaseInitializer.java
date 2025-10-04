@@ -8,7 +8,10 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
@@ -48,7 +51,7 @@ public class DatabaseInitializer {
                     FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
                     applySchemaScripts(db, fileSystem.getPath("/schema"));
                 } else {
-                    applySchemaScripts(db, Paths.get(uri));
+                    applySchemaScripts(db, Path.of(uri));
                 }
             } catch (URISyntaxException | IOException e) {
                 System.out.printf("Error while reading schema files: %s %n", e.getMessage());

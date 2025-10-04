@@ -1,6 +1,8 @@
 package it.robfrank.linklift.config;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -49,13 +51,13 @@ public final class SecureConfiguration {
         String secretFile = System.getenv(JWT_SECRET_FILE_ENV);
         if (secretFile != null && !secretFile.trim().isEmpty()) {
             try {
-                secret = java.nio.file.Files.readString(java.nio.file.Paths.get(secretFile.trim()), StandardCharsets.UTF_8).trim();
+                secret = Files.readString(Path.of(secretFile.trim()), StandardCharsets.UTF_8).trim();
                 if (isValidSecret(secret)) {
                     logger.debug("JWT secret loaded from file: {}", secretFile);
                     return secret;
                 }
             } catch (Exception e) {
-                logger.warn("Failed to read JWT secret from file: {}", secretFile, e);
+                logger.error("Failed to read JWT secret from file: {}", secretFile, e);
             }
         }
 
@@ -68,7 +70,7 @@ public final class SecureConfiguration {
 
         // Production without proper secret configuration
         throw new IllegalStateException(
-            String.format("JWT secret not configured. Set environment variable '%s' or '%s' with a secure 256-bit secret", JWT_SECRET_ENV, JWT_SECRET_FILE_ENV)
+            "JWT secret not configured. Set environment variable '%s' or '%s' with a secure 256-bit secret".formatted(JWT_SECRET_ENV, JWT_SECRET_FILE_ENV)
         );
     }
 
@@ -143,12 +145,11 @@ public final class SecureConfiguration {
      */
     public static String getConfigurationHints() {
         if (isDevelopmentEnvironment()) {
-            return String.format(
-                "Development environment detected. For production, set '%s' environment variable with a secure 256-bit secret",
+            return "Development environment detected. For production, set '%s' environment variable with a secure 256-bit secret".formatted(
                 JWT_SECRET_ENV
             );
         } else {
-            return String.format("Production environment. Ensure '%s' or '%s' is configured with a secure secret", JWT_SECRET_ENV, JWT_SECRET_FILE_ENV);
+            return "Production environment. Ensure '%s' or '%s' is configured with a secure secret".formatted(JWT_SECRET_ENV, JWT_SECRET_FILE_ENV);
         }
     }
 }

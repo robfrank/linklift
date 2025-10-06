@@ -9,7 +9,6 @@ import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -167,36 +166,33 @@ public class ArcadeLinkRepository {
             List<Link> links;
             if (userId != null) {
                 // Use graph traversal to get user's links
-                String sql = String.format("""
+                String sql = """
                                 SELECT expand(out('OwnsLink'))
                                 FROM User
                                 WHERE id = ?
                                 %s
                                 SKIP %d
                                 LIMIT %d
-                                """,
-                        orderClause, offset, query.size()
+                                """.formatted(
+                    orderClause, offset, query.size()
                 );
                 links = database
                         .query("sql", sql, userId)
                         .stream()
                         .map(Result::getVertex)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
+                        .flatMap(Optional::stream)
                         .map(linkMapper::mapToDomain)
                         .toList();
             } else {
                 // Query all links (admin use case)
-                String sql = String.format(
-                        "SELECT FROM Link %s SKIP %d LIMIT %d",
-                        orderClause, offset, query.size()
+                String sql = "SELECT FROM Link %s SKIP %d LIMIT %d".formatted(
+                    orderClause, offset, query.size()
                 );
                 links = database
                         .query("sql", sql)
                         .stream()
                         .map(Result::getVertex)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
+                        .flatMap(Optional::stream)
                         .map(linkMapper::mapToDomain)
                         .toList();
             }
@@ -266,8 +262,7 @@ public class ArcadeLinkRepository {
                             userId)
                     .stream()
                     .map(Result::getVertex)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Optional::stream)
                     .map(linkMapper::mapToDomain)
                     .toList();
         } catch (ArcadeDBException e) {
@@ -385,7 +380,7 @@ public class ArcadeLinkRepository {
     private String buildOrderClause(String sortBy, String sortDirection) {
         // Map domain fields to database fields if needed
         String dbField = mapSortField(sortBy);
-        return String.format("ORDER BY %s %s", dbField, sortDirection.toUpperCase());
+        return "ORDER BY %s %s".formatted(dbField, sortDirection.toUpperCase());
     }
 
     private String mapSortField(String sortBy) {

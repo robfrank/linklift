@@ -2,7 +2,6 @@ package it.robfrank.linklift.adapter.out.security;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import it.robfrank.linklift.application.port.out.PasswordSecurityPort;
-
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.regex.Pattern;

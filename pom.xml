@@ -41,7 +41,7 @@
         <rewrite-static-analysis.version>2.18.0</rewrite-static-analysis.version>
         <rewrite-logging-frameworks.version>3.14.0</rewrite-logging-frameworks.version>
         <rewrite-maven-plugin.version>6.19.0</rewrite-maven-plugin.version>
-        <rewrite-migrate-java.version>3.17.1</rewrite-migrate-java.version>
+        <rewrite-migrate-java.version>3.18.0</rewrite-migrate-java.version>
         <rewrite-testing-frameworks.version>3.18.0</rewrite-testing-frameworks.version>
 
         <normalized.os.name>${os.name}</normalized.os.name>

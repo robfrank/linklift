@@ -47,7 +47,7 @@ jobs:
               uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
             - name: Set up GraalVM 25
-              uses: graalvm/setup-graalvm@e140024fdc2d95d3c7e10a636887a91090d29990 # v1.4.0
+              uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
               with:
                   distribution: graalvm-community
                   java-version: "25"
@@ -87,7 +87,7 @@ jobs:
                   severity-cutoff: critical
 
             - name: Upload SARIF Files
-              uses: github/codeql-action/upload-sarif@3599b3baa15b485a2e49ef411a7a4bb2452e7f93 # v3.30.5
+              uses: github/codeql-action/upload-sarif@64d10c13136e1c5bce3e5fbde8d4906eeaafc885 # v3.30.6
               with:
                   sarif_file: ${{ steps.scan.outputs.sarif }}
 

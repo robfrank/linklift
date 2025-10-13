@@ -38,7 +38,7 @@
         <arch-unit-maven-plugin.version>4.0.2</arch-unit-maven-plugin.version>
         <docker-maven-plugin.version>0.46.0</docker-maven-plugin.version>
 
-        <rewrite-static-analysis.version>2.18.0</rewrite-static-analysis.version>
+        <rewrite-static-analysis.version>2.19.0</rewrite-static-analysis.version>
         <rewrite-logging-frameworks.version>3.15.0</rewrite-logging-frameworks.version>
         <rewrite-maven-plugin.version>6.19.0</rewrite-maven-plugin.version>
         <rewrite-migrate-java.version>3.18.0</rewrite-migrate-java.version>

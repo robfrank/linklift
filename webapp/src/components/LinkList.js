@@ -21,8 +21,9 @@ import {
     IconButton,
     Tooltip
 } from "@mui/material";
-import { OpenInNew, Sort } from "@mui/icons-material";
+import { OpenInNew, Sort, Article } from "@mui/icons-material";
 import api from "../services/api";
+import { ContentViewerModal } from "./ContentViewer/ContentViewerModal";
 
 const LinkList = () => {
     const [links, setLinks] = useState([]);
@@ -34,6 +35,7 @@ const LinkList = () => {
     const [pageSize, setPageSize] = useState(10);
     const [sortBy, setSortBy] = useState("extractedAt");
     const [sortDirection, setSortDirection] = useState("DESC");
+    const [selectedLink, setSelectedLink] = useState(null);
 
     const fetchLinks = async () => {
         try {
@@ -190,7 +192,10 @@ const LinkList = () => {
                                                         Added {formatDate(link.extractedAt)}
                                                     </Typography>
 
-                                                    <CardActions sx={{ p: 0 }}>
+                                                    <CardActions sx={{ p: 0, gap: 1 }}>
+                                                        <Button size="small" onClick={() => setSelectedLink(link)} startIcon={<Article />} variant="contained">
+                                                            View Content
+                                                        </Button>
                                                         <Button
                                                             size="small"
                                                             component={Link}
@@ -234,6 +239,9 @@ const LinkList = () => {
                     )}
                 </Paper>
             </Box>
+
+            {/* Content Viewer Modal */}
+            {selectedLink && <ContentViewerModal linkId={selectedLink.id} linkTitle={selectedLink.title} onClose={() => setSelectedLink(null)} />}
         </Container>
     );
 };

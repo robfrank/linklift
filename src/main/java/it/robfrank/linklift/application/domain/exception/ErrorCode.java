@@ -31,6 +31,11 @@ public enum ErrorCode {
     UNAUTHORIZED_ACCESS(2204, "Unauthorized access"),
     INSUFFICIENT_PERMISSIONS(2205, "Insufficient permissions"),
 
+    // Domain-specific errors - Content
+    CONTENT_NOT_FOUND(2300, "Content not found"),
+    CONTENT_DOWNLOAD_FAILED(2301, "Content download failed"),
+    CONTENT_TOO_LARGE(2302, "Content size exceeds limit"),
+
     // Infrastructure errors
     DATABASE_ERROR(3000, "Database error"),
     NETWORK_ERROR(3001, "Network error");

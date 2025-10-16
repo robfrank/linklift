@@ -5,6 +5,8 @@ import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.exception.LinkAlreadyExistsException;
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.port.in.DownloadContentCommand;
+import it.robfrank.linklift.application.port.in.DownloadContentUseCase;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 import it.robfrank.linklift.application.port.out.DomainEventPublisher;
@@ -19,10 +21,16 @@ public class NewLinkService implements NewLinkUseCase {
 
     private final LinkPersistenceAdapter linkPersistenceAdapter;
     private final DomainEventPublisher eventPublisher;
+    private final DownloadContentUseCase downloadContentUseCase;
 
-    public NewLinkService(@NonNull LinkPersistenceAdapter linkPersistenceAdapter, @NonNull DomainEventPublisher eventPublisher) {
+    public NewLinkService(
+        @NonNull LinkPersistenceAdapter linkPersistenceAdapter,
+        @NonNull DomainEventPublisher eventPublisher,
+        @NonNull DownloadContentUseCase downloadContentUseCase
+    ) {
         this.linkPersistenceAdapter = linkPersistenceAdapter;
         this.eventPublisher = eventPublisher;
+        this.downloadContentUseCase = downloadContentUseCase;
     }
 
     @Override
@@ -49,6 +57,9 @@ public class NewLinkService implements NewLinkUseCase {
         var savedLink = linkPersistenceAdapter.saveLinkForUser(link, newLinkCommand.userId());
 
         System.out.println("savedLink = " + savedLink);
+
+        // Trigger async content download
+        downloadContentUseCase.downloadContentAsync(new DownloadContentCommand(savedLink.id(), savedLink.url()));
 
         eventPublisher.publish(new LinkCreatedEvent(savedLink, newLinkCommand.userId()));
 

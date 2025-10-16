@@ -7,6 +7,7 @@ import static io.javalin.apibuilder.ApiBuilder.put;
 
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.AuthenticationController;
+import it.robfrank.linklift.adapter.in.web.GetContentController;
 import it.robfrank.linklift.adapter.in.web.ListLinksController;
 import it.robfrank.linklift.adapter.in.web.NewLinkController;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
@@ -71,6 +72,13 @@ public class WebBuilder {
         app.before("/api/v1/links", requireAuthentication);
         app.before("/api/v1/links", RequirePermission.any(authorizationService, Role.Permissions.READ_OWN_LINKS));
         app.get("/api/v1/links", listLinksController::listLinks);
+        return this;
+    }
+
+    public WebBuilder withGetContentController(GetContentController getContentController) {
+        app.before("/api/v1/links/{linkId}/content", requireAuthentication);
+        app.before("/api/v1/links/{linkId}/content", RequirePermission.any(authorizationService, Role.Permissions.READ_OWN_LINKS));
+        app.get("/api/v1/links/{linkId}/content", getContentController::getContent);
         return this;
     }
 

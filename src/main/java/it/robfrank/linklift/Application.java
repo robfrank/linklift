@@ -3,14 +3,18 @@ package it.robfrank.linklift;
 import com.arcadedb.remote.RemoteDatabase;
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.AuthenticationController;
+import it.robfrank.linklift.adapter.in.web.GetContentController;
 import it.robfrank.linklift.adapter.in.web.ListLinksController;
 import it.robfrank.linklift.adapter.in.web.NewLinkController;
 import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
+import it.robfrank.linklift.adapter.out.http.HttpContentDownloader;
 import it.robfrank.linklift.adapter.out.persitence.ArcadeAuthTokenRepository;
+import it.robfrank.linklift.adapter.out.persitence.ArcadeContentRepository;
 import it.robfrank.linklift.adapter.out.persitence.ArcadeLinkRepository;
 import it.robfrank.linklift.adapter.out.persitence.ArcadeUserRepository;
 import it.robfrank.linklift.adapter.out.persitence.AuthTokenMapper;
 import it.robfrank.linklift.adapter.out.persitence.AuthTokenPersistenceAdapter;
+import it.robfrank.linklift.adapter.out.persitence.ContentPersistenceAdapter;
 import it.robfrank.linklift.adapter.out.persitence.LinkMapper;
 import it.robfrank.linklift.adapter.out.persitence.LinkPersistenceAdapter;
 import it.robfrank.linklift.adapter.out.persitence.UserMapper;
@@ -18,21 +22,30 @@ import it.robfrank.linklift.adapter.out.persitence.UserPersistenceAdapter;
 import it.robfrank.linklift.adapter.out.persitence.UserRolePersistenceAdapter;
 import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
 import it.robfrank.linklift.adapter.out.security.JwtTokenAdapter;
+import it.robfrank.linklift.application.domain.event.ContentDownloadCompletedEvent;
+import it.robfrank.linklift.application.domain.event.ContentDownloadFailedEvent;
+import it.robfrank.linklift.application.domain.event.ContentDownloadStartedEvent;
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.event.LinksQueryEvent;
 import it.robfrank.linklift.application.domain.service.AuthenticationService;
 import it.robfrank.linklift.application.domain.service.AuthorizationService;
 import it.robfrank.linklift.application.domain.service.CreateUserService;
+import it.robfrank.linklift.application.domain.service.DownloadContentService;
+import it.robfrank.linklift.application.domain.service.GetContentService;
 import it.robfrank.linklift.application.domain.service.ListLinksService;
 import it.robfrank.linklift.application.domain.service.NewLinkService;
 import it.robfrank.linklift.application.port.in.AuthenticateUserUseCase;
 import it.robfrank.linklift.application.port.in.CreateUserUseCase;
+import it.robfrank.linklift.application.port.in.DownloadContentUseCase;
+import it.robfrank.linklift.application.port.in.GetContentUseCase;
 import it.robfrank.linklift.application.port.in.ListLinksUseCase;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 import it.robfrank.linklift.application.port.in.RefreshTokenUseCase;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import it.robfrank.linklift.config.SecureConfiguration;
 import it.robfrank.linklift.config.WebBuilder;
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +71,9 @@ public class Application {
         ArcadeLinkRepository linkRepository = new ArcadeLinkRepository(database, linkMapper);
         LinkPersistenceAdapter linkPersistenceAdapter = new LinkPersistenceAdapter(linkRepository);
 
+        ArcadeContentRepository contentRepository = new ArcadeContentRepository(database);
+        ContentPersistenceAdapter contentPersistenceAdapter = new ContentPersistenceAdapter(contentRepository);
+
         UserMapper userMapper = new UserMapper();
         ArcadeUserRepository userRepository = new ArcadeUserRepository(database, userMapper);
         UserPersistenceAdapter userPersistenceAdapter = new UserPersistenceAdapter(userRepository);
@@ -72,6 +88,11 @@ public class Application {
         // Initialize security adapters
         BCryptPasswordSecurityAdapter passwordSecurityAdapter = new BCryptPasswordSecurityAdapter();
         JwtTokenAdapter jwtTokenAdapter = new JwtTokenAdapter(JWT_SECRET);
+
+        // Initialize HTTP client for content download
+        HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+
+        HttpContentDownloader contentDownloader = new HttpContentDownloader(httpClient);
 
         // Create and configure event publisher
         SimpleEventPublisher eventPublisher = new SimpleEventPublisher();
@@ -91,12 +112,16 @@ public class Application {
 
         AuthorizationService authorizationService = new AuthorizationService(jwtTokenAdapter, userPersistenceAdapter, userRolePersistenceAdapter);
 
-        NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);
+        DownloadContentUseCase downloadContentUseCase = new DownloadContentService(contentDownloader, contentPersistenceAdapter, eventPublisher);
+        GetContentUseCase getContentUseCase = new GetContentService(contentPersistenceAdapter);
+
+        NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher, downloadContentUseCase);
         ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
 
         // Initialize controllers
         NewLinkController newLinkController = new NewLinkController(newLinkUseCase);
         ListLinksController listLinksController = new ListLinksController(listLinksUseCase);
+        GetContentController getContentController = new GetContentController(getContentUseCase);
         AuthenticationController authenticationController = new AuthenticationController(userService, authenticationService, authenticationService);
 
         // Build and start web application
@@ -105,6 +130,7 @@ public class Application {
             .withAuthenticationController(authenticationController)
             .withLinkController(newLinkController)
             .withListLinksController(listLinksController)
+            .withGetContentController(getContentController)
             .build();
 
         app.start(7070);
@@ -139,6 +165,19 @@ public class Application {
         eventPublisher.subscribe(AuthenticationService.TokenRefreshedEvent.class, event -> {
             logger.info("Token refreshed for user: {} from {} at {}", event.username(), event.ipAddress(), event.timestamp());
         });
+
+        // Content download events
+        eventPublisher.subscribe(ContentDownloadStartedEvent.class, event -> {
+            logger.info("Content download started for link: {} at {}", event.getLinkId(), event.getTimestamp());
+        });
+
+        eventPublisher.subscribe(ContentDownloadCompletedEvent.class, event -> {
+            logger.info("Content download completed for link: {} at {}", event.getContent().linkId(), event.getTimestamp());
+        });
+
+        eventPublisher.subscribe(ContentDownloadFailedEvent.class, event -> {
+            logger.error("Content download failed for link: {} - {} at {}", event.getLinkId(), event.getErrorMessage(), event.getTimestamp());
+        });
     }
 
     // Method to start the application - useful for testing
@@ -152,6 +191,9 @@ public class Application {
         LinkMapper linkMapper = new LinkMapper();
         ArcadeLinkRepository linkRepository = new ArcadeLinkRepository(database, linkMapper);
         LinkPersistenceAdapter linkPersistenceAdapter = new LinkPersistenceAdapter(linkRepository);
+
+        ArcadeContentRepository contentRepository = new ArcadeContentRepository(database);
+        ContentPersistenceAdapter contentPersistenceAdapter = new ContentPersistenceAdapter(contentRepository);
 
         UserMapper userMapper = new UserMapper();
         ArcadeUserRepository userRepository = new ArcadeUserRepository(database, userMapper);
@@ -167,6 +209,11 @@ public class Application {
         // Initialize security adapters
         BCryptPasswordSecurityAdapter passwordSecurityAdapter = new BCryptPasswordSecurityAdapter();
         JwtTokenAdapter jwtTokenAdapter = new JwtTokenAdapter(JWT_SECRET);
+
+        // Initialize HTTP client for content download
+        HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+
+        HttpContentDownloader contentDownloader = new HttpContentDownloader(httpClient);
 
         SimpleEventPublisher eventPublisher = new SimpleEventPublisher();
         configureEventSubscribers(eventPublisher);
@@ -185,12 +232,16 @@ public class Application {
 
         AuthorizationService authorizationService = new AuthorizationService(jwtTokenAdapter, userPersistenceAdapter, userRolePersistenceAdapter);
 
-        NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);
+        DownloadContentUseCase downloadContentUseCase = new DownloadContentService(contentDownloader, contentPersistenceAdapter, eventPublisher);
+        GetContentUseCase getContentUseCase = new GetContentService(contentPersistenceAdapter);
+
+        NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher, downloadContentUseCase);
         ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
 
         // Initialize controllers
         NewLinkController newLinkController = new NewLinkController(newLinkUseCase);
         ListLinksController listLinksController = new ListLinksController(listLinksUseCase);
+        GetContentController getContentController = new GetContentController(getContentUseCase);
         AuthenticationController authenticationController = new AuthenticationController(userService, authenticationService, authenticationService);
 
         // Build and start web application
@@ -199,6 +250,7 @@ public class Application {
             .withAuthenticationController(authenticationController)
             .withLinkController(newLinkController)
             .withListLinksController(listLinksController)
+            .withGetContentController(getContentController)
             .build();
 
         app.start(port);

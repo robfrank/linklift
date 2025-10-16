@@ -19,6 +19,8 @@ public class GlobalExceptionHandler {
     public static void configure(Javalin app) {
         app.exception(LinkNotFoundException.class, GlobalExceptionHandler::handleLinkNotFoundException);
         app.exception(LinkAlreadyExistsException.class, GlobalExceptionHandler::handleLinkAlreadyExistsException);
+        app.exception(ContentNotFoundException.class, GlobalExceptionHandler::handleContentNotFoundException);
+        app.exception(ContentDownloadException.class, GlobalExceptionHandler::handleContentDownloadException);
         app.exception(ValidationException.class, GlobalExceptionHandler::handleValidationException);
         app.exception(AuthenticationException.class, GlobalExceptionHandler::handleAuthenticationException);
         app.exception(UserAlreadyExistsException.class, GlobalExceptionHandler::handleUserAlreadyExistsException);
@@ -86,6 +88,33 @@ public class GlobalExceptionHandler {
                 .path(ctx.path())
                 .build()
         );
+    }
+
+    private static void handleContentNotFoundException(ContentNotFoundException exception, Context ctx) {
+        ctx.status(HttpStatus.NOT_FOUND);
+        ctx.json(
+            ErrorResponse.builder()
+                .status(HttpStatus.NOT_FOUND.getCode())
+                .errorCode(exception.getErrorCode())
+                .message(exception.getMessage())
+                .path(ctx.path())
+                .build()
+        );
+    }
+
+    private static void handleContentDownloadException(ContentDownloadException exception, Context ctx) {
+        ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        ctx.json(
+            ErrorResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.getCode())
+                .errorCode(exception.getErrorCode())
+                .message(exception.getMessage())
+                .path(ctx.path())
+                .build()
+        );
+
+        // Log the exception for internal debugging
+        ctx.attribute("exception", exception);
     }
 
     private static void handleDatabaseException(DatabaseException exception, Context ctx) {

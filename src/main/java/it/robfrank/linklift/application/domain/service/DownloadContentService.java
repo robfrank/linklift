@@ -14,8 +14,12 @@ import it.robfrank.linklift.application.port.out.SaveContentPort;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DownloadContentService implements DownloadContentUseCase {
+
+    private static final Logger logger = LoggerFactory.getLogger(DownloadContentService.class);
 
     private static final int MAX_CONTENT_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -38,7 +42,7 @@ public class DownloadContentService implements DownloadContentUseCase {
         // Publish download started event
         eventPublisher.publish(new ContentDownloadStartedEvent(command.linkId(), command.url()));
 
-        System.out.println("Starting async content download for link: " + command.linkId() + ", url: " + command.url());
+        logger.info("Starting async content download for link: {}, url: {}", command.linkId(), command.url());
 
         // Start async download
         contentDownloader

@@ -19,6 +19,8 @@
         "@mui/icons-material": "^7.0.2",
         "@mui/material": "^7.0.2",
         "axios": "^1.8.4",
+        "dompurify": "^3.3.0",
+        "prop-types": "^15.8.1",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "react-router-dom": "^7.6.0"

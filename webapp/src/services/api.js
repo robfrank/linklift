@@ -30,6 +30,21 @@ const api = {
             console.error("Error fetching links:", error);
             throw error;
         }
+    },
+
+    /**
+     * Get content for a specific link
+     * @param {string} linkId - The link ID
+     * @returns {Promise<import('../types/content').ContentResponse>}
+     */
+    getContent: async (linkId) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/links/${linkId}/content`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching content for link ${linkId}:`, error);
+            throw error;
+        }
     }
 };
 

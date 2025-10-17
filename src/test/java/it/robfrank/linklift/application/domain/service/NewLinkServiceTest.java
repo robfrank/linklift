@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 import it.robfrank.linklift.adapter.out.persitence.LinkPersistenceAdapter;
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.port.in.DownloadContentUseCase;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.out.DomainEventPublisher;
 import java.time.LocalDateTime;
@@ -25,12 +26,15 @@ class NewLinkServiceTest {
     @Mock
     private DomainEventPublisher eventPublisher;
 
+    @Mock
+    private DownloadContentUseCase downloadContentUseCase;
+
     private NewLinkService newLinkService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        newLinkService = new NewLinkService(linkPersistenceAdapter, eventPublisher);
+        newLinkService = new NewLinkService(linkPersistenceAdapter, eventPublisher, downloadContentUseCase);
     }
 
     @Test
@@ -69,5 +73,8 @@ class NewLinkServiceTest {
         LinkCreatedEvent capturedEvent = eventCaptor.getValue();
         assertThat(capturedEvent.getLink()).isEqualTo(expectedLink);
         assertThat(capturedEvent.getUserId()).isEqualTo("user-123");
+
+        // Verify async content download was triggered
+        verify(downloadContentUseCase, times(1)).downloadContentAsync(any());
     }
 }

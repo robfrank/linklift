@@ -16,8 +16,12 @@ import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NewLinkService implements NewLinkUseCase {
+
+    private static final Logger logger = LoggerFactory.getLogger(NewLinkService.class);
 
     private final LinkPersistenceAdapter linkPersistenceAdapter;
     private final DomainEventPublisher eventPublisher;
@@ -56,7 +60,7 @@ public class NewLinkService implements NewLinkUseCase {
 
         var savedLink = linkPersistenceAdapter.saveLinkForUser(link, newLinkCommand.userId());
 
-        System.out.println("savedLink = " + savedLink);
+        logger.debug("savedLink = {}", savedLink);
 
         // Trigger async content download
         downloadContentUseCase.downloadContentAsync(new DownloadContentCommand(savedLink.id(), savedLink.url()));

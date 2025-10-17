@@ -17,6 +17,6 @@ public record Content(
     @JsonProperty("status") @NonNull DownloadStatus status
 ) {
     public Content {
-        downloadedAt = downloadedAt == null ? LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS) : downloadedAt;
+        downloadedAt = downloadedAt.truncatedTo(ChronoUnit.SECONDS);
     }
 }

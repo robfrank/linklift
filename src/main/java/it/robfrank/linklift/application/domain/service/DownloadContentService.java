@@ -76,7 +76,7 @@ public class DownloadContentService implements DownloadContentUseCase {
                     // Publish success event
                     eventPublisher.publish(new ContentDownloadCompletedEvent(savedContent));
 
-                    System.out.println("Content download completed for link: " + command.linkId());
+                    logger.info("Content download completed for link: {}", command.linkId());
                 } catch (Exception e) {
                     handleDownloadFailure(command, e);
                 }
@@ -89,7 +89,7 @@ public class DownloadContentService implements DownloadContentUseCase {
 
     private void handleDownloadFailure(@NonNull DownloadContentCommand command, @NonNull Throwable throwable) {
         String errorMessage = throwable.getMessage() != null ? throwable.getMessage() : "Unknown error";
-        System.err.println("Content download failed for link: " + command.linkId() + ", error: " + errorMessage);
+        logger.error("Content download failed for link: {}, url: {}", command.linkId(), command.url(), throwable);
 
         // Publish failure event
         eventPublisher.publish(new ContentDownloadFailedEvent(command.linkId(), command.url(), errorMessage));
@@ -100,7 +100,7 @@ public class DownloadContentService implements DownloadContentUseCase {
             Content failedContent = new Content(contentId, command.linkId(), null, null, null, LocalDateTime.now(), null, DownloadStatus.FAILED);
             saveContentPort.saveContent(failedContent);
         } catch (Exception e) {
-            System.err.println("Failed to save error content record: " + e.getMessage());
+            logger.error("Failed to save error content record for link: {}", command.linkId(), e);
         }
     }
 }

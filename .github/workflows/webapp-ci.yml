@@ -1,39 +1,39 @@
 name: Webapp CI
 
 on:
-    push:
-        branches: [main]
-        paths:
-            - "webapp/**"
-    pull_request:
-        branches: [main]
-        paths:
-            - "webapp/**"
-    workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "webapp/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "webapp/**"
+  workflow_dispatch:
 
 jobs:
-    test:
-        name: Test React Frontend
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: ./webapp
+  test:
+    name: Test React Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./webapp
 
-        steps:
-            - uses: actions/checkout@v5
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v6
-              with:
-                  node-version: "18"
-                  cache: "npm"
-                  cache-dependency-path: webapp/package-lock.json
+      - name: Setup Node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: webapp/package-lock.json
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Run tests
-              run: npm test
+      - name: Run tests
+        run: npm test
 
-            - name: Build project
-              run: npm run build
+      - name: Build project
+        run: npm run build

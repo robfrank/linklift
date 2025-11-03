@@ -1,4 +1,4 @@
-name: Update versions
+name: Update Docker images
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     - cron: "5 8 * * 0"
 
 jobs:
-  update-deploy:
+  update-docker-images:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -21,7 +21,7 @@ jobs:
       - name: Run Updatecli to update docker-compose
         shell: bash
         run: |
-          updatecli apply --config ./updatecli/auto.yml
+          updatecli apply --config ./.updatecli/auto.yml
         env:
           GITHUB_TOKEN: "${{ env.GITHUB_TOKEN }}"
 

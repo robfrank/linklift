@@ -1,0 +1,8 @@
+name: "Docker compose autodiscovery "
+
+autodiscovery:
+  crawlers:
+    dockercompose:
+      versionfilter:
+        kind: semver
+        pattern: minor

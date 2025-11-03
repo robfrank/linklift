@@ -3,3 +3,7 @@ name: "Docker compose autodiscovery "
 autodiscovery:
   crawlers:
     dockercompose:
+      ignore:
+        - path: "docker-compose.yml"
+          services:
+            - linklift

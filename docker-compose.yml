@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
     arcadedb:
-        image: arcadedata/arcadedb:25.8.1
+        image: arcadedata/arcadedb:25.9.1@sha256:75a5547947076672097856095db84bd467d79690f6271e06e1a1c64dd39c6fc3
         container_name: arcadedb
         environment:
             - JAVA_OPTS=-Darcadedb.server.rootPassword=playwithdata -Darcadedb.server.plugins=Prometheus:com.arcadedb.metrics.prometheus.PrometheusMetricsPlugin
@@ -19,7 +19,7 @@ services:
             start_period: 10s
 
     linklift:
-        image: robfrank/linklift:latest
+        image: robfrank/linklift:latest@sha256:946e2bb0644b115c0eb42947f0ffc9c5301151d7d8d5e8231c6c203b6ab8779f
         container_name: linklift
         environment:
             - LINKLIFT_JWT_SECRET=whatthefuckisajwtsecretandwhyishouldsetit

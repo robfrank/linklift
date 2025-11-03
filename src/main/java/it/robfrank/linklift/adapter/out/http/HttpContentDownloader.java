@@ -9,9 +9,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import org.jspecify.annotations.NonNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

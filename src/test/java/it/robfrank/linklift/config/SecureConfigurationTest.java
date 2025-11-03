@@ -1,7 +1,6 @@
 package it.robfrank.linklift.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;

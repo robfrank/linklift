@@ -25,9 +25,11 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ env.GITHUB_TOKEN }}"
 
-      - name: Run custom script to update Kamal configuration
-        run: |
-          ./scripts/update-accessories.sh update-all
+      - name: Update Kamal accessories
+        uses: robfrank/kamal-accessories-updater@ecbebed116a23b972968e87cd167b71516f9b00c # v25.11.0
+        with:
+          config-dir: ./config
+          mode: update-all
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8

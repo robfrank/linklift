@@ -42,7 +42,7 @@ public class DownloadContentService implements DownloadContentUseCase {
     // Publish download started event
     eventPublisher.publish(new ContentDownloadStartedEvent(command.linkId(), command.url()));
 
-    logger.info("Starting async content download for link: {}, url: {}", command.linkId(), command.url());
+    logger.atInfo().addArgument(() -> command.linkId()).addArgument(() -> command.url()).log("Starting async content download for link: {}, url: {}");
 
     // Start async download
     contentDownloader
@@ -76,7 +76,7 @@ public class DownloadContentService implements DownloadContentUseCase {
           // Publish success event
           eventPublisher.publish(new ContentDownloadCompletedEvent(savedContent));
 
-          logger.info("Content download completed for link: {}", command.linkId());
+          logger.atInfo().addArgument(() -> command.linkId()).log("Content download completed for link: {}");
         } catch (Exception e) {
           handleDownloadFailure(command, e);
         }

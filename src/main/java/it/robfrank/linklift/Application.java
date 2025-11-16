@@ -8,39 +8,15 @@ import it.robfrank.linklift.adapter.in.web.ListLinksController;
 import it.robfrank.linklift.adapter.in.web.NewLinkController;
 import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
 import it.robfrank.linklift.adapter.out.http.HttpContentDownloader;
-import it.robfrank.linklift.adapter.out.persitence.ArcadeAuthTokenRepository;
-import it.robfrank.linklift.adapter.out.persitence.ArcadeContentRepository;
-import it.robfrank.linklift.adapter.out.persitence.ArcadeLinkRepository;
-import it.robfrank.linklift.adapter.out.persitence.ArcadeUserRepository;
-import it.robfrank.linklift.adapter.out.persitence.AuthTokenMapper;
-import it.robfrank.linklift.adapter.out.persitence.AuthTokenPersistenceAdapter;
-import it.robfrank.linklift.adapter.out.persitence.ContentPersistenceAdapter;
-import it.robfrank.linklift.adapter.out.persitence.LinkMapper;
-import it.robfrank.linklift.adapter.out.persitence.LinkPersistenceAdapter;
-import it.robfrank.linklift.adapter.out.persitence.UserMapper;
-import it.robfrank.linklift.adapter.out.persitence.UserPersistenceAdapter;
-import it.robfrank.linklift.adapter.out.persitence.UserRolePersistenceAdapter;
+import it.robfrank.linklift.adapter.out.persitence.*;
 import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
 import it.robfrank.linklift.adapter.out.security.JwtTokenAdapter;
-import it.robfrank.linklift.application.domain.event.ContentDownloadCompletedEvent;
-import it.robfrank.linklift.application.domain.event.ContentDownloadFailedEvent;
-import it.robfrank.linklift.application.domain.event.ContentDownloadStartedEvent;
-import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
-import it.robfrank.linklift.application.domain.event.LinksQueryEvent;
-import it.robfrank.linklift.application.domain.service.AuthenticationService;
-import it.robfrank.linklift.application.domain.service.AuthorizationService;
-import it.robfrank.linklift.application.domain.service.CreateUserService;
-import it.robfrank.linklift.application.domain.service.DownloadContentService;
-import it.robfrank.linklift.application.domain.service.GetContentService;
-import it.robfrank.linklift.application.domain.service.ListLinksService;
-import it.robfrank.linklift.application.domain.service.NewLinkService;
-import it.robfrank.linklift.application.port.in.AuthenticateUserUseCase;
-import it.robfrank.linklift.application.port.in.CreateUserUseCase;
+import it.robfrank.linklift.application.domain.event.*;
+import it.robfrank.linklift.application.domain.service.*;
 import it.robfrank.linklift.application.port.in.DownloadContentUseCase;
 import it.robfrank.linklift.application.port.in.GetContentUseCase;
 import it.robfrank.linklift.application.port.in.ListLinksUseCase;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
-import it.robfrank.linklift.application.port.in.RefreshTokenUseCase;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import it.robfrank.linklift.config.SecureConfiguration;
 import it.robfrank.linklift.config.WebBuilder;
@@ -60,7 +36,7 @@ public class Application {
     String arcadedbServer = System.getProperty("linklift.arcadedb.host", "localhost");
 
     logger.info("Starting LinkLift application with ArcadeDB server: {}", arcadedbServer);
-    logger.info("Security configuration: {}", SecureConfiguration.getConfigurationHints());
+    logger.atInfo().addArgument(() -> SecureConfiguration.getConfigurationHints()).log("Security configuration: {}");
 
     new DatabaseInitializer(arcadedbServer, 2480, "root", "playwithdata").initializeDatabase();
 
@@ -139,31 +115,24 @@ public class Application {
   private static void configureEventSubscribers(SimpleEventPublisher eventPublisher) {
     // Configure event subscribers - this is where different components can subscribe to events
     eventPublisher.subscribe(LinkCreatedEvent.class, event -> {
-      logger.info("Link created: {} for user: {} at {}", event.getLink().url(), event.getUserId(), event.getTimestamp());
+      logger.atInfo().addArgument(() -> event.getLink().url()).addArgument(event.getUserId()).addArgument(event.getTimestamp()).log("Link created: {} for user: {} at {}");
     });
 
     eventPublisher.subscribe(LinksQueryEvent.class, event -> {
-      logger.info(
-        "Links queried: page={}, size={}, results={} for user: {} at {}",
-        event.getQuery().page(),
-        event.getQuery().size(),
-        event.getResultCount(),
-        event.getQuery().userId(),
-        event.getTimestamp()
-      );
+      logger.atInfo().addArgument(() -> event.getQuery().page()).addArgument(() -> event.getQuery().size()).addArgument(event.getResultCount()).addArgument(() -> event.getQuery().userId()).addArgument(event.getTimestamp()).log("Links queried: page={}, size={}, results={} for user: {} at {}");
     });
 
     // User management events
     eventPublisher.subscribe(CreateUserService.UserCreatedEvent.class, event -> {
-      logger.info("User created: {} ({}) at {}", event.username(), event.email(), LocalDateTime.now());
+      logger.atInfo().addArgument(() -> event.username()).addArgument(() -> event.email()).addArgument(() -> LocalDateTime.now()).log("User created: {} ({}) at {}");
     });
 
     eventPublisher.subscribe(AuthenticationService.UserAuthenticatedEvent.class, event -> {
-      logger.info("User authenticated: {} from {} at {}", event.username(), event.ipAddress(), event.timestamp());
+      logger.atInfo().addArgument(() -> event.username()).addArgument(() -> event.ipAddress()).addArgument(() -> event.timestamp()).log("User authenticated: {} from {} at {}");
     });
 
     eventPublisher.subscribe(AuthenticationService.TokenRefreshedEvent.class, event -> {
-      logger.info("Token refreshed for user: {} from {} at {}", event.username(), event.ipAddress(), event.timestamp());
+      logger.atInfo().addArgument(() -> event.username()).addArgument(() -> event.ipAddress()).addArgument(() -> event.timestamp()).log("Token refreshed for user: {} from {} at {}");
     });
 
     // Content download events
@@ -172,7 +141,7 @@ public class Application {
     });
 
     eventPublisher.subscribe(ContentDownloadCompletedEvent.class, event -> {
-      logger.info("Content download completed for link: {} at {}", event.getContent().linkId(), event.getTimestamp());
+      logger.atInfo().addArgument(() -> event.getContent().linkId()).addArgument(event.getTimestamp()).log("Content download completed for link: {} at {}");
     });
 
     eventPublisher.subscribe(ContentDownloadFailedEvent.class, event -> {

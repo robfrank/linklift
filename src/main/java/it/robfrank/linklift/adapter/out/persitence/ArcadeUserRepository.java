@@ -6,7 +6,7 @@ import com.arcadedb.query.sql.executor.ResultSet;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
 import it.robfrank.linklift.application.domain.model.User;
-
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -67,7 +67,7 @@ public class ArcadeUserRepository {
     public User update(User user) {
         try {
             // First check if user exists
-            if (!findById(user.id()).isPresent()) {
+            if (findById(user.id()).isEmpty()) {
                 throw new RuntimeException("User not found with id: " + user.id());
             }
 
@@ -159,7 +159,7 @@ public class ArcadeUserRepository {
             var result = database.query("sql", "SELECT count(*) as count FROM User WHERE username = ?", username);
             if (result.hasNext()) {
                 var count = result.next().getProperty("count");
-                return count instanceof Number && ((Number) count).longValue() > 0;
+                return count instanceof Number n && n.longValue() > 0;
             }
             return false;
         } catch (ArcadeDBException e) {
@@ -172,7 +172,7 @@ public class ArcadeUserRepository {
             var result = database.query("sql", "SELECT count(*) as count FROM User WHERE email = ?", email);
             if (result.hasNext()) {
                 var count = result.next().getProperty("count");
-                return count instanceof Number && ((Number) count).longValue() > 0;
+                return count instanceof Number n && n.longValue() > 0;
             }
             return false;
         } catch (ArcadeDBException e) {
@@ -186,7 +186,7 @@ public class ArcadeUserRepository {
                 database.command(
                     "sql",
                     "UPDATE User SET isActive = false, updatedAt = ? WHERE id = ?",
-                    java.time.LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                    LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                     userId
                 );
             });

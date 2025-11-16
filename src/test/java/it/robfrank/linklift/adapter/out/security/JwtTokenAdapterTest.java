@@ -4,13 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import it.robfrank.linklift.application.domain.model.User;
 import it.robfrank.linklift.application.port.out.JwtTokenPort;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class JwtTokenAdapterTest {
 
@@ -105,7 +104,7 @@ class JwtTokenAdapterTest {
     }
 
     @Test
-    void validateToken_shouldReturnEmpty_whenTokenIsExpired() throws InterruptedException {
+    void validateToken_shouldReturnEmpty_whenTokenIsExpired() throws Exception {
         // Arrange - Create a token that expires in 1 second
         LocalDateTime expirationTime = LocalDateTime.now(ZoneOffset.UTC).plusSeconds(1);
         String token = jwtTokenAdapter.generateAccessToken(testUser, expirationTime);

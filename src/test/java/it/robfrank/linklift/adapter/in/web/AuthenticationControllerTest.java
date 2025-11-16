@@ -13,12 +13,7 @@ import it.robfrank.linklift.application.domain.exception.UserAlreadyExistsExcept
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.User;
 import it.robfrank.linklift.application.domain.service.AuthenticationService;
-import it.robfrank.linklift.application.port.in.AuthenticateUserCommand;
-import it.robfrank.linklift.application.port.in.AuthenticateUserUseCase;
-import it.robfrank.linklift.application.port.in.CreateUserCommand;
-import it.robfrank.linklift.application.port.in.CreateUserUseCase;
-import it.robfrank.linklift.application.port.in.RefreshTokenCommand;
-import it.robfrank.linklift.application.port.in.RefreshTokenUseCase;
+import it.robfrank.linklift.application.port.in.*;
 import java.time.LocalDateTime;
 import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;

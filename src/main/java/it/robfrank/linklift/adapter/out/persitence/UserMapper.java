@@ -31,11 +31,11 @@ public class UserMapper {
         if (value == null) {
             return null;
         }
-        if (value instanceof LocalDateTime) {
-            return (LocalDateTime) value;
+        if (value instanceof LocalDateTime time) {
+            return time;
         }
-        if (value instanceof String) {
-            return LocalDateTime.parse((String) value, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        if (value instanceof String string) {
+            return LocalDateTime.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
         throw new IllegalArgumentException("Cannot parse datetime from " + value.getClass());
     }

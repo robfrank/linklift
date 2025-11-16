@@ -2,7 +2,6 @@ package it.robfrank.linklift.adapter.out.event;
 
 import it.robfrank.linklift.application.domain.event.DomainEvent;
 import it.robfrank.linklift.application.port.out.DomainEventPublisher;
-
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;

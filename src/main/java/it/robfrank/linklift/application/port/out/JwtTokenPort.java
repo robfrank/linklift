@@ -1,11 +1,10 @@
 package it.robfrank.linklift.application.port.out;
 
 import it.robfrank.linklift.application.domain.model.User;
-import org.jspecify.annotations.NonNull;
-
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Port interface for JWT token operations.

@@ -1,10 +1,10 @@
 package it.robfrank.linklift.application.port.out;
 
 import it.robfrank.linklift.application.domain.model.AuthToken;
-import org.jspecify.annotations.NonNull;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Port interface for authentication token management.
@@ -59,5 +59,5 @@ public interface AuthTokenPort {
     /**
      * Deletes used tokens older than the specified cutoff date.
      */
-    int deleteUsedTokensOlderThan(java.time.@NonNull LocalDateTime cutoffDate);
+    int deleteUsedTokensOlderThan(@NonNull LocalDateTime cutoffDate);
 }

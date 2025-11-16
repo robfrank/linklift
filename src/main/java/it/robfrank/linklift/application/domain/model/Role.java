@@ -2,7 +2,6 @@ package it.robfrank.linklift.application.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Role domain model representing user roles and permissions in the system.

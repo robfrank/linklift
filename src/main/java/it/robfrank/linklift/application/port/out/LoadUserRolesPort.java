@@ -1,7 +1,6 @@
 package it.robfrank.linklift.application.port.out;
 
 import it.robfrank.linklift.application.domain.model.Role;
-
 import java.util.List;
 
 /**

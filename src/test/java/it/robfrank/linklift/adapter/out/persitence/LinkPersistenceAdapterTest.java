@@ -1,19 +1,19 @@
 package it.robfrank.linklift.adapter.out.persitence;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 class LinkPersistenceAdapterTest {
 
   @Mock

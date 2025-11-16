@@ -1,10 +1,17 @@
 package it.robfrank.linklift.adapter.out.persitence;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.User;
 import it.robfrank.linklift.config.DatabaseInitializer;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -13,15 +20,6 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test class to demonstrate ArcadeDB graph operations for the LinkLift project.

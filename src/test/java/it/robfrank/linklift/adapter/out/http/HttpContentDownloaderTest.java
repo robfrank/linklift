@@ -8,6 +8,7 @@ import it.robfrank.linklift.application.domain.exception.ContentDownloadExceptio
 import it.robfrank.linklift.application.port.out.ContentDownloaderPort;
 import java.io.IOException;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
@@ -27,7 +28,7 @@ class HttpContentDownloaderTest {
     private HttpResponse<String> httpResponse;
 
     @Mock
-    private java.net.http.HttpHeaders httpHeaders;
+    private HttpHeaders httpHeaders;
 
     private HttpContentDownloader httpContentDownloader;
 

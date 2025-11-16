@@ -1,12 +1,7 @@
 package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
-import it.robfrank.linklift.application.port.in.AuthenticateUserCommand;
-import it.robfrank.linklift.application.port.in.AuthenticateUserUseCase;
-import it.robfrank.linklift.application.port.in.CreateUserCommand;
-import it.robfrank.linklift.application.port.in.CreateUserUseCase;
-import it.robfrank.linklift.application.port.in.RefreshTokenCommand;
-import it.robfrank.linklift.application.port.in.RefreshTokenUseCase;
+import it.robfrank.linklift.application.port.in.*;
 
 /**
  * REST controller for authentication operations.

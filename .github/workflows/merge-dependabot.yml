@@ -1,38 +1,38 @@
 name: Auto-merge Dependabot PRs
 
 on:
-    pull_request_target:
-        types:
-            - labeled
-            - approved
+  pull_request_target:
+    types:
+      - labeled
+      - approved
 
 jobs:
-    auto-merge:
-        runs-on: ubuntu-latest
-        # Only run for Dependabot PRs that have the dependency_approved label
-        if: github.actor == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'dependency_approved')
+  auto-merge:
+    runs-on: ubuntu-latest
+    # Only run for Dependabot PRs that have the dependency_approved label
+    if: github.actor == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'dependency_approved')
 
-        permissions:
-            # Required for merge operation
-            contents: write
-            pull-requests: write
+    permissions:
+      # Required for merge operation
+      contents: write
+      pull-requests: write
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-            - name: Auto-merge Dependabot PR
-              run: |
-                  PR_NUMBER="${{ github.event.pull_request.number }}"
+      - name: Auto-merge Dependabot PR
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
 
-                  # Check if PR is approved
-                  APPROVED=$(gh pr view $PR_NUMBER --json reviewDecision -q .reviewDecision)
+          # Check if PR is approved
+          APPROVED=$(gh pr view $PR_NUMBER --json reviewDecision -q .reviewDecision)
 
-                  if [ "$APPROVED" == "APPROVED" ]; then
-                    echo "PR #$PR_NUMBER is approved and has the dependency_approved label, merging automatically"
-                    gh pr merge $PR_NUMBER --merge --delete-branch --body "Merged automatically by workflow [skip ci]"
-                  else
-                    echo "PR #$PR_NUMBER is labeled but not approved yet, skipping auto-merge"
-                  fi
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          if [ "$APPROVED" == "APPROVED" ]; then
+            echo "PR #$PR_NUMBER is approved and has the dependency_approved label, merging automatically"
+            gh pr merge $PR_NUMBER --merge --delete-branch --body "Merged automatically by workflow [skip ci]"
+          else
+            echo "PR #$PR_NUMBER is labeled but not approved yet, skipping auto-merge"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

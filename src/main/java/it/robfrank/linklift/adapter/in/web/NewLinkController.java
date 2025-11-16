@@ -10,47 +10,47 @@ import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 
 public class NewLinkController {
 
-    private final NewLinkUseCase newLinkUseCase;
+  private final NewLinkUseCase newLinkUseCase;
 
-    public NewLinkController(NewLinkUseCase newLinkUseCase) {
-        this.newLinkUseCase = newLinkUseCase;
+  public NewLinkController(NewLinkUseCase newLinkUseCase) {
+    this.newLinkUseCase = newLinkUseCase;
+  }
+
+  public void processLink(Context ctx) {
+    // Get current user from security context
+    String currentUserId = SecurityContext.getCurrentUserId(ctx);
+
+    // Parse and validate the request body
+    var requestBody = ctx
+      .bodyValidator(LinkRequest.class)
+      .check(request -> isNotEmpty(request.url()), "Url cannot be empty")
+      .check(request -> isNotEmpty(request.title()), "Title cannot be empty")
+      .check(request -> isNotEmpty(request.description()), "Description cannot be empty")
+      .get();
+
+    // Create command with user context
+    NewLinkCommand linkCommand = new NewLinkCommand(requestBody.url(), requestBody.title(), requestBody.description(), currentUserId);
+
+    Link saved = newLinkUseCase.newLink(linkCommand);
+
+    ctx.status(201).json(new LinkResponse(saved, "Link received"));
+  }
+
+  public record LinkRequest(String url, String title, String description) {}
+
+  public record LinkResponse(Link link, String status) {}
+
+  public static class Builder {
+
+    private NewLinkUseCase newLinkUseCase;
+
+    public Builder withNewLinkUseCase(NewLinkUseCase newLinkUseCase) {
+      this.newLinkUseCase = newLinkUseCase;
+      return this;
     }
 
-    public void processLink(Context ctx) {
-        // Get current user from security context
-        String currentUserId = SecurityContext.getCurrentUserId(ctx);
-
-        // Parse and validate the request body
-        var requestBody = ctx
-            .bodyValidator(LinkRequest.class)
-            .check(request -> isNotEmpty(request.url()), "Url cannot be empty")
-            .check(request -> isNotEmpty(request.title()), "Title cannot be empty")
-            .check(request -> isNotEmpty(request.description()), "Description cannot be empty")
-            .get();
-
-        // Create command with user context
-        NewLinkCommand linkCommand = new NewLinkCommand(requestBody.url(), requestBody.title(), requestBody.description(), currentUserId);
-
-        Link saved = newLinkUseCase.newLink(linkCommand);
-
-        ctx.status(201).json(new LinkResponse(saved, "Link received"));
+    public NewLinkController build() {
+      return new NewLinkController(newLinkUseCase);
     }
-
-    public record LinkRequest(String url, String title, String description) {}
-
-    public record LinkResponse(Link link, String status) {}
-
-    public static class Builder {
-
-        private NewLinkUseCase newLinkUseCase;
-
-        public Builder withNewLinkUseCase(NewLinkUseCase newLinkUseCase) {
-            this.newLinkUseCase = newLinkUseCase;
-            return this;
-        }
-
-        public NewLinkController build() {
-            return new NewLinkController(newLinkUseCase);
-        }
-    }
+  }
 }

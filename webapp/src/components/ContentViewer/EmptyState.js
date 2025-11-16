@@ -6,11 +6,11 @@ import PropTypes from "prop-types";
  * @param {{message: string}} props
  */
 export const EmptyState = ({ message }) => (
-    <div className="empty-state">
-        <p>{message}</p>
-    </div>
+  <div className="empty-state">
+    <p>{message}</p>
+  </div>
 );
 
 EmptyState.propTypes = {
-    message: PropTypes.string.isRequired
+  message: PropTypes.string.isRequired
 };

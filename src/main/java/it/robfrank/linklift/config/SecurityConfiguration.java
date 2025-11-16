@@ -17,84 +17,84 @@ import it.robfrank.linklift.application.port.out.DomainEventPublisher;
  */
 public class SecurityConfiguration {
 
-    // JWT secret loaded from secure configuration (environment variables)
-    private static final String JWT_SECRET_KEY = it.robfrank.linklift.config.SecureConfiguration.getJwtSecret();
+  // JWT secret loaded from secure configuration (environment variables)
+  private static final String JWT_SECRET_KEY = it.robfrank.linklift.config.SecureConfiguration.getJwtSecret();
 
-    /**
-     * Creates a JWT token adapter with the securely configured secret key.
-     * The secret is loaded from environment variables following security best practices.
-     */
-    public static JwtTokenAdapter createJwtTokenAdapter() {
-        return new JwtTokenAdapter(JWT_SECRET_KEY);
-    }
+  /**
+   * Creates a JWT token adapter with the securely configured secret key.
+   * The secret is loaded from environment variables following security best practices.
+   */
+  public static JwtTokenAdapter createJwtTokenAdapter() {
+    return new JwtTokenAdapter(JWT_SECRET_KEY);
+  }
 
-    /**
-     * Creates a BCrypt password security adapter.
-     */
-    public static BCryptPasswordSecurityAdapter createPasswordSecurityAdapter() {
-        return new BCryptPasswordSecurityAdapter();
-    }
+  /**
+   * Creates a BCrypt password security adapter.
+   */
+  public static BCryptPasswordSecurityAdapter createPasswordSecurityAdapter() {
+    return new BCryptPasswordSecurityAdapter();
+  }
 
-    /**
-     * Creates the authorization service with required dependencies.
-     */
-    public static AuthorizationService createAuthorizationService(UserPersistenceAdapter userPersistenceAdapter) {
-        var jwtTokenAdapter = createJwtTokenAdapter();
-        var userRolesAdapter = new UserRolePersistenceAdapter();
+  /**
+   * Creates the authorization service with required dependencies.
+   */
+  public static AuthorizationService createAuthorizationService(UserPersistenceAdapter userPersistenceAdapter) {
+    var jwtTokenAdapter = createJwtTokenAdapter();
+    var userRolesAdapter = new UserRolePersistenceAdapter();
 
-        return new AuthorizationService(jwtTokenAdapter, userPersistenceAdapter, userRolesAdapter);
-    }
+    return new AuthorizationService(jwtTokenAdapter, userPersistenceAdapter, userRolesAdapter);
+  }
 
-    /**
-     * Creates the authentication service with required dependencies.
-     */
-    public static AuthenticationService createAuthenticationService(
-        UserPersistenceAdapter userPersistenceAdapter,
-        AuthTokenPersistenceAdapter authTokenPersistenceAdapter,
-        DomainEventPublisher eventPublisher
-    ) {
-        var passwordSecurityAdapter = createPasswordSecurityAdapter();
-        var jwtTokenAdapter = createJwtTokenAdapter();
+  /**
+   * Creates the authentication service with required dependencies.
+   */
+  public static AuthenticationService createAuthenticationService(
+    UserPersistenceAdapter userPersistenceAdapter,
+    AuthTokenPersistenceAdapter authTokenPersistenceAdapter,
+    DomainEventPublisher eventPublisher
+  ) {
+    var passwordSecurityAdapter = createPasswordSecurityAdapter();
+    var jwtTokenAdapter = createJwtTokenAdapter();
 
-        return new AuthenticationService(
-            userPersistenceAdapter, // LoadUserPort
-            userPersistenceAdapter, // SaveUserPort
-            passwordSecurityAdapter,
-            jwtTokenAdapter,
-            authTokenPersistenceAdapter,
-            eventPublisher
-        );
-    }
+    return new AuthenticationService(
+      userPersistenceAdapter, // LoadUserPort
+      userPersistenceAdapter, // SaveUserPort
+      passwordSecurityAdapter,
+      jwtTokenAdapter,
+      authTokenPersistenceAdapter,
+      eventPublisher
+    );
+  }
 
-    /**
-     * Creates the user creation service with required dependencies.
-     */
-    public static CreateUserService createUserService(UserPersistenceAdapter userPersistenceAdapter, DomainEventPublisher eventPublisher) {
-        var passwordSecurityAdapter = createPasswordSecurityAdapter();
+  /**
+   * Creates the user creation service with required dependencies.
+   */
+  public static CreateUserService createUserService(UserPersistenceAdapter userPersistenceAdapter, DomainEventPublisher eventPublisher) {
+    var passwordSecurityAdapter = createPasswordSecurityAdapter();
 
-        return new CreateUserService(
-            userPersistenceAdapter, // LoadUserPort
-            userPersistenceAdapter, // SaveUserPort
-            passwordSecurityAdapter,
-            eventPublisher
-        );
-    }
+    return new CreateUserService(
+      userPersistenceAdapter, // LoadUserPort
+      userPersistenceAdapter, // SaveUserPort
+      passwordSecurityAdapter,
+      eventPublisher
+    );
+  }
 
-    /**
-     * Creates the authentication controller with required dependencies.
-     */
-    public static AuthenticationController createAuthenticationController(
-        UserPersistenceAdapter userPersistenceAdapter,
-        AuthTokenPersistenceAdapter authTokenPersistenceAdapter,
-        DomainEventPublisher eventPublisher
-    ) {
-        var createUserService = createUserService(userPersistenceAdapter, eventPublisher);
-        var authenticationService = createAuthenticationService(userPersistenceAdapter, authTokenPersistenceAdapter, eventPublisher);
+  /**
+   * Creates the authentication controller with required dependencies.
+   */
+  public static AuthenticationController createAuthenticationController(
+    UserPersistenceAdapter userPersistenceAdapter,
+    AuthTokenPersistenceAdapter authTokenPersistenceAdapter,
+    DomainEventPublisher eventPublisher
+  ) {
+    var createUserService = createUserService(userPersistenceAdapter, eventPublisher);
+    var authenticationService = createAuthenticationService(userPersistenceAdapter, authTokenPersistenceAdapter, eventPublisher);
 
-        return new AuthenticationController(
-            createUserService,
-            authenticationService, // AuthenticateUserUseCase
-            authenticationService // RefreshTokenUseCase
-        );
-    }
+    return new AuthenticationController(
+      createUserService,
+      authenticationService, // AuthenticateUserUseCase
+      authenticationService // RefreshTokenUseCase
+    );
+  }
 }

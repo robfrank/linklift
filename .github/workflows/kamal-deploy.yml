@@ -1,62 +1,62 @@
 name: Deploy
 concurrency:
-    group: production
-    cancel-in-progress: true
+  group: production
+  cancel-in-progress: true
 on:
-    workflow_dispatch:
-        inputs:
-            env:
-                description: "Environment to deploy to"
-                required: true
-                default: "staging"
-                type: choice
-                options:
-                    - staging
-                    - prod
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment to deploy to"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - prod
 run-name: Deploy to ${{ inputs.env }}
 
 jobs:
-    deploy:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            packages: write
-            attestations: write
-            id-token: write
-        env:
-            DOCKER_BUILDKIT: 1
-            KAMAL_REGISTRY_USERNAME: ${{ secrets.KAMAL_REGISTRY_USERNAME }}
-            KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
-            HOST_IP: ${{ secrets.HOST_IP }}
-        steps:
-            - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    env:
+      DOCKER_BUILDKIT: 1
+      KAMAL_REGISTRY_USERNAME: ${{ secrets.KAMAL_REGISTRY_USERNAME }}
+      KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
+      HOST_IP: ${{ secrets.HOST_IP }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-            - name: Install Kamal
-              uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
-              with:
-                  ruby-version: 3.4.1
-                  bundler-cache: true
-            - run: gem install kamal
+      - name: Install Kamal
+        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
+        with:
+          ruby-version: 3.4.1
+          bundler-cache: true
+      - run: gem install kamal
 
-            - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
-              with:
-                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-            - name: Log in to the ghcr.io
-              uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-              with:
-                  registry: ghcr.io
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
-            - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
-            - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
-            - uses: crazy-max/ghaction-github-runtime@3cb05d89e1f492524af3d41a1c98c83bc3025124 # v3.1.0
+      - name: Log in to the ghcr.io
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      - uses: crazy-max/ghaction-github-runtime@3cb05d89e1f492524af3d41a1c98c83bc3025124 # v3.1.0
 
-            - name: Deploy
-              run: |
-                  echo "------------------------"
-                  echo "Deliver image to env (ignored) ${{ github.event.inputs.env }}"
-                  echo "------------------------"
-                  kamal deploy
-                  echo "------------------------"
-                  kamal details
+      - name: Deploy
+        run: |
+          echo "------------------------"
+          echo "Deliver image to env (ignored) ${{ github.event.inputs.env }}"
+          echo "------------------------"
+          kamal deploy
+          echo "------------------------"
+          kamal details

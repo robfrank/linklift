@@ -26,200 +26,198 @@ import org.mockito.MockitoAnnotations;
 
 class DownloadContentServiceTest {
 
-    @Mock
-    private ContentDownloaderPort contentDownloader;
+  @Mock
+  private ContentDownloaderPort contentDownloader;
 
-    @Mock
-    private SaveContentPort saveContentPort;
+  @Mock
+  private SaveContentPort saveContentPort;
 
-    @Mock
-    private DomainEventPublisher eventPublisher;
+  @Mock
+  private DomainEventPublisher eventPublisher;
 
-    private DownloadContentService downloadContentService;
+  private DownloadContentService downloadContentService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        downloadContentService = new DownloadContentService(contentDownloader, saveContentPort, eventPublisher);
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+    downloadContentService = new DownloadContentService(contentDownloader, saveContentPort, eventPublisher);
+  }
+
+  @Test
+  void downloadContentAsync_shouldPublishStartedEvent() {
+    // Arrange
+    DownloadContentCommand command = new DownloadContentCommand("link-123", "https://example.com");
+    ContentDownloaderPort.DownloadedContent downloadedContent = new ContentDownloaderPort.DownloadedContent(
+      "<html><body>Test</body></html>",
+      "Test",
+      "text/html",
+      1024
+    );
+
+    when(contentDownloader.downloadContent("https://example.com")).thenReturn(CompletableFuture.completedFuture(downloadedContent));
+    when(saveContentPort.saveContent(any(Content.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    // Act
+    downloadContentService.downloadContentAsync(command);
+
+    // Wait a bit for async processing
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
 
-    @Test
-    void downloadContentAsync_shouldPublishStartedEvent() {
-        // Arrange
-        DownloadContentCommand command = new DownloadContentCommand("link-123", "https://example.com");
-        ContentDownloaderPort.DownloadedContent downloadedContent = new ContentDownloaderPort.DownloadedContent(
-            "<html><body>Test</body></html>",
-            "Test",
-            "text/html",
-            1024
-        );
+    // Assert
+    ArgumentCaptor<ContentDownloadStartedEvent> startedEventCaptor = ArgumentCaptor.forClass(ContentDownloadStartedEvent.class);
+    verify(eventPublisher, atLeastOnce()).publish(startedEventCaptor.capture());
 
-        when(contentDownloader.downloadContent("https://example.com")).thenReturn(CompletableFuture.completedFuture(downloadedContent));
-        when(saveContentPort.saveContent(any(Content.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    ContentDownloadStartedEvent startedEvent = startedEventCaptor
+      .getAllValues()
+      .stream()
+      .filter(event -> event instanceof ContentDownloadStartedEvent)
+      .map(event -> (ContentDownloadStartedEvent) event)
+      .findFirst()
+      .orElse(null);
 
-        // Act
-        downloadContentService.downloadContentAsync(command);
+    assertThat(startedEvent).isNotNull();
+    assertThat(startedEvent.getLinkId()).isEqualTo("link-123");
+    assertThat(startedEvent.getUrl()).isEqualTo("https://example.com");
+  }
 
-        // Wait a bit for async processing
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+  @Test
+  void downloadContentAsync_shouldSaveContentAndPublishCompletedEvent() {
+    // Arrange
+    DownloadContentCommand command = new DownloadContentCommand("link-123", "https://example.com");
+    ContentDownloaderPort.DownloadedContent downloadedContent = new ContentDownloaderPort.DownloadedContent(
+      "<html><body>Test Content</body></html>",
+      "Test Content",
+      "text/html",
+      2048
+    );
 
-        // Assert
-        ArgumentCaptor<ContentDownloadStartedEvent> startedEventCaptor = ArgumentCaptor.forClass(ContentDownloadStartedEvent.class);
-        verify(eventPublisher, atLeastOnce()).publish(startedEventCaptor.capture());
+    when(contentDownloader.downloadContent("https://example.com")).thenReturn(CompletableFuture.completedFuture(downloadedContent));
+    when(saveContentPort.saveContent(any(Content.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        ContentDownloadStartedEvent startedEvent = startedEventCaptor
-            .getAllValues()
-            .stream()
-            .filter(event -> event instanceof ContentDownloadStartedEvent)
-            .map(event -> (ContentDownloadStartedEvent) event)
-            .findFirst()
-            .orElse(null);
+    // Act
+    downloadContentService.downloadContentAsync(command);
 
-        assertThat(startedEvent).isNotNull();
-        assertThat(startedEvent.getLinkId()).isEqualTo("link-123");
-        assertThat(startedEvent.getUrl()).isEqualTo("https://example.com");
+    // Wait for async processing
+    try {
+      Thread.sleep(200);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
 
-    @Test
-    void downloadContentAsync_shouldSaveContentAndPublishCompletedEvent() {
-        // Arrange
-        DownloadContentCommand command = new DownloadContentCommand("link-123", "https://example.com");
-        ContentDownloaderPort.DownloadedContent downloadedContent = new ContentDownloaderPort.DownloadedContent(
-            "<html><body>Test Content</body></html>",
-            "Test Content",
-            "text/html",
-            2048
-        );
+    // Assert
+    ArgumentCaptor<Content> contentCaptor = ArgumentCaptor.forClass(Content.class);
+    verify(saveContentPort).saveContent(contentCaptor.capture());
 
-        when(contentDownloader.downloadContent("https://example.com")).thenReturn(CompletableFuture.completedFuture(downloadedContent));
-        when(saveContentPort.saveContent(any(Content.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    Content savedContent = contentCaptor.getValue();
+    assertThat(savedContent.linkId()).isEqualTo("link-123");
+    assertThat(savedContent.htmlContent()).isEqualTo("<html><body>Test Content</body></html>");
+    assertThat(savedContent.textContent()).isEqualTo("Test Content");
+    assertThat(savedContent.mimeType()).isEqualTo("text/html");
+    assertThat(savedContent.contentLength()).isEqualTo(2048);
+    assertThat(savedContent.status()).isEqualTo(DownloadStatus.COMPLETED);
 
-        // Act
-        downloadContentService.downloadContentAsync(command);
+    verify(saveContentPort).createHasContentEdge(eq("link-123"), eq(savedContent.id()));
 
-        // Wait for async processing
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+    ArgumentCaptor<ContentDownloadCompletedEvent> completedEventCaptor = ArgumentCaptor.forClass(ContentDownloadCompletedEvent.class);
+    verify(eventPublisher, atLeastOnce()).publish(completedEventCaptor.capture());
 
-        // Assert
-        ArgumentCaptor<Content> contentCaptor = ArgumentCaptor.forClass(Content.class);
-        verify(saveContentPort).saveContent(contentCaptor.capture());
+    ContentDownloadCompletedEvent completedEvent = completedEventCaptor
+      .getAllValues()
+      .stream()
+      .filter(event -> event instanceof ContentDownloadCompletedEvent)
+      .map(event -> (ContentDownloadCompletedEvent) event)
+      .findFirst()
+      .orElse(null);
 
-        Content savedContent = contentCaptor.getValue();
-        assertThat(savedContent.linkId()).isEqualTo("link-123");
-        assertThat(savedContent.htmlContent()).isEqualTo("<html><body>Test Content</body></html>");
-        assertThat(savedContent.textContent()).isEqualTo("Test Content");
-        assertThat(savedContent.mimeType()).isEqualTo("text/html");
-        assertThat(savedContent.contentLength()).isEqualTo(2048);
-        assertThat(savedContent.status()).isEqualTo(DownloadStatus.COMPLETED);
+    assertThat(completedEvent).isNotNull();
+    assertThat(completedEvent.getContent().linkId()).isEqualTo("link-123");
+  }
 
-        verify(saveContentPort).createHasContentEdge(eq("link-123"), eq(savedContent.id()));
+  @Test
+  void downloadContentAsync_shouldHandleFailureAndPublishFailedEvent() {
+    // Arrange
+    DownloadContentCommand command = new DownloadContentCommand("link-123", "https://example.com");
 
-        ArgumentCaptor<ContentDownloadCompletedEvent> completedEventCaptor = ArgumentCaptor.forClass(ContentDownloadCompletedEvent.class);
-        verify(eventPublisher, atLeastOnce()).publish(completedEventCaptor.capture());
+    when(contentDownloader.downloadContent("https://example.com")).thenReturn(CompletableFuture.failedFuture(new ContentDownloadException("Download failed")));
+    when(saveContentPort.saveContent(any(Content.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        ContentDownloadCompletedEvent completedEvent = completedEventCaptor
-            .getAllValues()
-            .stream()
-            .filter(event -> event instanceof ContentDownloadCompletedEvent)
-            .map(event -> (ContentDownloadCompletedEvent) event)
-            .findFirst()
-            .orElse(null);
+    // Act
+    downloadContentService.downloadContentAsync(command);
 
-        assertThat(completedEvent).isNotNull();
-        assertThat(completedEvent.getContent().linkId()).isEqualTo("link-123");
+    // Wait for async processing
+    try {
+      Thread.sleep(200);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
 
-    @Test
-    void downloadContentAsync_shouldHandleFailureAndPublishFailedEvent() {
-        // Arrange
-        DownloadContentCommand command = new DownloadContentCommand("link-123", "https://example.com");
+    // Assert
+    ArgumentCaptor<Content> contentCaptor = ArgumentCaptor.forClass(Content.class);
+    verify(saveContentPort).saveContent(contentCaptor.capture());
 
-        when(contentDownloader.downloadContent("https://example.com")).thenReturn(
-            CompletableFuture.failedFuture(new ContentDownloadException("Download failed"))
-        );
-        when(saveContentPort.saveContent(any(Content.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    Content savedContent = contentCaptor.getValue();
+    assertThat(savedContent.linkId()).isEqualTo("link-123");
+    assertThat(savedContent.status()).isEqualTo(DownloadStatus.FAILED);
 
-        // Act
-        downloadContentService.downloadContentAsync(command);
+    ArgumentCaptor<ContentDownloadFailedEvent> failedEventCaptor = ArgumentCaptor.forClass(ContentDownloadFailedEvent.class);
+    verify(eventPublisher, atLeastOnce()).publish(failedEventCaptor.capture());
 
-        // Wait for async processing
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+    ContentDownloadFailedEvent failedEvent = failedEventCaptor
+      .getAllValues()
+      .stream()
+      .filter(event -> event instanceof ContentDownloadFailedEvent)
+      .map(event -> (ContentDownloadFailedEvent) event)
+      .findFirst()
+      .orElse(null);
 
-        // Assert
-        ArgumentCaptor<Content> contentCaptor = ArgumentCaptor.forClass(Content.class);
-        verify(saveContentPort).saveContent(contentCaptor.capture());
+    assertThat(failedEvent).isNotNull();
+    assertThat(failedEvent.getLinkId()).isEqualTo("link-123");
+    assertThat(failedEvent.getErrorMessage()).contains("Download failed");
+  }
 
-        Content savedContent = contentCaptor.getValue();
-        assertThat(savedContent.linkId()).isEqualTo("link-123");
-        assertThat(savedContent.status()).isEqualTo(DownloadStatus.FAILED);
+  @Test
+  void downloadContentAsync_shouldRejectContentExceedingMaxSize() {
+    // Arrange
+    DownloadContentCommand command = new DownloadContentCommand("link-123", "https://example.com");
+    // Create content larger than 10MB
+    int largeSize = 11 * 1024 * 1024;
+    ContentDownloaderPort.DownloadedContent downloadedContent = new ContentDownloaderPort.DownloadedContent(
+      "x".repeat(largeSize),
+      "Large content",
+      "text/html",
+      largeSize
+    );
 
-        ArgumentCaptor<ContentDownloadFailedEvent> failedEventCaptor = ArgumentCaptor.forClass(ContentDownloadFailedEvent.class);
-        verify(eventPublisher, atLeastOnce()).publish(failedEventCaptor.capture());
+    when(contentDownloader.downloadContent("https://example.com")).thenReturn(CompletableFuture.completedFuture(downloadedContent));
+    when(saveContentPort.saveContent(any(Content.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        ContentDownloadFailedEvent failedEvent = failedEventCaptor
-            .getAllValues()
-            .stream()
-            .filter(event -> event instanceof ContentDownloadFailedEvent)
-            .map(event -> (ContentDownloadFailedEvent) event)
-            .findFirst()
-            .orElse(null);
+    // Act
+    downloadContentService.downloadContentAsync(command);
 
-        assertThat(failedEvent).isNotNull();
-        assertThat(failedEvent.getLinkId()).isEqualTo("link-123");
-        assertThat(failedEvent.getErrorMessage()).contains("Download failed");
+    // Wait for async processing
+    try {
+      Thread.sleep(200);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
 
-    @Test
-    void downloadContentAsync_shouldRejectContentExceedingMaxSize() {
-        // Arrange
-        DownloadContentCommand command = new DownloadContentCommand("link-123", "https://example.com");
-        // Create content larger than 10MB
-        int largeSize = 11 * 1024 * 1024;
-        ContentDownloaderPort.DownloadedContent downloadedContent = new ContentDownloaderPort.DownloadedContent(
-            "x".repeat(largeSize),
-            "Large content",
-            "text/html",
-            largeSize
-        );
+    // Assert
+    ArgumentCaptor<ContentDownloadFailedEvent> failedEventCaptor = ArgumentCaptor.forClass(ContentDownloadFailedEvent.class);
+    verify(eventPublisher, atLeastOnce()).publish(failedEventCaptor.capture());
 
-        when(contentDownloader.downloadContent("https://example.com")).thenReturn(CompletableFuture.completedFuture(downloadedContent));
-        when(saveContentPort.saveContent(any(Content.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    ContentDownloadFailedEvent failedEvent = failedEventCaptor
+      .getAllValues()
+      .stream()
+      .filter(event -> event instanceof ContentDownloadFailedEvent)
+      .map(event -> (ContentDownloadFailedEvent) event)
+      .findFirst()
+      .orElse(null);
 
-        // Act
-        downloadContentService.downloadContentAsync(command);
-
-        // Wait for async processing
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        // Assert
-        ArgumentCaptor<ContentDownloadFailedEvent> failedEventCaptor = ArgumentCaptor.forClass(ContentDownloadFailedEvent.class);
-        verify(eventPublisher, atLeastOnce()).publish(failedEventCaptor.capture());
-
-        ContentDownloadFailedEvent failedEvent = failedEventCaptor
-            .getAllValues()
-            .stream()
-            .filter(event -> event instanceof ContentDownloadFailedEvent)
-            .map(event -> (ContentDownloadFailedEvent) event)
-            .findFirst()
-            .orElse(null);
-
-        assertThat(failedEvent).isNotNull();
-        assertThat(failedEvent.getErrorMessage()).contains("exceeds maximum limit");
-    }
+    assertThat(failedEvent).isNotNull();
+    assertThat(failedEvent.getErrorMessage()).contains("exceeds maximum limit");
+  }
 }

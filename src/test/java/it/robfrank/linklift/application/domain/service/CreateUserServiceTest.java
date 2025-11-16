@@ -25,253 +25,249 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class CreateUserServiceTest {
 
-    @Mock
-    private LoadUserPort loadUserPort;
+  @Mock
+  private LoadUserPort loadUserPort;
 
-    @Mock
-    private SaveUserPort saveUserPort;
+  @Mock
+  private SaveUserPort saveUserPort;
 
-    private PasswordSecurityPort passwordSecurityPort;
+  private PasswordSecurityPort passwordSecurityPort;
 
-    @Mock
-    private DomainEventPublisher eventPublisher;
+  @Mock
+  private DomainEventPublisher eventPublisher;
 
-    private CreateUserService createUserService;
+  private CreateUserService createUserService;
 
-    @BeforeEach
-    void setUp() {
-        passwordSecurityPort = new BCryptPasswordSecurityAdapter();
-        createUserService = new CreateUserService(loadUserPort, saveUserPort, passwordSecurityPort, eventPublisher);
-    }
+  @BeforeEach
+  void setUp() {
+    passwordSecurityPort = new BCryptPasswordSecurityAdapter();
+    createUserService = new CreateUserService(loadUserPort, saveUserPort, passwordSecurityPort, eventPublisher);
+  }
 
-    @Test
-    void createUser_shouldCreateUserSuccessfully_whenValidData() {
-        // Arrange
-        CreateUserCommand command = new CreateUserCommand("testuser", "test@example.com", "StrongPassword123!", "John", "Doe");
+  @Test
+  void createUser_shouldCreateUserSuccessfully_whenValidData() {
+    // Arrange
+    CreateUserCommand command = new CreateUserCommand("testuser", "test@example.com", "StrongPassword123!", "John", "Doe");
 
-        PasswordSecurityPort.PasswordHash passwordHash = new PasswordSecurityPort.PasswordHash("hashed-password", "salt");
+    PasswordSecurityPort.PasswordHash passwordHash = new PasswordSecurityPort.PasswordHash("hashed-password", "salt");
 
-        User savedUser = new User(
-            "user-123",
-            "testuser",
-            "test@example.com",
-            "hashed-password",
-            "salt",
-            null, // Will be set by constructor
-            null,
-            true,
-            "John",
-            "Doe",
-            null
-        );
+    User savedUser = new User(
+      "user-123",
+      "testuser",
+      "test@example.com",
+      "hashed-password",
+      "salt",
+      null, // Will be set by constructor
+      null,
+      true,
+      "John",
+      "Doe",
+      null
+    );
 
-        when(loadUserPort.existsByUsername("testuser")).thenReturn(false);
-        when(loadUserPort.existsByEmail("test@example.com")).thenReturn(false);
-        when(saveUserPort.saveUser(any(User.class))).thenReturn(savedUser);
+    when(loadUserPort.existsByUsername("testuser")).thenReturn(false);
+    when(loadUserPort.existsByEmail("test@example.com")).thenReturn(false);
+    when(saveUserPort.saveUser(any(User.class))).thenReturn(savedUser);
 
-        // Act
-        User result = createUserService.createUser(command);
+    // Act
+    User result = createUserService.createUser(command);
 
-        // Assert
-        assertThat(result).isNotNull();
-        assertThat(result.username()).isEqualTo("testuser");
-        assertThat(result.email()).isEqualTo("test@example.com");
-        assertThat(result.firstName()).isEqualTo("John");
-        assertThat(result.lastName()).isEqualTo("Doe");
-        assertThat(result.isActive()).isTrue();
-        assertThat(result.passwordHash()).isNull(); // Should be stripped by toPublic()
-        assertThat(result.salt()).isNull(); // Should be stripped by toPublic()
+    // Assert
+    assertThat(result).isNotNull();
+    assertThat(result.username()).isEqualTo("testuser");
+    assertThat(result.email()).isEqualTo("test@example.com");
+    assertThat(result.firstName()).isEqualTo("John");
+    assertThat(result.lastName()).isEqualTo("Doe");
+    assertThat(result.isActive()).isTrue();
+    assertThat(result.passwordHash()).isNull(); // Should be stripped by toPublic()
+    assertThat(result.salt()).isNull(); // Should be stripped by toPublic()
 
-        // Verify user was saved with correct data
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(saveUserPort).saveUser(userCaptor.capture());
+    // Verify user was saved with correct data
+    ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+    verify(saveUserPort).saveUser(userCaptor.capture());
 
-        User capturedUser = userCaptor.getValue();
-        assertThat(capturedUser.id()).isNotNull();
-        assertThat(capturedUser.username()).isEqualTo("testuser");
-        assertThat(capturedUser.email()).isEqualTo("test@example.com");
-        assertThat(capturedUser.passwordHash()).isNotBlank();
-        assertThat(capturedUser.salt()).isNotBlank();
-        assertThat(capturedUser.isActive()).isTrue();
+    User capturedUser = userCaptor.getValue();
+    assertThat(capturedUser.id()).isNotNull();
+    assertThat(capturedUser.username()).isEqualTo("testuser");
+    assertThat(capturedUser.email()).isEqualTo("test@example.com");
+    assertThat(capturedUser.passwordHash()).isNotBlank();
+    assertThat(capturedUser.salt()).isNotBlank();
+    assertThat(capturedUser.isActive()).isTrue();
 
-        // Verify event was published
-        ArgumentCaptor<CreateUserService.UserCreatedEvent> eventCaptor = ArgumentCaptor.forClass(CreateUserService.UserCreatedEvent.class);
-        verify(eventPublisher).publish(eventCaptor.capture());
+    // Verify event was published
+    ArgumentCaptor<CreateUserService.UserCreatedEvent> eventCaptor = ArgumentCaptor.forClass(CreateUserService.UserCreatedEvent.class);
+    verify(eventPublisher).publish(eventCaptor.capture());
 
-        CreateUserService.UserCreatedEvent capturedEvent = eventCaptor.getValue();
-        assertThat(capturedEvent.userId()).isEqualTo(savedUser.id());
-        assertThat(capturedEvent.username()).isEqualTo("testuser");
-        assertThat(capturedEvent.email()).isEqualTo("test@example.com");
-        assertThat(capturedEvent.getEventType()).isEqualTo("USER_CREATED");
-    }
+    CreateUserService.UserCreatedEvent capturedEvent = eventCaptor.getValue();
+    assertThat(capturedEvent.userId()).isEqualTo(savedUser.id());
+    assertThat(capturedEvent.username()).isEqualTo("testuser");
+    assertThat(capturedEvent.email()).isEqualTo("test@example.com");
+    assertThat(capturedEvent.getEventType()).isEqualTo("USER_CREATED");
+  }
 
-    @Test
-    void createUser_shouldThrowValidationException_whenUsernameIsInvalid() {
-        // Arrange
-        CreateUserCommand command = new CreateUserCommand(
-            "ab", // Too short
-            "test@example.com",
-            "StrongPassword123!",
-            "John",
-            "Doe"
-        );
+  @Test
+  void createUser_shouldThrowValidationException_whenUsernameIsInvalid() {
+    // Arrange
+    CreateUserCommand command = new CreateUserCommand(
+      "ab", // Too short
+      "test@example.com",
+      "StrongPassword123!",
+      "John",
+      "Doe"
+    );
 
-        // Act & Assert
-        assertThatThrownBy(() -> createUserService.createUser(command))
-            .isInstanceOf(ValidationException.class)
-            .hasMessage("Username must be 3-30 characters and contain only letters, numbers, and underscores");
+    // Act & Assert
+    assertThatThrownBy(() -> createUserService.createUser(command))
+      .isInstanceOf(ValidationException.class)
+      .hasMessage("Username must be 3-30 characters and contain only letters, numbers, and underscores");
 
-        verify(loadUserPort, never()).existsByUsername(anyString());
-        verify(saveUserPort, never()).saveUser(any(User.class));
-    }
+    verify(loadUserPort, never()).existsByUsername(anyString());
+    verify(saveUserPort, never()).saveUser(any(User.class));
+  }
 
-    @Test
-    void createUser_shouldThrowValidationException_whenUsernameHasInvalidCharacters() {
-        // Arrange
-        CreateUserCommand command = new CreateUserCommand(
-            "test-user", // Contains hyphen
-            "test@example.com",
-            "StrongPassword123!",
-            "John",
-            "Doe"
-        );
+  @Test
+  void createUser_shouldThrowValidationException_whenUsernameHasInvalidCharacters() {
+    // Arrange
+    CreateUserCommand command = new CreateUserCommand(
+      "test-user", // Contains hyphen
+      "test@example.com",
+      "StrongPassword123!",
+      "John",
+      "Doe"
+    );
 
-        // Act & Assert
-        assertThatThrownBy(() -> createUserService.createUser(command))
-            .isInstanceOf(ValidationException.class)
-            .hasMessage("Username must be 3-30 characters and contain only letters, numbers, and underscores");
-    }
+    // Act & Assert
+    assertThatThrownBy(() -> createUserService.createUser(command))
+      .isInstanceOf(ValidationException.class)
+      .hasMessage("Username must be 3-30 characters and contain only letters, numbers, and underscores");
+  }
 
-    @Test
-    void createUser_shouldThrowValidationException_whenEmailIsInvalid() {
-        // Arrange
-        CreateUserCommand command = new CreateUserCommand(
-            "testuser",
-            "invalid-email", // Invalid email format
-            "StrongPassword123!",
-            "John",
-            "Doe"
-        );
+  @Test
+  void createUser_shouldThrowValidationException_whenEmailIsInvalid() {
+    // Arrange
+    CreateUserCommand command = new CreateUserCommand(
+      "testuser",
+      "invalid-email", // Invalid email format
+      "StrongPassword123!",
+      "John",
+      "Doe"
+    );
 
-        // Act & Assert
-        assertThatThrownBy(() -> createUserService.createUser(command)).isInstanceOf(ValidationException.class).hasMessage("Invalid email address format");
-    }
+    // Act & Assert
+    assertThatThrownBy(() -> createUserService.createUser(command)).isInstanceOf(ValidationException.class).hasMessage("Invalid email address format");
+  }
 
-    @Test
-    void createUser_shouldThrowValidationException_whenPasswordIsWeak() {
-        // Arrange
-        CreateUserCommand command = new CreateUserCommand(
-            "testuser",
-            "test@example.com",
-            "weak", // Weak password
-            "John",
-            "Doe"
-        );
+  @Test
+  void createUser_shouldThrowValidationException_whenPasswordIsWeak() {
+    // Arrange
+    CreateUserCommand command = new CreateUserCommand(
+      "testuser",
+      "test@example.com",
+      "weak", // Weak password
+      "John",
+      "Doe"
+    );
 
-        // Act & Assert
-        assertThatThrownBy(() -> createUserService.createUser(command))
-            .isInstanceOf(ValidationException.class)
-            .hasMessage("Password does not meet security requirements");
-    }
+    // Act & Assert
+    assertThatThrownBy(() -> createUserService.createUser(command))
+      .isInstanceOf(ValidationException.class)
+      .hasMessage("Password does not meet security requirements");
+  }
 
-    @Test
-    void createUser_shouldThrowValidationException_whenFirstNameTooLong() {
-        // Arrange
-        String longFirstName = "a".repeat(51); // 51 characters
-        CreateUserCommand command = new CreateUserCommand("testuser", "test@example.com", "StrongPassword123!", longFirstName, "Doe");
+  @Test
+  void createUser_shouldThrowValidationException_whenFirstNameTooLong() {
+    // Arrange
+    String longFirstName = "a".repeat(51); // 51 characters
+    CreateUserCommand command = new CreateUserCommand("testuser", "test@example.com", "StrongPassword123!", longFirstName, "Doe");
 
-        // Act & Assert
-        assertThatThrownBy(() -> createUserService.createUser(command))
-            .isInstanceOf(ValidationException.class)
-            .hasMessage("First name must be 1-50 characters");
-    }
+    // Act & Assert
+    assertThatThrownBy(() -> createUserService.createUser(command)).isInstanceOf(ValidationException.class).hasMessage("First name must be 1-50 characters");
+  }
 
-    @Test
-    void createUser_shouldThrowValidationException_whenLastNameTooLong() {
-        // Arrange
-        String longLastName = "a".repeat(51); // 51 characters
-        CreateUserCommand command = new CreateUserCommand("testuser", "test@example.com", "StrongPassword123!", "John", longLastName);
+  @Test
+  void createUser_shouldThrowValidationException_whenLastNameTooLong() {
+    // Arrange
+    String longLastName = "a".repeat(51); // 51 characters
+    CreateUserCommand command = new CreateUserCommand("testuser", "test@example.com", "StrongPassword123!", "John", longLastName);
 
-        // Act & Assert
-        assertThatThrownBy(() -> createUserService.createUser(command)).isInstanceOf(ValidationException.class).hasMessage("Last name must be 1-50 characters");
-    }
+    // Act & Assert
+    assertThatThrownBy(() -> createUserService.createUser(command)).isInstanceOf(ValidationException.class).hasMessage("Last name must be 1-50 characters");
+  }
 
-    @Test
-    void createUser_shouldThrowUserAlreadyExistsException_whenUsernameExists() {
-        // Arrange
-        CreateUserCommand command = new CreateUserCommand("testuser", "test@example.com", "StrongPassword123!", "John", "Doe");
+  @Test
+  void createUser_shouldThrowUserAlreadyExistsException_whenUsernameExists() {
+    // Arrange
+    CreateUserCommand command = new CreateUserCommand("testuser", "test@example.com", "StrongPassword123!", "John", "Doe");
 
-        when(loadUserPort.existsByUsername("testuser")).thenReturn(true);
+    when(loadUserPort.existsByUsername("testuser")).thenReturn(true);
 
-        // Act & Assert
-        assertThatThrownBy(() -> createUserService.createUser(command))
-            .isInstanceOf(UserAlreadyExistsException.class)
-            .hasMessage("User already exists: Username already exists: testuser");
+    // Act & Assert
+    assertThatThrownBy(() -> createUserService.createUser(command))
+      .isInstanceOf(UserAlreadyExistsException.class)
+      .hasMessage("User already exists: Username already exists: testuser");
 
-        verify(saveUserPort, never()).saveUser(any(User.class));
-    }
+    verify(saveUserPort, never()).saveUser(any(User.class));
+  }
 
-    @Test
-    void createUser_shouldThrowUserAlreadyExistsException_whenEmailExists() {
-        // Arrange
-        CreateUserCommand command = new CreateUserCommand("testuser", "test@example.com", "StrongPassword123!", "John", "Doe");
+  @Test
+  void createUser_shouldThrowUserAlreadyExistsException_whenEmailExists() {
+    // Arrange
+    CreateUserCommand command = new CreateUserCommand("testuser", "test@example.com", "StrongPassword123!", "John", "Doe");
 
-        when(loadUserPort.existsByUsername("testuser")).thenReturn(false);
-        when(loadUserPort.existsByEmail("test@example.com")).thenReturn(true);
+    when(loadUserPort.existsByUsername("testuser")).thenReturn(false);
+    when(loadUserPort.existsByEmail("test@example.com")).thenReturn(true);
 
-        // Act & Assert
-        assertThatThrownBy(() -> createUserService.createUser(command))
-            .isInstanceOf(UserAlreadyExistsException.class)
-            .hasMessage("User already exists: Email already exists: test@example.com");
+    // Act & Assert
+    assertThatThrownBy(() -> createUserService.createUser(command))
+      .isInstanceOf(UserAlreadyExistsException.class)
+      .hasMessage("User already exists: Email already exists: test@example.com");
 
-        verify(saveUserPort, never()).saveUser(any(User.class));
-    }
+    verify(saveUserPort, never()).saveUser(any(User.class));
+  }
 
-    @Test
-    void createUser_shouldSucceedWithNullOptionalFields() {
-        // Arrange
-        CreateUserCommand command = new CreateUserCommand(
-            "testuser",
-            "test@example.com",
-            "StrongPassword123!",
-            null, // No first name
-            null // No last name
-        );
+  @Test
+  void createUser_shouldSucceedWithNullOptionalFields() {
+    // Arrange
+    CreateUserCommand command = new CreateUserCommand(
+      "testuser",
+      "test@example.com",
+      "StrongPassword123!",
+      null, // No first name
+      null // No last name
+    );
 
-        PasswordSecurityPort.PasswordHash passwordHash = new PasswordSecurityPort.PasswordHash("hashed-password", "salt");
+    PasswordSecurityPort.PasswordHash passwordHash = new PasswordSecurityPort.PasswordHash("hashed-password", "salt");
 
-        User savedUser = new User("user-123", "testuser", "test@example.com", "hashed-password", "salt", null, null, true, null, null, null);
+    User savedUser = new User("user-123", "testuser", "test@example.com", "hashed-password", "salt", null, null, true, null, null, null);
 
-        when(loadUserPort.existsByUsername("testuser")).thenReturn(false);
-        when(loadUserPort.existsByEmail("test@example.com")).thenReturn(false);
-        when(saveUserPort.saveUser(any(User.class))).thenReturn(savedUser);
+    when(loadUserPort.existsByUsername("testuser")).thenReturn(false);
+    when(loadUserPort.existsByEmail("test@example.com")).thenReturn(false);
+    when(saveUserPort.saveUser(any(User.class))).thenReturn(savedUser);
 
-        // Act
-        User result = createUserService.createUser(command);
+    // Act
+    User result = createUserService.createUser(command);
 
-        // Assert
-        assertThat(result).isNotNull();
-        assertThat(result.firstName()).isNull();
-        assertThat(result.lastName()).isNull();
+    // Assert
+    assertThat(result).isNotNull();
+    assertThat(result.firstName()).isNull();
+    assertThat(result.lastName()).isNull();
 
-        verify(saveUserPort).saveUser(any(User.class));
-        verify(eventPublisher).publish(any(CreateUserService.UserCreatedEvent.class));
-    }
+    verify(saveUserPort).saveUser(any(User.class));
+    verify(eventPublisher).publish(any(CreateUserService.UserCreatedEvent.class));
+  }
 
-    @Test
-    void createUser_shouldSucceedWithEmptyOptionalFields() {
-        // Arrange
-        CreateUserCommand command = new CreateUserCommand(
-            "testuser",
-            "test@example.com",
-            "StrongPassword123!@",
-            "", // Empty first name
-            "" // Empty last name
-        );
+  @Test
+  void createUser_shouldSucceedWithEmptyOptionalFields() {
+    // Arrange
+    CreateUserCommand command = new CreateUserCommand(
+      "testuser",
+      "test@example.com",
+      "StrongPassword123!@",
+      "", // Empty first name
+      "" // Empty last name
+    );
 
-        // Act & Assert
-        assertThatThrownBy(() -> createUserService.createUser(command))
-            .isInstanceOf(ValidationException.class)
-            .hasMessage("First name must be 1-50 characters");
-    }
+    // Act & Assert
+    assertThatThrownBy(() -> createUserService.createUser(command)).isInstanceOf(ValidationException.class).hasMessage("First name must be 1-50 characters");
+  }
 }

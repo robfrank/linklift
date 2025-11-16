@@ -10,15 +10,15 @@ import it.robfrank.linklift.application.domain.service.AuthorizationService;
  */
 public class RequireAuthentication implements Handler {
 
-    private final AuthorizationService authorizationService;
+  private final AuthorizationService authorizationService;
 
-    public RequireAuthentication(AuthorizationService authorizationService) {
-        this.authorizationService = authorizationService;
-    }
+  public RequireAuthentication(AuthorizationService authorizationService) {
+    this.authorizationService = authorizationService;
+  }
 
-    @Override
-    public void handle(Context ctx) throws Exception {
-        var securityContext = SecurityContext.getSecurityContext(ctx);
-        authorizationService.requireAuthentication(securityContext);
-    }
+  @Override
+  public void handle(Context ctx) throws Exception {
+    var securityContext = SecurityContext.getSecurityContext(ctx);
+    authorizationService.requireAuthentication(securityContext);
+  }
 }

@@ -7,14 +7,14 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public record Link(
-    @JsonProperty("id") @NonNull String id,
-    @JsonProperty("url") @NonNull String url,
-    @JsonProperty("title") @Nullable String title,
-    @JsonProperty("description") @Nullable String description,
-    @JsonProperty("extractedAt") @NonNull LocalDateTime extractedAt,
-    @JsonProperty("contentType") @Nullable String contentType
+  @JsonProperty("id") @NonNull String id,
+  @JsonProperty("url") @NonNull String url,
+  @JsonProperty("title") @Nullable String title,
+  @JsonProperty("description") @Nullable String description,
+  @JsonProperty("extractedAt") @NonNull LocalDateTime extractedAt,
+  @JsonProperty("contentType") @Nullable String contentType
 ) {
-    public Link {
-        extractedAt = extractedAt == null ? LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS) : extractedAt;
-    }
+  public Link {
+    extractedAt = extractedAt == null ? LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS) : extractedAt;
+  }
 }

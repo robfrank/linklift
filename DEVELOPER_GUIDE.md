@@ -8,16 +8,16 @@ This guide will help you set up the development environment and understand the d
 
 ### Required Software
 
--   **Java 17 or higher**: [Download from Oracle](https://www.oracle.com/java/technologies/downloads/) or use OpenJDK
--   **Maven 3.8+**: [Installation Guide](https://maven.apache.org/install.html)
--   **Docker & Docker Compose**: [Get Docker](https://docs.docker.com/get-docker/)
--   **Git**: [Download Git](https://git-scm.com/downloads)
+- **Java 17 or higher**: [Download from Oracle](https://www.oracle.com/java/technologies/downloads/) or use OpenJDK
+- **Maven 3.8+**: [Installation Guide](https://maven.apache.org/install.html)
+- **Docker & Docker Compose**: [Get Docker](https://docs.docker.com/get-docker/)
+- **Git**: [Download Git](https://git-scm.com/downloads)
 
 ### Recommended Tools
 
--   **IntelliJ IDEA** or **Eclipse**: Java IDE with Maven support
--   **Postman** or **Insomnia**: For API testing
--   **ArcadeDB Studio**: Database management GUI (accessed via browser)
+- **IntelliJ IDEA** or **Eclipse**: Java IDE with Maven support
+- **Postman** or **Insomnia**: For API testing
+- **ArcadeDB Studio**: Database management GUI (accessed via browser)
 
 ## Local Development Setup
 
@@ -127,35 +127,35 @@ docker-compose up -d
 
 ### Build Artifacts
 
--   `target/linklift-1.0-SNAPSHOT.jar`: Executable JAR file
--   `target/classes/`: Compiled classes
--   `target/test-classes/`: Compiled test classes
--   `target/surefire-reports/`: Test execution reports
+- `target/linklift-1.0-SNAPSHOT.jar`: Executable JAR file
+- `target/classes/`: Compiled classes
+- `target/test-classes/`: Compiled test classes
+- `target/surefire-reports/`: Test execution reports
 
 ## Code Style Guidelines (from CLAUDE.md)
 
 ### Architecture Guidelines
 
--   **Follow strict hexagonal (ports and adapters) architecture**
--   **Package Structure**:
-    -   `adapter`: External adapters (web, persistence)
-    -   `application.domain`: Domain model and business logic
-    -   `application.port`: Interface definitions
-    -   `config`: Configuration classes
+- **Follow strict hexagonal (ports and adapters) architecture**
+- **Package Structure**:
+  - `adapter`: External adapters (web, persistence)
+  - `application.domain`: Domain model and business logic
+  - `application.port`: Interface definitions
+  - `config`: Configuration classes
 
 ### Naming Conventions
 
--   **Classes**: `XyzUseCase`, `XyzService`, `XyzController`, `XyzException`
--   **Methods**: Be explicit and descriptive
--   **Tests**: `methodName_shouldBehavior_whenCondition`
+- **Classes**: `XyzUseCase`, `XyzService`, `XyzController`, `XyzException`
+- **Methods**: Be explicit and descriptive
+- **Tests**: `methodName_shouldBehavior_whenCondition`
 
 ### Code Quality Rules
 
--   **Immutability**: Prefer immutable domain objects using Java records
--   **Error Handling**: Use centralized `GlobalExceptionHandler` with domain exceptions extending `LinkLiftException`
--   **Domain Events**: Create events in domain layer, publish through port interfaces
--   **Imports**: Order imports and remove unused imports
--   **Testing**: Use JUnit 5, AssertJ for assertions
+- **Immutability**: Prefer immutable domain objects using Java records
+- **Error Handling**: Use centralized `GlobalExceptionHandler` with domain exceptions extending `LinkLiftException`
+- **Domain Events**: Create events in domain layer, publish through port interfaces
+- **Imports**: Order imports and remove unused imports
+- **Testing**: Use JUnit 5, AssertJ for assertions
 
 ## Development Workflow
 
@@ -163,30 +163,30 @@ docker-compose up -d
 
 #### Step 1: Understand Requirements
 
--   Review existing architecture and patterns
--   Identify affected layers (domain, application, infrastructure)
--   Plan integration with existing components
+- Review existing architecture and patterns
+- Identify affected layers (domain, application, infrastructure)
+- Plan integration with existing components
 
 #### Step 2: Domain Layer First
 
 ```java
 // 1. Define domain entity (if needed)
 public record NewEntity(String id, String name, LocalDateTime createdAt) {
-    // Business validation in constructor
+  // Business validation in constructor
 }
 
 // 2. Create domain events
 public class EntityCreatedEvent extends DomainEvent {
 
-    private final NewEntity entity;
+  private final NewEntity entity;
 }
 
 // 3. Define domain exceptions
 public class EntityNotFoundException extends LinkLiftException {
 
-    public EntityNotFoundException(String id) {
-        super(ErrorCode.ENTITY_NOT_FOUND, "Entity not found: " + id);
-    }
+  public EntityNotFoundException(String id) {
+    super(ErrorCode.ENTITY_NOT_FOUND, "Entity not found: " + id);
+  }
 }
 
 ```
@@ -196,30 +196,30 @@ public class EntityNotFoundException extends LinkLiftException {
 ```java
 // 1. Define use case interface (input port)
 public interface NewEntityUseCase {
-    NewEntity createEntity(CreateEntityCommand command) throws ValidationException;
+  NewEntity createEntity(CreateEntityCommand command) throws ValidationException;
 }
 
 // 2. Define repository interface (output port)
 public interface NewEntityRepository {
-    NewEntity save(NewEntity entity);
-    Optional<NewEntity> findById(String id);
+  NewEntity save(NewEntity entity);
+  Optional<NewEntity> findById(String id);
 }
 
 // 3. Implement use case
 @Service
 public class NewEntityService implements NewEntityUseCase {
 
-    private final NewEntityRepository repository;
-    private final DomainEventPublisher eventPublisher;
+  private final NewEntityRepository repository;
+  private final DomainEventPublisher eventPublisher;
 
-    @Override
-    public NewEntity createEntity(CreateEntityCommand command) {
-        // Business logic here
-        NewEntity entity = new NewEntity(/*...*/);
-        NewEntity saved = repository.save(entity);
-        eventPublisher.publish(new EntityCreatedEvent(saved));
-        return saved;
-    }
+  @Override
+  public NewEntity createEntity(CreateEntityCommand command) {
+    // Business logic here
+    NewEntity entity = new NewEntity(/*...*/);
+    NewEntity saved = repository.save(entity);
+    eventPublisher.publish(new EntityCreatedEvent(saved));
+    return saved;
+  }
 }
 
 ```
@@ -231,20 +231,20 @@ public class NewEntityService implements NewEntityUseCase {
 @RestController
 public class NewEntityController {
 
-    private final NewEntityUseCase useCase;
+  private final NewEntityUseCase useCase;
 
-    @PostMapping("/api/v1/entities")
-    public ResponseEntity<EntityResponse> createEntity(@RequestBody EntityRequest request) {
-        CreateEntityCommand command = new CreateEntityCommand(request.name());
-        NewEntity entity = useCase.createEntity(command);
-        return ResponseEntity.status(201).body(new EntityResponse(entity));
-    }
+  @PostMapping("/api/v1/entities")
+  public ResponseEntity<EntityResponse> createEntity(@RequestBody EntityRequest request) {
+    CreateEntityCommand command = new CreateEntityCommand(request.name());
+    NewEntity entity = useCase.createEntity(command);
+    return ResponseEntity.status(201).body(new EntityResponse(entity));
+  }
 }
 
 // 2. Repository implementation (outbound adapter)
 @Repository
 public class ArcadeEntityRepository implements NewEntityRepository {
-    // ArcadeDB-specific implementation
+  // ArcadeDB-specific implementation
 }
 
 ```
@@ -255,28 +255,28 @@ public class ArcadeEntityRepository implements NewEntityRepository {
 // Unit test for service
 class NewEntityServiceTest {
 
-    @Test
-    void createEntity_shouldReturnEntity_whenValidCommand() {
-        // Given
-        CreateEntityCommand command = new CreateEntityCommand("test");
-        when(repository.save(any())).thenReturn(expectedEntity);
+  @Test
+  void createEntity_shouldReturnEntity_whenValidCommand() {
+    // Given
+    CreateEntityCommand command = new CreateEntityCommand("test");
+    when(repository.save(any())).thenReturn(expectedEntity);
 
-        // When
-        NewEntity result = service.createEntity(command);
+    // When
+    NewEntity result = service.createEntity(command);
 
-        // Then
-        assertThat(result).isEqualTo(expectedEntity);
-        verify(eventPublisher).publish(any(EntityCreatedEvent.class));
-    }
+    // Then
+    assertThat(result).isEqualTo(expectedEntity);
+    verify(eventPublisher).publish(any(EntityCreatedEvent.class));
+  }
 }
 
 // Integration test for controller
 class NewEntityControllerTest {
 
-    @Test
-    void createEntity_shouldReturn201_whenValidRequest() {
-        // JavalinTest integration testing
-    }
+  @Test
+  void createEntity_shouldReturn201_whenValidRequest() {
+    // JavalinTest integration testing
+  }
 }
 
 ```
@@ -305,12 +305,12 @@ src/test/java/
 // Pattern: methodName_shouldBehavior_whenCondition
 @Test
 void createLink_shouldReturnLink_whenValidDataProvided() {
-    // Test implementation
+  // Test implementation
 }
 
 @Test
 void getLink_shouldThrowException_whenLinkNotFound() {
-    // Test implementation
+  // Test implementation
 }
 
 ```
@@ -402,10 +402,10 @@ curl -X PUT http://localhost:7070/api/v1/link \
 
 Create collections with:
 
--   Environment variables for base URL
--   Pre-request scripts for data setup
--   Tests for response validation
--   Examples for different scenarios
+- Environment variables for base URL
+- Pre-request scripts for data setup
+- Tests for response validation
+- Examples for different scenarios
 
 ## Debugging and Troubleshooting
 
@@ -471,9 +471,9 @@ java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 \
 
 #### Database Debugging
 
--   **ArcadeDB Studio**: http://localhost:2480 (GUI interface)
--   **Console Access**: `docker exec -it arcadedb /opt/arcadedb/bin/console.sh`
--   **Query Performance**: Use `EXPLAIN` command for query analysis
+- **ArcadeDB Studio**: http://localhost:2480 (GUI interface)
+- **Console Access**: `docker exec -it arcadedb /opt/arcadedb/bin/console.sh`
+- **Query Performance**: Use `EXPLAIN` command for query analysis
 
 #### Logging Configuration
 
@@ -519,24 +519,24 @@ EXPLAIN SELECT FROM Link WHERE url = 'https://example.com';
 
 ### Application Performance Monitoring
 
--   Monitor response times using Javalin request logging
--   Use Java profiling tools (VisualVM, JProfiler)
--   Monitor database connection pool usage
+- Monitor response times using Javalin request logging
+- Use Java profiling tools (VisualVM, JProfiler)
+- Monitor database connection pool usage
 
 ## Contributing Guidelines
 
 ### Code Review Checklist
 
--   [ ] Follows hexagonal architecture principles
--   [ ] Has appropriate test coverage (unit + integration)
--   [ ] Includes proper error handling
--   [ ] Uses consistent naming conventions
--   [ ] No business logic in infrastructure layer
--   [ ] Immutable domain objects where appropriate
--   [ ] Domain events published for significant business actions
--   [ ] Database operations are transactional
--   [ ] API endpoints follow RESTful conventions
--   [ ] Documentation updated (if applicable)
+- [ ] Follows hexagonal architecture principles
+- [ ] Has appropriate test coverage (unit + integration)
+- [ ] Includes proper error handling
+- [ ] Uses consistent naming conventions
+- [ ] No business logic in infrastructure layer
+- [ ] Immutable domain objects where appropriate
+- [ ] Domain events published for significant business actions
+- [ ] Database operations are transactional
+- [ ] API endpoints follow RESTful conventions
+- [ ] Documentation updated (if applicable)
 
 ### Git Workflow
 

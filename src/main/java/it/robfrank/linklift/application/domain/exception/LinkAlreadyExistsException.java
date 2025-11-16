@@ -5,11 +5,11 @@ package it.robfrank.linklift.application.domain.exception;
  */
 public class LinkAlreadyExistsException extends LinkLiftException {
 
-    public LinkAlreadyExistsException(String url) {
-        super("Link already exists with URL: " + url, ErrorCode.LINK_ALREADY_EXISTS);
-    }
+  public LinkAlreadyExistsException(String url) {
+    super("Link already exists with URL: " + url, ErrorCode.LINK_ALREADY_EXISTS);
+  }
 
-    public LinkAlreadyExistsException(String message, Throwable cause) {
-        super(message, cause, ErrorCode.LINK_ALREADY_EXISTS);
-    }
+  public LinkAlreadyExistsException(String message, Throwable cause) {
+    super(message, cause, ErrorCode.LINK_ALREADY_EXISTS);
+  }
 }

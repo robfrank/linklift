@@ -5,58 +5,58 @@ import api from "../api";
 jest.mock("axios");
 
 describe("API Service", () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe("createLink", () => {
+    test("calls PUT with correct URL and data", async () => {
+      const mockData = {
+        url: "https://example.com",
+        title: "Example Website",
+        description: "This is an example website"
+      };
+
+      const mockResponse = {
+        data: {
+          link: {
+            id: "link-123",
+            url: "https://example.com",
+            title: "Example Website",
+            description: "This is an example website",
+            createdAt: "2025-04-20T12:00:00Z"
+          },
+          status: "Link received"
+        }
+      };
+
+      axios.put.mockResolvedValueOnce(mockResponse);
+
+      const result = await api.createLink(mockData);
+
+      expect(axios.put).toHaveBeenCalledWith("/api/v1/link", mockData);
+      expect(result).toEqual(mockResponse.data);
     });
 
-    describe("createLink", () => {
-        test("calls PUT with correct URL and data", async () => {
-            const mockData = {
-                url: "https://example.com",
-                title: "Example Website",
-                description: "This is an example website"
-            };
+    test("handles error and throws it", async () => {
+      const mockData = {
+        url: "https://example.com",
+        title: "Example Website",
+        description: "This is an example website"
+      };
 
-            const mockResponse = {
-                data: {
-                    link: {
-                        id: "link-123",
-                        url: "https://example.com",
-                        title: "Example Website",
-                        description: "This is an example website",
-                        createdAt: "2025-04-20T12:00:00Z"
-                    },
-                    status: "Link received"
-                }
-            };
+      const mockError = new Error("Network error");
+      axios.put.mockRejectedValueOnce(mockError);
 
-            axios.put.mockResolvedValueOnce(mockResponse);
+      // Temporarily mock console.error to prevent test output noise
+      const originalConsoleError = console.error;
+      console.error = jest.fn();
 
-            const result = await api.createLink(mockData);
+      await expect(api.createLink(mockData)).rejects.toThrow("Network error");
+      expect(console.error).toHaveBeenCalledWith("Error creating link:", mockError);
 
-            expect(axios.put).toHaveBeenCalledWith("/api/v1/link", mockData);
-            expect(result).toEqual(mockResponse.data);
-        });
-
-        test("handles error and throws it", async () => {
-            const mockData = {
-                url: "https://example.com",
-                title: "Example Website",
-                description: "This is an example website"
-            };
-
-            const mockError = new Error("Network error");
-            axios.put.mockRejectedValueOnce(mockError);
-
-            // Temporarily mock console.error to prevent test output noise
-            const originalConsoleError = console.error;
-            console.error = jest.fn();
-
-            await expect(api.createLink(mockData)).rejects.toThrow("Network error");
-            expect(console.error).toHaveBeenCalledWith("Error creating link:", mockError);
-
-            // Restore console.error
-            console.error = originalConsoleError;
-        });
+      // Restore console.error
+      console.error = originalConsoleError;
     });
+  });
 });

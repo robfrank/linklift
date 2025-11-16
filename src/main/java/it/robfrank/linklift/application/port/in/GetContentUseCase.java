@@ -5,6 +5,6 @@ import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 
 public interface GetContentUseCase {
-    @NonNull
-    Optional<Content> getContent(@NonNull GetContentQuery query);
+  @NonNull
+  Optional<Content> getContent(@NonNull GetContentQuery query);
 }

@@ -9,19 +9,19 @@ import org.jspecify.annotations.NonNull;
 
 public class GetContentController {
 
-    private final GetContentUseCase getContentUseCase;
+  private final GetContentUseCase getContentUseCase;
 
-    public GetContentController(@NonNull GetContentUseCase getContentUseCase) {
-        this.getContentUseCase = getContentUseCase;
-    }
+  public GetContentController(@NonNull GetContentUseCase getContentUseCase) {
+    this.getContentUseCase = getContentUseCase;
+  }
 
-    public void getContent(@NonNull Context ctx) {
-        String linkId = ctx.pathParam("linkId");
+  public void getContent(@NonNull Context ctx) {
+    String linkId = ctx.pathParam("linkId");
 
-        Content content = getContentUseCase.getContent(new GetContentQuery(linkId)).orElseThrow(() -> new ContentNotFoundException(linkId));
+    Content content = getContentUseCase.getContent(new GetContentQuery(linkId)).orElseThrow(() -> new ContentNotFoundException(linkId));
 
-        ctx.json(new ContentResponse(content, "Content retrieved successfully"));
-    }
+    ctx.json(new ContentResponse(content, "Content retrieved successfully"));
+  }
 
-    public record ContentResponse(@NonNull Content data, @NonNull String message) {}
+  public record ContentResponse(@NonNull Content data, @NonNull String message) {}
 }

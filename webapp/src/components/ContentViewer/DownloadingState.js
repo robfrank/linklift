@@ -7,12 +7,12 @@ import { DownloadStatus } from "../../types/content";
  * @param {{status: string}} props
  */
 export const DownloadingState = ({ status }) => (
-    <div className="downloading-state">
-        <div className="progress-indicator" />
-        <p>{status === DownloadStatus.PENDING ? "Content download pending..." : "Downloading content..."}</p>
-    </div>
+  <div className="downloading-state">
+    <div className="progress-indicator" />
+    <p>{status === DownloadStatus.PENDING ? "Content download pending..." : "Downloading content..."}</p>
+  </div>
 );
 
 DownloadingState.propTypes = {
-    status: PropTypes.oneOf(Object.values(DownloadStatus)).isRequired
+  status: PropTypes.oneOf(Object.values(DownloadStatus)).isRequired
 };

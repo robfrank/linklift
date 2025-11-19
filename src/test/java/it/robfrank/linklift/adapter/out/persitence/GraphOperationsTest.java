@@ -76,7 +76,7 @@ class GraphOperationsTest {
         // And: Create a test link
         String linkId = UUID.randomUUID().toString();
         Link testLink = new Link(linkId, "https://graph-example.com", "Graph Test", "Testing graph relationships",
-                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html");
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html", null, null, null);
 
         // When: Save the link with user relationship using graph approach
         Link savedLink = linkRepository.saveLinkForUser(testLink, userId);
@@ -104,11 +104,11 @@ class GraphOperationsTest {
         // Create multiple links for the user
         List<Link> testLinks = List.of(
                 new Link(UUID.randomUUID().toString(), "https://link1.com", "Link 1", "First link",
-                        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html"),
+                        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html", null, null, null),
                 new Link(UUID.randomUUID().toString(), "https://link2.com", "Link 2", "Second link",
-                        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html"),
+                        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html", null, null, null),
                 new Link(UUID.randomUUID().toString(), "https://link3.com", "Link 3", "Third link",
-                        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html")
+                        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html", null, null, null)
         );
 
         // Save links with graph relationships
@@ -141,7 +141,7 @@ class GraphOperationsTest {
         // And: Create a link owned by user1
         String linkId = UUID.randomUUID().toString();
         Link testLink = new Link(linkId, "https://transfer-test.com", "Transfer Test", "Testing ownership transfer",
-                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html");
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html", null, null, null);
         linkRepository.saveLinkForUser(testLink, user1Id);
 
         // Verify initial ownership
@@ -167,7 +167,7 @@ class GraphOperationsTest {
 
         String linkId = UUID.randomUUID().toString();
         Link testLink = new Link(linkId, "https://delete-test.com", "Delete Test", "Testing deletion",
-                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html");
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html", null, null, null);
         linkRepository.saveLinkForUser(testLink, userId);
 
         // Verify link exists and relationship exists

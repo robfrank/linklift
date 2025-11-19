@@ -55,7 +55,7 @@ class ArcadeLinkRepositoryTest {
     @Test
     void shouldSaveLink() {
         Link testLink = new Link(UUID.randomUUID().toString(), "https://example2.com", "Test Title", "Test Description",
-                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html");
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html", null, null, null);
 
         var savedLink = linkRepository.saveLink(testLink);
 
@@ -66,7 +66,7 @@ class ArcadeLinkRepositoryTest {
     @Test
     void shouldFindLinkByUrl() {
         Link testLink = new Link(UUID.randomUUID().toString(), "https://example3.com", "Test Title", "Test Description",
-                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html");
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html", null, null, null);
 
         var savedLink = linkRepository.saveLink(testLink);
         var foundLink = linkRepository.findLinkByUrl("https://example3.com");
@@ -78,7 +78,7 @@ class ArcadeLinkRepositoryTest {
     @Test
     void shouldFindLinkByid() {
         Link testLink = new Link(UUID.randomUUID().toString(), "https://example4.com", "Test Title", "Test Description",
-                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html");
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html", null, null, null);
 
         var savedLink = linkRepository.saveLink(testLink);
         var foundLink = linkRepository.findLinkById(testLink.id());

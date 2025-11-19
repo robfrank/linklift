@@ -14,7 +14,10 @@ public class LinkMapper {
                 vertex.getString("title"),
                 vertex.getString("description"),
                 vertex.getLocalDateTime("extractedAt"),
-                vertex.getString("contentType")
+                vertex.getString("contentType"),
+                vertex.getString("fullText"),
+                vertex.getString("summary"),
+                vertex.getString("imageUrl")
         );
     }
 

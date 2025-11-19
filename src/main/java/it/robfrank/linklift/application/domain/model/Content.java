@@ -14,9 +14,34 @@ public record Content(
   @JsonProperty("contentLength") @Nullable Integer contentLength,
   @JsonProperty("downloadedAt") @NonNull LocalDateTime downloadedAt,
   @JsonProperty("mimeType") @Nullable String mimeType,
-  @JsonProperty("status") @NonNull DownloadStatus status
+  @JsonProperty("status") @NonNull DownloadStatus status,
+  // Phase 1 Feature 1: Automated Content & Metadata Extraction
+  @JsonProperty("summary") @Nullable String summary,
+  @JsonProperty("heroImageUrl") @Nullable String heroImageUrl,
+  @JsonProperty("extractedTitle") @Nullable String extractedTitle,
+  @JsonProperty("extractedDescription") @Nullable String extractedDescription,
+  @JsonProperty("author") @Nullable String author,
+  @JsonProperty("publishedDate") @Nullable LocalDateTime publishedDate
 ) {
   public Content {
     downloadedAt = downloadedAt.truncatedTo(ChronoUnit.SECONDS);
+    publishedDate = publishedDate != null ? publishedDate.truncatedTo(ChronoUnit.SECONDS) : null;
+  }
+
+  /**
+   * Creates a Content instance with only the basic fields (for backward
+   * compatibility).
+   */
+  public Content(
+    @NonNull String id,
+    @NonNull String linkId,
+    @Nullable String htmlContent,
+    @Nullable String textContent,
+    @Nullable Integer contentLength,
+    @NonNull LocalDateTime downloadedAt,
+    @Nullable String mimeType,
+    @NonNull DownloadStatus status
+  ) {
+    this(id, linkId, htmlContent, textContent, contentLength, downloadedAt, mimeType, status, null, null, null, null, null, null);
   }
 }

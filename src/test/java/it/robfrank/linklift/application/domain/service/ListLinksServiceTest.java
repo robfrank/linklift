@@ -42,7 +42,7 @@ class ListLinksServiceTest {
   void listLinks_shouldReturnLinkPage_whenValidQuery() {
     // Given
     ListLinksQuery query = new ListLinksQuery(0, 20, "extractedAt", "DESC", "user-123");
-    List<Link> links = List.of(new Link("1", "https://example.com", "Example", "Description", LocalDateTime.now(), "text/html"));
+    List<Link> links = List.of(new Link("1", "https://example.com", "Example", "Description", LocalDateTime.now(), "text/html", null, null, null));
     LinkPage expectedPage = new LinkPage(links, 0, 20, 1, 1, false, false);
 
     when(loadLinksPort.loadLinks(query)).thenReturn(expectedPage);

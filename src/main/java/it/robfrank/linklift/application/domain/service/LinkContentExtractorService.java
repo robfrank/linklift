@@ -31,7 +31,7 @@ public class LinkContentExtractorService {
     executorService.submit(() -> {
       try {
         Link originalLink = event.getLink();
-        Document document = Jsoup.connect(originalLink.url()).get();
+        Document document = Jsoup.connect(originalLink.url()).timeout(30000).get();
 
         String extractedText = extractMainContent(document);
         String imageUrl = extractImageUrl(document);

@@ -29,6 +29,11 @@ public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort {
         return linkRepository.saveLinkForUser(link, userId);
     }
 
+    @Override
+    public Link save(Link link, String userId) {
+        return saveLinkForUser(link, userId);
+    }
+
     public Optional<Link> findLinkByUrl(String url) {
         return linkRepository.findLinkByUrl(url);
     }

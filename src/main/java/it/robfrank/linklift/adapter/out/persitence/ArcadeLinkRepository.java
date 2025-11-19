@@ -39,7 +39,10 @@ public class ArcadeLinkRepository {
                                 title = ?,
                                 description = ?,
                                 extractedAt = ?,
-                                contentType = ?
+                                contentType = ?,
+                                fullText = ?,
+                                summary = ?,
+                                imageUrl = ?
                                 """,
                         link.id(),
                         link.url(),
@@ -48,7 +51,10 @@ public class ArcadeLinkRepository {
                         link.extractedAt()
                                 .truncatedTo(ChronoUnit.SECONDS)
                                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                        link.contentType()
+                        link.contentType(),
+                        link.fullText(),
+                        link.summary(),
+                        link.imageUrl()
                 );
             });
             return link;
@@ -75,7 +81,10 @@ public class ArcadeLinkRepository {
                                 title = ?,
                                 description = ?,
                                 extractedAt = ?,
-                                contentType = ?
+                                contentType = ?,
+                                fullText = ?,
+                                summary = ?,
+                                imageUrl = ?
                                 """,
                         link.id(),
                         link.url(),
@@ -84,7 +93,10 @@ public class ArcadeLinkRepository {
                         link.extractedAt()
                                 .truncatedTo(ChronoUnit.SECONDS)
                                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                        link.contentType()
+                        link.contentType(),
+                        link.fullText(),
+                        link.summary(),
+                        link.imageUrl()
                 );
 
                 // Then, create the OwnsLink relationship

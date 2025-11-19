@@ -6,8 +6,10 @@ import it.robfrank.linklift.adapter.in.web.AuthenticationController;
 import it.robfrank.linklift.adapter.in.web.GetContentController;
 import it.robfrank.linklift.adapter.in.web.ListLinksController;
 import it.robfrank.linklift.adapter.in.web.NewLinkController;
+import it.robfrank.linklift.adapter.out.content.SimpleTextSummarizer;
 import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
 import it.robfrank.linklift.adapter.out.http.HttpContentDownloader;
+import it.robfrank.linklift.adapter.out.http.JsoupContentExtractor;
 import it.robfrank.linklift.adapter.out.persitence.ArcadeAuthTokenRepository;
 import it.robfrank.linklift.adapter.out.persitence.ArcadeContentRepository;
 import it.robfrank.linklift.adapter.out.persitence.ArcadeLinkRepository;
@@ -32,6 +34,7 @@ import it.robfrank.linklift.application.domain.service.AuthorizationService;
 import it.robfrank.linklift.application.domain.service.CreateUserService;
 import it.robfrank.linklift.application.domain.service.DownloadContentService;
 import it.robfrank.linklift.application.domain.service.GetContentService;
+import it.robfrank.linklift.application.domain.service.LinkContentExtractorService;
 import it.robfrank.linklift.application.domain.service.ListLinksService;
 import it.robfrank.linklift.application.domain.service.NewLinkService;
 import it.robfrank.linklift.application.port.in.AuthenticateUserUseCase;
@@ -47,6 +50,8 @@ import it.robfrank.linklift.config.WebBuilder;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +76,9 @@ public class Application {
     ArcadeLinkRepository linkRepository = new ArcadeLinkRepository(database, linkMapper);
     LinkPersistenceAdapter linkPersistenceAdapter = new LinkPersistenceAdapter(linkRepository);
 
+    ExecutorService contentExtractionExecutor = Executors.newFixedThreadPool(1); // Single thread for content extraction
+    LinkContentExtractorService linkContentExtractorService = new LinkContentExtractorService(contentExtractionExecutor, linkPersistenceAdapter);
+
     ArcadeContentRepository contentRepository = new ArcadeContentRepository(database);
     ContentPersistenceAdapter contentPersistenceAdapter = new ContentPersistenceAdapter(contentRepository);
 
@@ -94,9 +102,13 @@ public class Application {
 
     HttpContentDownloader contentDownloader = new HttpContentDownloader(httpClient);
 
+    // Initialize content extractors
+    JsoupContentExtractor contentExtractor = new JsoupContentExtractor();
+    SimpleTextSummarizer contentSummarizer = new SimpleTextSummarizer();
+
     // Create and configure event publisher
     SimpleEventPublisher eventPublisher = new SimpleEventPublisher();
-    configureEventSubscribers(eventPublisher);
+    configureEventSubscribers(eventPublisher, linkContentExtractorService);
 
     // Initialize services
     CreateUserService userService = new CreateUserService(userPersistenceAdapter, userPersistenceAdapter, passwordSecurityAdapter, eventPublisher);
@@ -112,7 +124,13 @@ public class Application {
 
     AuthorizationService authorizationService = new AuthorizationService(jwtTokenAdapter, userPersistenceAdapter, userRolePersistenceAdapter);
 
-    DownloadContentUseCase downloadContentUseCase = new DownloadContentService(contentDownloader, contentPersistenceAdapter, eventPublisher);
+    DownloadContentUseCase downloadContentUseCase = new DownloadContentService(
+      contentDownloader,
+      contentPersistenceAdapter,
+      eventPublisher,
+      contentExtractor,
+      contentSummarizer
+    );
     GetContentUseCase getContentUseCase = new GetContentService(contentPersistenceAdapter);
 
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher, downloadContentUseCase);
@@ -136,10 +154,11 @@ public class Application {
     app.start(7070);
   }
 
-  private static void configureEventSubscribers(SimpleEventPublisher eventPublisher) {
+  private static void configureEventSubscribers(SimpleEventPublisher eventPublisher, LinkContentExtractorService linkContentExtractorService) {
     // Configure event subscribers - this is where different components can subscribe to events
     eventPublisher.subscribe(LinkCreatedEvent.class, event -> {
       logger.info("Link created: {} for user: {} at {}", event.getLink().url(), event.getUserId(), event.getTimestamp());
+      linkContentExtractorService.handle(event);
     });
 
     eventPublisher.subscribe(LinksQueryEvent.class, event -> {
@@ -192,6 +211,9 @@ public class Application {
     ArcadeLinkRepository linkRepository = new ArcadeLinkRepository(database, linkMapper);
     LinkPersistenceAdapter linkPersistenceAdapter = new LinkPersistenceAdapter(linkRepository);
 
+    ExecutorService contentExtractionExecutor = Executors.newFixedThreadPool(1); // Single thread for content extraction
+    LinkContentExtractorService linkContentExtractorService = new LinkContentExtractorService(contentExtractionExecutor, linkPersistenceAdapter);
+
     ArcadeContentRepository contentRepository = new ArcadeContentRepository(database);
     ContentPersistenceAdapter contentPersistenceAdapter = new ContentPersistenceAdapter(contentRepository);
 
@@ -215,8 +237,12 @@ public class Application {
 
     HttpContentDownloader contentDownloader = new HttpContentDownloader(httpClient);
 
+    // Initialize content extractors
+    JsoupContentExtractor contentExtractor = new JsoupContentExtractor();
+    SimpleTextSummarizer contentSummarizer = new SimpleTextSummarizer();
+
     SimpleEventPublisher eventPublisher = new SimpleEventPublisher();
-    configureEventSubscribers(eventPublisher);
+    configureEventSubscribers(eventPublisher, linkContentExtractorService);
 
     // Initialize services
     CreateUserService userService = new CreateUserService(userPersistenceAdapter, userPersistenceAdapter, passwordSecurityAdapter, eventPublisher);
@@ -232,7 +258,13 @@ public class Application {
 
     AuthorizationService authorizationService = new AuthorizationService(jwtTokenAdapter, userPersistenceAdapter, userRolePersistenceAdapter);
 
-    DownloadContentUseCase downloadContentUseCase = new DownloadContentService(contentDownloader, contentPersistenceAdapter, eventPublisher);
+    DownloadContentUseCase downloadContentUseCase = new DownloadContentService(
+      contentDownloader,
+      contentPersistenceAdapter,
+      eventPublisher,
+      contentExtractor,
+      contentSummarizer
+    );
     GetContentUseCase getContentUseCase = new GetContentService(contentPersistenceAdapter);
 
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher, downloadContentUseCase);

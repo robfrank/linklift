@@ -181,8 +181,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
   /**
    * Domain event published when a user successfully authenticates.
    */
-  public record UserAuthenticatedEvent(String userId, String username, String ipAddress, String userAgent, LocalDateTime timestamp)
-    implements DomainEvent {
+  public record UserAuthenticatedEvent(String userId, String username, String ipAddress, String userAgent, LocalDateTime timestamp) implements DomainEvent {
     public String getEventType() {
       return "USER_AUTHENTICATED";
     }
@@ -191,8 +190,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
   /**
    * Domain event published when a token is refreshed.
    */
-  public record TokenRefreshedEvent(String userId, String username, String ipAddress, LocalDateTime timestamp)
-    implements DomainEvent {
+  public record TokenRefreshedEvent(String userId, String username, String ipAddress, LocalDateTime timestamp) implements DomainEvent {
     public String getEventType() {
       return "TOKEN_REFRESHED";
     }

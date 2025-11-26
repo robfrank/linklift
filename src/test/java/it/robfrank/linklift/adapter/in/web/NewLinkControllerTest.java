@@ -31,7 +31,7 @@ class NewLinkControllerTest {
   @Test
   void processLink_shouldReturn201_whenLinkIsValid() {
     when(newLinkUseCase.newLink(any(NewLinkCommand.class))).thenReturn(
-      new Link("123456", "http://www.google.com", "Google", "Search engine", LocalDateTime.now(), "text/html", null, null, null)
+      new Link("123456", "http://www.google.com", "Google", "Search engine", LocalDateTime.now(), "text/html")
     );
 
     JavalinTest.test((app, client) -> {

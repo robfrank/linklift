@@ -34,7 +34,7 @@ class NewLinkServiceTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    newLinkService = new NewLinkService(linkPersistenceAdapter, eventPublisher, downloadContentUseCase);
+    newLinkService = new NewLinkService(linkPersistenceAdapter, eventPublisher);
   }
 
   @Test
@@ -42,7 +42,7 @@ class NewLinkServiceTest {
     // Arrange
     NewLinkCommand command = new NewLinkCommand("https://example.com", "Example Title", "Example Description", "user-123");
 
-    Link expectedLink = new Link("test-id", "https://example.com", "Example Title", "Example Description", LocalDateTime.now(), "text/html", null, null, null);
+    Link expectedLink = new Link("test-id", "https://example.com", "Example Title", "Example Description", LocalDateTime.now(), "text/html");
 
     when(linkPersistenceAdapter.saveLinkForUser(any(Link.class), eq("user-123"))).thenReturn(expectedLink);
 

@@ -25,16 +25,10 @@ public class NewLinkService implements NewLinkUseCase {
 
   private final LinkPersistenceAdapter linkPersistenceAdapter;
   private final DomainEventPublisher eventPublisher;
-  private final DownloadContentUseCase downloadContentUseCase;
 
-  public NewLinkService(
-    @NonNull LinkPersistenceAdapter linkPersistenceAdapter,
-    @NonNull DomainEventPublisher eventPublisher,
-    @NonNull DownloadContentUseCase downloadContentUseCase
-  ) {
+  public NewLinkService(@NonNull LinkPersistenceAdapter linkPersistenceAdapter, @NonNull DomainEventPublisher eventPublisher) {
     this.linkPersistenceAdapter = linkPersistenceAdapter;
     this.eventPublisher = eventPublisher;
-    this.downloadContentUseCase = downloadContentUseCase;
   }
 
   @Override
@@ -56,14 +50,14 @@ public class NewLinkService implements NewLinkUseCase {
 
     var id = UUID.randomUUID().toString();
 
-    var link = new Link(id, newLinkCommand.url(), newLinkCommand.title(), newLinkCommand.description(), LocalDateTime.now(), "text/html", null, null, null);
+    var link = new Link(id, newLinkCommand.url(), newLinkCommand.title(), newLinkCommand.description(), LocalDateTime.now(), "text/html");
 
     var savedLink = linkPersistenceAdapter.saveLinkForUser(link, newLinkCommand.userId());
 
     logger.debug("savedLink = {}", savedLink);
 
     // Trigger async content download
-    downloadContentUseCase.downloadContentAsync(new DownloadContentCommand(savedLink.id(), savedLink.url()));
+    //    downloadContentUseCase.downloadContentAsync(new DownloadContentCommand(savedLink.id(), savedLink.url()));
 
     eventPublisher.publish(new LinkCreatedEvent(savedLink, newLinkCommand.userId()));
 

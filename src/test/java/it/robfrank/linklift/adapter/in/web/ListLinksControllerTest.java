@@ -33,7 +33,7 @@ class ListLinksControllerTest {
   @Test
   void listLinks_shouldReturn200_withDefaultParameters() {
     // Given
-    List<Link> links = List.of(new Link("1", "https://example.com", "Example", "Description", LocalDateTime.now(), "text/html", null, null, null));
+    List<Link> links = List.of(new Link("1", "https://example.com", "Example", "Description", LocalDateTime.now(), "text/html"));
     LinkPage linkPage = new LinkPage(links, 0, 20, 1, 1, false, false);
 
     when(listLinksUseCase.listLinks(any(ListLinksQuery.class))).thenReturn(linkPage);

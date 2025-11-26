@@ -40,7 +40,7 @@ class LinkContentExtractorServiceTest {
   void shouldExtractContentAndUpdateLink() throws InterruptedException {
     // Given
     String url = "https://example.com";
-    Link originalLink = new Link("id-123", url, "Original Title", "Original Description", LocalDateTime.now(), "text/html", null, null, null);
+    Link originalLink = new Link("id-123", url, "Original Title", "Original Description", LocalDateTime.now(), "text/html");
     LinkCreatedEvent event = new LinkCreatedEvent(originalLink, "user-1");
 
     // Mock Jsoup.connect().get() to return a dummy document
@@ -70,7 +70,6 @@ class LinkContentExtractorServiceTest {
     assertThat(capturedLink.description()).isEqualTo(originalLink.description());
     assertThat(capturedLink.extractedAt()).isEqualTo(originalLink.extractedAt());
     assertThat(capturedLink.contentType()).isEqualTo(originalLink.contentType());
-
     // Assert that extracted content fields are no longer null (assuming Jsoup could extract something)
     // Since we are not actually mocking Jsoup here, these will remain null from the originalLink
     // unless LinkContentExtractorService has a different behavior.
@@ -78,14 +77,14 @@ class LinkContentExtractorServiceTest {
     // A dedicated integration test would be needed to verify actual content extraction.
 
     // For now, let's just assert that the original fields are preserved and the new fields are passed through (even if null).
-    assertThat(capturedLink.fullText()).isEqualTo(
-      "Example Domain This domain is for use in documentation examples without needing permission. Avoid use in operations. Learn more"
-    );
-    assertThat(capturedLink.summary()).isEqualTo(
-      "Example Domain This domain is for use in documentation examples without needing permission. Avoid use in operations. Learn more"
-    );
-    assertThat(capturedLink.imageUrl()).isNull();
-    // This test primarily verifies the async handling and the call to saveLinkPort.
+    //    assertThat(capturedLink.fullText()).isEqualTo(
+    //      "Example Domain This domain is for use in documentation examples without needing permission. Avoid use in operations. Learn more"
+    //    );
+    //    assertThat(capturedLink.summary()).isEqualTo(
+    //      "Example Domain This domain is for use in documentation examples without needing permission. Avoid use in operations. Learn more"
+    //    );
+    //    assertThat(capturedLink.imageUrl()).isNull();
+    //    // This test primarily verifies the async handling and the call to saveLinkPort.
     // A more comprehensive test would involve mocking the Jsoup behavior.
   }
 }

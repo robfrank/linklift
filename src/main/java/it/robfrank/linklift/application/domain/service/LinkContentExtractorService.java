@@ -6,7 +6,6 @@ import it.robfrank.linklift.application.port.out.SaveLinkPort;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import org.jsoup.Jsoup;
@@ -43,10 +42,7 @@ public class LinkContentExtractorService {
           originalLink.title(),
           originalLink.description(),
           originalLink.extractedAt(),
-          originalLink.contentType(),
-          extractedText,
-          summary,
-          imageUrl
+          originalLink.contentType()
         );
         saveLinkPort.save(updatedLink, event.getUserId());
         log.info("Successfully extracted content and updated link for: {}", originalLink.url());

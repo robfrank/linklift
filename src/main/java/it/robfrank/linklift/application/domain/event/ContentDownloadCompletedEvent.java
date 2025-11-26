@@ -12,7 +12,7 @@ public class ContentDownloadCompletedEvent implements DomainEvent {
 
   public ContentDownloadCompletedEvent(@NonNull Content content) {
     this.content = content;
-    this.eventId = DomainEvent.super.getEventId();
+    this.eventId = getEventId();
     this.timestamp = LocalDateTime.now();
   }
 

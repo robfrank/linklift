@@ -13,7 +13,7 @@ public class LinksQueryEvent implements DomainEvent {
   public LinksQueryEvent(ListLinksQuery query, long resultCount) {
     this.query = query;
     this.resultCount = resultCount;
-    this.eventId = DomainEvent.super.getEventId();
+    this.eventId = getEventId();
     this.timestamp = LocalDateTime.now();
   }
 

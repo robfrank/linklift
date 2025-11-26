@@ -13,7 +13,7 @@ public class LinkCreatedEvent implements DomainEvent {
   public LinkCreatedEvent(Link link, String userId) {
     this.link = link;
     this.userId = userId;
-    this.eventId = DomainEvent.super.getEventId();
+    this.eventId = getEventId();
     this.timestamp = LocalDateTime.now();
   }
 

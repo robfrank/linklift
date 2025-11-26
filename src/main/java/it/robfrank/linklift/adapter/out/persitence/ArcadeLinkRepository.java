@@ -51,10 +51,7 @@ public class ArcadeLinkRepository {
                         link.extractedAt()
                                 .truncatedTo(ChronoUnit.SECONDS)
                                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                        link.contentType(),
-                        link.fullText(),
-                        link.summary(),
-                        link.imageUrl()
+                        link.contentType()
                 );
             });
             return link;
@@ -93,10 +90,7 @@ public class ArcadeLinkRepository {
                         link.extractedAt()
                                 .truncatedTo(ChronoUnit.SECONDS)
                                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                        link.contentType(),
-                        link.fullText(),
-                        link.summary(),
-                        link.imageUrl()
+                        link.contentType()
                 );
 
                 // Then, create the OwnsLink relationship

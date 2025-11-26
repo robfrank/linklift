@@ -2,7 +2,6 @@ package it.robfrank.linklift.adapter.out.content;
 
 import it.robfrank.linklift.application.port.out.ContentSummarizerPort;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +76,6 @@ public class SimpleTextSummarizer implements ContentSummarizerPort {
     }
 
     String result = summary.toString();
-    return result.isEmpty() ? sentences.get(0) : result;
+    return result.isEmpty() ? sentences.getFirst() : result;
   }
 }

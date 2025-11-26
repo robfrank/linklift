@@ -9,6 +9,7 @@ import it.robfrank.linklift.application.domain.model.DownloadStatus;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;
 import it.robfrank.linklift.application.port.in.DownloadContentUseCase;
 import it.robfrank.linklift.application.port.out.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -81,7 +82,7 @@ public class DownloadContentService implements DownloadContentUseCase {
                 summary = contentSummarizer.generateSummary(downloadedContent.textContent(), MAX_SUMMARY_LENGTH);
               }
             } catch (Exception e) {
-              logger.warn("Failed to extract metadata or generate summary for link: {}", id, e);
+              logger.error("Failed to extract metadata or generate summary for link: {}", id, e);
             }
           }
 
@@ -139,7 +140,7 @@ public class DownloadContentService implements DownloadContentUseCase {
     } catch (Exception e) {
       try {
         // Try ISO_LOCAL_DATE
-        return java.time.LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay();
+        return LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay();
       } catch (Exception e2) {
         // Ignore parsing errors
         logger.warn("Failed to parse date string '{}'.", dateStr);

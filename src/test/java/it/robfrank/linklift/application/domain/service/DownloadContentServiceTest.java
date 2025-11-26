@@ -11,14 +11,8 @@ import it.robfrank.linklift.application.domain.event.ContentDownloadStartedEvent
 import it.robfrank.linklift.application.domain.exception.ContentDownloadException;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
-import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;
-import it.robfrank.linklift.application.port.out.ContentDownloaderPort;
-import it.robfrank.linklift.application.port.out.ContentExtractorPort;
-import it.robfrank.linklift.application.port.out.ContentSummarizerPort;
-import it.robfrank.linklift.application.port.out.DomainEventPublisher;
-import it.robfrank.linklift.application.port.out.SaveContentPort;
-import java.time.LocalDateTime;
+import it.robfrank.linklift.application.port.out.*;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

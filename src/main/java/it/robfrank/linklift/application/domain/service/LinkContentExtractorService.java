@@ -26,7 +26,7 @@ public class LinkContentExtractorService {
   }
 
   public void handle(LinkCreatedEvent event) {
-    log.info("Received LinkCreatedEvent for link: {}", event.getLink().url());
+    log.atInfo().addArgument(() -> event.getLink().url()).log("Received LinkCreatedEvent for link: {}");
     executorService.submit(() -> {
       try {
         Link originalLink = event.getLink();
@@ -45,7 +45,7 @@ public class LinkContentExtractorService {
           originalLink.contentType()
         );
         saveLinkPort.save(updatedLink, event.getUserId());
-        log.info("Successfully extracted content and updated link for: {}", originalLink.url());
+        log.atInfo().addArgument(() -> originalLink.url()).log("Successfully extracted content and updated link for: {}");
       } catch (IOException e) {
         log.error("Error extracting content for link: {}", event.getLink().url(), e);
       }
@@ -79,7 +79,7 @@ public class LinkContentExtractorService {
           URL docUrl = new URL(document.baseUri());
           return new URL(docUrl, relativeUrl).toString();
         } catch (MalformedURLException e) {
-          log.warn("Invalid image URL or base URI: {}", relativeUrl, e);
+          log.error("Invalid image URL or base URI: {}", relativeUrl, e);
         }
       }
     }

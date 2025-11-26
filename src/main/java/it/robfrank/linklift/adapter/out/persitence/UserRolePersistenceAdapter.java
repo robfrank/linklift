@@ -2,8 +2,6 @@ package it.robfrank.linklift.adapter.out.persitence;
 
 import it.robfrank.linklift.application.domain.model.Role;
 import it.robfrank.linklift.application.port.out.LoadUserRolesPort;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**

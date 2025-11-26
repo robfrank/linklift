@@ -13,7 +13,7 @@ public class ContentDownloadStartedEvent implements DomainEvent {
   public ContentDownloadStartedEvent(@NonNull String linkId, @NonNull String url) {
     this.linkId = linkId;
     this.url = url;
-    this.eventId = DomainEvent.super.getEventId();
+    this.eventId = getEventId();
     this.timestamp = LocalDateTime.now();
   }
 

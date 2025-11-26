@@ -12,8 +12,12 @@ import java.nio.file.*;
 import java.util.Collections;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatabaseInitializer {
+
+  private static final Logger logger = LoggerFactory.getLogger(DatabaseInitializer.class);
 
   private static final String DATABASE_NAME = "linklift";
   private final String arcadedbServer;
@@ -41,18 +45,16 @@ public class DatabaseInitializer {
   }
 
   public void initializeSchema(RemoteDatabase db) {
-    if (!db.getSchema().existsType("Link")) {
-      try {
-        URI uri = DatabaseInitializer.class.getResource("/schema").toURI();
-        if (uri.getScheme().equals("jar")) {
-          FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
-          applySchemaScripts(db, fileSystem.getPath("/schema"));
-        } else {
-          applySchemaScripts(db, Paths.get(uri));
-        }
-      } catch (URISyntaxException | IOException e) {
-        System.out.printf("Error while reading schema files: %s %n", e.getMessage());
+    try {
+      URI uri = DatabaseInitializer.class.getResource("/schema").toURI();
+      if (uri.getScheme().equals("jar")) {
+        FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
+        applySchemaScripts(db, fileSystem.getPath("/schema"));
+      } else {
+        applySchemaScripts(db, Paths.get(uri));
       }
+    } catch (URISyntaxException | IOException e) {
+      System.out.printf("Error while reading schema files: %s %n", e.getMessage());
     }
   }
 
@@ -65,9 +67,17 @@ public class DatabaseInitializer {
         .forEach(sqlFile -> {
           try {
             String script = readScript(sqlFile);
-            db.transaction(() -> db.command("sqlscript", script));
+            String[] statements = script.split(";"); // Split by semicolon
+            db.transaction(() -> {
+              for (String statement : statements) {
+                String trimmedStatement = statement.trim();
+                if (!trimmedStatement.isEmpty()) {
+                  db.command("sql", trimmedStatement); // Execute each statement individually
+                }
+              }
+            });
           } catch (IOException e) {
-            System.out.printf("Error while applying %s  : %s %n", sqlFile, e.getMessage());
+            logger.error("Error while reading schema files", e);
           }
         });
     }

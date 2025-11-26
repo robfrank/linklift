@@ -25,16 +25,10 @@ public class NewLinkService implements NewLinkUseCase {
 
   private final LinkPersistenceAdapter linkPersistenceAdapter;
   private final DomainEventPublisher eventPublisher;
-  private final DownloadContentUseCase downloadContentUseCase;
 
-  public NewLinkService(
-    @NonNull LinkPersistenceAdapter linkPersistenceAdapter,
-    @NonNull DomainEventPublisher eventPublisher,
-    @NonNull DownloadContentUseCase downloadContentUseCase
-  ) {
+  public NewLinkService(@NonNull LinkPersistenceAdapter linkPersistenceAdapter, @NonNull DomainEventPublisher eventPublisher) {
     this.linkPersistenceAdapter = linkPersistenceAdapter;
     this.eventPublisher = eventPublisher;
-    this.downloadContentUseCase = downloadContentUseCase;
   }
 
   @Override
@@ -63,7 +57,7 @@ public class NewLinkService implements NewLinkUseCase {
     logger.debug("savedLink = {}", savedLink);
 
     // Trigger async content download
-    downloadContentUseCase.downloadContentAsync(new DownloadContentCommand(savedLink.id(), savedLink.url()));
+    //    downloadContentUseCase.downloadContentAsync(new DownloadContentCommand(savedLink.id(), savedLink.url()));
 
     eventPublisher.publish(new LinkCreatedEvent(savedLink, newLinkCommand.userId()));
 

@@ -15,7 +15,7 @@ public class ContentDownloadFailedEvent implements DomainEvent {
     this.linkId = linkId;
     this.url = url;
     this.errorMessage = errorMessage;
-    this.eventId = DomainEvent.super.getEventId();
+    this.eventId = getEventId();
     this.timestamp = LocalDateTime.now();
   }
 

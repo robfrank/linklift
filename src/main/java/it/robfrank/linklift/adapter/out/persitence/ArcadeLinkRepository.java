@@ -39,7 +39,10 @@ public class ArcadeLinkRepository {
                                 title = ?,
                                 description = ?,
                                 extractedAt = ?,
-                                contentType = ?
+                                contentType = ?,
+                                fullText = ?,
+                                summary = ?,
+                                imageUrl = ?
                                 """,
                         link.id(),
                         link.url(),
@@ -75,7 +78,10 @@ public class ArcadeLinkRepository {
                                 title = ?,
                                 description = ?,
                                 extractedAt = ?,
-                                contentType = ?
+                                contentType = ?,
+                                fullText = ?,
+                                summary = ?,
+                                imageUrl = ?
                                 """,
                         link.id(),
                         link.url(),

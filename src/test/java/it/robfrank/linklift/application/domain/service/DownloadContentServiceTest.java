@@ -14,6 +14,8 @@ import it.robfrank.linklift.application.domain.model.DownloadStatus;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;
 import it.robfrank.linklift.application.port.out.ContentDownloaderPort;
+import it.robfrank.linklift.application.port.out.ContentExtractorPort;
+import it.robfrank.linklift.application.port.out.ContentSummarizerPort;
 import it.robfrank.linklift.application.port.out.DomainEventPublisher;
 import it.robfrank.linklift.application.port.out.SaveContentPort;
 import java.time.LocalDateTime;
@@ -35,12 +37,18 @@ class DownloadContentServiceTest {
   @Mock
   private DomainEventPublisher eventPublisher;
 
+  @Mock
+  private ContentExtractorPort contentExtractorPort; // New Mock
+
+  @Mock
+  private ContentSummarizerPort contentSummarizerPort; // New Mock
+
   private DownloadContentService downloadContentService;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    downloadContentService = new DownloadContentService(contentDownloader, saveContentPort, eventPublisher);
+    downloadContentService = new DownloadContentService(contentDownloader, saveContentPort, eventPublisher, contentExtractorPort, contentSummarizerPort);
   }
 
   @Test

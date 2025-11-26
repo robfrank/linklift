@@ -34,7 +34,7 @@ class NewLinkServiceTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    newLinkService = new NewLinkService(linkPersistenceAdapter, eventPublisher, downloadContentUseCase);
+    newLinkService = new NewLinkService(linkPersistenceAdapter, eventPublisher);
   }
 
   @Test

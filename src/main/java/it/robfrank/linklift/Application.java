@@ -3,7 +3,11 @@ package it.robfrank.linklift;
 import com.arcadedb.remote.RemoteDatabase;
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.AuthenticationController;
+import it.robfrank.linklift.adapter.in.web.CollectionController;
+import it.robfrank.linklift.adapter.in.web.CollectionController;
 import it.robfrank.linklift.adapter.in.web.GetContentController;
+import it.robfrank.linklift.adapter.in.web.GetRelatedLinksController;
+import it.robfrank.linklift.adapter.in.web.GetRelatedLinksController;
 import it.robfrank.linklift.adapter.in.web.ListLinksController;
 import it.robfrank.linklift.adapter.in.web.NewLinkController;
 import it.robfrank.linklift.adapter.out.content.SimpleTextSummarizer;
@@ -11,11 +15,17 @@ import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
 import it.robfrank.linklift.adapter.out.http.HttpContentDownloader;
 import it.robfrank.linklift.adapter.out.http.JsoupContentExtractor;
 import it.robfrank.linklift.adapter.out.persitence.*;
+import it.robfrank.linklift.adapter.out.persitence.ArcadeCollectionRepository;
+import it.robfrank.linklift.adapter.out.persitence.CollectionPersistenceAdapter;
 import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
 import it.robfrank.linklift.adapter.out.security.JwtTokenAdapter;
 import it.robfrank.linklift.application.domain.event.*;
 import it.robfrank.linklift.application.domain.service.*;
+import it.robfrank.linklift.application.domain.service.CreateCollectionService;
+import it.robfrank.linklift.application.domain.service.GetRelatedLinksService;
 import it.robfrank.linklift.application.port.in.*;
+import it.robfrank.linklift.application.port.in.CreateCollectionUseCase;
+import it.robfrank.linklift.application.port.in.GetRelatedLinksUseCase;
 import it.robfrank.linklift.application.port.out.ContentDownloaderPort;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import it.robfrank.linklift.config.SecureConfiguration;
@@ -25,6 +35,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.slf4j.Logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,6 +120,15 @@ public class Application {
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);
     ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
 
+    // Initialize Collection and Related Links components
+    ArcadeCollectionRepository collectionRepository = new ArcadeCollectionRepository(database);
+    CollectionPersistenceAdapter collectionPersistenceAdapter = new CollectionPersistenceAdapter(collectionRepository);
+    CreateCollectionUseCase createCollectionUseCase = new CreateCollectionService(collectionPersistenceAdapter);
+    GetRelatedLinksUseCase getRelatedLinksUseCase = new GetRelatedLinksService(linkPersistenceAdapter);
+
+    CollectionController collectionController = new CollectionController(createCollectionUseCase);
+    GetRelatedLinksController getRelatedLinksController = new GetRelatedLinksController(getRelatedLinksUseCase);
+
     // Initialize controllers
     NewLinkController newLinkController = new NewLinkController(newLinkUseCase);
     ListLinksController listLinksController = new ListLinksController(listLinksUseCase);
@@ -122,33 +142,63 @@ public class Application {
       .withLinkController(newLinkController)
       .withListLinksController(listLinksController)
       .withGetContentController(getContentController)
+      .withCollectionController(collectionController)
+      .withGetRelatedLinksController(getRelatedLinksController)
       .build();
 
     app.start(7070);
   }
 
   private static void configureEventSubscribers(SimpleEventPublisher eventPublisher, DownloadContentUseCase linkContentExtractorService) {
-    // Configure event subscribers - this is where different components can subscribe to events
+    // Configure event subscribers - this is where different components can
+    // subscribe to events
     eventPublisher.subscribe(LinkCreatedEvent.class, event -> {
-      logger.atInfo().addArgument(() -> event.getLink().url()).addArgument(event.getUserId()).addArgument(event.getTimestamp()).log("Link created: {} for user: {} at {}");
+      logger
+        .atInfo()
+        .addArgument(() -> event.getLink().url())
+        .addArgument(event.getUserId())
+        .addArgument(event.getTimestamp())
+        .log("Link created: {} for user: {} at {}");
       linkContentExtractorService.downloadContentAsync(new DownloadContentCommand(event.getLink().id(), event.getLink().url()));
     });
 
     eventPublisher.subscribe(LinksQueryEvent.class, event -> {
-      logger.atInfo().addArgument(() -> event.getQuery().page()).addArgument(() -> event.getQuery().size()).addArgument(event.getResultCount()).addArgument(() -> event.getQuery().userId()).addArgument(event.getTimestamp()).log("Links queried: page={}, size={}, results={} for user: {} at {}");
+      logger
+        .atInfo()
+        .addArgument(() -> event.getQuery().page())
+        .addArgument(() -> event.getQuery().size())
+        .addArgument(event.getResultCount())
+        .addArgument(() -> event.getQuery().userId())
+        .addArgument(event.getTimestamp())
+        .log("Links queried: page={}, size={}, results={} for user: {} at {}");
     });
 
     // User management events
     eventPublisher.subscribe(CreateUserService.UserCreatedEvent.class, event -> {
-      logger.atInfo().addArgument(() -> event.username()).addArgument(() -> event.email()).addArgument(() -> LocalDateTime.now()).log("User created: {} ({}) at {}");
+      logger
+        .atInfo()
+        .addArgument(() -> event.username())
+        .addArgument(() -> event.email())
+        .addArgument(() -> LocalDateTime.now())
+        .log("User created: {} ({}) at {}");
     });
 
     eventPublisher.subscribe(AuthenticationService.UserAuthenticatedEvent.class, event -> {
-      logger.atInfo().addArgument(() -> event.username()).addArgument(() -> event.ipAddress()).addArgument(() -> event.timestamp()).log("User authenticated: {} from {} at {}");
+      logger
+        .atInfo()
+        .addArgument(() -> event.username())
+        .addArgument(() -> event.ipAddress())
+        .addArgument(() -> event.timestamp())
+        .log("User authenticated: {} from {} at {}");
     });
 
     eventPublisher.subscribe(AuthenticationService.TokenRefreshedEvent.class, event -> {
-      logger.atInfo().addArgument(() -> event.username()).addArgument(() -> event.ipAddress()).addArgument(() -> event.timestamp()).log("Token refreshed for user: {} from {} at {}");
+      logger
+        .atInfo()
+        .addArgument(() -> event.username())
+        .addArgument(() -> event.ipAddress())
+        .addArgument(() -> event.timestamp())
+        .log("Token refreshed for user: {} from {} at {}");
     });
 
     // Content download events
@@ -239,6 +289,15 @@ public class Application {
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);
     ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
 
+    // Initialize Collection and Related Links components
+    ArcadeCollectionRepository collectionRepository = new ArcadeCollectionRepository(database);
+    CollectionPersistenceAdapter collectionPersistenceAdapter = new CollectionPersistenceAdapter(collectionRepository);
+    CreateCollectionUseCase createCollectionUseCase = new CreateCollectionService(collectionPersistenceAdapter);
+    GetRelatedLinksUseCase getRelatedLinksUseCase = new GetRelatedLinksService(linkPersistenceAdapter);
+
+    CollectionController collectionController = new CollectionController(createCollectionUseCase);
+    GetRelatedLinksController getRelatedLinksController = new GetRelatedLinksController(getRelatedLinksUseCase);
+
     // Initialize controllers
     NewLinkController newLinkController = new NewLinkController(newLinkUseCase);
     ListLinksController listLinksController = new ListLinksController(listLinksUseCase);
@@ -252,6 +311,8 @@ public class Application {
       .withLinkController(newLinkController)
       .withListLinksController(listLinksController)
       .withGetContentController(getContentController)
+      .withCollectionController(collectionController)
+      .withGetRelatedLinksController(getRelatedLinksController)
       .build();
 
     app.start(port);

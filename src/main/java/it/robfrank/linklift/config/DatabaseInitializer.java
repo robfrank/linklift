@@ -12,8 +12,12 @@ import java.nio.file.*;
 import java.util.Collections;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatabaseInitializer {
+
+  private static final Logger logger = LoggerFactory.getLogger(DatabaseInitializer.class);
 
   private static final String DATABASE_NAME = "linklift";
   private final String arcadedbServer;
@@ -73,7 +77,7 @@ public class DatabaseInitializer {
               }
             });
           } catch (IOException e) {
-            System.out.printf("Error while applying %s  : %s %n", sqlFile, e.getMessage());
+            logger.error("Error while reading schema files", e);
           }
         });
     }

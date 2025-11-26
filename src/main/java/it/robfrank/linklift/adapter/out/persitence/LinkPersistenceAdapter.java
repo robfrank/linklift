@@ -6,7 +6,6 @@ import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import it.robfrank.linklift.application.port.out.SaveLinkPort;
-
 import java.util.Optional;
 
 public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort {

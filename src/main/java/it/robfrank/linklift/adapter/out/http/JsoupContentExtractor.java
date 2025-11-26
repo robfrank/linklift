@@ -1,6 +1,7 @@
 package it.robfrank.linklift.adapter.out.http;
 
 import it.robfrank.linklift.application.port.out.ContentExtractorPort;
+import java.net.URL;
 import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -139,7 +140,7 @@ public class JsoupContentExtractor implements ContentExtractorPort {
   private String resolveUrl(@NonNull String url, @NonNull String baseUrl) {
     if (url.startsWith("http://") || url.startsWith("https://")) return url;
     try {
-      return new java.net.URL(new java.net.URL(baseUrl), url).toString();
+      return new URL(new URL(baseUrl), url).toString();
     } catch (Exception e) {
       return url;
     }

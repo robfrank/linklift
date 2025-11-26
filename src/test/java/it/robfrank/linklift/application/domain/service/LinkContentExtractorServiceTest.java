@@ -1,7 +1,8 @@
 package it.robfrank.linklift.application.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
 
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.model.Link;
@@ -37,7 +38,7 @@ class LinkContentExtractorServiceTest {
 
   @Test
   @DisplayName("should extract content and update link when LinkCreatedEvent is received")
-  void shouldExtractContentAndUpdateLink() throws InterruptedException {
+  void shouldExtractContentAndUpdateLink() throws Exception {
     // Given
     String url = "https://example.com";
     Link originalLink = new Link("id-123", url, "Original Title", "Original Description", LocalDateTime.now(), "text/html");

@@ -19,7 +19,13 @@ public class UserRolePersistenceAdapter implements LoadUserRolesPort {
   @Override
   public List<String> getUserPermissions(String userId) {
     // Return default permissions for authenticated users
-    return List.of(Role.Permissions.CREATE_LINK, Role.Permissions.READ_OWN_LINKS, Role.Permissions.UPDATE_OWN_LINKS, Role.Permissions.DELETE_OWN_LINKS);
+    return List.of(
+      Role.Permissions.CREATE_LINK,
+      Role.Permissions.CREATE_COLLECTION,
+      Role.Permissions.READ_OWN_LINKS,
+      Role.Permissions.UPDATE_OWN_LINKS,
+      Role.Permissions.DELETE_OWN_LINKS
+    );
   }
 
   @Override
@@ -44,7 +50,13 @@ public class UserRolePersistenceAdapter implements LoadUserRolesPort {
       "default-user-role",
       "Default User",
       "Default role for authenticated users",
-      List.of(Role.Permissions.CREATE_LINK, Role.Permissions.READ_OWN_LINKS, Role.Permissions.UPDATE_OWN_LINKS, Role.Permissions.DELETE_OWN_LINKS),
+      List.of(
+        Role.Permissions.CREATE_LINK,
+        Role.Permissions.CREATE_COLLECTION,
+        Role.Permissions.READ_OWN_LINKS,
+        Role.Permissions.UPDATE_OWN_LINKS,
+        Role.Permissions.DELETE_OWN_LINKS
+      ),
       true // isActive
     );
   }

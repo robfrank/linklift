@@ -81,7 +81,7 @@ public class WebBuilder {
 
   public WebBuilder withCollectionController(it.robfrank.linklift.adapter.in.web.CollectionController collectionController) {
     app.before("/api/v1/collections", requireAuthentication);
-    app.before("/api/v1/collections", RequirePermission.any(authorizationService, Role.Permissions.CREATE_LINK));
+    app.before("/api/v1/collections", RequirePermission.any(authorizationService, Role.Permissions.CREATE_COLLECTION));
     app.post("/api/v1/collections", collectionController::createCollection);
     return this;
   }

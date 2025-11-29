@@ -9,14 +9,18 @@ import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArcadeLinkRepository {
 
+  private static final Logger logger = LoggerFactory.getLogger(ArcadeLinkRepository.class);
   private final RemoteDatabase database;
   private final LinkMapper linkMapper;
 
@@ -119,9 +123,9 @@ public class ArcadeLinkRepository {
               domainName
             );
           }
-        } catch (Exception e) {
-          // Ignore domain extraction errors for now
-          System.err.println("Failed to extract domain from URL: " + link.url());
+        } catch (URISyntaxException e) {
+          // Log domain extraction errors instead of printing to stderr
+          logger.warn("Failed to extract domain from URL: {}", link.url(), e);
         }
       });
       return link;
@@ -428,16 +432,17 @@ public class ArcadeLinkRepository {
         .query(
           "sql",
           """
-          SELECT expand(
-              unionall(
-                  out('BELONGS_TO_DOMAIN').in('BELONGS_TO_DOMAIN'),
-                  out('HAS_TAG').in('HAS_TAG')
-              )
+          SELECT * FROM (
+            SELECT expand(
+                unionall(
+                    out('BELONGS_TO_DOMAIN').in('BELONGS_TO_DOMAIN'),
+                    out('HAS_TAG').in('HAS_TAG')
+                )
+            )
+            FROM Link
+            WHERE id = ?
           )
-          FROM Link
-          WHERE id = ?
-          AND id != ?
-          AND in('OwnsLink').id CONTAINS ?
+          WHERE id != ? AND in('OwnsLink').id CONTAINS ?
           LIMIT 10
           """,
           linkId,

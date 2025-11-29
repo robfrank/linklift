@@ -4,9 +4,7 @@ import com.arcadedb.remote.RemoteDatabase;
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.AuthenticationController;
 import it.robfrank.linklift.adapter.in.web.CollectionController;
-import it.robfrank.linklift.adapter.in.web.CollectionController;
 import it.robfrank.linklift.adapter.in.web.GetContentController;
-import it.robfrank.linklift.adapter.in.web.GetRelatedLinksController;
 import it.robfrank.linklift.adapter.in.web.GetRelatedLinksController;
 import it.robfrank.linklift.adapter.in.web.ListLinksController;
 import it.robfrank.linklift.adapter.in.web.NewLinkController;
@@ -35,7 +33,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.slf4j.Logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

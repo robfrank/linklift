@@ -55,8 +55,6 @@ public class NewLinkService implements NewLinkUseCase {
     logger.debug("savedLink = {}", savedLink);
 
     // Trigger async content download
-    //    downloadContentUseCase.downloadContentAsync(new DownloadContentCommand(savedLink.id(), savedLink.url()));
-
     eventPublisher.publish(new LinkCreatedEvent(savedLink, newLinkCommand.userId()));
 
     return savedLink;

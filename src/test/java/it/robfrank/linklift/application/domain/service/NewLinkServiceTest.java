@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
-import it.robfrank.linklift.adapter.out.persitence.LinkPersistenceAdapter;
+import it.robfrank.linklift.adapter.out.persistence.LinkPersistenceAdapter;
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;

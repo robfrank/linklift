@@ -4,8 +4,8 @@ This is the frontend application for LinkLift, a link management system built wi
 
 ## Technologies Used
 
-- React 18
-- React Router v6
+- React 19
+- React Router v7
 - Material UI v7
 - Axios for API communication
 - Webpack for bundling
@@ -69,6 +69,9 @@ The application communicates with the LinkLift backend API:
 ## Available Pages
 
 - **Home**: Landing page with an introduction to LinkLift
+- **Login**: User authentication page
+- **Register**: User registration page
+- **Link List**: Display all saved links
 - **Add Link**: Form to add a new link to the system
 - **404 Not Found**: Custom page for invalid routes
 

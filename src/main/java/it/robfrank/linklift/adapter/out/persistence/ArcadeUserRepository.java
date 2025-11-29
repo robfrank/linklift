@@ -1,4 +1,4 @@
-package it.robfrank.linklift.adapter.out.persitence;
+package it.robfrank.linklift.adapter.out.persistence;
 
 import com.arcadedb.exception.ArcadeDBException;
 import com.arcadedb.query.sql.executor.Result;

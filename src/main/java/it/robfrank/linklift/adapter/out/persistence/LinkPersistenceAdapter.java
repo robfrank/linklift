@@ -1,4 +1,4 @@
-package it.robfrank.linklift.adapter.out.persitence;
+package it.robfrank.linklift.adapter.out.persistence;
 
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;

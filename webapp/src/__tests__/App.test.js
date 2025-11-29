@@ -2,9 +2,16 @@ import React from "react";
 import { renderApp, screen, waitFor } from "../test-utils";
 import App from "../App";
 import api from "../services/api";
+import * as AuthContext from "../contexts/AuthContext";
 
 // Mock the API
 jest.mock("../services/api");
+
+// Mock the AuthContext
+jest.mock("../contexts/AuthContext", () => ({
+  ...jest.requireActual("../contexts/AuthContext"),
+  useAuth: jest.fn()
+}));
 
 describe("App Component", () => {
   beforeEach(() => {
@@ -14,6 +21,17 @@ describe("App Component", () => {
       content: [],
       totalElements: 0,
       totalPages: 0
+    });
+
+    // Default to authenticated user
+    AuthContext.useAuth.mockReturnValue({
+      user: { userId: 1, username: "testuser", email: "test@example.com" },
+      login: jest.fn(),
+      register: jest.fn(),
+      logout: jest.fn(),
+      refreshToken: jest.fn(),
+      isAuthenticated: true,
+      loading: false
     });
   });
 

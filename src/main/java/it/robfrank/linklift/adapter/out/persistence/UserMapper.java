@@ -1,4 +1,4 @@
-package it.robfrank.linklift.adapter.out.persitence;
+package it.robfrank.linklift.adapter.out.persistence;
 
 import com.arcadedb.graph.Vertex;
 import it.robfrank.linklift.application.domain.model.User;

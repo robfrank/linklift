@@ -1,4 +1,4 @@
-package it.robfrank.linklift.adapter.out.persitence;
+package it.robfrank.linklift.adapter.out.persistence;
 
 import it.robfrank.linklift.application.domain.model.User;
 import it.robfrank.linklift.application.port.out.LoadUserPort;

@@ -45,14 +45,14 @@ The project implements a **Hexagonal Architecture** backend (Java 24, Javalin, A
 
 - **Collections Domain**:
   - **Backend**:
-    - [ ] Implement `ListCollectionsUseCase` (List collections for a user).
-    - [ ] Implement `GetCollectionUseCase` (Get details + links).
-    - [ ] Implement `AddLinkToCollectionUseCase` and `RemoveLinkFromCollectionUseCase`.
-    - [ ] Implement `DeleteCollectionUseCase`.
+    - [x] Implement `ListCollectionsUseCase` (List collections for a user).
+    - [x] Implement `GetCollectionUseCase` (Get details + links).
+    - [x] Implement `AddLinkToCollectionUseCase` and `RemoveLinkFromCollectionUseCase`.
+    - [x] Implement `DeleteCollectionUseCase`.
   - **Frontend**:
-    - [ ] Create `CollectionList` page/component.
-    - [ ] Create `CollectionDetail` page (view links within a collection).
-    - [ ] Add "Create Collection" Modal/Form.
+    - [x] Create `CollectionList` page/component.
+    - [x] Create `CollectionDetail` page (view links within a collection).
+    - [x] Add "Create Collection" Modal/Form.
     - [ ] Add "Add to Collection" action in `LinkList` items.
 - **Links Domain**:
   - **Backend**:

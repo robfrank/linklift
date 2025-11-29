@@ -63,6 +63,18 @@ const Header = () => {
               <Button
                 color="inherit"
                 component={RouterLink}
+                to="/collections"
+                startIcon={<Folder />}
+                sx={{
+                  mr: 1,
+                  backgroundColor: isActive("/collections") ? "rgba(255, 255, 255, 0.1)" : "transparent"
+                }}
+              >
+                Collections
+              </Button>
+              <Button
+                color="inherit"
+                component={RouterLink}
                 to="/add"
                 startIcon={<AddIcon />}
                 sx={{

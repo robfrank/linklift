@@ -13,104 +13,105 @@ import org.junit.jupiter.api.Test;
 
 class SimpleEventPublisherTest {
 
-    private SimpleEventPublisher eventPublisher;
+  private SimpleEventPublisher eventPublisher;
 
-    @BeforeEach
-    void setUp() {
-        eventPublisher = new SimpleEventPublisher();
+  @BeforeEach
+  void setUp() {
+    eventPublisher = new SimpleEventPublisher();
+  }
+
+  @Test
+  void subscribe_shouldReceiveMatchingEvents() {
+    // Arrange
+    AtomicBoolean linkCreatedHandlerCalled = new AtomicBoolean(false);
+    AtomicBoolean genericEventHandlerCalled = new AtomicBoolean(false);
+
+    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
+    LinkCreatedEvent event = new LinkCreatedEvent(link, "user1");
+
+    // Subscribe to specific event type
+    eventPublisher.subscribe(LinkCreatedEvent.class, e -> {
+      linkCreatedHandlerCalled.set(true);
+      assertThat(e.getLink()).isEqualTo(link);
+    });
+
+    // Subscribe to base event type
+    eventPublisher.subscribe(DomainEvent.class, e -> {
+      genericEventHandlerCalled.set(true);
+    });
+
+    // Act
+    eventPublisher.publish(event);
+
+    // Assert
+    assertThat(linkCreatedHandlerCalled.get()).isTrue();
+    assertThat(genericEventHandlerCalled.get()).isTrue();
+  }
+
+  @Test
+  void subscribe_shouldNotReceiveNonMatchingEvents() {
+    // Arrange
+    AtomicInteger handlerCallCount = new AtomicInteger(0);
+
+    // Create a test-specific event type
+    class TestEvent implements DomainEvent {
+
+      private final String message;
+
+      public TestEvent(String message) {
+        this.message = message;
+      }
+
+      public String getMessage() {
+        return message;
+      }
     }
 
-    @Test
-    void subscribe_shouldReceiveMatchingEvents() {
-        // Arrange
-        AtomicBoolean linkCreatedHandlerCalled = new AtomicBoolean(false);
-        AtomicBoolean genericEventHandlerCalled = new AtomicBoolean(false);
+    TestEvent testEvent = new TestEvent("test");
+    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
+    LinkCreatedEvent linkEvent = new LinkCreatedEvent(link, "user1");
 
-        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
-        LinkCreatedEvent event = new LinkCreatedEvent(link, "user1");
+    // Subscribe only to LinkCreatedEvent
+    eventPublisher.subscribe(LinkCreatedEvent.class, e -> {
+      handlerCallCount.incrementAndGet();
+    });
 
-        // Subscribe to specific event type
-        eventPublisher.subscribe(LinkCreatedEvent.class, e -> {
-            linkCreatedHandlerCalled.set(true);
-            assertThat(e.getLink()).isEqualTo(link);
-        });
+    // Act - publish TestEvent
+    eventPublisher.publish(testEvent);
 
-        // Subscribe to base event type
-        eventPublisher.subscribe(DomainEvent.class, e -> {
-            genericEventHandlerCalled.set(true);
-        });
+    // Assert - handler shouldn't be called
+    assertThat(handlerCallCount.get()).isEqualTo(0);
 
-        // Act
-        eventPublisher.publish(event);
+    // Act - publish LinkCreatedEvent
+    eventPublisher.publish(linkEvent);
 
-        // Assert
-        assertThat(linkCreatedHandlerCalled.get()).isTrue();
-        assertThat(genericEventHandlerCalled.get()).isTrue();
-    }
+    // Assert - handler should be called now
+    assertThat(handlerCallCount.get()).isEqualTo(1);
+  }
 
-    @Test
-    void subscribe_shouldNotReceiveNonMatchingEvents() {
-        // Arrange
-        AtomicInteger handlerCallCount = new AtomicInteger(0);
+  @Test
+  void clear_shouldRemoveAllSubscribers() {
+    // Arrange
+    AtomicInteger handlerCallCount = new AtomicInteger(0);
 
-        // Create a test-specific event type
-        class TestEvent implements DomainEvent {
-            private final String message;
+    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
+    LinkCreatedEvent event = new LinkCreatedEvent(link, "user1");
 
-            public TestEvent(String message) {
-                this.message = message;
-            }
+    eventPublisher.subscribe(LinkCreatedEvent.class, e -> {
+      handlerCallCount.incrementAndGet();
+    });
 
-            public String getMessage() {
-                return message;
-            }
-        }
+    // Verify initial subscription works
+    eventPublisher.publish(event);
+    assertThat(handlerCallCount.get()).isEqualTo(1);
 
-        TestEvent testEvent = new TestEvent("test");
-        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
-        LinkCreatedEvent linkEvent = new LinkCreatedEvent(link, "user1");
+    // Act
+    eventPublisher.clear();
 
-        // Subscribe only to LinkCreatedEvent
-        eventPublisher.subscribe(LinkCreatedEvent.class, e -> {
-            handlerCallCount.incrementAndGet();
-        });
+    // Publish again
+    eventPublisher.publish(event);
 
-        // Act - publish TestEvent
-        eventPublisher.publish(testEvent);
-
-        // Assert - handler shouldn't be called
-        assertThat(handlerCallCount.get()).isEqualTo(0);
-
-        // Act - publish LinkCreatedEvent
-        eventPublisher.publish(linkEvent);
-
-        // Assert - handler should be called now
-        assertThat(handlerCallCount.get()).isEqualTo(1);
-    }
-
-    @Test
-    void clear_shouldRemoveAllSubscribers() {
-        // Arrange
-        AtomicInteger handlerCallCount = new AtomicInteger(0);
-
-        Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType");
-        LinkCreatedEvent event = new LinkCreatedEvent(link, "user1");
-
-        eventPublisher.subscribe(LinkCreatedEvent.class, e -> {
-            handlerCallCount.incrementAndGet();
-        });
-
-        // Verify initial subscription works
-        eventPublisher.publish(event);
-        assertThat(handlerCallCount.get()).isEqualTo(1);
-
-        // Act
-        eventPublisher.clear();
-
-        // Publish again
-        eventPublisher.publish(event);
-
-        // Assert
-        assertThat(handlerCallCount.get()).isEqualTo(1); // Still 1, not incremented
-    }
+    // Assert
+    assertThat(handlerCallCount.get()).isEqualTo(1); // Still 1, not incremented
+  }
 }

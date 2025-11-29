@@ -5,4 +5,6 @@ import it.robfrank.linklift.application.port.in.ListLinksQuery;
 
 public interface LoadLinksPort {
   LinkPage loadLinks(ListLinksQuery query);
+
+  java.util.List<it.robfrank.linklift.application.domain.model.Link> getRelatedLinks(String linkId, String userId);
 }

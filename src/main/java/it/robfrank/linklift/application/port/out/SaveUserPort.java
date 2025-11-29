@@ -8,14 +8,15 @@ import org.jspecify.annotations.NonNull;
  * Follows the established port pattern in the codebase.
  */
 public interface SaveUserPort {
+  /**
+   * Saves a new user to the persistence layer.
+   */
+  @NonNull
+  User saveUser(@NonNull User user);
 
-    /**
-     * Saves a new user to the persistence layer.
-     */
-    @NonNull User saveUser(@NonNull User user);
-
-    /**
-     * Updates an existing user in the persistence layer.
-     */
-    @NonNull User updateUser(@NonNull User user);
+  /**
+   * Updates an existing user in the persistence layer.
+   */
+  @NonNull
+  User updateUser(@NonNull User user);
 }

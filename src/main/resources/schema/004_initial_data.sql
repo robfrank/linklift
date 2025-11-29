@@ -3,21 +3,21 @@ INSERT INTO Role SET
     id = 'role_user',
     name = 'USER',
     description = 'Standard user with basic link management permissions',
-    permissions = ['CREATE_LINK', 'READ_OWN_LINKS', 'UPDATE_OWN_LINKS', 'DELETE_OWN_LINKS'],
+    permissions = ['CREATE_LINK', 'CREATE_COLLECTION', 'READ_OWN_LINKS', 'UPDATE_OWN_LINKS', 'DELETE_OWN_LINKS'],
     isActive = true;
 
 INSERT INTO Role SET
     id = 'role_admin',
     name = 'ADMIN',
     description = 'Administrator with full system access',
-    permissions = ['CREATE_LINK', 'READ_ALL_LINKS', 'UPDATE_ALL_LINKS', 'DELETE_ALL_LINKS', 'MANAGE_USERS', 'MANAGE_ROLES'],
+    permissions = ['CREATE_LINK', 'CREATE_COLLECTION', 'READ_ALL_LINKS', 'UPDATE_ALL_LINKS', 'DELETE_ALL_LINKS', 'MANAGE_USERS', 'MANAGE_ROLES'],
     isActive = true;
 
 INSERT INTO Role SET
     id = 'role_moderator',
     name = 'MODERATOR',
     description = 'Moderator with limited administrative access',
-    permissions = ['CREATE_LINK', 'READ_ALL_LINKS', 'UPDATE_ALL_LINKS', 'DELETE_ALL_LINKS'],
+    permissions = ['CREATE_LINK', 'CREATE_COLLECTION', 'READ_ALL_LINKS', 'UPDATE_ALL_LINKS', 'DELETE_ALL_LINKS'],
     isActive = true;
 
 -- Create a default system user for existing links (migration purpose)

@@ -8,7 +8,6 @@ import org.jspecify.annotations.Nullable;
  * Part of Phase 1 Feature 1: Automated Content & Metadata Extraction.
  */
 public interface ContentExtractorPort {
-
   /**
    * Extracts metadata and content from HTML.
    *

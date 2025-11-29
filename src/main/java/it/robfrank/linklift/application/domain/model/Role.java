@@ -27,6 +27,9 @@ public record Role(
     public static final String DELETE_OWN_LINKS = "DELETE_OWN_LINKS";
     public static final String DELETE_ALL_LINKS = "DELETE_ALL_LINKS";
 
+    // Collection management permissions
+    public static final String CREATE_COLLECTION = "CREATE_COLLECTION";
+
     // User management permissions
     public static final String MANAGE_USERS = "MANAGE_USERS";
     public static final String VIEW_USERS = "VIEW_USERS";

@@ -35,8 +35,8 @@ public class SimpleTextSummarizer implements ContentSummarizerPort {
     // Calculate word frequencies
     Map<String, Integer> wordFrequencies = new HashMap<>();
     Arrays.stream(textContent.toLowerCase().split("\\W+"))
-        .filter(w -> w.length() > 3) // Filter short words
-        .forEach(w -> wordFrequencies.merge(w, 1, Integer::sum));
+      .filter(w -> w.length() > 3) // Filter short words
+      .forEach(w -> wordFrequencies.merge(w, 1, Integer::sum));
 
     // Score sentences
     Map<String, Double> sentenceScores = new HashMap<>();
@@ -55,11 +55,13 @@ public class SimpleTextSummarizer implements ContentSummarizerPort {
     }
 
     // Select top sentences
-    List<String> topSentences = sentenceScores.entrySet().stream()
-        .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-        .limit(5) // Take top 5 sentences
-        .map(Map.Entry::getKey)
-        .collect(Collectors.toList());
+    List<String> topSentences = sentenceScores
+      .entrySet()
+      .stream()
+      .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+      .limit(5) // Take top 5 sentences
+      .map(Map.Entry::getKey)
+      .collect(Collectors.toList());
 
     // Reorder sentences as they appear in the text
     StringBuilder summary = new StringBuilder();

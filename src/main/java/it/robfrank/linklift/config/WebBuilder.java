@@ -79,6 +79,20 @@ public class WebBuilder {
     return this;
   }
 
+  public WebBuilder withCollectionController(it.robfrank.linklift.adapter.in.web.CollectionController collectionController) {
+    app.before("/api/v1/collections", requireAuthentication);
+    app.before("/api/v1/collections", RequirePermission.any(authorizationService, Role.Permissions.CREATE_COLLECTION));
+    app.post("/api/v1/collections", collectionController::createCollection);
+    return this;
+  }
+
+  public WebBuilder withGetRelatedLinksController(it.robfrank.linklift.adapter.in.web.GetRelatedLinksController getRelatedLinksController) {
+    app.before("/api/v1/links/{linkId}/related", requireAuthentication);
+    app.before("/api/v1/links/{linkId}/related", RequirePermission.any(authorizationService, Role.Permissions.READ_OWN_LINKS));
+    app.get("/api/v1/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
+    return this;
+  }
+
   public Javalin build() {
     return app;
   }

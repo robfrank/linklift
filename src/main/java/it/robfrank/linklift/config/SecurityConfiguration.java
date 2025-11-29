@@ -1,9 +1,9 @@
 package it.robfrank.linklift.config;
 
 import it.robfrank.linklift.adapter.in.web.AuthenticationController;
-import it.robfrank.linklift.adapter.out.persitence.AuthTokenPersistenceAdapter;
-import it.robfrank.linklift.adapter.out.persitence.UserPersistenceAdapter;
-import it.robfrank.linklift.adapter.out.persitence.UserRolePersistenceAdapter;
+import it.robfrank.linklift.adapter.out.persistence.AuthTokenPersistenceAdapter;
+import it.robfrank.linklift.adapter.out.persistence.UserPersistenceAdapter;
+import it.robfrank.linklift.adapter.out.persistence.UserRolePersistenceAdapter;
 import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
 import it.robfrank.linklift.adapter.out.security.JwtTokenAdapter;
 import it.robfrank.linklift.application.domain.service.AuthenticationService;

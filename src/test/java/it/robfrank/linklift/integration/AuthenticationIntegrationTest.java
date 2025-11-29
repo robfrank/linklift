@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
-import it.robfrank.linklift.adapter.out.persitence.*;
+import it.robfrank.linklift.adapter.out.persistence.*;
 import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
 import it.robfrank.linklift.adapter.out.security.JwtTokenAdapter;
 import it.robfrank.linklift.application.domain.service.AuthenticationService;

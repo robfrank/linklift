@@ -30,9 +30,10 @@ LinkLift is built using **Hexagonal Architecture** (also known as Ports and Adap
 │  Web Layer              │  Persistence Layer      │  Event Layer           │
 │  ┌───────────────────┐  │  ┌─────────────────────┐ │  ┌───────────────────┐ │
 │  │ NewLinkController │  │  │LinkPersistenceAdapter│ │  │SimpleEventPublisher││
-│  │ListLinksController│  │  │ArcadeLinkRepository  │ │  │                   │ │
-│  │  GlobalException  │  │  │     LinkMapper      │ │  │                   │ │
-│  │     Handler       │  │  │                     │ │  │                   │ │
+│  │ListLinksController│  │  │UserPersistenceAdapter│ │  │                   │ │
+│  │ AuthController    │  │  │ContentPersistenceAdap│ │  │                   │ │
+│  │CollectionControlle│  │  │CollectionPersistence │ │  │                   │ │
+│  │                   │  │  │                     │ │  │                   │ │
 │  └───────────────────┘  │  └─────────────────────┘ │  └───────────────────┘ │
 └─────────────────────────────────────────────────────────────────────────────┘
                                       │
@@ -43,6 +44,8 @@ LinkLift is built using **Hexagonal Architecture** (also known as Ports and Adap
 │  ┌───────────────────┐   │  ┌─────────────────────┐ ┌───────────────────┐  │
 │  │ NewLinkUseCase    │   │  │   SaveLinkPort      │ │DomainEventPublisher│  │
 │  │ListLinksUseCase   │   │  │   LoadLinksPort     │ │                   │  │
+│  │ CreateUserUseCase │   │  │   SaveUserPort      │ │                   │  │
+│  │CreateCollectionUse│   │  │ SaveCollectionPort  │ │                   │  │
 │  └───────────────────┘   │  └─────────────────────┘ └───────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
                                       │
@@ -50,8 +53,8 @@ LinkLift is built using **Hexagonal Architecture** (also known as Ports and Adap
 │                           Application Layer                                │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  ┌───────────────────┐   ┌─────────────────────┐   ┌───────────────────┐   │
-│  │  NewLinkService   │   │  ListLinksService   │   │ Future Services   │   │
-│  │                   │   │                     │   │                   │   │
+│  │  NewLinkService   │   │  ListLinksService   │   │ CreateUserService │   │
+│  │CreateCollectionSer│   │ DownloadContentServ │   │                   │   │
 │  └───────────────────┘   └─────────────────────┘   └───────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────────┘
                                       │
@@ -61,9 +64,9 @@ LinkLift is built using **Hexagonal Architecture** (also known as Ports and Adap
 │  Domain Model           │  Domain Events          │  Domain Exceptions     │
 │  ┌───────────────────┐  │  ┌─────────────────────┐ │  ┌───────────────────┐ │
 │  │      Link         │  │  │   DomainEvent       │ │  │LinkLiftException  │ │
-│  │    LinkPage       │  │  │LinkCreatedEvent     │ │  │ValidationException│ │
-│  │ ListLinksQuery    │  │  │LinksQueryEvent      │ │  │DatabaseException  │ │
-│  │ NewLinkCommand    │  │  │                     │ │  │                   │ │
+│  │      User         │  │  │LinkCreatedEvent     │ │  │ValidationException│ │
+│  │   Collection      │  │  │LinksQueryEvent      │ │  │DatabaseException  │ │
+│  │     Content       │  │  │                     │ │  │                   │ │
 │  └───────────────────┘  │  └─────────────────────┘ │  └───────────────────┘ │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -128,8 +131,8 @@ src/main/java/it/robfrank/linklift/
 
 **Key Components**:
 
-- **Entities**: `Link`, `LinkPage` - Core business objects with behavior and constraints
-- **Value Objects**: `ListLinksQuery`, `NewLinkCommand` - Immutable data containers
+- **Entities**: `Link`, `LinkPage`, `User`, `Collection`, `Content` - Core business objects with behavior and constraints
+- **Value Objects**: `ListLinksQuery`, `NewLinkCommand`, `CreateUserCommand`, `CreateCollectionCommand` - Immutable data containers
 - **Domain Events**: `LinkCreatedEvent`, `LinksQueryEvent` - Business event notifications
 - **Exceptions**: `ValidationException`, `DatabaseException` - Domain-specific errors
 
@@ -160,9 +163,9 @@ public record Link(String id, String url, String title, String description, Loca
 
 **Key Components**:
 
-- **Use Case Interfaces**: `NewLinkUseCase`, `ListLinksUseCase` - Define business operations
-- **Service Implementations**: `NewLinkService`, `ListLinksService` - Implement use cases
-- **Port Interfaces**: `SaveLinkPort`, `LoadLinksPort` - Abstract external dependencies
+- **Use Case Interfaces**: `NewLinkUseCase`, `ListLinksUseCase`, `CreateUserUseCase`, `CreateCollectionUseCase` - Define business operations
+- **Service Implementations**: `NewLinkService`, `ListLinksService`, `CreateUserService`, `CreateCollectionService` - Implement use cases
+- **Port Interfaces**: `SaveLinkPort`, `LoadLinksPort`, `SaveUserPort`, `SaveCollectionPort` - Abstract external dependencies
 
 **Rules**:
 

@@ -1,6 +1,6 @@
 package it.robfrank.linklift.application.domain.service;
 
-import it.robfrank.linklift.adapter.out.persitence.LinkPersistenceAdapter;
+import it.robfrank.linklift.adapter.out.persistence.LinkPersistenceAdapter;
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.exception.LinkAlreadyExistsException;
 import it.robfrank.linklift.application.domain.exception.ValidationException;

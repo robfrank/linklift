@@ -36,6 +36,13 @@ public enum ErrorCode {
   CONTENT_DOWNLOAD_FAILED(2301, "Content download failed"),
   CONTENT_TOO_LARGE(2302, "Content size exceeds limit"),
 
+  // Domain-specific errors - Collections
+  COLLECTION_NOT_FOUND(2400, "Collection not found"),
+  COLLECTION_ALREADY_EXISTS(2401, "Collection already exists"),
+
+  // Authorization errors
+  UNAUTHORIZED(2500, "Unauthorized access to resource"),
+
   // Infrastructure errors
   DATABASE_ERROR(3000, "Database error"),
   NETWORK_ERROR(3001, "Network error");

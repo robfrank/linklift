@@ -19,9 +19,14 @@ import {
   Grid,
   Link,
   IconButton,
-  Tooltip
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText
 } from "@mui/material";
-import { OpenInNew, Sort, Article } from "@mui/icons-material";
+import { OpenInNew, Sort, Article, PlaylistAdd } from "@mui/icons-material";
 import api from "../services/api";
 import { ContentViewerModal } from "./ContentViewer/ContentViewerModal";
 
@@ -36,6 +41,13 @@ const LinkList = () => {
   const [sortBy, setSortBy] = useState("extractedAt");
   const [sortDirection, setSortDirection] = useState("DESC");
   const [selectedLink, setSelectedLink] = useState(null);
+
+  // Add to Collection State
+  const [addToCollectionDialogOpen, setAddToCollectionDialogOpen] = useState(false);
+  const [linkToAddToCollection, setLinkToAddToCollection] = useState(null);
+  const [userCollections, setUserCollections] = useState([]);
+  const [selectedCollectionId, setSelectedCollectionId] = useState("");
+  const [addToCollectionLoading, setAddToCollectionLoading] = useState(false);
 
   const fetchLinks = async () => {
     try {
@@ -81,6 +93,39 @@ const LinkList = () => {
   const toggleSortDirection = () => {
     setSortDirection((prev) => (prev === "ASC" ? "DESC" : "ASC"));
     setPage(1);
+  };
+
+  const handleOpenAddToCollectionDialog = async (link) => {
+    setLinkToAddToCollection(link);
+    setAddToCollectionDialogOpen(true);
+    setAddToCollectionLoading(true);
+    try {
+      const response = await api.listCollections();
+      setUserCollections(response.data || []);
+    } catch (err) {
+      console.error("Error fetching collections:", err);
+      // Ideally show a snackbar
+    } finally {
+      setAddToCollectionLoading(false);
+    }
+  };
+
+  const handleAddToCollection = async () => {
+    if (!selectedCollectionId || !linkToAddToCollection) return;
+
+    try {
+      setAddToCollectionLoading(true);
+      await api.addLinkToCollection(selectedCollectionId, linkToAddToCollection.id);
+      setAddToCollectionDialogOpen(false);
+      setSelectedCollectionId("");
+      setLinkToAddToCollection(null);
+      // Ideally show success message
+    } catch (err) {
+      console.error("Error adding link to collection:", err);
+      // Ideally show error message
+    } finally {
+      setAddToCollectionLoading(false);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -173,7 +218,7 @@ const LinkList = () => {
             <>
               <Grid container spacing={2}>
                 {links.map((link) => (
-                  <Grid size={{ xs: 12 }} key={link.id}>
+                  <Grid item xs={12} key={link.id}>
                     <Card elevation={1} sx={{ transition: "elevation 0.2s", "&:hover": { elevation: 3 } }}>
                       <CardContent>
                         <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
@@ -207,6 +252,11 @@ const LinkList = () => {
                             >
                               Visit
                             </Button>
+                            <Tooltip title="Add to Collection">
+                              <IconButton size="small" onClick={() => handleOpenAddToCollectionDialog(link)} color="primary">
+                                <PlaylistAdd />
+                              </IconButton>
+                            </Tooltip>
                           </CardActions>
                         </Box>
                       </CardContent>
@@ -234,6 +284,46 @@ const LinkList = () => {
 
       {/* Content Viewer Modal */}
       {selectedLink && <ContentViewerModal linkId={selectedLink.id} linkTitle={selectedLink.title} onClose={() => setSelectedLink(null)} />}
+
+      {/* Add to Collection Dialog */}
+      <Dialog open={addToCollectionDialogOpen} onClose={() => setAddToCollectionDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Add to Collection</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            Select a collection to add <strong>{linkToAddToCollection?.title}</strong> to:
+          </DialogContentText>
+
+          {addToCollectionLoading && userCollections.length === 0 ? (
+            <Box display="flex" justifyContent="center" my={2}>
+              <CircularProgress size={24} />
+            </Box>
+          ) : userCollections.length === 0 ? (
+            <Alert severity="info">You don't have any collections yet. Create one in the Collections page.</Alert>
+          ) : (
+            <FormControl fullWidth>
+              <InputLabel id="collection-select-label">Collection</InputLabel>
+              <Select
+                labelId="collection-select-label"
+                value={selectedCollectionId}
+                label="Collection"
+                onChange={(e) => setSelectedCollectionId(e.target.value)}
+              >
+                {userCollections.map((collection) => (
+                  <MenuItem key={collection.id} value={collection.id}>
+                    {collection.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddToCollectionDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleAddToCollection} variant="contained" disabled={!selectedCollectionId || addToCollectionLoading}>
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

@@ -11,6 +11,8 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./components/NotFound";
+import CollectionList from "./components/Collections/CollectionList";
+import CollectionDetail from "./components/Collections/CollectionDetail";
 
 const theme = createTheme({
   palette: {
@@ -49,6 +51,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AddLink />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/collections"
+              element={
+                <ProtectedRoute>
+                  <CollectionList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/collections/:id"
+              element={
+                <ProtectedRoute>
+                  <CollectionDetail />
                 </ProtectedRoute>
               }
             />

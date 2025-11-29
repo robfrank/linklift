@@ -45,6 +45,64 @@ const api = {
       console.error(`Error fetching content for link ${linkId}:`, error);
       throw error;
     }
+  },
+
+  // Collections
+  createCollection: async (collectionData) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/collections`, collectionData);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating collection:", error);
+      throw error;
+    }
+  },
+
+  listCollections: async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/collections`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching collections:", error);
+      throw error;
+    }
+  },
+
+  getCollection: async (id) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/collections/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching collection ${id}:`, error);
+      throw error;
+    }
+  },
+
+  deleteCollection: async (id) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/collections/${id}`);
+    } catch (error) {
+      console.error(`Error deleting collection ${id}:`, error);
+      throw error;
+    }
+  },
+
+  addLinkToCollection: async (collectionId, linkId) => {
+    try {
+      await axios.post(`${API_BASE_URL}/collections/${collectionId}/links`, { linkId });
+    } catch (error) {
+      console.error(`Error adding link ${linkId} to collection ${collectionId}:`, error);
+      throw error;
+    }
+  },
+
+  removeLinkFromCollection: async (collectionId, linkId) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/collections/${collectionId}/links/${linkId}`);
+    } catch (error) {
+      console.error(`Error removing link ${linkId} from collection ${collectionId}:`, error);
+      throw error;
+    }
   }
 };
 

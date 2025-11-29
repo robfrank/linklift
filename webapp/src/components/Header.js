@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AppBar, Toolbar, Typography, Button, Box, Menu, MenuItem, Avatar, IconButton } from "@mui/material";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Add as AddIcon, AccountCircle, Login as LoginIcon, PersonAdd as PersonAddIcon } from "@mui/icons-material";
+import { Home as HomeIcon, Add as AddIcon, AccountCircle, Login as LoginIcon, PersonAdd as PersonAddIcon, Folder } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 
 const Header = () => {

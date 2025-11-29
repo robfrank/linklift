@@ -53,7 +53,7 @@ The project implements a **Hexagonal Architecture** backend (Java 24, Javalin, A
     - [x] Create `CollectionList` page/component.
     - [x] Create `CollectionDetail` page (view links within a collection).
     - [x] Add "Create Collection" Modal/Form.
-    - [ ] Add "Add to Collection" action in `LinkList` items.
+    - [x] Add "Add to Collection" action in `LinkList` items.
 - **Links Domain**:
   - **Backend**:
     - [ ] Implement `UpdateLinkUseCase` (Edit title, description, tags).

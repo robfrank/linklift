@@ -407,3 +407,5 @@ cython_debug/
 #.idea/
 
 log/
+
+./get-your-hands-dirty-on-clean-architecture.epub

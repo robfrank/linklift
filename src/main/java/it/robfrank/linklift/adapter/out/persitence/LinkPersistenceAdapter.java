@@ -6,6 +6,7 @@ import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import it.robfrank.linklift.application.port.out.SaveLinkPort;
+import java.util.List;
 import java.util.Optional;
 
 public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort {
@@ -86,7 +87,7 @@ public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort {
   }
 
   @Override
-  public java.util.List<Link> getRelatedLinks(String linkId, String userId) {
+  public List<Link> getRelatedLinks(String linkId, String userId) {
     return linkRepository.getRelatedLinks(linkId, userId);
   }
 }

@@ -3,10 +3,7 @@ package it.robfrank.linklift.config;
 import static io.javalin.apibuilder.ApiBuilder.get;
 
 import io.javalin.Javalin;
-import it.robfrank.linklift.adapter.in.web.AuthenticationController;
-import it.robfrank.linklift.adapter.in.web.GetContentController;
-import it.robfrank.linklift.adapter.in.web.ListLinksController;
-import it.robfrank.linklift.adapter.in.web.NewLinkController;
+import it.robfrank.linklift.adapter.in.web.*;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.adapter.in.web.security.JwtAuthenticationHandler;
 import it.robfrank.linklift.adapter.in.web.security.RequireAuthentication;
@@ -79,14 +76,14 @@ public class WebBuilder {
     return this;
   }
 
-  public WebBuilder withCollectionController(it.robfrank.linklift.adapter.in.web.CollectionController collectionController) {
+  public WebBuilder withCollectionController(CollectionController collectionController) {
     app.before("/api/v1/collections", requireAuthentication);
     app.before("/api/v1/collections", RequirePermission.any(authorizationService, Role.Permissions.CREATE_COLLECTION));
     app.post("/api/v1/collections", collectionController::createCollection);
     return this;
   }
 
-  public WebBuilder withGetRelatedLinksController(it.robfrank.linklift.adapter.in.web.GetRelatedLinksController getRelatedLinksController) {
+  public WebBuilder withGetRelatedLinksController(GetRelatedLinksController getRelatedLinksController) {
     app.before("/api/v1/links/{linkId}/related", requireAuthentication);
     app.before("/api/v1/links/{linkId}/related", RequirePermission.any(authorizationService, Role.Permissions.READ_OWN_LINKS));
     app.get("/api/v1/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);

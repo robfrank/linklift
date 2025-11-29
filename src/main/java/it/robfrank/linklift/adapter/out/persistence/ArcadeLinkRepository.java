@@ -9,6 +9,7 @@ import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -106,7 +107,7 @@ public class ArcadeLinkRepository {
 
         // Extract domain and create BELONGS_TO_DOMAIN edge
         try {
-          String domainName = new java.net.URI(link.url()).getHost();
+          String domainName = new URI(link.url()).getHost();
           if (domainName != null) {
             if (domainName.startsWith("www.")) {
               domainName = domainName.substring(4);
@@ -125,7 +126,7 @@ public class ArcadeLinkRepository {
           }
         } catch (URISyntaxException e) {
           // Log domain extraction errors instead of printing to stderr
-          logger.warn("Failed to extract domain from URL: {}", link.url(), e);
+          logger.error("Failed to extract domain from URL: {}", link.url(), e);
         }
       });
       return link;

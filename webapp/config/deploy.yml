@@ -32,15 +32,3 @@ env:
 
 ssh:
   user: player
-
-accessories:
-  arcadedb:
-    image: arcadedata/arcadedb-headless:25.4.1
-    host: <%= ENV["HOST_IP"] %>
-    volumes:
-      - /home/player/linklift/config:/home/arcadedb/config
-      - /home/player/linklift/databases:/home/arcadedb/databases
-      - /home/player/linklift/log:/home/arcadedb/log
-    env:
-      clear:
-        JAVA_OPTS: "-Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin"

@@ -94,13 +94,16 @@ public class WebBuilder {
 
     // Add link to collection
     app.before("/api/v1/collections/{id}/links", requireAuthentication);
+    app.before("/api/v1/collections/{id}/links", RequirePermission.any(authorizationService, Role.Permissions.UPDATE_OWN_COLLECTION));
     app.post("/api/v1/collections/{id}/links", collectionController::addLinkToCollection);
 
     // Remove link from collection
     app.before("/api/v1/collections/{id}/links/{linkId}", requireAuthentication);
+    app.before("/api/v1/collections/{id}/links/{linkId}", RequirePermission.any(authorizationService, Role.Permissions.UPDATE_OWN_COLLECTION));
     app.delete("/api/v1/collections/{id}/links/{linkId}", collectionController::removeLinkFromCollection);
 
     // Delete collection
+    app.before("/api/v1/collections/{id}", RequirePermission.any(authorizationService, Role.Permissions.DELETE_OWN_COLLECTION));
     app.delete("/api/v1/collections/{id}", collectionController::deleteCollection);
 
     return this;

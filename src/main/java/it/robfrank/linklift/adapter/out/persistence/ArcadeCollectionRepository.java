@@ -25,6 +25,16 @@ public class ArcadeCollectionRepository {
     this.linkMapper = new LinkMapper();
   }
 
+  private Collection toCollection(com.arcadedb.database.Document vertex) {
+    return new Collection(
+      vertex.getString("id"),
+      vertex.getString("name"),
+      vertex.getString("description"),
+      vertex.getString("userId"),
+      vertex.getString("query")
+    );
+  }
+
   public Collection save(Collection collection) {
     try {
       database.transaction(() -> {
@@ -58,15 +68,7 @@ public class ArcadeCollectionRepository {
         .stream()
         .map(Result::getVertex)
         .flatMap(Optional::stream)
-        .map(vertex ->
-          new Collection(
-            vertex.getString("id"),
-            vertex.getString("name"),
-            vertex.getString("description"),
-            vertex.getString("userId"),
-            vertex.getString("query")
-          )
-        )
+        .map(this::toCollection)
         .toList();
     } catch (ArcadeDBException e) {
       throw new DatabaseException("Failed to find collections for user: " + userId, e);
@@ -75,20 +77,7 @@ public class ArcadeCollectionRepository {
 
   public Optional<Collection> findById(String collectionId) {
     try {
-      return database
-        .query("sql", "SELECT FROM Collection WHERE id = ?", collectionId)
-        .stream()
-        .findFirst()
-        .flatMap(Result::getVertex)
-        .map(vertex ->
-          new Collection(
-            vertex.getString("id"),
-            vertex.getString("name"),
-            vertex.getString("description"),
-            vertex.getString("userId"),
-            vertex.getString("query")
-          )
-        );
+      return database.query("sql", "SELECT FROM Collection WHERE id = ?", collectionId).stream().findFirst().flatMap(Result::getVertex).map(this::toCollection);
     } catch (ArcadeDBException e) {
       throw new DatabaseException("Failed to find collection by ID: " + collectionId, e);
     }
@@ -104,11 +93,10 @@ public class ArcadeCollectionRepository {
           CREATE EDGE ContainsLink
           FROM (SELECT FROM Collection WHERE id = ?)
           TO (SELECT FROM Link WHERE id = ?)
-          SET addedAt = ?
+          SET addedAt = SYSDATE()
           """,
           collectionId,
-          linkId,
-          LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+          linkId
         );
       });
     } catch (ArcadeDBException e) {

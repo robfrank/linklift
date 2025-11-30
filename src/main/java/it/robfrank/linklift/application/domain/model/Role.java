@@ -29,6 +29,8 @@ public record Role(
 
     // Collection management permissions
     public static final String CREATE_COLLECTION = "CREATE_COLLECTION";
+    public static final String UPDATE_OWN_COLLECTION = "UPDATE_OWN_COLLECTION";
+    public static final String DELETE_OWN_COLLECTION = "DELETE_OWN_COLLECTION";
 
     // User management permissions
     public static final String MANAGE_USERS = "MANAGE_USERS";

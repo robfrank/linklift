@@ -32,7 +32,7 @@ services:
     restart: unless-stopped
 
   webapp:
-    build: ./webapp
+    image: robfrank/linklift-webapp:latest
     container_name: linklift-webapp
     ports:
       - "80:80"

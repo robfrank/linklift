@@ -5,6 +5,7 @@
   "scripts": {
     "start": "webpack serve --mode development --open",
     "build": "webpack --mode production",
+    "docker-build": "docker build -t robfrank/linklift-webapp .",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"

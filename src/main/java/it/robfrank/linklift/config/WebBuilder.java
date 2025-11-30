@@ -80,25 +80,27 @@ public class WebBuilder {
   }
 
   public WebBuilder withCollectionController(it.robfrank.linklift.adapter.in.web.CollectionController collectionController) {
-    // Create collection
+    // Shared authentication for all /api/v1/collections endpoints
     app.before("/api/v1/collections", requireAuthentication);
+    app.before("/api/v1/collections/{id}", requireAuthentication);
+    app.before("/api/v1/collections/{id}/links", requireAuthentication);
+    app.before("/api/v1/collections/{id}/links/{linkId}", requireAuthentication);
+
+    // List collections (read-only, just needs authentication)
+    app.get("/api/v1/collections", collectionController::listCollections);
+
+    // Get collection with links (read-only, just needs authentication)
+    app.get("/api/v1/collections/{id}", collectionController::getCollection);
+
+    // Create collection
     app.before("/api/v1/collections", RequirePermission.any(authorizationService, Role.Permissions.CREATE_COLLECTION));
     app.post("/api/v1/collections", collectionController::createCollection);
 
-    // List collections
-    app.get("/api/v1/collections", collectionController::listCollections);
-
-    // Get collection with links
-    app.before("/api/v1/collections/{id}", requireAuthentication);
-    app.get("/api/v1/collections/{id}", collectionController::getCollection);
-
     // Add link to collection
-    app.before("/api/v1/collections/{id}/links", requireAuthentication);
     app.before("/api/v1/collections/{id}/links", RequirePermission.any(authorizationService, Role.Permissions.UPDATE_OWN_COLLECTION));
     app.post("/api/v1/collections/{id}/links", collectionController::addLinkToCollection);
 
     // Remove link from collection
-    app.before("/api/v1/collections/{id}/links/{linkId}", requireAuthentication);
     app.before("/api/v1/collections/{id}/links/{linkId}", RequirePermission.any(authorizationService, Role.Permissions.UPDATE_OWN_COLLECTION));
     app.delete("/api/v1/collections/{id}/links/{linkId}", collectionController::removeLinkFromCollection);
 

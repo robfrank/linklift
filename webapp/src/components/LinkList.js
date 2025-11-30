@@ -24,9 +24,10 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  DialogContentText
+  DialogContentText,
+  TextField
 } from "@mui/material";
-import { OpenInNew, Sort, Article, PlaylistAdd } from "@mui/icons-material";
+import { OpenInNew, Sort, Article, PlaylistAdd, Edit, Delete } from "@mui/icons-material";
 import api from "../services/api";
 import { ContentViewerModal } from "./ContentViewer/ContentViewerModal";
 
@@ -48,6 +49,16 @@ const LinkList = () => {
   const [userCollections, setUserCollections] = useState([]);
   const [selectedCollectionId, setSelectedCollectionId] = useState("");
   const [addToCollectionLoading, setAddToCollectionLoading] = useState(false);
+
+  // Edit Link State
+  const [editLinkDialogOpen, setEditLinkDialogOpen] = useState(false);
+  const [linkToEdit, setLinkToEdit] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+
+  // Delete Link State
+  const [deleteLinkDialogOpen, setDeleteLinkDialogOpen] = useState(false);
+  const [linkToDelete, setLinkToDelete] = useState(null);
 
   const fetchLinks = async () => {
     try {
@@ -125,6 +136,44 @@ const LinkList = () => {
       // Ideally show error message
     } finally {
       setAddToCollectionLoading(false);
+    }
+  };
+
+  const handleEditClick = (link) => {
+    setLinkToEdit(link);
+    setEditTitle(link.title || "");
+    setEditDescription(link.description || "");
+    setEditLinkDialogOpen(true);
+  };
+
+  const handleUpdateLink = async () => {
+    if (!linkToEdit) return;
+    try {
+      await api.updateLink(linkToEdit.id, { title: editTitle, description: editDescription });
+      setEditLinkDialogOpen(false);
+      setLinkToEdit(null);
+      fetchLinks();
+    } catch (err) {
+      console.error("Error updating link:", err);
+      setError("Failed to update link.");
+    }
+  };
+
+  const handleDeleteClick = (link) => {
+    setLinkToDelete(link);
+    setDeleteLinkDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!linkToDelete) return;
+    try {
+      await api.deleteLink(linkToDelete.id);
+      setDeleteLinkDialogOpen(false);
+      setLinkToDelete(null);
+      fetchLinks();
+    } catch (err) {
+      console.error("Error deleting link:", err);
+      setError("Failed to delete link.");
     }
   };
 
@@ -257,6 +306,16 @@ const LinkList = () => {
                                 <PlaylistAdd />
                               </IconButton>
                             </Tooltip>
+                            <Tooltip title="Edit">
+                              <IconButton size="small" onClick={() => handleEditClick(link)} color="primary">
+                                <Edit />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <IconButton size="small" onClick={() => handleDeleteClick(link)} color="error">
+                                <Delete />
+                              </IconButton>
+                            </Tooltip>
                           </CardActions>
                         </Box>
                       </CardContent>
@@ -321,6 +380,55 @@ const LinkList = () => {
           <Button onClick={() => setAddToCollectionDialogOpen(false)}>Cancel</Button>
           <Button onClick={handleAddToCollection} variant="contained" disabled={!selectedCollectionId || addToCollectionLoading}>
             Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Link Dialog */}
+      <Dialog open={editLinkDialogOpen} onClose={() => setEditLinkDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Link</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Title"
+            fullWidth
+            variant="outlined"
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Description"
+            fullWidth
+            multiline
+            rows={4}
+            variant="outlined"
+            value={editDescription}
+            onChange={(e) => setEditDescription(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditLinkDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleUpdateLink} variant="contained">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Link Dialog */}
+      <Dialog open={deleteLinkDialogOpen} onClose={() => setDeleteLinkDialogOpen(false)}>
+        <DialogTitle>Delete Link</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete <strong>{linkToDelete?.title}</strong>? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteLinkDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

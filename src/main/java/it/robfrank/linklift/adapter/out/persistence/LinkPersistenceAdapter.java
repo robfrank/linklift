@@ -4,12 +4,15 @@ import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
+import it.robfrank.linklift.application.port.out.DeleteLinkPort;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import it.robfrank.linklift.application.port.out.SaveLinkPort;
+import it.robfrank.linklift.application.port.out.UpdateLinkPort;
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
-public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort {
+public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort, UpdateLinkPort, DeleteLinkPort {
 
   private final ArcadeLinkRepository linkRepository;
 
@@ -75,7 +78,8 @@ public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort {
   /**
    * Delete a link and its relationships.
    */
-  public void deleteLink(String linkId) {
+  @Override
+  public void deleteLink(@NonNull String linkId) {
     linkRepository.deleteLink(linkId);
   }
 
@@ -89,5 +93,10 @@ public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort {
   @Override
   public List<Link> getRelatedLinks(String linkId, String userId) {
     return linkRepository.getRelatedLinks(linkId, userId);
+  }
+
+  @Override
+  public @NonNull Link updateLink(@NonNull Link link) {
+    return java.util.Objects.requireNonNull(linkRepository.updateLink(link));
   }
 }

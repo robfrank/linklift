@@ -47,6 +47,25 @@ const api = {
     }
   },
 
+  updateLink: async (id, data) => {
+    try {
+      const response = await axios.patch(`${API_BASE_URL}/links/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating link ${id}:`, error);
+      throw error;
+    }
+  },
+
+  deleteLink: async (id) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/links/${id}`);
+    } catch (error) {
+      console.error(`Error deleting link ${id}:`, error);
+      throw error;
+    }
+  },
+
   // Collections
   createCollection: async (collectionData) => {
     try {

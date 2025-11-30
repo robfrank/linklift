@@ -48,6 +48,7 @@
         <normalized.os.name>${os.name}</normalized.os.name>
 
         <docker-maven-plugin.platform>linux/amd64,linux/arm64</docker-maven-plugin.platform>
+        <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
     </properties>
     <scm>
         <developerConnection>scm:git:https://github.com/robfrank/linklift.git</developerConnection>
@@ -115,6 +116,45 @@
                     <argLine>@{argLine} --enable-preview</argLine>
                 </configuration>
             </plugin>
+
+<!--            <plugin>-->
+<!--                <groupId>com.github.eirslett</groupId>-->
+<!--                <artifactId>frontend-maven-plugin</artifactId>-->
+<!--                <version>${frontend-maven-plugin.version}</version>-->
+<!--                <configuration>-->
+<!--                    <workingDirectory>webapp</workingDirectory>-->
+<!--                    <installDirectory>target</installDirectory>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>install node and npm</id>-->
+<!--                        <goals>-->
+<!--                            <goal>install-node-and-npm</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <nodeVersion>v20.11.0</nodeVersion>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                    <execution>-->
+<!--                        <id>npm install</id>-->
+<!--                        <goals>-->
+<!--                            <goal>npm</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <arguments>install</arguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                    <execution>-->
+<!--                        <id>npm run build</id>-->
+<!--                        <goals>-->
+<!--                            <goal>npm</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <arguments>run docker-build</arguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
 
             <!--            <plugin>-->
             <!--                <groupId>com.societegenerale.commons</groupId>-->
@@ -258,9 +298,9 @@
                         </metadataRepository>
                         <fallback>false</fallback>
                         <buildArgs combine.children="append">
-<!--                            <arg>&#45;&#45;enable-preview</arg>-->
-<!--                            <arg>-H:+EnableAllSecurityServices</arg>-->
-<!--                            <arg>&#45;&#45;initialize-at-build-time=com.oracle.truffle.runtime.enterprise.EnableEnterpriseFeature</arg>-->
+                            <!--                            <arg>&#45;&#45;enable-preview</arg>-->
+                            <!--                            <arg>-H:+EnableAllSecurityServices</arg>-->
+                            <!--                            <arg>&#45;&#45;initialize-at-build-time=com.oracle.truffle.runtime.enterprise.EnableEnterpriseFeature</arg>-->
                             <arg>--enable-url-protocols=http</arg>
                         </buildArgs>
                         <agent>

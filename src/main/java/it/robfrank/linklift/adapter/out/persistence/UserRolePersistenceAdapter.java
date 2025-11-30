@@ -22,6 +22,8 @@ public class UserRolePersistenceAdapter implements LoadUserRolesPort {
     return List.of(
       Role.Permissions.CREATE_LINK,
       Role.Permissions.CREATE_COLLECTION,
+      Role.Permissions.UPDATE_OWN_COLLECTION,
+      Role.Permissions.DELETE_OWN_COLLECTION,
       Role.Permissions.READ_OWN_LINKS,
       Role.Permissions.UPDATE_OWN_LINKS,
       Role.Permissions.DELETE_OWN_LINKS
@@ -53,6 +55,8 @@ public class UserRolePersistenceAdapter implements LoadUserRolesPort {
       List.of(
         Role.Permissions.CREATE_LINK,
         Role.Permissions.CREATE_COLLECTION,
+        Role.Permissions.UPDATE_OWN_COLLECTION,
+        Role.Permissions.DELETE_OWN_COLLECTION,
         Role.Permissions.READ_OWN_LINKS,
         Role.Permissions.UPDATE_OWN_LINKS,
         Role.Permissions.DELETE_OWN_LINKS

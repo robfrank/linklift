@@ -121,9 +121,21 @@ public class Application {
     ArcadeCollectionRepository collectionRepository = new ArcadeCollectionRepository(database);
     CollectionPersistenceAdapter collectionPersistenceAdapter = new CollectionPersistenceAdapter(collectionRepository);
     CreateCollectionUseCase createCollectionUseCase = new CreateCollectionService(collectionPersistenceAdapter);
+    ListCollectionsUseCase listCollectionsUseCase = new ListCollectionsService(collectionPersistenceAdapter);
+    GetCollectionUseCase getCollectionUseCase = new GetCollectionService(collectionPersistenceAdapter);
+    AddLinkToCollectionUseCase addLinkToCollectionUseCase = new AddLinkToCollectionService(collectionPersistenceAdapter);
+    RemoveLinkFromCollectionUseCase removeLinkFromCollectionUseCase = new RemoveLinkFromCollectionService(collectionPersistenceAdapter);
+    DeleteCollectionUseCase deleteCollectionUseCase = new DeleteCollectionService(collectionPersistenceAdapter);
     GetRelatedLinksUseCase getRelatedLinksUseCase = new GetRelatedLinksService(linkPersistenceAdapter);
 
-    CollectionController collectionController = new CollectionController(createCollectionUseCase);
+    CollectionController collectionController = new CollectionController(
+      createCollectionUseCase,
+      listCollectionsUseCase,
+      getCollectionUseCase,
+      addLinkToCollectionUseCase,
+      removeLinkFromCollectionUseCase,
+      deleteCollectionUseCase
+    );
     GetRelatedLinksController getRelatedLinksController = new GetRelatedLinksController(getRelatedLinksUseCase);
 
     // Initialize controllers
@@ -290,9 +302,21 @@ public class Application {
     ArcadeCollectionRepository collectionRepository = new ArcadeCollectionRepository(database);
     CollectionPersistenceAdapter collectionPersistenceAdapter = new CollectionPersistenceAdapter(collectionRepository);
     CreateCollectionUseCase createCollectionUseCase = new CreateCollectionService(collectionPersistenceAdapter);
+    ListCollectionsUseCase listCollectionsUseCase = new ListCollectionsService(collectionPersistenceAdapter);
+    GetCollectionUseCase getCollectionUseCase = new GetCollectionService(collectionPersistenceAdapter);
+    AddLinkToCollectionUseCase addLinkToCollectionUseCase = new AddLinkToCollectionService(collectionPersistenceAdapter);
+    RemoveLinkFromCollectionUseCase removeLinkFromCollectionUseCase = new RemoveLinkFromCollectionService(collectionPersistenceAdapter);
+    DeleteCollectionUseCase deleteCollectionUseCase = new DeleteCollectionService(collectionPersistenceAdapter);
     GetRelatedLinksUseCase getRelatedLinksUseCase = new GetRelatedLinksService(linkPersistenceAdapter);
 
-    CollectionController collectionController = new CollectionController(createCollectionUseCase);
+    CollectionController collectionController = new CollectionController(
+      createCollectionUseCase,
+      listCollectionsUseCase,
+      getCollectionUseCase,
+      addLinkToCollectionUseCase,
+      removeLinkFromCollectionUseCase,
+      deleteCollectionUseCase
+    );
     GetRelatedLinksController getRelatedLinksController = new GetRelatedLinksController(getRelatedLinksUseCase);
 
     // Initialize controllers

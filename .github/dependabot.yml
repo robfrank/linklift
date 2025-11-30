@@ -13,6 +13,12 @@ updates:
       interval: weekly
     open-pull-requests-limit: 20
 
+  - package-ecosystem: docker
+    directory: /webapp
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 20
+
   - package-ecosystem: github-actions
     directory: /
     schedule:

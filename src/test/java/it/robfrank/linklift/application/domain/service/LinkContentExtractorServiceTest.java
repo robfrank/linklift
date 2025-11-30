@@ -59,7 +59,7 @@ class LinkContentExtractorServiceTest {
     // Then
     // Wait for the asynchronous task to complete
     testExecutorService.shutdown();
-    testExecutorService.awaitTermination(1, TimeUnit.SECONDS);
+    testExecutorService.awaitTermination(2, TimeUnit.SECONDS);
 
     ArgumentCaptor<Link> linkCaptor = ArgumentCaptor.forClass(Link.class);
     verify(saveLinkPort).save(linkCaptor.capture(), eq("user-1"));

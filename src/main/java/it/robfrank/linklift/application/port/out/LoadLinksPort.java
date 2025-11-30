@@ -9,4 +9,8 @@ public interface LoadLinksPort {
   LinkPage loadLinks(ListLinksQuery query);
 
   List<Link> getRelatedLinks(String linkId, String userId);
+
+  Link getLinkById(String id);
+
+  boolean userOwnsLink(String userId, String linkId);
 }

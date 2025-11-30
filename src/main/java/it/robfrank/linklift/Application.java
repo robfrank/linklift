@@ -320,6 +320,11 @@ public class Application {
     GetContentController getContentController = new GetContentController(getContentUseCase);
     AuthenticationController authenticationController = new AuthenticationController(userService, authenticationService, authenticationService);
 
+    // Initialize Link Management
+    UpdateLinkUseCase updateLinkUseCase = new UpdateLinkService(linkPersistenceAdapter, linkPersistenceAdapter);
+    DeleteLinkUseCase deleteLinkUseCase = new DeleteLinkService(linkPersistenceAdapter, linkPersistenceAdapter);
+    LinkController linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase);
+
     // Build and start web application
     Javalin app = new WebBuilder()
       .withAuthorizationService(authorizationService)
@@ -329,6 +334,7 @@ public class Application {
       .withGetContentController(getContentController)
       .withCollectionController(collectionController)
       .withGetRelatedLinksController(getRelatedLinksController)
+      .withLinkManagementController(linkController)
       .build();
 
     app.start(port);

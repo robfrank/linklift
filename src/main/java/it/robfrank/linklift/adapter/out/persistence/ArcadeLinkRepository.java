@@ -61,6 +61,28 @@ public class ArcadeLinkRepository {
     }
   }
 
+  public Link updateLink(Link link) {
+    try {
+      database.transaction(() -> {
+        database.command(
+          "sql",
+          """
+          UPDATE Link SET
+          title = ?,
+          description = ?
+          WHERE id = ?
+          """,
+          link.title(),
+          link.description(),
+          link.id()
+        );
+      });
+      return link;
+    } catch (ArcadeDBException e) {
+      throw new DatabaseException("Failed to update link: " + link.id(), e);
+    }
+  }
+
   /**
    * Save a link and create an OwnsLink relationship to the specified user.
    * This method properly uses ArcadeDB's graph capabilities.

@@ -115,6 +115,24 @@ public class WebBuilder {
     return this;
   }
 
+  public WebBuilder withLinkManagementController(LinkController linkController) {
+    app.before("/api/v1/links/{id}", requireAuthentication);
+
+    // Method-specific permission checks
+    app.before("/api/v1/links/{id}", ctx -> {
+      switch (ctx.method()) {
+        case PATCH -> RequirePermission.any(authorizationService, Role.Permissions.UPDATE_OWN_LINKS).handle(ctx);
+        case DELETE -> RequirePermission.any(authorizationService, Role.Permissions.DELETE_OWN_LINKS).handle(ctx);
+        default -> {}
+      }
+    });
+
+    app.patch("/api/v1/links/{id}", linkController::updateLink);
+    app.delete("/api/v1/links/{id}", linkController::deleteLink);
+
+    return this;
+  }
+
   public Javalin build() {
     return app;
   }

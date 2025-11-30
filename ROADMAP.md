@@ -56,12 +56,12 @@ The project implements a **Hexagonal Architecture** backend (Java 24, Javalin, A
     - [x] Add "Add to Collection" action in `LinkList` items.
 - **Links Domain**:
   - **Backend**:
-    - [ ] Implement `UpdateLinkUseCase` (Edit title, description, tags).
-    - [ ] Implement `DeleteLinkUseCase`.
+    - [x] Implement `UpdateLinkUseCase` (Edit title, description, tags).
+    - [x] Implement `DeleteLinkUseCase`.
   - **Frontend**:
-    - [ ] Add Edit Link Modal/Form.
-    - [ ] Add Delete Link confirmation dialog.
-    - [ ] Update `LinkList` to reflect changes immediately.
+    - [x] Add Edit Link Modal/Form.
+    - [x] Add Delete Link confirmation dialog.
+    - [x] Update `LinkList` to reflect changes immediately.
 - **Content Domain**:
   - **Backend**:
     - [ ] Review `DownloadContentService` robustness (retries).

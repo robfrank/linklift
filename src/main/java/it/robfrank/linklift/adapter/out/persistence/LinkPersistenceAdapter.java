@@ -9,6 +9,7 @@ import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import it.robfrank.linklift.application.port.out.SaveLinkPort;
 import it.robfrank.linklift.application.port.out.UpdateLinkPort;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 
@@ -97,6 +98,6 @@ public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort, Upda
 
   @Override
   public @NonNull Link updateLink(@NonNull Link link) {
-    return java.util.Objects.requireNonNull(linkRepository.updateLink(link));
+    return Objects.requireNonNull(linkRepository.updateLink(link));
   }
 }

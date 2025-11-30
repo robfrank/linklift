@@ -2,12 +2,7 @@ package it.robfrank.linklift;
 
 import com.arcadedb.remote.RemoteDatabase;
 import io.javalin.Javalin;
-import it.robfrank.linklift.adapter.in.web.AuthenticationController;
-import it.robfrank.linklift.adapter.in.web.CollectionController;
-import it.robfrank.linklift.adapter.in.web.GetContentController;
-import it.robfrank.linklift.adapter.in.web.GetRelatedLinksController;
-import it.robfrank.linklift.adapter.in.web.ListLinksController;
-import it.robfrank.linklift.adapter.in.web.NewLinkController;
+import it.robfrank.linklift.adapter.in.web.*;
 import it.robfrank.linklift.adapter.out.content.SimpleTextSummarizer;
 import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
 import it.robfrank.linklift.adapter.out.http.HttpContentDownloader;

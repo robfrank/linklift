@@ -1,14 +1,12 @@
 package it.robfrank.linklift.adapter.out.persistence;
 
+import com.arcadedb.database.Document;
 import com.arcadedb.exception.ArcadeDBException;
 import com.arcadedb.query.sql.executor.Result;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.Link;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -25,7 +23,7 @@ public class ArcadeCollectionRepository {
     this.linkMapper = new LinkMapper();
   }
 
-  private Collection toCollection(com.arcadedb.database.Document vertex) {
+  private Collection toCollection(Document vertex) {
     return new Collection(
       vertex.getString("id"),
       vertex.getString("name"),

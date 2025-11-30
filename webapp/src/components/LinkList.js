@@ -149,10 +149,11 @@ const LinkList = () => {
   const handleUpdateLink = async () => {
     if (!linkToEdit) return;
     try {
-      await api.updateLink(linkToEdit.id, { title: editTitle, description: editDescription });
+      const response = await api.updateLink(linkToEdit.id, { title: editTitle, description: editDescription });
+      const updatedLink = response.data;
+      setLinks((prevLinks) => prevLinks.map((link) => (link.id === updatedLink.id ? updatedLink : link)));
       setEditLinkDialogOpen(false);
       setLinkToEdit(null);
-      fetchLinks();
     } catch (err) {
       console.error("Error updating link:", err);
       setError("Failed to update link.");
@@ -168,9 +169,9 @@ const LinkList = () => {
     if (!linkToDelete) return;
     try {
       await api.deleteLink(linkToDelete.id);
+      setLinks((prevLinks) => prevLinks.filter((link) => link.id !== linkToDelete.id));
       setDeleteLinkDialogOpen(false);
       setLinkToDelete(null);
-      fetchLinks();
     } catch (err) {
       console.error("Error deleting link:", err);
       setError("Failed to delete link.");

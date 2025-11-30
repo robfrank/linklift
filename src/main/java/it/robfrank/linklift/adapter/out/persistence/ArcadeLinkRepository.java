@@ -68,25 +68,12 @@ public class ArcadeLinkRepository {
           "sql",
           """
           UPDATE Link SET
-          url = ?,
           title = ?,
-          description = ?,
-          extractedAt = ?,
-          contentType = ?,
-          fullText = ?,
-          summary = ?,
-          imageUrl = ?
+          description = ?
           WHERE id = ?
           """,
-          link.url(),
           link.title(),
           link.description(),
-          link.extractedAt().truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-          link.contentType(),
-          null, // fullText not in Link record yet? Wait, Link record doesn't have
-          // fullText/summary/imageUrl.
-          null, // But saveLink uses them?
-          null, // Let's check saveLink again.
           link.id()
         );
       });

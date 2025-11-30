@@ -28,7 +28,7 @@ public class LinkController {
 
     Link updatedLink = updateLinkUseCase.updateLink(command);
 
-    ctx.json(updatedLink);
+    ctx.json(new UpdateLinkResponse(updatedLink));
   }
 
   public void deleteLink(Context ctx) {
@@ -41,4 +41,6 @@ public class LinkController {
   }
 
   public record UpdateLinkRequest(String title, String description) {}
+
+  public record UpdateLinkResponse(Link data) {}
 }

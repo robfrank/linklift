@@ -17,7 +17,7 @@ public class GetRelatedLinksController {
 
   public void getRelatedLinks(@NonNull Context ctx) {
     var linkId = ctx.pathParam("linkId");
-    var userId = ctx.attribute("userId");
+    var userId = it.robfrank.linklift.adapter.in.web.security.SecurityContext.getCurrentUserId(ctx);
 
     if (userId == null) {
       ctx.status(401).json(ErrorResponse.builder().status(401).message("Unauthorized").build());

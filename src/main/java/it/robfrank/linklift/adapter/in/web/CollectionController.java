@@ -2,6 +2,7 @@ package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
 import it.robfrank.linklift.adapter.in.web.error.ErrorResponse;
+import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.CollectionWithLinks;
 import it.robfrank.linklift.application.port.in.*;
@@ -35,7 +36,7 @@ public class CollectionController {
 
   public void createCollection(@NonNull Context ctx) {
     var request = ctx.bodyAsClass(CreateCollectionRequest.class);
-    var userId = ctx.attribute("userId");
+    var userId = SecurityContext.getCurrentUserId(ctx);
 
     if (userId == null) {
       ctx.status(401).json(ErrorResponse.builder().status(401).message("Unauthorized").build());
@@ -49,7 +50,7 @@ public class CollectionController {
   }
 
   public void listCollections(@NonNull Context ctx) {
-    var userId = ctx.attribute("userId");
+    var userId = SecurityContext.getCurrentUserId(ctx);
 
     if (userId == null) {
       ctx.status(401).json(ErrorResponse.builder().status(401).message("Unauthorized").build());
@@ -61,7 +62,7 @@ public class CollectionController {
   }
 
   public void getCollection(@NonNull Context ctx) {
-    var userId = ctx.attribute("userId");
+    var userId = SecurityContext.getCurrentUserId(ctx);
     var collectionId = ctx.pathParam("id");
 
     if (userId == null) {
@@ -74,7 +75,7 @@ public class CollectionController {
   }
 
   public void addLinkToCollection(@NonNull Context ctx) {
-    var userId = ctx.attribute("userId");
+    var userId = SecurityContext.getCurrentUserId(ctx);
     var collectionId = ctx.pathParam("id");
     var request = ctx.bodyAsClass(AddLinkRequest.class);
 
@@ -89,7 +90,7 @@ public class CollectionController {
   }
 
   public void removeLinkFromCollection(@NonNull Context ctx) {
-    var userId = ctx.attribute("userId");
+    var userId = SecurityContext.getCurrentUserId(ctx);
     var collectionId = ctx.pathParam("id");
     var linkId = ctx.pathParam("linkId");
 
@@ -104,7 +105,7 @@ public class CollectionController {
   }
 
   public void deleteCollection(@NonNull Context ctx) {
-    var userId = ctx.attribute("userId");
+    var userId = SecurityContext.getCurrentUserId(ctx);
     var collectionId = ctx.pathParam("id");
 
     if (userId == null) {

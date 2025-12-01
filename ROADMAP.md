@@ -74,7 +74,8 @@ The project implements a **Hexagonal Architecture** backend (Java 24, Javalin, A
 ### Phase 3: Quality & Robustness (Medium Term)
 
 - **Backend**:
-  - [ ] **Testing**: Unit tests for all Services; Integration tests for Controllers/Repositories.
+  - [x] **Testing**: Unit tests for all Services (83 tests passing) - Added tests for Update/Delete Link, Collections, and Content services.
+  - [x] **Testing**: Integration tests for Controllers/Repositories.
   - [ ] **Validation**: Standardize `ValidationException` usage.
   - [ ] **Observability**: Enhance logging and metrics.
 - **Frontend**:

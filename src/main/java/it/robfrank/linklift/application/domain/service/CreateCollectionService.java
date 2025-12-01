@@ -21,6 +21,9 @@ public class CreateCollectionService implements CreateCollectionUseCase {
 
   @Override
   public @NonNull Collection createCollection(@NonNull CreateCollectionCommand command) {
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.name(), "name");
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.userId(), "userId");
+
     var id = UUID.randomUUID().toString();
     var collection = new Collection(id, command.name(), command.description(), command.userId(), command.query());
 

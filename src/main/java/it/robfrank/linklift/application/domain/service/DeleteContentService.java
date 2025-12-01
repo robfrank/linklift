@@ -19,8 +19,8 @@ public class DeleteContentService implements DeleteContentUseCase {
 
   @Override
   public void deleteContent(@NonNull DeleteContentCommand command) {
-    logger.info("Deleting content for link: {}", command.linkId());
+    logger.atInfo().addArgument(() -> command.linkId()).log("Deleting content for link: {}");
     saveContentPort.deleteContentByLinkId(command.linkId());
-    logger.info("Content deleted for link: {}", command.linkId());
+    logger.atInfo().addArgument(() -> command.linkId()).log("Content deleted for link: {}");
   }
 }

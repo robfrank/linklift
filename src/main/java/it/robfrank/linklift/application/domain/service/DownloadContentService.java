@@ -6,6 +6,7 @@ import it.robfrank.linklift.application.domain.event.ContentDownloadStartedEvent
 import it.robfrank.linklift.application.domain.exception.ContentDownloadException;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
+import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;
 import it.robfrank.linklift.application.port.in.DownloadContentUseCase;
 import it.robfrank.linklift.application.port.out.*;
@@ -29,26 +30,35 @@ public class DownloadContentService implements DownloadContentUseCase {
   private final DomainEventPublisher eventPublisher;
   private final ContentExtractorPort contentExtractor;
   private final ContentSummarizerPort contentSummarizer;
+  private final LoadLinksPort loadLinksPort;
 
   public DownloadContentService(
     @NonNull ContentDownloaderPort contentDownloader,
     @NonNull SaveContentPort saveContentPort,
     @NonNull DomainEventPublisher eventPublisher,
     @NonNull ContentExtractorPort contentExtractor,
-    @NonNull ContentSummarizerPort contentSummarizer
+    @NonNull ContentSummarizerPort contentSummarizer,
+    @NonNull LoadLinksPort loadLinksPort
   ) {
     this.contentDownloader = contentDownloader;
     this.saveContentPort = saveContentPort;
     this.eventPublisher = eventPublisher;
     this.contentExtractor = contentExtractor;
     this.contentSummarizer = contentSummarizer;
+    this.loadLinksPort = loadLinksPort;
+  }
+
+  @Override
+  public void refreshContent(@NonNull String linkId) {
+    Link link = loadLinksPort.getLinkById(linkId);
+    if (link != null) {
+      downloadContentAsync(new DownloadContentCommand(linkId, link.url()));
+    }
   }
 
   @Override
   public void downloadContentAsync(@NonNull DownloadContentCommand command) {
     // Publish download started event
-    //        String id = command.getLink().id();
-    //        String url = command.getLink().url();
     String id = command.linkId();
     String url = command.url();
 
@@ -56,9 +66,8 @@ public class DownloadContentService implements DownloadContentUseCase {
 
     logger.info("Starting async content download for link: {}, url: {}", id, url);
 
-    // Start async download
-    contentDownloader
-      .downloadContent(url)
+    // Start async download with retries
+    downloadWithRetry(url, 3)
       .thenAccept(downloadedContent -> {
         try {
           // Validate content size
@@ -130,6 +139,27 @@ public class DownloadContentService implements DownloadContentUseCase {
         handleDownloadFailure(command, throwable);
         return null;
       });
+  }
+
+  private java.util.concurrent.CompletableFuture<ContentDownloaderPort.DownloadedContent> downloadWithRetry(String url, int retries) {
+    return contentDownloader
+      .downloadContent(url)
+      .handle((res, ex) -> {
+        if (ex == null) {
+          return java.util.concurrent.CompletableFuture.completedFuture(res);
+        } else {
+          if (retries > 0) {
+            logger.warn("Download failed for url: {}. Retrying... ({} attempts remaining)", url, retries);
+            return java.util.concurrent.CompletableFuture.runAsync(
+              () -> {},
+              java.util.concurrent.CompletableFuture.delayedExecutor(1, java.util.concurrent.TimeUnit.SECONDS)
+            ).thenCompose(v -> downloadWithRetry(url, retries - 1));
+          } else {
+            return java.util.concurrent.CompletableFuture.<ContentDownloaderPort.DownloadedContent>failedFuture(ex);
+          }
+        }
+      })
+      .thenCompose(java.util.function.Function.identity());
   }
 
   private LocalDateTime parseDate(String dateStr) {

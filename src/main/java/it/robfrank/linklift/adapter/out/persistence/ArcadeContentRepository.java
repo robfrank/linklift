@@ -80,4 +80,14 @@ public class ArcadeContentRepository {
       throw new DatabaseException("Failed to create HasContent edge: " + e.getMessage(), e);
     }
   }
+
+  public void deleteByLinkId(@NonNull String linkId) {
+    try {
+      database.transaction(() -> {
+        database.command("sql", "DELETE VERTEX Content WHERE linkId = ?", linkId);
+      });
+    } catch (Exception e) {
+      throw new DatabaseException("Failed to delete content by link ID: " + e.getMessage(), e);
+    }
+  }
 }

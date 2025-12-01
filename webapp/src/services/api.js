@@ -47,6 +47,35 @@ const api = {
     }
   },
 
+  /**
+   * Refresh content for a specific link (re-trigger download)
+   * @param {string} linkId - The link ID
+   * @returns {Promise<{message: string}>}
+   */
+  refreshContent: async (linkId) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/links/${linkId}/content/refresh`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error refreshing content for link ${linkId}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Delete content for a specific link
+   * @param {string} linkId - The link ID
+   * @returns {Promise<void>}
+   */
+  deleteContent: async (linkId) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/links/${linkId}/content`);
+    } catch (error) {
+      console.error(`Error deleting content for link ${linkId}:`, error);
+      throw error;
+    }
+  },
+
   updateLink: async (id, data) => {
     try {
       const response = await axios.patch(`${API_BASE_URL}/links/${id}`, data);

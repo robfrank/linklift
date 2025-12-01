@@ -37,12 +37,22 @@ class DownloadContentServiceTest {
   @Mock
   private ContentSummarizerPort contentSummarizerPort; // New Mock
 
+  @Mock
+  private LoadLinksPort loadLinksPort;
+
   private DownloadContentService downloadContentService;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    downloadContentService = new DownloadContentService(contentDownloader, saveContentPort, eventPublisher, contentExtractorPort, contentSummarizerPort);
+    downloadContentService = new DownloadContentService(
+      contentDownloader,
+      saveContentPort,
+      eventPublisher,
+      contentExtractorPort,
+      contentSummarizerPort,
+      loadLinksPort
+    );
   }
 
   @Test
@@ -150,9 +160,9 @@ class DownloadContentServiceTest {
     // Act
     downloadContentService.downloadContentAsync(command);
 
-    // Wait for async processing
+    // Wait for async processing (including retries: 3 attempts with 1s delay each)
     try {
-      Thread.sleep(200);
+      Thread.sleep(3500);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }

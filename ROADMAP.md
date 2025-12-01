@@ -64,11 +64,12 @@ The project implements a **Hexagonal Architecture** backend (Java 24, Javalin, A
     - [x] Update `LinkList` to reflect changes immediately.
 - **Content Domain**:
   - **Backend**:
-    - [ ] Review `DownloadContentService` robustness (retries).
-    - [ ] Implement `DeleteContentUseCase`.
+    - [x] Review `DownloadContentService` robustness (retries) - Added 3 retries with 1s delay.
+    - [x] Implement `DeleteContentUseCase` - Full implementation with all layers.
+    - [x] Implement `RefreshContentUseCase` - Endpoint to re-trigger content download.
   - **Frontend**:
-    - [ ] Improve `ContentViewer` error states.
-    - [ ] Add "Refresh Content" button (re-trigger download).
+    - [x] Improve `ContentViewer` error states - Enhanced error messages with specific error types.
+    - [x] Add "Refresh Content" button (re-trigger download) - Refresh button in modal header.
 
 ### Phase 3: Quality & Robustness (Medium Term)
 

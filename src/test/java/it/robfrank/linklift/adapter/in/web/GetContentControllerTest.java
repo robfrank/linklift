@@ -8,6 +8,7 @@ import io.javalin.http.Context;
 import it.robfrank.linklift.application.domain.exception.ContentNotFoundException;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
+import it.robfrank.linklift.application.port.in.DownloadContentUseCase;
 import it.robfrank.linklift.application.port.in.GetContentQuery;
 import it.robfrank.linklift.application.port.in.GetContentUseCase;
 import java.time.LocalDateTime;
@@ -24,6 +25,9 @@ class GetContentControllerTest {
   private GetContentUseCase getContentUseCase;
 
   @Mock
+  private DownloadContentUseCase downloadContentUseCase;
+
+  @Mock
   private Context context;
 
   private GetContentController getContentController;
@@ -31,7 +35,20 @@ class GetContentControllerTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    getContentController = new GetContentController(getContentUseCase);
+    getContentController = new GetContentController(getContentUseCase, downloadContentUseCase);
+  }
+
+  @Test
+  void refreshContent_shouldTriggerDownload() {
+    String linkId = "link-123";
+    when(context.pathParam("linkId")).thenReturn(linkId);
+    when(context.status(anyInt())).thenReturn(context);
+
+    getContentController.refreshContent(context);
+
+    verify(downloadContentUseCase).refreshContent(linkId);
+    verify(context).status(202);
+    verify(context).json(any(GetContentController.MessageResponse.class));
   }
 
   @Test

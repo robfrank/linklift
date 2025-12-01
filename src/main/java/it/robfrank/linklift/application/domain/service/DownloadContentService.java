@@ -14,6 +14,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,25 +144,25 @@ public class DownloadContentService implements DownloadContentUseCase {
       });
   }
 
-  private java.util.concurrent.CompletableFuture<ContentDownloaderPort.DownloadedContent> downloadWithRetry(String url, int retries) {
+  private CompletableFuture<ContentDownloaderPort.DownloadedContent> downloadWithRetry(String url, int retries) {
     return contentDownloader
       .downloadContent(url)
       .handle((res, ex) -> {
         if (ex == null) {
-          return java.util.concurrent.CompletableFuture.completedFuture(res);
+          return CompletableFuture.completedFuture(res);
         } else {
           if (retries > 0) {
             logger.warn("Download failed for url: {}. Retrying... ({} attempts remaining)", url, retries);
-            return java.util.concurrent.CompletableFuture.runAsync(
+            return CompletableFuture.runAsync(
               () -> {},
-              java.util.concurrent.CompletableFuture.delayedExecutor(1, java.util.concurrent.TimeUnit.SECONDS)
+              CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS)
             ).thenCompose(v -> downloadWithRetry(url, retries - 1));
           } else {
-            return java.util.concurrent.CompletableFuture.<ContentDownloaderPort.DownloadedContent>failedFuture(ex);
+            return CompletableFuture.<ContentDownloaderPort.DownloadedContent>failedFuture(ex);
           }
         }
       })
-      .thenCompose(java.util.function.Function.identity());
+      .thenCompose(Function.identity());
   }
 
   private LocalDateTime parseDate(String dateStr) {

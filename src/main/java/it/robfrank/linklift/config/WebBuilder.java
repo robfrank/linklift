@@ -3,6 +3,7 @@ package it.robfrank.linklift.config;
 import static io.javalin.apibuilder.ApiBuilder.get;
 
 import io.javalin.Javalin;
+import io.javalin.http.HandlerType;
 import it.robfrank.linklift.adapter.in.web.*;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.adapter.in.web.security.JwtAuthenticationHandler;
@@ -72,14 +73,14 @@ public class WebBuilder {
   public WebBuilder withGetContentController(GetContentController getContentController) {
     app.before("/api/v1/links/{linkId}/content", requireAuthentication);
     app.before("/api/v1/links/{linkId}/content", ctx -> {
-      if (ctx.method().equals(io.javalin.http.HandlerType.GET)) {
+      if (ctx.method().equals(HandlerType.GET)) {
         RequirePermission.any(authorizationService, Role.Permissions.READ_OWN_LINKS).handle(ctx);
       }
     });
     app.get("/api/v1/links/{linkId}/content", getContentController::getContent);
 
     app.before("/api/v1/links/{linkId}/content/refresh", ctx -> {
-      if (ctx.method().equals(io.javalin.http.HandlerType.POST)) {
+      if (ctx.method().equals(HandlerType.POST)) {
         RequirePermission.any(authorizationService, Role.Permissions.UPDATE_OWN_LINKS).handle(ctx);
       }
     });
@@ -89,7 +90,7 @@ public class WebBuilder {
 
   public WebBuilder withDeleteContentController(DeleteContentController deleteContentController) {
     app.before("/api/v1/links/{linkId}/content", ctx -> {
-      if (ctx.method().equals(io.javalin.http.HandlerType.DELETE)) {
+      if (ctx.method().equals(HandlerType.DELETE)) {
         RequirePermission.any(authorizationService, Role.Permissions.DELETE_OWN_LINKS).handle(ctx);
       }
     });

@@ -9,6 +9,7 @@ import { EmptyState } from "./EmptyState";
 import { ContentDisplay } from "./ContentDisplay";
 import { ModalHeader } from "./ModalHeader";
 import { ModalFooter } from "./ModalFooter";
+import api from "../../services/api";
 import "./ContentViewerModal.css";
 
 /**
@@ -17,7 +18,8 @@ import "./ContentViewerModal.css";
  */
 export const ContentViewerModal = ({ linkId, linkTitle, onClose }) => {
   const [viewMode, setViewMode] = useState("text");
-  const { data, isLoading, error } = useContent(linkId);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { data, isLoading, error, refetch } = useContent(linkId);
 
   // Handle escape key
   useEffect(() => {
@@ -39,13 +41,34 @@ export const ContentViewerModal = ({ linkId, linkTitle, onClose }) => {
 
   if (!linkId) return null;
 
+  const handleRefreshContent = async () => {
+    if (!linkId || isRefreshing) return;
+
+    setIsRefreshing(true);
+    try {
+      await api.refreshContent(linkId);
+      // Wait a moment before refetching to allow backend to start processing
+      setTimeout(() => {
+        refetch();
+        setIsRefreshing(false);
+      }, 1000);
+    } catch (error) {
+      console.error("Failed to refresh content:", error);
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleRetry = () => {
+    refetch();
+  };
+
   const renderContent = () => {
-    if (isLoading) {
-      return <LoadingSpinner />;
+    if (isLoading || isRefreshing) {
+      return <LoadingSpinner message={isRefreshing ? "Refreshing content..." : undefined} />;
     }
 
     if (error) {
-      return <ErrorMessage error={error} />;
+      return <ErrorMessage error={error} onRetry={handleRetry} />;
     }
 
     if (!data) {
@@ -60,7 +83,9 @@ export const ContentViewerModal = ({ linkId, linkTitle, onClose }) => {
         return <DownloadingState status={content.status} />;
 
       case DownloadStatus.FAILED:
-        return <ErrorMessage error={new Error("Content download failed")} />;
+        return (
+          <ErrorMessage error={new Error("Content download failed. The content could not be downloaded from the source.")} onRetry={handleRefreshContent} />
+        );
 
       case DownloadStatus.COMPLETED:
         return <ContentDisplay content={content} viewMode={viewMode} onViewModeChange={setViewMode} />;
@@ -80,7 +105,7 @@ export const ContentViewerModal = ({ linkId, linkTitle, onClose }) => {
   return (
     <div className="modal-overlay" onClick={handleOverlayClick} role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <ModalHeader title={linkTitle} onClose={onClose} />
+        <ModalHeader title={linkTitle} onClose={onClose} onRefresh={handleRefreshContent} isRefreshing={isRefreshing} />
         <div className="modal-body">{renderContent()}</div>
         <ModalFooter content={data?.data} />
       </div>

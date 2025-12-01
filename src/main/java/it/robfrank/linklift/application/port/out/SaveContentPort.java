@@ -8,4 +8,6 @@ public interface SaveContentPort {
   Content saveContent(@NonNull Content content);
 
   void createHasContentEdge(@NonNull String linkId, @NonNull String contentId);
+
+  void deleteContentByLinkId(@NonNull String linkId);
 }

@@ -52,7 +52,8 @@ public class Application {
     ArcadeLinkRepository linkRepository = new ArcadeLinkRepository(database, linkMapper);
     LinkPersistenceAdapter linkPersistenceAdapter = new LinkPersistenceAdapter(linkRepository);
 
-    ExecutorService contentExtractionExecutor = Executors.newFixedThreadPool(1); // Single thread for content extraction
+    ExecutorService contentExtractionExecutor = Executors.newFixedThreadPool(1); // Single thread for content
+    // extraction
 
     ArcadeContentRepository contentRepository = new ArcadeContentRepository(database);
     ContentPersistenceAdapter contentPersistenceAdapter = new ContentPersistenceAdapter(contentRepository);
@@ -104,10 +105,12 @@ public class Application {
       contentPersistenceAdapter,
       eventPublisher,
       contentExtractor,
-      contentSummarizer
+      contentSummarizer,
+      linkPersistenceAdapter
     );
     configureEventSubscribers(eventPublisher, downloadContentUseCase);
     GetContentUseCase getContentUseCase = new GetContentService(contentPersistenceAdapter);
+    DeleteContentUseCase deleteContentUseCase = new DeleteContentService(contentPersistenceAdapter);
 
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);
     ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
@@ -136,7 +139,8 @@ public class Application {
     // Initialize controllers
     NewLinkController newLinkController = new NewLinkController(newLinkUseCase);
     ListLinksController listLinksController = new ListLinksController(listLinksUseCase);
-    GetContentController getContentController = new GetContentController(getContentUseCase);
+    GetContentController getContentController = new GetContentController(getContentUseCase, downloadContentUseCase);
+    DeleteContentController deleteContentController = new DeleteContentController(deleteContentUseCase);
     AuthenticationController authenticationController = new AuthenticationController(userService, authenticationService, authenticationService);
 
     // Build and start web application
@@ -146,6 +150,7 @@ public class Application {
       .withLinkController(newLinkController)
       .withListLinksController(listLinksController)
       .withGetContentController(getContentController)
+      .withDeleteContentController(deleteContentController)
       .withCollectionController(collectionController)
       .withGetRelatedLinksController(getRelatedLinksController)
       .build();
@@ -231,7 +236,8 @@ public class Application {
     ArcadeLinkRepository linkRepository = new ArcadeLinkRepository(database, linkMapper);
     LinkPersistenceAdapter linkPersistenceAdapter = new LinkPersistenceAdapter(linkRepository);
 
-    ExecutorService contentExtractionExecutor = Executors.newFixedThreadPool(1); // Single thread for content extraction
+    ExecutorService contentExtractionExecutor = Executors.newFixedThreadPool(1); // Single thread for content
+    // extraction
 
     ArcadeContentRepository contentRepository = new ArcadeContentRepository(database);
     ContentPersistenceAdapter contentPersistenceAdapter = new ContentPersistenceAdapter(contentRepository);
@@ -283,12 +289,14 @@ public class Application {
       contentPersistenceAdapter,
       eventPublisher,
       contentExtractor,
-      contentSummarizer
+      contentSummarizer,
+      linkPersistenceAdapter
     );
 
     configureEventSubscribers(eventPublisher, downloadContentUseCase);
 
     GetContentUseCase getContentUseCase = new GetContentService(contentPersistenceAdapter);
+    DeleteContentUseCase deleteContentUseCase = new DeleteContentService(contentPersistenceAdapter);
 
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);
     ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
@@ -317,7 +325,7 @@ public class Application {
     // Initialize controllers
     NewLinkController newLinkController = new NewLinkController(newLinkUseCase);
     ListLinksController listLinksController = new ListLinksController(listLinksUseCase);
-    GetContentController getContentController = new GetContentController(getContentUseCase);
+    GetContentController getContentController = new GetContentController(getContentUseCase, downloadContentUseCase);
     AuthenticationController authenticationController = new AuthenticationController(userService, authenticationService, authenticationService);
 
     // Initialize Link Management

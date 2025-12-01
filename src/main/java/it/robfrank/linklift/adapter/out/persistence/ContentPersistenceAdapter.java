@@ -33,4 +33,9 @@ public class ContentPersistenceAdapter implements SaveContentPort, LoadContentPo
   public @NonNull Optional<Content> findContentById(@NonNull String contentId) {
     return repository.findById(contentId);
   }
+
+  @Override
+  public void deleteContentByLinkId(@NonNull String linkId) {
+    repository.deleteByLinkId(linkId);
+  }
 }

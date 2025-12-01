@@ -71,8 +71,29 @@ public class WebBuilder {
 
   public WebBuilder withGetContentController(GetContentController getContentController) {
     app.before("/api/v1/links/{linkId}/content", requireAuthentication);
-    app.before("/api/v1/links/{linkId}/content", RequirePermission.any(authorizationService, Role.Permissions.READ_OWN_LINKS));
+    app.before("/api/v1/links/{linkId}/content", ctx -> {
+      if (ctx.method().equals(io.javalin.http.HandlerType.GET)) {
+        RequirePermission.any(authorizationService, Role.Permissions.READ_OWN_LINKS).handle(ctx);
+      }
+    });
     app.get("/api/v1/links/{linkId}/content", getContentController::getContent);
+
+    app.before("/api/v1/links/{linkId}/content/refresh", ctx -> {
+      if (ctx.method().equals(io.javalin.http.HandlerType.POST)) {
+        RequirePermission.any(authorizationService, Role.Permissions.UPDATE_OWN_LINKS).handle(ctx);
+      }
+    });
+    app.post("/api/v1/links/{linkId}/content/refresh", getContentController::refreshContent);
+    return this;
+  }
+
+  public WebBuilder withDeleteContentController(DeleteContentController deleteContentController) {
+    app.before("/api/v1/links/{linkId}/content", ctx -> {
+      if (ctx.method().equals(io.javalin.http.HandlerType.DELETE)) {
+        RequirePermission.any(authorizationService, Role.Permissions.DELETE_OWN_LINKS).handle(ctx);
+      }
+    });
+    app.delete("/api/v1/links/{linkId}/content", deleteContentController::deleteContent);
     return this;
   }
 

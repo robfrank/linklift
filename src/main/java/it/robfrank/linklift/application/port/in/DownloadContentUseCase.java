@@ -4,4 +4,6 @@ import org.jspecify.annotations.NonNull;
 
 public interface DownloadContentUseCase {
   void downloadContentAsync(@NonNull DownloadContentCommand command);
+
+  void refreshContent(@NonNull String linkId);
 }

@@ -4,6 +4,14 @@ import static io.javalin.apibuilder.ApiBuilder.get;
 
 import io.javalin.Javalin;
 import io.javalin.http.HandlerType;
+import io.javalin.micrometer.MicrometerPlugin;
+import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import it.robfrank.linklift.adapter.in.web.*;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.adapter.in.web.security.JwtAuthenticationHandler;
@@ -18,8 +26,16 @@ public class WebBuilder {
   private AuthorizationService authorizationService;
   private JwtAuthenticationHandler jwtAuthenticationHandler;
   private RequireAuthentication requireAuthentication;
+  private PrometheusMeterRegistry registry;
 
   public WebBuilder() {
+    registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+    new ClassLoaderMetrics().bindTo(registry);
+    new JvmMemoryMetrics().bindTo(registry);
+    new JvmGcMetrics().bindTo(registry);
+    new ProcessorMetrics().bindTo(registry);
+    new JvmThreadMetrics().bindTo(registry);
+
     app = Javalin.create(config -> {
       config.bundledPlugins.enableCors(cors -> {
         cors.addRule(it -> it.anyHost());
@@ -27,10 +43,19 @@ public class WebBuilder {
       config.router.apiBuilder(() -> {
         get("/", ctx -> ctx.result("LinkLift"));
         get("/up", ctx -> ctx.status(200));
+        get("/metrics", ctx -> ctx.result(registry.scrape()));
       });
 
       // Enable detailed logging
       config.bundledPlugins.enableDevLogging();
+
+      // Enable Micrometer metrics
+      config.registerPlugin(
+        new MicrometerPlugin(micrometerConfig -> {
+          micrometerConfig.registry = this.registry;
+          micrometerConfig.tags = java.util.Map.of("app", "linklift");
+        })
+      );
     });
 
     // Configure global exception handlers

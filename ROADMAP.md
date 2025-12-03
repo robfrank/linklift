@@ -77,7 +77,7 @@ The project implements a **Hexagonal Architecture** backend (Java 24, Javalin, A
   - [x] **Testing**: Unit tests for all Services (83 tests passing) - Added tests for Update/Delete Link, Collections, and Content services.
   - [x] **Testing**: Integration tests for Controllers/Repositories.
   - [x] **Validation**: Standardize `ValidationException` usage.
-  - [ ] **Observability**: Enhance logging and metrics.
+  - [x] **Observability**: Enhance logging and metrics.
 - **Frontend**:
   - [ ] **UX**: Add Toast notifications (Snackbars) for success/error actions.
   - [ ] **UX**: Implement Loading Skeletons for data fetching.

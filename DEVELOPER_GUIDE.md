@@ -522,6 +522,7 @@ EXPLAIN SELECT FROM Link WHERE url = 'https://example.com';
 - Monitor response times using Javalin request logging
 - Use Java profiling tools (VisualVM, JProfiler)
 - Monitor database connection pool usage
+- **Prometheus Metrics**: Access application metrics at `http://localhost:7070/metrics`
 
 ## Contributing Guidelines
 

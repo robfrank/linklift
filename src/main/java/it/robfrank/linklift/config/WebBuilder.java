@@ -27,16 +27,27 @@ public class WebBuilder {
   private JwtAuthenticationHandler jwtAuthenticationHandler;
   private RequireAuthentication requireAuthentication;
   private PrometheusMeterRegistry registry;
+  private JvmGcMetrics jvmGcMetrics;
 
   public WebBuilder() {
     registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
     new ClassLoaderMetrics().bindTo(registry);
     new JvmMemoryMetrics().bindTo(registry);
-    new JvmGcMetrics().bindTo(registry);
+    jvmGcMetrics = new JvmGcMetrics();
+    jvmGcMetrics.bindTo(registry);
     new ProcessorMetrics().bindTo(registry);
     new JvmThreadMetrics().bindTo(registry);
 
     app = Javalin.create(config -> {
+      // Register cleanup on application shutdown
+      config.events(event ->
+        event.serverStopping(() -> {
+          if (jvmGcMetrics != null) {
+            jvmGcMetrics.close();
+          }
+        })
+      );
+
       config.bundledPlugins.enableCors(cors -> {
         cors.addRule(it -> it.anyHost());
       });

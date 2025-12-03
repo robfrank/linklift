@@ -13,7 +13,7 @@ class ObservabilityTest {
     JavalinTest.test(new WebBuilder().build(), (app, client) -> {
       var response = client.get("/metrics");
       assertThat(response.code()).isEqualTo(200);
-      assertThat(response.body().string()).contains("# HELP");
+      assertThat(response.body().string()).contains("jvm_memory_used_bytes");
     });
   }
 }

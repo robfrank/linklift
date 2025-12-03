@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import it.robfrank.linklift.application.domain.exception.ErrorCode;
 import it.robfrank.linklift.application.domain.exception.LinkLiftException;
+import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.CollectionWithLinks;
 import it.robfrank.linklift.application.domain.model.Link;
@@ -118,6 +119,90 @@ class GetCollectionServiceTest {
       .isEqualTo(ErrorCode.UNAUTHORIZED);
 
     verify(collectionRepository, times(1)).findById(collectionId);
+    verify(collectionRepository, never()).getCollectionLinks(any());
+  }
+
+  @Test
+  void getCollection_shouldThrowValidationException_whenCollectionIdIsNull() {
+    // Arrange
+    String userId = "user-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getCollectionService.getCollection(null, userId))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("collectionId cannot be empty");
+
+    verify(collectionRepository, never()).findById(any());
+    verify(collectionRepository, never()).getCollectionLinks(any());
+  }
+
+  @Test
+  void getCollection_shouldThrowValidationException_whenCollectionIdIsEmpty() {
+    // Arrange
+    String userId = "user-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getCollectionService.getCollection("", userId))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("collectionId cannot be empty");
+
+    verify(collectionRepository, never()).findById(any());
+    verify(collectionRepository, never()).getCollectionLinks(any());
+  }
+
+  @Test
+  void getCollection_shouldThrowValidationException_whenCollectionIdIsBlank() {
+    // Arrange
+    String userId = "user-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getCollectionService.getCollection("   ", userId))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("collectionId cannot be empty");
+
+    verify(collectionRepository, never()).findById(any());
+    verify(collectionRepository, never()).getCollectionLinks(any());
+  }
+
+  @Test
+  void getCollection_shouldThrowValidationException_whenUserIdIsNull() {
+    // Arrange
+    String collectionId = "collection-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getCollectionService.getCollection(collectionId, null))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("userId cannot be empty");
+
+    verify(collectionRepository, never()).findById(any());
+    verify(collectionRepository, never()).getCollectionLinks(any());
+  }
+
+  @Test
+  void getCollection_shouldThrowValidationException_whenUserIdIsEmpty() {
+    // Arrange
+    String collectionId = "collection-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getCollectionService.getCollection(collectionId, ""))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("userId cannot be empty");
+
+    verify(collectionRepository, never()).findById(any());
+    verify(collectionRepository, never()).getCollectionLinks(any());
+  }
+
+  @Test
+  void getCollection_shouldThrowValidationException_whenUserIdIsBlank() {
+    // Arrange
+    String collectionId = "collection-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getCollectionService.getCollection(collectionId, "   "))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("userId cannot be empty");
+
+    verify(collectionRepository, never()).findById(any());
     verify(collectionRepository, never()).getCollectionLinks(any());
   }
 }

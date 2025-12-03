@@ -1,8 +1,10 @@
 package it.robfrank.linklift.application.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
+import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.port.out.CollectionRepository;
 import java.util.Arrays;
@@ -83,5 +85,33 @@ class ListCollectionsServiceTest {
     // Assert
     assertThat(result).hasSize(2);
     assertThat(result).allMatch(collection -> collection.userId().equals(userId));
+  }
+
+  @Test
+  void listCollections_shouldThrowValidationException_whenUserIdIsNull() {
+    // Act & Assert
+    assertThatThrownBy(() -> listCollectionsService.listCollections(null))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("userId cannot be empty");
+
+    verify(collectionRepository, never()).findByUserId(any());
+  }
+
+  @Test
+  void listCollections_shouldThrowValidationException_whenUserIdIsEmpty() {
+    // Act & Assert
+    assertThatThrownBy(() -> listCollectionsService.listCollections("")).isInstanceOf(ValidationException.class).hasMessageContaining("userId cannot be empty");
+
+    verify(collectionRepository, never()).findByUserId(any());
+  }
+
+  @Test
+  void listCollections_shouldThrowValidationException_whenUserIdIsBlank() {
+    // Act & Assert
+    assertThatThrownBy(() -> listCollectionsService.listCollections("   "))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("userId cannot be empty");
+
+    verify(collectionRepository, never()).findByUserId(any());
   }
 }

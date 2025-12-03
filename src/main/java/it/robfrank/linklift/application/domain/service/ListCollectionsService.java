@@ -1,6 +1,7 @@
 package it.robfrank.linklift.application.domain.service;
 
 import it.robfrank.linklift.application.domain.model.Collection;
+import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.ListCollectionsUseCase;
 import it.robfrank.linklift.application.port.out.CollectionRepository;
 import java.util.List;
@@ -20,6 +21,7 @@ public class ListCollectionsService implements ListCollectionsUseCase {
   @Override
   @NonNull
   public List<Collection> listCollections(@NonNull String userId) {
+    ValidationUtils.requireNotEmpty(userId, "userId");
     return collectionRepository.findByUserId(userId);
   }
 }

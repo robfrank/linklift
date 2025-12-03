@@ -1,6 +1,7 @@
 package it.robfrank.linklift.application.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -9,8 +10,10 @@ import it.robfrank.linklift.application.domain.event.ContentDownloadCompletedEve
 import it.robfrank.linklift.application.domain.event.ContentDownloadFailedEvent;
 import it.robfrank.linklift.application.domain.event.ContentDownloadStartedEvent;
 import it.robfrank.linklift.application.domain.exception.ContentDownloadException;
+import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
+import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;
 import it.robfrank.linklift.application.port.out.*;
 import java.util.concurrent.CompletableFuture;
@@ -231,5 +234,128 @@ class DownloadContentServiceTest {
 
     assertThat(failedEvent).isNotNull();
     assertThat(failedEvent.getErrorMessage()).contains("exceeds maximum limit");
+  }
+
+  @Test
+  void downloadContentAsync_shouldThrowValidationException_whenCommandIsNull() {
+    // Act & Assert
+    assertThatThrownBy(() -> downloadContentService.downloadContentAsync(null))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("command cannot be null");
+
+    verify(contentDownloader, never()).downloadContent(any());
+    verify(eventPublisher, never()).publish(any());
+  }
+
+  @Test
+  void downloadContentAsync_shouldThrowValidationException_whenLinkIdIsNull() {
+    // Arrange
+    DownloadContentCommand command = new DownloadContentCommand(null, "https://example.com");
+
+    // Act & Assert
+    assertThatThrownBy(() -> downloadContentService.downloadContentAsync(command))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("linkId cannot be empty");
+
+    verify(contentDownloader, never()).downloadContent(any());
+    verify(eventPublisher, never()).publish(any());
+  }
+
+  @Test
+  void downloadContentAsync_shouldThrowValidationException_whenLinkIdIsEmpty() {
+    // Arrange
+    DownloadContentCommand command = new DownloadContentCommand("", "https://example.com");
+
+    // Act & Assert
+    assertThatThrownBy(() -> downloadContentService.downloadContentAsync(command))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("linkId cannot be empty");
+
+    verify(contentDownloader, never()).downloadContent(any());
+    verify(eventPublisher, never()).publish(any());
+  }
+
+  @Test
+  void downloadContentAsync_shouldThrowValidationException_whenLinkIdIsBlank() {
+    // Arrange
+    DownloadContentCommand command = new DownloadContentCommand("   ", "https://example.com");
+
+    // Act & Assert
+    assertThatThrownBy(() -> downloadContentService.downloadContentAsync(command))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("linkId cannot be empty");
+
+    verify(contentDownloader, never()).downloadContent(any());
+    verify(eventPublisher, never()).publish(any());
+  }
+
+  @Test
+  void downloadContentAsync_shouldThrowValidationException_whenUrlIsNull() {
+    // Arrange
+    DownloadContentCommand command = new DownloadContentCommand("link-123", null);
+
+    // Act & Assert
+    assertThatThrownBy(() -> downloadContentService.downloadContentAsync(command))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("url cannot be empty");
+
+    verify(contentDownloader, never()).downloadContent(any());
+    verify(eventPublisher, never()).publish(any());
+  }
+
+  @Test
+  void downloadContentAsync_shouldThrowValidationException_whenUrlIsEmpty() {
+    // Arrange
+    DownloadContentCommand command = new DownloadContentCommand("link-123", "");
+
+    // Act & Assert
+    assertThatThrownBy(() -> downloadContentService.downloadContentAsync(command))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("url cannot be empty");
+
+    verify(contentDownloader, never()).downloadContent(any());
+    verify(eventPublisher, never()).publish(any());
+  }
+
+  @Test
+  void downloadContentAsync_shouldThrowValidationException_whenUrlIsBlank() {
+    // Arrange
+    DownloadContentCommand command = new DownloadContentCommand("link-123", "   ");
+
+    // Act & Assert
+    assertThatThrownBy(() -> downloadContentService.downloadContentAsync(command))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("url cannot be empty");
+
+    verify(contentDownloader, never()).downloadContent(any());
+    verify(eventPublisher, never()).publish(any());
+  }
+
+  @Test
+  void refreshContent_shouldThrowValidationException_whenLinkIdIsNull() {
+    // Act & Assert
+    assertThatThrownBy(() -> downloadContentService.refreshContent(null))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("linkId cannot be empty");
+
+    verify(loadLinksPort, never()).getLinkById(any());
+  }
+
+  @Test
+  void refreshContent_shouldThrowValidationException_whenLinkIdIsEmpty() {
+    // Act & Assert
+    assertThatThrownBy(() -> downloadContentService.refreshContent("")).isInstanceOf(ValidationException.class).hasMessageContaining("linkId cannot be empty");
+
+    verify(loadLinksPort, never()).getLinkById(any());
+  }
+
+  @Test
+  void refreshContent_shouldThrowValidationException_whenLinkIdIsBlank() {
+    // Act & Assert
+    assertThatThrownBy(() -> downloadContentService.refreshContent("   "))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("linkId cannot be empty");
+
+    verify(loadLinksPort, never()).getLinkById(any());
   }
 }

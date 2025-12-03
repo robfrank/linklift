@@ -1,6 +1,7 @@
 package it.robfrank.linklift.application.domain.service;
 
 import it.robfrank.linklift.application.domain.model.Content;
+import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.GetContentQuery;
 import it.robfrank.linklift.application.port.in.GetContentUseCase;
 import it.robfrank.linklift.application.port.out.LoadContentPort;
@@ -17,6 +18,8 @@ public class GetContentService implements GetContentUseCase {
 
   @Override
   public @NonNull Optional<Content> getContent(@NonNull GetContentQuery query) {
+    ValidationUtils.requireNotNull(query, "query");
+    ValidationUtils.requireNotEmpty(query.linkId(), "linkId");
     return loadContentPort.findContentByLinkId(query.linkId());
   }
 }

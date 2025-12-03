@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
+import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
 import it.robfrank.linklift.application.port.in.GetContentQuery;
@@ -80,7 +81,40 @@ class GetContentServiceTest {
   @Test
   void getContent_shouldHandleNullQuery() {
     // Act & Assert
-    assertThatThrownBy(() -> getContentService.getContent(null)).isInstanceOf(NullPointerException.class);
+    assertThatThrownBy(() -> getContentService.getContent(null)).isInstanceOf(ValidationException.class).hasMessageContaining("query cannot be null");
+
+    verify(loadContentPort, never()).findContentByLinkId(any());
+  }
+
+  @Test
+  void getContent_shouldThrowValidationException_whenLinkIdIsNull() {
+    // Arrange
+    GetContentQuery query = new GetContentQuery(null);
+
+    // Act & Assert
+    assertThatThrownBy(() -> getContentService.getContent(query)).isInstanceOf(ValidationException.class).hasMessageContaining("linkId cannot be empty");
+
+    verify(loadContentPort, never()).findContentByLinkId(any());
+  }
+
+  @Test
+  void getContent_shouldThrowValidationException_whenLinkIdIsEmpty() {
+    // Arrange
+    GetContentQuery query = new GetContentQuery("");
+
+    // Act & Assert
+    assertThatThrownBy(() -> getContentService.getContent(query)).isInstanceOf(ValidationException.class).hasMessageContaining("linkId cannot be empty");
+
+    verify(loadContentPort, never()).findContentByLinkId(any());
+  }
+
+  @Test
+  void getContent_shouldThrowValidationException_whenLinkIdIsBlank() {
+    // Arrange
+    GetContentQuery query = new GetContentQuery("   ");
+
+    // Act & Assert
+    assertThatThrownBy(() -> getContentService.getContent(query)).isInstanceOf(ValidationException.class).hasMessageContaining("linkId cannot be empty");
 
     verify(loadContentPort, never()).findContentByLinkId(any());
   }

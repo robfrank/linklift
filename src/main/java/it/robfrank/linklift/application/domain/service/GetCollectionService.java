@@ -5,6 +5,7 @@ import it.robfrank.linklift.application.domain.exception.LinkLiftException;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.CollectionWithLinks;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.GetCollectionUseCase;
 import it.robfrank.linklift.application.port.out.CollectionRepository;
 import java.util.List;
@@ -24,6 +25,9 @@ public class GetCollectionService implements GetCollectionUseCase {
   @Override
   @NonNull
   public CollectionWithLinks getCollection(@NonNull String collectionId, @NonNull String userId) {
+    ValidationUtils.requireNotEmpty(collectionId, "collectionId");
+    ValidationUtils.requireNotEmpty(userId, "userId");
+
     Collection collection = collectionRepository
       .findById(collectionId)
       .orElseThrow(() -> new LinkLiftException("Collection not found: " + collectionId, ErrorCode.COLLECTION_NOT_FOUND));

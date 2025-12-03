@@ -1,8 +1,10 @@
 package it.robfrank.linklift.application.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
+import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import java.time.LocalDateTime;
@@ -82,5 +84,83 @@ class GetRelatedLinksServiceTest {
 
     // Assert
     verify(loadLinksPort, times(1)).getRelatedLinks(linkId, userId);
+  }
+
+  @Test
+  void getRelatedLinks_shouldThrowValidationException_whenLinkIdIsNull() {
+    // Arrange
+    String userId = "user-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getRelatedLinksService.getRelatedLinks(null, userId))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("linkId cannot be empty");
+
+    verify(loadLinksPort, never()).getRelatedLinks(any(), any());
+  }
+
+  @Test
+  void getRelatedLinks_shouldThrowValidationException_whenLinkIdIsEmpty() {
+    // Arrange
+    String userId = "user-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getRelatedLinksService.getRelatedLinks("", userId))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("linkId cannot be empty");
+
+    verify(loadLinksPort, never()).getRelatedLinks(any(), any());
+  }
+
+  @Test
+  void getRelatedLinks_shouldThrowValidationException_whenLinkIdIsBlank() {
+    // Arrange
+    String userId = "user-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getRelatedLinksService.getRelatedLinks("   ", userId))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("linkId cannot be empty");
+
+    verify(loadLinksPort, never()).getRelatedLinks(any(), any());
+  }
+
+  @Test
+  void getRelatedLinks_shouldThrowValidationException_whenUserIdIsNull() {
+    // Arrange
+    String linkId = "link-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getRelatedLinksService.getRelatedLinks(linkId, null))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("userId cannot be empty");
+
+    verify(loadLinksPort, never()).getRelatedLinks(any(), any());
+  }
+
+  @Test
+  void getRelatedLinks_shouldThrowValidationException_whenUserIdIsEmpty() {
+    // Arrange
+    String linkId = "link-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getRelatedLinksService.getRelatedLinks(linkId, ""))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("userId cannot be empty");
+
+    verify(loadLinksPort, never()).getRelatedLinks(any(), any());
+  }
+
+  @Test
+  void getRelatedLinks_shouldThrowValidationException_whenUserIdIsBlank() {
+    // Arrange
+    String linkId = "link-123";
+
+    // Act & Assert
+    assertThatThrownBy(() -> getRelatedLinksService.getRelatedLinks(linkId, "   "))
+      .isInstanceOf(ValidationException.class)
+      .hasMessageContaining("userId cannot be empty");
+
+    verify(loadLinksPort, never()).getRelatedLinks(any(), any());
   }
 }

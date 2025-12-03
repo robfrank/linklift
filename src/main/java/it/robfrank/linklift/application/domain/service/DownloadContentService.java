@@ -7,6 +7,7 @@ import it.robfrank.linklift.application.domain.exception.ContentDownloadExceptio
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;
 import it.robfrank.linklift.application.port.in.DownloadContentUseCase;
 import it.robfrank.linklift.application.port.out.*;
@@ -53,6 +54,7 @@ public class DownloadContentService implements DownloadContentUseCase {
 
   @Override
   public void refreshContent(@NonNull String linkId) {
+    ValidationUtils.requireNotEmpty(linkId, "linkId");
     Link link = loadLinksPort.getLinkById(linkId);
     if (link != null) {
       downloadContentAsync(new DownloadContentCommand(linkId, link.url()));
@@ -61,6 +63,10 @@ public class DownloadContentService implements DownloadContentUseCase {
 
   @Override
   public void downloadContentAsync(@NonNull DownloadContentCommand command) {
+    ValidationUtils.requireNotNull(command, "command");
+    ValidationUtils.requireNotEmpty(command.linkId(), "linkId");
+    ValidationUtils.requireNotEmpty(command.url(), "url");
+
     // Publish download started event
     String id = command.linkId();
     String url = command.url();

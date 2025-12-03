@@ -1,6 +1,7 @@
 package it.robfrank.linklift.application.domain.service;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import it.robfrank.linklift.application.port.in.DeleteContentCommand;
 import it.robfrank.linklift.application.port.out.SaveContentPort;

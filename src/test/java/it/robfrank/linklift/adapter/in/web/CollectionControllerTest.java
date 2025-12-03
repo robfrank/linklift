@@ -4,10 +4,9 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.ErrorCode;
@@ -15,6 +14,7 @@ import it.robfrank.linklift.application.domain.exception.LinkLiftException;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.CollectionWithLinks;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.SecurityContext;
 import it.robfrank.linklift.application.port.in.*;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -60,9 +60,9 @@ class CollectionControllerTest {
    * @param app the Javalin test app
    * @param userId the user ID to authenticate as
    */
-  private void setupAuthentication(io.javalin.Javalin app, String userId) {
+  private void setupAuthentication(Javalin app, String userId) {
     app.before(ctx -> {
-      var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
+      var securityContext = new SecurityContext(
         userId,
         "testuser",
         "test@example.com",

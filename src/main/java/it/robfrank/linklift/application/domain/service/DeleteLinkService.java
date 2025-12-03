@@ -1,6 +1,7 @@
 package it.robfrank.linklift.application.domain.service;
 
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
+import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.DeleteLinkUseCase;
 import it.robfrank.linklift.application.port.out.DeleteLinkPort;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
@@ -18,8 +19,8 @@ public class DeleteLinkService implements DeleteLinkUseCase {
 
   @Override
   public void deleteLink(@NonNull String id, @NonNull String userId) {
-    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(id, "id");
-    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(userId, "userId");
+    ValidationUtils.requireNotEmpty(id, "id");
+    ValidationUtils.requireNotEmpty(userId, "userId");
 
     // Check existence and ownership
     if (!loadLinksPort.userOwnsLink(userId, id)) {

@@ -4,18 +4,18 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import io.javalin.testtools.JavalinTest;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.SecurityContext;
 import it.robfrank.linklift.application.port.in.DeleteLinkUseCase;
 import it.robfrank.linklift.application.port.in.UpdateLinkCommand;
 import it.robfrank.linklift.application.port.in.UpdateLinkUseCase;
 import java.time.LocalDateTime;
+import java.util.List;
 import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,13 +46,13 @@ class LinkControllerTest {
 
       // Simulate authentication by setting SecurityContext
       app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
+        var securityContext = new SecurityContext(
           "user-123",
           "testuser",
           "test@example.com",
-          java.util.List.of(),
+          List.of(),
           true,
-          java.time.LocalDateTime.now(),
+          LocalDateTime.now(),
           "127.0.0.1",
           "test-agent"
         );
@@ -91,13 +91,13 @@ class LinkControllerTest {
       GlobalExceptionHandler.configure(app);
       // Simulate authentication by setting SecurityContext
       app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
+        var securityContext = new SecurityContext(
           "user-123",
           "testuser",
           "test@example.com",
-          java.util.List.of(),
+          List.of(),
           true,
-          java.time.LocalDateTime.now(),
+          LocalDateTime.now(),
           "127.0.0.1",
           "test-agent"
         );
@@ -131,13 +131,13 @@ class LinkControllerTest {
       GlobalExceptionHandler.configure(app);
       // Simulate authentication by setting SecurityContext
       app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
+        var securityContext = new SecurityContext(
           "user-123",
           "testuser",
           "test@example.com",
-          java.util.List.of(),
+          List.of(),
           true,
-          java.time.LocalDateTime.now(),
+          LocalDateTime.now(),
           "127.0.0.1",
           "test-agent"
         );
@@ -164,13 +164,13 @@ class LinkControllerTest {
       GlobalExceptionHandler.configure(app);
       // Simulate authentication by setting SecurityContext
       app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
+        var securityContext = new SecurityContext(
           "user-123",
           "testuser",
           "test@example.com",
-          java.util.List.of(),
+          List.of(),
           true,
-          java.time.LocalDateTime.now(),
+          LocalDateTime.now(),
           "127.0.0.1",
           "test-agent"
         );
@@ -194,13 +194,13 @@ class LinkControllerTest {
       GlobalExceptionHandler.configure(app);
       // Simulate authentication by setting SecurityContext
       app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
+        var securityContext = new SecurityContext(
           "user-123",
           "testuser",
           "test@example.com",
-          java.util.List.of(),
+          List.of(),
           true,
-          java.time.LocalDateTime.now(),
+          LocalDateTime.now(),
           "127.0.0.1",
           "test-agent"
         );

@@ -44,16 +44,7 @@ class GetRelatedLinksControllerTest {
       GlobalExceptionHandler.configure(app);
       // Simulate authentication by setting SecurityContext
       app.before(ctx -> {
-        var securityContext = new SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          List.of(),
-          true,
-          LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
+        var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
       app.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
@@ -80,16 +71,7 @@ class GetRelatedLinksControllerTest {
       GlobalExceptionHandler.configure(app);
       // Simulate authentication by setting SecurityContext
       app.before(ctx -> {
-        var securityContext = new SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          List.of(),
-          true,
-          LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
+        var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
       app.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
@@ -127,16 +109,7 @@ class GetRelatedLinksControllerTest {
       GlobalExceptionHandler.configure(app);
       // Simulate authentication by setting SecurityContext
       app.before(ctx -> {
-        var securityContext = new SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          List.of(),
-          true,
-          LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
+        var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
       app.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);

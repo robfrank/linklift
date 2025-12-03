@@ -62,16 +62,7 @@ class CollectionControllerTest {
    */
   private void setupAuthentication(Javalin app, String userId) {
     app.before(ctx -> {
-      var securityContext = new SecurityContext(
-        userId,
-        "testuser",
-        "test@example.com",
-        List.of(),
-        true,
-        LocalDateTime.now(),
-        "127.0.0.1",
-        "test-agent"
-      );
+      var securityContext = new SecurityContext(userId, "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
       it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
     });
   }

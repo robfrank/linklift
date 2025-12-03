@@ -53,7 +53,7 @@ public class WebBuilder {
       config.registerPlugin(
         new MicrometerPlugin(micrometerConfig -> {
           micrometerConfig.registry = this.registry;
-          micrometerConfig.tags = java.util.Map.of("app", "linklift");
+          micrometerConfig.tags = io.micrometer.core.instrument.Tags.of("app", "linklift");
         })
       );
     });

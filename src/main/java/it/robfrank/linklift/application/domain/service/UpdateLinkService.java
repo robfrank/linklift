@@ -2,6 +2,7 @@ package it.robfrank.linklift.application.domain.service;
 
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.UpdateLinkCommand;
 import it.robfrank.linklift.application.port.in.UpdateLinkUseCase;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
@@ -20,8 +21,8 @@ public class UpdateLinkService implements UpdateLinkUseCase {
 
   @Override
   public @NonNull Link updateLink(@NonNull UpdateLinkCommand command) {
-    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.id(), "id");
-    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.userId(), "userId");
+    ValidationUtils.requireNotEmpty(command.id(), "id");
+    ValidationUtils.requireNotEmpty(command.userId(), "userId");
 
     // Check existence
     Link existingLink = loadLinksPort.getLinkById(command.id());

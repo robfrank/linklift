@@ -1,6 +1,7 @@
 package it.robfrank.linklift.application.domain.service;
 
 import it.robfrank.linklift.application.domain.model.Collection;
+import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.CreateCollectionCommand;
 import it.robfrank.linklift.application.port.in.CreateCollectionUseCase;
 import it.robfrank.linklift.application.port.out.CollectionRepository;
@@ -21,8 +22,8 @@ public class CreateCollectionService implements CreateCollectionUseCase {
 
   @Override
   public @NonNull Collection createCollection(@NonNull CreateCollectionCommand command) {
-    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.name(), "name");
-    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.userId(), "userId");
+    ValidationUtils.requireNotEmpty(command.name(), "name");
+    ValidationUtils.requireNotEmpty(command.userId(), "userId");
 
     var id = UUID.randomUUID().toString();
     var collection = new Collection(id, command.name(), command.description(), command.userId(), command.query());

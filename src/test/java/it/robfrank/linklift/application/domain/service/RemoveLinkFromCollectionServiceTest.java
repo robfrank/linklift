@@ -9,7 +9,6 @@ import it.robfrank.linklift.application.domain.exception.LinkLiftException;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.port.in.RemoveLinkFromCollectionCommand;
 import it.robfrank.linklift.application.port.out.CollectionRepository;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

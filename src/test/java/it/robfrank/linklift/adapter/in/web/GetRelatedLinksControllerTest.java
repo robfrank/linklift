@@ -9,6 +9,7 @@ import io.javalin.testtools.JavalinTest;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.SecurityContext;
 import it.robfrank.linklift.application.port.in.GetRelatedLinksUseCase;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -43,13 +44,13 @@ class GetRelatedLinksControllerTest {
       GlobalExceptionHandler.configure(app);
       // Simulate authentication by setting SecurityContext
       app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
+        var securityContext = new SecurityContext(
           "user-123",
           "testuser",
           "test@example.com",
-          java.util.List.of(),
+          List.of(),
           true,
-          java.time.LocalDateTime.now(),
+          LocalDateTime.now(),
           "127.0.0.1",
           "test-agent"
         );
@@ -79,13 +80,13 @@ class GetRelatedLinksControllerTest {
       GlobalExceptionHandler.configure(app);
       // Simulate authentication by setting SecurityContext
       app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
+        var securityContext = new SecurityContext(
           "user-123",
           "testuser",
           "test@example.com",
-          java.util.List.of(),
+          List.of(),
           true,
-          java.time.LocalDateTime.now(),
+          LocalDateTime.now(),
           "127.0.0.1",
           "test-agent"
         );
@@ -126,13 +127,13 @@ class GetRelatedLinksControllerTest {
       GlobalExceptionHandler.configure(app);
       // Simulate authentication by setting SecurityContext
       app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
+        var securityContext = new SecurityContext(
           "user-123",
           "testuser",
           "test@example.com",
-          java.util.List.of(),
+          List.of(),
           true,
-          java.time.LocalDateTime.now(),
+          LocalDateTime.now(),
           "127.0.0.1",
           "test-agent"
         );

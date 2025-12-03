@@ -1,5 +1,6 @@
 package it.robfrank.linklift.application.domain.service;
 
+import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.DeleteContentCommand;
 import it.robfrank.linklift.application.port.in.DeleteContentUseCase;
 import it.robfrank.linklift.application.port.out.SaveContentPort;
@@ -19,7 +20,7 @@ public class DeleteContentService implements DeleteContentUseCase {
 
   @Override
   public void deleteContent(@NonNull DeleteContentCommand command) {
-    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.linkId(), "linkId");
+    ValidationUtils.requireNotEmpty(command.linkId(), "linkId");
 
     logger.atInfo().addArgument(() -> command.linkId()).log("Deleting content for link: {}");
     saveContentPort.deleteContentByLinkId(command.linkId());

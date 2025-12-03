@@ -3,6 +3,7 @@ package it.robfrank.linklift.application.domain.service;
 import it.robfrank.linklift.application.domain.exception.ErrorCode;
 import it.robfrank.linklift.application.domain.exception.LinkLiftException;
 import it.robfrank.linklift.application.domain.model.Collection;
+import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.AddLinkToCollectionCommand;
 import it.robfrank.linklift.application.port.in.AddLinkToCollectionUseCase;
 import it.robfrank.linklift.application.port.out.CollectionRepository;
@@ -21,9 +22,9 @@ public class AddLinkToCollectionService implements AddLinkToCollectionUseCase {
 
   @Override
   public void addLinkToCollection(@NonNull AddLinkToCollectionCommand command) {
-    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.collectionId(), "collectionId");
-    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.linkId(), "linkId");
-    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.userId(), "userId");
+    ValidationUtils.requireNotEmpty(command.collectionId(), "collectionId");
+    ValidationUtils.requireNotEmpty(command.linkId(), "linkId");
+    ValidationUtils.requireNotEmpty(command.userId(), "userId");
 
     // Verify collection exists and belongs to user
     Collection collection = collectionRepository

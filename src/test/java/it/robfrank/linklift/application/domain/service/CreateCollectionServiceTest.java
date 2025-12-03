@@ -7,7 +7,6 @@ import static org.mockito.Mockito.*;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.port.in.CreateCollectionCommand;
 import it.robfrank.linklift.application.port.out.CollectionRepository;
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

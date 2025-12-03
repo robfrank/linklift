@@ -63,6 +63,7 @@ public class DownloadContentService implements DownloadContentUseCase {
 
   @Override
   public void downloadContentAsync(@NonNull DownloadContentCommand command) {
+    ValidationUtils.requireNotNull(command, "command");
     ValidationUtils.requireNotEmpty(command.linkId(), "linkId");
     ValidationUtils.requireNotEmpty(command.url(), "url");
 

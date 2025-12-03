@@ -13,7 +13,6 @@ import it.robfrank.linklift.application.domain.exception.ContentDownloadExceptio
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
-import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;
 import it.robfrank.linklift.application.port.out.*;
 import java.util.concurrent.CompletableFuture;

@@ -5,6 +5,7 @@ import static io.javalin.apibuilder.ApiBuilder.get;
 import io.javalin.Javalin;
 import io.javalin.http.HandlerType;
 import io.javalin.micrometer.MicrometerPlugin;
+import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
@@ -64,7 +65,7 @@ public class WebBuilder {
       config.registerPlugin(
         new MicrometerPlugin(micrometerConfig -> {
           micrometerConfig.registry = this.registry;
-          micrometerConfig.tags = io.micrometer.core.instrument.Tags.of("app", "linklift");
+          micrometerConfig.tags = Tags.of("app", "linklift");
         })
       );
     });

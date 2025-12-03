@@ -19,6 +19,8 @@ public class DeleteContentService implements DeleteContentUseCase {
 
   @Override
   public void deleteContent(@NonNull DeleteContentCommand command) {
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.linkId(), "linkId");
+
     logger.atInfo().addArgument(() -> command.linkId()).log("Deleting content for link: {}");
     saveContentPort.deleteContentByLinkId(command.linkId());
     logger.atInfo().addArgument(() -> command.linkId()).log("Content deleted for link: {}");

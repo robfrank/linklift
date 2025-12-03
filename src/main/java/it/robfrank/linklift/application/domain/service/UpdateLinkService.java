@@ -20,6 +20,9 @@ public class UpdateLinkService implements UpdateLinkUseCase {
 
   @Override
   public @NonNull Link updateLink(@NonNull UpdateLinkCommand command) {
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.id(), "id");
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.userId(), "userId");
+
     // Check existence
     Link existingLink = loadLinksPort.getLinkById(command.id());
 

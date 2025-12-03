@@ -7,7 +7,8 @@ import it.robfrank.linklift.application.domain.exception.*;
 
 /**
  * Centralized error handling for the application.
- * Registers exception handlers with Javalin to convert exceptions to appropriate HTTP responses.
+ * Registers exception handlers with Javalin to convert exceptions to
+ * appropriate HTTP responses.
  */
 public class GlobalExceptionHandler {
 
@@ -123,15 +124,16 @@ public class GlobalExceptionHandler {
   }
 
   private static void handleLinkLiftException(LinkLiftException exception, Context ctx) {
-    ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
-    ctx.json(
-      ErrorResponse.builder()
-        .status(HttpStatus.INTERNAL_SERVER_ERROR.getCode())
-        .errorCode(exception.getErrorCode())
-        .message(exception.getMessage())
-        .path(ctx.path())
-        .build()
-    );
+    HttpStatus status =
+      switch (exception.getErrorCode()) {
+        case COLLECTION_NOT_FOUND, LINK_NOT_FOUND, CONTENT_NOT_FOUND, USER_NOT_FOUND -> HttpStatus.NOT_FOUND;
+        case UNAUTHORIZED, UNAUTHORIZED_ACCESS -> HttpStatus.UNAUTHORIZED;
+        case INSUFFICIENT_PERMISSIONS -> HttpStatus.FORBIDDEN;
+        default -> HttpStatus.INTERNAL_SERVER_ERROR;
+      };
+
+    ctx.status(status);
+    ctx.json(ErrorResponse.builder().status(status.getCode()).errorCode(exception.getErrorCode()).message(exception.getMessage()).path(ctx.path()).build());
 
     // Log the exception for internal debugging
     ctx.attribute("exception", exception);

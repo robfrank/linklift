@@ -2,6 +2,7 @@ package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
+import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.DeleteLinkUseCase;
 import it.robfrank.linklift.application.port.in.UpdateLinkCommand;
@@ -20,7 +21,11 @@ public class LinkController {
 
   public void updateLink(Context ctx) {
     String id = Objects.requireNonNull(ctx.pathParam("id"));
-    String currentUserId = Objects.requireNonNull(SecurityContext.getCurrentUserId(ctx));
+    String currentUserId = SecurityContext.getCurrentUserId(ctx);
+
+    if (currentUserId == null) {
+      throw AuthenticationException.unauthorizedAccess();
+    }
 
     UpdateLinkRequest request = ctx.bodyAsClass(UpdateLinkRequest.class);
 
@@ -33,7 +38,11 @@ public class LinkController {
 
   public void deleteLink(Context ctx) {
     String id = Objects.requireNonNull(ctx.pathParam("id"));
-    String currentUserId = Objects.requireNonNull(SecurityContext.getCurrentUserId(ctx));
+    String currentUserId = SecurityContext.getCurrentUserId(ctx);
+
+    if (currentUserId == null) {
+      throw AuthenticationException.unauthorizedAccess();
+    }
 
     deleteLinkUseCase.deleteLink(id, currentUserId);
 

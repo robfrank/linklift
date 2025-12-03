@@ -20,6 +20,9 @@ public class DeleteCollectionService implements DeleteCollectionUseCase {
 
   @Override
   public void deleteCollection(@NonNull String collectionId, @NonNull String userId) {
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(collectionId, "collectionId");
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(userId, "userId");
+
     // Verify collection exists and belongs to user
     Collection collection = collectionRepository
       .findById(collectionId)

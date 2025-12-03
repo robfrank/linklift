@@ -21,6 +21,10 @@ public class AddLinkToCollectionService implements AddLinkToCollectionUseCase {
 
   @Override
   public void addLinkToCollection(@NonNull AddLinkToCollectionCommand command) {
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.collectionId(), "collectionId");
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.linkId(), "linkId");
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(command.userId(), "userId");
+
     // Verify collection exists and belongs to user
     Collection collection = collectionRepository
       .findById(command.collectionId())

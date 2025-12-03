@@ -153,10 +153,9 @@ public class DownloadContentService implements DownloadContentUseCase {
         } else {
           if (retries > 0) {
             logger.warn("Download failed for url: {}. Retrying... ({} attempts remaining)", url, retries);
-            return CompletableFuture.runAsync(
-              () -> {},
-              CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS)
-            ).thenCompose(v -> downloadWithRetry(url, retries - 1));
+            return CompletableFuture.runAsync(() -> {}, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS)).thenCompose(v ->
+              downloadWithRetry(url, retries - 1)
+            );
           } else {
             return CompletableFuture.<ContentDownloaderPort.DownloadedContent>failedFuture(ex);
           }

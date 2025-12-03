@@ -18,6 +18,9 @@ public class DeleteLinkService implements DeleteLinkUseCase {
 
   @Override
   public void deleteLink(@NonNull String id, @NonNull String userId) {
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(id, "id");
+    it.robfrank.linklift.application.domain.validation.ValidationUtils.requireNotEmpty(userId, "userId");
+
     // Check existence and ownership
     if (!loadLinksPort.userOwnsLink(userId, id)) {
       throw new LinkNotFoundException("Link not found or not owned by user");

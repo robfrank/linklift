@@ -2,6 +2,7 @@ package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
 import it.robfrank.linklift.adapter.in.web.error.ErrorResponse;
+import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.GetRelatedLinksUseCase;
 import java.util.List;
@@ -17,7 +18,7 @@ public class GetRelatedLinksController {
 
   public void getRelatedLinks(@NonNull Context ctx) {
     var linkId = ctx.pathParam("linkId");
-    var userId = ctx.attribute("userId");
+    var userId = SecurityContext.getCurrentUserId(ctx);
 
     if (userId == null) {
       ctx.status(401).json(ErrorResponse.builder().status(401).message("Unauthorized").build());

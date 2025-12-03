@@ -124,20 +124,13 @@ public class GlobalExceptionHandler {
   }
 
   private static void handleLinkLiftException(LinkLiftException exception, Context ctx) {
-    HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-
-    if (
-      exception.getErrorCode() == ErrorCode.COLLECTION_NOT_FOUND ||
-      exception.getErrorCode() == ErrorCode.LINK_NOT_FOUND ||
-      exception.getErrorCode() == ErrorCode.CONTENT_NOT_FOUND ||
-      exception.getErrorCode() == ErrorCode.USER_NOT_FOUND
-    ) {
-      status = HttpStatus.NOT_FOUND;
-    } else if (exception.getErrorCode() == ErrorCode.UNAUTHORIZED || exception.getErrorCode() == ErrorCode.UNAUTHORIZED_ACCESS) {
-      status = HttpStatus.UNAUTHORIZED;
-    } else if (exception.getErrorCode() == ErrorCode.INSUFFICIENT_PERMISSIONS) {
-      status = HttpStatus.FORBIDDEN;
-    }
+    HttpStatus status =
+      switch (exception.getErrorCode()) {
+        case COLLECTION_NOT_FOUND, LINK_NOT_FOUND, CONTENT_NOT_FOUND, USER_NOT_FOUND -> HttpStatus.NOT_FOUND;
+        case UNAUTHORIZED, UNAUTHORIZED_ACCESS -> HttpStatus.UNAUTHORIZED;
+        case INSUFFICIENT_PERMISSIONS -> HttpStatus.FORBIDDEN;
+        default -> HttpStatus.INTERNAL_SERVER_ERROR;
+      };
 
     ctx.status(status);
     ctx.json(ErrorResponse.builder().status(status.getCode()).errorCode(exception.getErrorCode()).message(exception.getMessage()).path(ctx.path()).build());

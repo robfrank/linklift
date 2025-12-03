@@ -225,9 +225,7 @@ class LinkControllerTest {
 
       Response response = client.delete("/links/link-123");
 
-      // This will throw NullPointerException which gets caught by
-      // GlobalExceptionHandler
-      assertThat(response.code()).isIn(401, 500); // Depending on how SecurityContext handles null
+      assertThat(response.code()).isEqualTo(401);
     });
   }
 }

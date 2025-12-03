@@ -53,6 +53,29 @@ class CollectionControllerTest {
     );
   }
 
+  /**
+   * Helper method to configure authentication for tests.
+   * Sets up a SecurityContext with the given userId in the Javalin app's before filter.
+   *
+   * @param app the Javalin test app
+   * @param userId the user ID to authenticate as
+   */
+  private void setupAuthentication(io.javalin.Javalin app, String userId) {
+    app.before(ctx -> {
+      var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
+        userId,
+        "testuser",
+        "test@example.com",
+        List.of(),
+        true,
+        LocalDateTime.now(),
+        "127.0.0.1",
+        "test-agent"
+      );
+      it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
+    });
+  }
+
   @Test
   void createCollection_shouldReturn201_whenCollectionIsCreated() {
     // Given
@@ -61,20 +84,7 @@ class CollectionControllerTest {
 
     JavalinTest.test((app, client) -> {
       GlobalExceptionHandler.configure(app);
-      // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          java.util.List.of(),
-          true,
-          java.time.LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
-        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
-      });
+      setupAuthentication(app, "user-123");
       app.post("/collections", collectionController::createCollection);
 
       Response response = client.post(
@@ -133,20 +143,7 @@ class CollectionControllerTest {
 
     JavalinTest.test((app, client) -> {
       GlobalExceptionHandler.configure(app);
-      // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          java.util.List.of(),
-          true,
-          java.time.LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
-        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
-      });
+      setupAuthentication(app, "user-123");
       app.get("/collections", collectionController::listCollections);
 
       Response response = client.get("/collections");
@@ -169,20 +166,7 @@ class CollectionControllerTest {
 
     JavalinTest.test((app, client) -> {
       GlobalExceptionHandler.configure(app);
-      // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          java.util.List.of(),
-          true,
-          java.time.LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
-        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
-      });
+      setupAuthentication(app, "user-123");
       app.get("/collections", collectionController::listCollections);
 
       Response response = client.get("/collections");
@@ -208,20 +192,7 @@ class CollectionControllerTest {
 
     JavalinTest.test((app, client) -> {
       GlobalExceptionHandler.configure(app);
-      // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          java.util.List.of(),
-          true,
-          java.time.LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
-        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
-      });
+      setupAuthentication(app, "user-123");
       app.get("/collections/{id}", collectionController::getCollection);
 
       Response response = client.get("/collections/col-123");
@@ -244,20 +215,7 @@ class CollectionControllerTest {
 
     JavalinTest.test((app, client) -> {
       GlobalExceptionHandler.configure(app);
-      // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          java.util.List.of(),
-          true,
-          java.time.LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
-        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
-      });
+      setupAuthentication(app, "user-123");
       app.get("/collections/{id}", collectionController::getCollection);
 
       Response response = client.get("/collections/non-existent");
@@ -272,20 +230,7 @@ class CollectionControllerTest {
   void addLinkToCollection_shouldReturn204_whenLinkIsAdded() {
     JavalinTest.test((app, client) -> {
       GlobalExceptionHandler.configure(app);
-      // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          java.util.List.of(),
-          true,
-          java.time.LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
-        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
-      });
+      setupAuthentication(app, "user-123");
       app.post("/collections/{id}/links", collectionController::addLinkToCollection);
 
       Response response = client.post(
@@ -309,20 +254,7 @@ class CollectionControllerTest {
 
     JavalinTest.test((app, client) -> {
       GlobalExceptionHandler.configure(app);
-      // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          java.util.List.of(),
-          true,
-          java.time.LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
-        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
-      });
+      setupAuthentication(app, "user-123");
       app.post("/collections/{id}/links", collectionController::addLinkToCollection);
 
       Response response = client.post(
@@ -342,20 +274,7 @@ class CollectionControllerTest {
   void removeLinkFromCollection_shouldReturn204_whenLinkIsRemoved() {
     JavalinTest.test((app, client) -> {
       GlobalExceptionHandler.configure(app);
-      // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          java.util.List.of(),
-          true,
-          java.time.LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
-        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
-      });
+      setupAuthentication(app, "user-123");
       app.delete("/collections/{id}/links/{linkId}", collectionController::removeLinkFromCollection);
 
       Response response = client.delete("/collections/col-123/links/link-456");
@@ -369,20 +288,7 @@ class CollectionControllerTest {
   void deleteCollection_shouldReturn204_whenCollectionIsDeleted() {
     JavalinTest.test((app, client) -> {
       GlobalExceptionHandler.configure(app);
-      // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          java.util.List.of(),
-          true,
-          java.time.LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
-        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
-      });
+      setupAuthentication(app, "user-123");
       app.delete("/collections/{id}", collectionController::deleteCollection);
 
       Response response = client.delete("/collections/col-123");
@@ -399,20 +305,7 @@ class CollectionControllerTest {
 
     JavalinTest.test((app, client) -> {
       GlobalExceptionHandler.configure(app);
-      // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
-        var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
-          "user-123",
-          "testuser",
-          "test@example.com",
-          java.util.List.of(),
-          true,
-          java.time.LocalDateTime.now(),
-          "127.0.0.1",
-          "test-agent"
-        );
-        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
-      });
+      setupAuthentication(app, "user-123");
       app.delete("/collections/{id}", collectionController::deleteCollection);
 
       Response response = client.delete("/collections/non-existent");

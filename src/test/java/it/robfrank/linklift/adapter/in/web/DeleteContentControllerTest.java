@@ -13,6 +13,7 @@ import it.robfrank.linklift.application.port.in.DeleteContentUseCase;
 import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 class DeleteContentControllerTest {
@@ -62,7 +63,9 @@ class DeleteContentControllerTest {
 
       client.delete("/content/specific-link-id");
 
-      verify(deleteContentUseCase).deleteContent(any(DeleteContentCommand.class));
+      var commandCaptor = ArgumentCaptor.forClass(DeleteContentCommand.class);
+      verify(deleteContentUseCase).deleteContent(commandCaptor.capture());
+      assertThat(commandCaptor.getValue().linkId()).isEqualTo("specific-link-id");
     });
   }
 }

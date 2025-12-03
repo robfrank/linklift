@@ -36,7 +36,7 @@ class DeleteContentServiceTest {
   }
 
   @Test
-  void deleteContent_shouldCallDeleteOnce_whenCalledMultipleTimes() {
+  void deleteContent_shouldCallPortForEachInvocation() {
     // Arrange
     String linkId = "link-123";
     DeleteContentCommand command = new DeleteContentCommand(linkId);

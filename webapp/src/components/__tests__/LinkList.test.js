@@ -30,8 +30,6 @@ describe("LinkList Component", () => {
     // Mock API to return a promise that doesn't resolve immediately
     api.listLinks.mockImplementation(() => new Promise(() => {}));
 
-    renderWithProviders(<LinkList />);
-
     // Check for skeletons
     const { container } = renderWithProviders(<LinkList />);
     const skeletons = container.querySelectorAll(".MuiSkeleton-root");

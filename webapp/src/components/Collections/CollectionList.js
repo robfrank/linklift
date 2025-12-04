@@ -43,7 +43,6 @@ const CollectionList = () => {
     } catch (err) {
       console.error("Error fetching collections:", err);
       setError("Failed to load collections. Please try again.");
-      showSnackbar("Failed to load collections", "error");
     } finally {
       setLoading(false);
     }

@@ -81,7 +81,6 @@ const LinkList = () => {
     } catch (err) {
       console.error("Error fetching links:", err);
       setError("Failed to load links. Please try again.");
-      showSnackbar("Failed to load links", "error");
     } finally {
       setLoading(false);
     }
@@ -134,7 +133,6 @@ const LinkList = () => {
       setAddToCollectionDialogOpen(false);
       setSelectedCollectionId("");
       setLinkToAddToCollection(null);
-      setLinkToAddToCollection(null);
       showSnackbar("Link added to collection", "success");
     } catch (err) {
       console.error("Error adding link to collection:", err);
@@ -162,7 +160,6 @@ const LinkList = () => {
       showSnackbar("Link updated successfully", "success");
     } catch (err) {
       console.error("Error updating link:", err);
-      setError("Failed to update link.");
       showSnackbar("Failed to update link", "error");
     }
   };
@@ -182,7 +179,6 @@ const LinkList = () => {
       showSnackbar("Link deleted successfully", "success");
     } catch (err) {
       console.error("Error deleting link:", err);
-      setError("Failed to delete link.");
       showSnackbar("Failed to delete link", "error");
     }
   };

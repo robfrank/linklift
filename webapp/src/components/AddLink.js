@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Container, Typography, Paper, Box, TextField, Button, Snackbar, Alert, CircularProgress } from "@mui/material";
+import { Container, Typography, Paper, Box, TextField, Button, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useSnackbar } from "../contexts/SnackbarContext";
 
 const AddLink = () => {
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
   const [formData, setFormData] = useState({
     url: "",
     title: "",
@@ -12,11 +14,6 @@ const AddLink = () => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success"
-  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,11 +60,7 @@ const AddLink = () => {
     setLoading(true);
     try {
       await api.createLink(formData);
-      setSnackbar({
-        open: true,
-        message: "Link added successfully!",
-        severity: "success"
-      });
+      showSnackbar("Link added successfully!", "success");
 
       // Reset form
       setFormData({
@@ -98,21 +91,10 @@ const AddLink = () => {
         errorMessage = "Unable to connect to server. Please check your connection.";
       }
 
-      setSnackbar({
-        open: true,
-        message: errorMessage,
-        severity: "error"
-      });
+      showSnackbar(errorMessage, "error");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({
-      ...snackbar,
-      open: false
-    });
   };
 
   return (
@@ -180,12 +162,6 @@ const AddLink = () => {
           </form>
         </Paper>
       </Box>
-
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled">
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 };

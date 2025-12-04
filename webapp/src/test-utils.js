@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { BrowserRouter, MemoryRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { SnackbarProvider } from "./contexts/SnackbarContext";
 
 const theme = createTheme({
   palette: {
@@ -13,7 +14,11 @@ const theme = createTheme({
 // Wrapper with basic theme provider
 export function renderWithTheme(ui, options) {
   return render(ui, {
-    wrapper: ({ children }) => <ThemeProvider theme={theme}>{children}</ThemeProvider>,
+    wrapper: ({ children }) => (
+      <ThemeProvider theme={theme}>
+        <SnackbarProvider>{children}</SnackbarProvider>
+      </ThemeProvider>
+    ),
     ...options
   });
 }
@@ -23,9 +28,11 @@ export function renderWithRouter(ui, { route = "/", path = "/" } = {}) {
   return render(
     <MemoryRouter initialEntries={[route]}>
       <ThemeProvider theme={theme}>
-        <Routes>
-          <Route path={path} element={ui} />
-        </Routes>
+        <SnackbarProvider>
+          <Routes>
+            <Route path={path} element={ui} />
+          </Routes>
+        </SnackbarProvider>
       </ThemeProvider>
     </MemoryRouter>
   );
@@ -35,7 +42,9 @@ export function renderWithRouter(ui, { route = "/", path = "/" } = {}) {
 export function renderApp(ui, { route = "/" } = {}) {
   return render(
     <MemoryRouter initialEntries={[route]}>
-      <ThemeProvider theme={theme}>{ui}</ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <SnackbarProvider>{ui}</SnackbarProvider>
+      </ThemeProvider>
     </MemoryRouter>
   );
 }

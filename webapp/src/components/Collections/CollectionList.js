@@ -22,9 +22,11 @@ import {
 import { Add, Delete, Folder, ArrowForward } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import { useSnackbar } from "../../contexts/SnackbarContext";
 
 const CollectionList = () => {
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,6 +43,7 @@ const CollectionList = () => {
     } catch (err) {
       console.error("Error fetching collections:", err);
       setError("Failed to load collections. Please try again.");
+      showSnackbar("Failed to load collections", "error");
     } finally {
       setLoading(false);
     }
@@ -59,9 +62,10 @@ const CollectionList = () => {
       setOpenCreateDialog(false);
       setNewCollection({ name: "", description: "" });
       fetchCollections();
+      showSnackbar("Collection created successfully", "success");
     } catch (err) {
       console.error("Error creating collection:", err);
-      // Ideally show a snackbar error here
+      showSnackbar("Failed to create collection", "error");
     } finally {
       setCreateLoading(false);
     }
@@ -73,8 +77,10 @@ const CollectionList = () => {
       try {
         await api.deleteCollection(id);
         fetchCollections();
+        showSnackbar("Collection deleted successfully", "success");
       } catch (err) {
         console.error("Error deleting collection:", err);
+        showSnackbar("Failed to delete collection", "error");
       }
     }
   };

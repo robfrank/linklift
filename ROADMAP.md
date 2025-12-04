@@ -79,10 +79,10 @@ The project implements a **Hexagonal Architecture** backend (Java 24, Javalin, A
   - [x] **Validation**: Standardize `ValidationException` usage.
   - [x] **Observability**: Enhance logging and metrics.
 - **Frontend**:
-  - [ ] **UX**: Add Toast notifications (Snackbars) for success/error actions.
-  - [ ] **UX**: Implement Loading Skeletons for data fetching.
-  - [ ] **Error Handling**: Add React Error Boundaries.
-  - [ ] **Testing**: Add Unit tests for Components and Integration tests for flows.
+  - [x] **UX**: Add Toast notifications (Snackbars) for success/error actions.
+  - [x] **UX**: Implement Loading Skeletons for data fetching.
+  - [x] **Error Handling**: Add React Error Boundaries.
+  - [x] **Testing**: Add Unit tests for Components and Integration tests for flows.
 
 ### Phase 4: Architectural Evolution (Long Term)
 

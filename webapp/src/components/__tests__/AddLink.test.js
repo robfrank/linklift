@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AddLink from "../AddLink";
+import { SnackbarProvider } from "../../contexts/SnackbarContext";
 import api from "../../services/api";
 
 // Mock the API
@@ -21,7 +22,9 @@ const theme = createTheme();
 const renderWithProviders = (component) => {
   return render(
     <BrowserRouter>
-      <ThemeProvider theme={theme}>{component}</ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <SnackbarProvider>{component}</SnackbarProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 };

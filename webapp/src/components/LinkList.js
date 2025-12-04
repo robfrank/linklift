@@ -30,8 +30,11 @@ import {
 import { OpenInNew, Sort, Article, PlaylistAdd, Edit, Delete } from "@mui/icons-material";
 import api from "../services/api";
 import { ContentViewerModal } from "./ContentViewer/ContentViewerModal";
+import LinkListSkeleton from "./Skeletons/LinkListSkeleton";
+import { useSnackbar } from "../contexts/SnackbarContext";
 
 const LinkList = () => {
+  const { showSnackbar } = useSnackbar();
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -115,7 +118,7 @@ const LinkList = () => {
       setUserCollections(response.data || []);
     } catch (err) {
       console.error("Error fetching collections:", err);
-      // Ideally show a snackbar
+      showSnackbar("Failed to fetch collections", "error");
     } finally {
       setAddToCollectionLoading(false);
     }
@@ -130,10 +133,10 @@ const LinkList = () => {
       setAddToCollectionDialogOpen(false);
       setSelectedCollectionId("");
       setLinkToAddToCollection(null);
-      // Ideally show success message
+      showSnackbar("Link added to collection", "success");
     } catch (err) {
       console.error("Error adding link to collection:", err);
-      // Ideally show error message
+      showSnackbar("Failed to add link to collection", "error");
     } finally {
       setAddToCollectionLoading(false);
     }
@@ -154,9 +157,10 @@ const LinkList = () => {
       setLinks((prevLinks) => prevLinks.map((link) => (link.id === updatedLink.id ? updatedLink : link)));
       setEditLinkDialogOpen(false);
       setLinkToEdit(null);
+      showSnackbar("Link updated successfully", "success");
     } catch (err) {
       console.error("Error updating link:", err);
-      setError("Failed to update link.");
+      showSnackbar("Failed to update link", "error");
     }
   };
 
@@ -172,9 +176,10 @@ const LinkList = () => {
       setLinks((prevLinks) => prevLinks.filter((link) => link.id !== linkToDelete.id));
       setDeleteLinkDialogOpen(false);
       setLinkToDelete(null);
+      showSnackbar("Link deleted successfully", "success");
     } catch (err) {
       console.error("Error deleting link:", err);
-      setError("Failed to delete link.");
+      showSnackbar("Failed to delete link", "error");
     }
   };
 
@@ -200,8 +205,8 @@ const LinkList = () => {
   if (loading && links.length === 0) {
     return (
       <Container maxWidth="lg">
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-          <CircularProgress size={60} />
+        <Box my={4}>
+          <LinkListSkeleton count={5} />
         </Box>
       </Container>
     );

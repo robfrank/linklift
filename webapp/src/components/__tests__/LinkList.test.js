@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import LinkList from "../LinkList";
+import { SnackbarProvider } from "../../contexts/SnackbarContext";
 import api from "../../services/api";
 
 // Mock the API
@@ -13,7 +14,9 @@ const theme = createTheme();
 const renderWithProviders = (component) => {
   return render(
     <BrowserRouter>
-      <ThemeProvider theme={theme}>{component}</ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <SnackbarProvider>{component}</SnackbarProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 };
@@ -27,9 +30,10 @@ describe("LinkList Component", () => {
     // Mock API to return a promise that doesn't resolve immediately
     api.listLinks.mockImplementation(() => new Promise(() => {}));
 
-    renderWithProviders(<LinkList />);
-
-    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    // Check for skeletons
+    const { container } = renderWithProviders(<LinkList />);
+    const skeletons = container.querySelectorAll(".MuiSkeleton-root");
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 
   test("renders links when data is loaded", async () => {

@@ -32,6 +32,10 @@ const renderWithProviders = (component) => {
 describe("CollectionList Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Setup default mocks
+    api.listCollections = jest.fn();
+    api.createCollection = jest.fn();
+    api.deleteCollection = jest.fn();
   });
 
   test("renders loading state initially", () => {

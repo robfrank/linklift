@@ -18,8 +18,8 @@ import {
 } from "@mui/material";
 import { ArrowBack, Delete, OpenInNew, Article, Folder } from "@mui/icons-material";
 import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
-import api from "../../services/api";
-import { ContentViewerModal } from "../ContentViewer/ContentViewerModal";
+import api from "../../infrastructure/api/axios-instance";
+import { ContentViewerModal } from "../../infrastructure/ui/components/ContentViewer/ContentViewerModal";
 
 const CollectionDetail = () => {
   const { id } = useParams();
@@ -34,9 +34,9 @@ const CollectionDetail = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await api.getCollection(id);
-      setCollection(data.data.collection);
-      setLinks(data.data.links || []);
+      const data = await api.get(`/collections/${id}`);
+      setCollection(data.data.data.collection);
+      setLinks(data.data.data.links || []);
     } catch (err) {
       console.error("Error fetching collection:", err);
       setError("Failed to load collection details.");
@@ -52,7 +52,7 @@ const CollectionDetail = () => {
   const handleRemoveLink = async (linkId) => {
     if (window.confirm("Remove this link from the collection?")) {
       try {
-        await api.removeLinkFromCollection(id, linkId);
+        await api.delete(`/collections/${id}/links/${linkId}`);
         setLinks(links.filter((link) => link.id !== linkId));
       } catch (err) {
         console.error("Error removing link:", err);
@@ -150,7 +150,7 @@ const CollectionDetail = () => {
         ) : (
           <Grid container spacing={2}>
             {links.map((link) => (
-              <Grid item xs={12} key={link.id}>
+              <Grid size={12} key={link.id}>
                 <Card elevation={1} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1 }}>
                   <CardContent sx={{ flexGrow: 1, py: 1, "&:last-child": { pb: 1 } }}>
                     <Box display="flex" alignItems="center" gap={2}>

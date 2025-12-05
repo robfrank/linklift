@@ -38,7 +38,7 @@ class ErrorBoundary extends React.Component {
               <Typography variant="body1" color="text.secondary" paragraph>
                 We're sorry, but an unexpected error occurred. Please try refreshing the page or go back to home.
               </Typography>
-              {process.env.NODE_ENV === "development" && this.state.error && (
+              {(process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") && this.state.error && (
                 <Box sx={{ mt: 2, mb: 2, p: 2, bgcolor: "grey.100", borderRadius: 1, textAlign: "left", overflow: "auto" }}>
                   <Typography variant="caption" component="pre" sx={{ fontFamily: "monospace" }}>
                     {this.state.error.toString()}

@@ -1,43 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, ChangeEvent, FormEvent } from "react";
 import { Container, Typography, Paper, Box, TextField, Button, CircularProgress } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import api from "../services/api";
-import { useSnackbar } from "../contexts/SnackbarContext";
 
-const AddLink = () => {
-  const navigate = useNavigate();
-  const { showSnackbar } = useSnackbar();
-  const [formData, setFormData] = useState({
+interface FormData {
+  url: string;
+  title: string;
+  description: string;
+}
+
+interface AddLinkProps {
+  onSubmit: (data: FormData) => void;
+  onCancel: () => void;
+  loading: boolean;
+}
+
+export const AddLink: React.FC<AddLinkProps> = ({ onSubmit, onCancel, loading }) => {
+  const [formData, setFormData] = useState<FormData>({
     url: "",
     title: "",
     description: ""
   });
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Partial<FormData>>({});
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value
-    });
+    }));
 
     // Clear error when user types
-    if (errors[name]) {
-      setErrors({
-        ...errors,
+    if (errors[name as keyof FormData]) {
+      setErrors((prev) => ({
+        ...prev,
         [name]: ""
-      });
+      }));
     }
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: Partial<FormData> = {};
 
     if (!formData.url) {
       newErrors.url = "URL is required";
     } else {
-      // Basic URL validation
       try {
         new URL(formData.url);
       } catch {
@@ -52,49 +57,10 @@ const AddLink = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
-    setLoading(true);
-    try {
-      await api.createLink(formData);
-      showSnackbar("Link added successfully!", "success");
-
-      // Reset form
-      setFormData({
-        url: "",
-        title: "",
-        description: ""
-      });
-
-      // Redirect to home after short delay to show success message
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
-    } catch (error) {
-      let errorMessage = "Failed to add link";
-
-      if (error.response) {
-        // Handle specific error responses from API
-        if (error.response.status === 409) {
-          errorMessage = "This URL already exists";
-        } else if (error.response.data && error.response.data.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.response.status === 400) {
-          errorMessage = "Invalid link data. Please check your input.";
-        } else if (error.response.status >= 500) {
-          errorMessage = "Server error. Please try again later.";
-        }
-      } else if (error.request) {
-        errorMessage = "Unable to connect to server. Please check your connection.";
-      }
-
-      showSnackbar(errorMessage, "error");
-    } finally {
-      setLoading(false);
-    }
+    onSubmit(formData);
   };
 
   return (
@@ -152,7 +118,7 @@ const AddLink = () => {
             />
 
             <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-              <Button type="button" variant="outlined" color="secondary" onClick={() => navigate("/")} disabled={loading}>
+              <Button type="button" variant="outlined" color="secondary" onClick={onCancel} disabled={loading}>
                 Cancel
               </Button>
               <Button type="submit" variant="contained" color="primary" disabled={loading} startIcon={loading ? <CircularProgress size={20} /> : null}>
@@ -165,5 +131,3 @@ const AddLink = () => {
     </Container>
   );
 };
-
-export default AddLink;

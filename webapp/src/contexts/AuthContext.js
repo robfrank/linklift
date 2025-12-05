@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
+import api from "../infrastructure/api/axios-instance";
 
 const AuthContext = createContext();
 
@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
   }, []);
 
@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
       if (token) {
         try {
           // Set the token in axios headers
-          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
           // Try to fetch user data or validate token
           // For now, we'll just trust the stored user data
@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("user");
-          delete axios.defaults.headers.common["Authorization"];
+          delete api.defaults.headers.common["Authorization"];
         }
       }
       setLoading(false);
@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
 
   const login = async ({ loginIdentifier, password, rememberMe = false }) => {
     try {
-      const response = await axios.post("/api/v1/auth/login", {
+      const response = await api.post("/auth/login", {
         loginIdentifier,
         password,
         rememberMe
@@ -72,7 +72,7 @@ export function AuthProvider({ children }) {
       setUser(userData);
 
       // Set default authorization header
-      axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+      api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
 
       return userData;
     } catch (error) {
@@ -83,7 +83,7 @@ export function AuthProvider({ children }) {
 
   const register = async ({ username, email, password, firstName, lastName }) => {
     try {
-      const response = await axios.post("/api/v1/auth/register", {
+      const response = await api.post("/auth/register", {
         username,
         email,
         password,
@@ -101,7 +101,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       // Call logout endpoint if available
-      await axios.post("/api/v1/auth/logout");
+      await api.post("/auth/logout");
     } catch (error) {
       console.error("Logout API call failed:", error);
     } finally {
@@ -109,7 +109,7 @@ export function AuthProvider({ children }) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
-      delete axios.defaults.headers.common["Authorization"];
+      delete api.defaults.headers.common["Authorization"];
       setUser(null);
     }
   };
@@ -121,7 +121,7 @@ export function AuthProvider({ children }) {
         throw new Error("No refresh token available");
       }
 
-      const response = await axios.post("/api/v1/auth/refresh", {
+      const response = await api.post("/auth/refresh", {
         refreshToken
       });
 
@@ -137,7 +137,7 @@ export function AuthProvider({ children }) {
       setUser(userData);
 
       // Update axios default header
-      axios.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+      api.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
 
       return userData;
     } catch (error) {
@@ -149,7 +149,7 @@ export function AuthProvider({ children }) {
 
   // Setup axios interceptor for automatic token refresh
   useEffect(() => {
-    const responseInterceptor = axios.interceptors.response.use(
+    const responseInterceptor = api.interceptors.response.use(
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
@@ -160,7 +160,9 @@ export function AuthProvider({ children }) {
           try {
             await refreshToken();
             // Retry the original request with new token
-            return axios(originalRequest);
+            // Need to update the header of original request
+            originalRequest.headers["Authorization"] = api.defaults.headers.common["Authorization"];
+            return api(originalRequest);
           } catch (refreshError) {
             // Refresh failed, redirect to login
             return Promise.reject(refreshError);
@@ -172,7 +174,7 @@ export function AuthProvider({ children }) {
     );
 
     return () => {
-      axios.interceptors.response.eject(responseInterceptor);
+      api.interceptors.response.eject(responseInterceptor);
     };
   }, []);
 

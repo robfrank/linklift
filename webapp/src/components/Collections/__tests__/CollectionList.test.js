@@ -5,10 +5,10 @@ import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CollectionList from "../CollectionList";
 import { SnackbarProvider } from "../../../contexts/SnackbarContext";
-import api from "../../../services/api";
+import api from "../../../infrastructure/api/axios-instance";
 
 // Mock the API
-jest.mock("../../../services/api");
+jest.mock("../../../infrastructure/api/axios-instance");
 
 // Mock useNavigate
 const mockNavigate = jest.fn();
@@ -32,21 +32,22 @@ const renderWithProviders = (component) => {
 describe("CollectionList Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Setup default mocks
-    api.listCollections = jest.fn();
-    api.createCollection = jest.fn();
-    api.deleteCollection = jest.fn();
+    // Setup default mocks for axios instance
+    api.get = jest.fn();
+    api.post = jest.fn();
+    api.delete = jest.fn();
   });
 
   test("renders loading state initially", () => {
-    api.listCollections.mockImplementation(() => new Promise(() => {}));
+    api.get.mockImplementation(() => new Promise(() => {}));
     renderWithProviders(<CollectionList />);
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
 
   test("renders collections when data is loaded", async () => {
     const mockCollections = [{ id: "1", name: "Test Collection", description: "Test Description" }];
-    api.listCollections.mockResolvedValue({ data: mockCollections });
+    // The component expects data.data.data
+    api.get.mockResolvedValue({ data: { data: mockCollections } });
 
     renderWithProviders(<CollectionList />);
 
@@ -57,7 +58,7 @@ describe("CollectionList Component", () => {
   });
 
   test("renders empty state when no collections", async () => {
-    api.listCollections.mockResolvedValue({ data: [] });
+    api.get.mockResolvedValue({ data: { data: [] } });
 
     renderWithProviders(<CollectionList />);
 
@@ -68,7 +69,7 @@ describe("CollectionList Component", () => {
 
   test("opens create dialog", async () => {
     const user = userEvent.setup();
-    api.listCollections.mockResolvedValue({ data: [] });
+    api.get.mockResolvedValue({ data: { data: [] } });
 
     renderWithProviders(<CollectionList />);
 

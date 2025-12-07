@@ -1,11 +1,11 @@
 import React from "react";
 import { renderApp, screen, waitFor } from "../test-utils";
 import App from "../App";
-import api from "../services/api";
+import api from "../infrastructure/api/axios-instance";
 import * as AuthContext from "../contexts/AuthContext";
 
 // Mock the API
-jest.mock("../services/api");
+jest.mock("../infrastructure/api/axios-instance");
 
 // Mock the AuthContext
 jest.mock("../contexts/AuthContext", () => ({
@@ -17,11 +17,19 @@ describe("App Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Default to empty links for most tests
-    api.listLinks.mockResolvedValue({
-      content: [],
-      totalElements: 0,
-      totalPages: 0
+    // ApiLinkRepository calls api.get('/links') and returns response.data.data
+    api.get = jest.fn().mockResolvedValue({
+      data: {
+        data: {
+          content: [],
+          totalElements: 0,
+          totalPages: 0
+        }
+      }
     });
+
+    api.post = jest.fn();
+    api.delete = jest.fn();
 
     // Default to authenticated user
     AuthContext.useAuth.mockReturnValue({

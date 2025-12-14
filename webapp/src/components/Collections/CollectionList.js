@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { Add, Delete, Folder, ArrowForward } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import api from "../../services/api";
+import api from "../../infrastructure/api/axios-instance";
 import { useSnackbar } from "../../contexts/SnackbarContext";
 
 const CollectionList = () => {
@@ -38,8 +38,8 @@ const CollectionList = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await api.listCollections();
-      setCollections(data.data || []);
+      const data = await api.get("/collections");
+      setCollections(data.data.data || []);
     } catch (err) {
       console.error("Error fetching collections:", err);
       setError("Failed to load collections. Please try again.");
@@ -57,7 +57,7 @@ const CollectionList = () => {
 
     try {
       setCreateLoading(true);
-      await api.createCollection(newCollection);
+      await api.post("/collections", newCollection);
       setOpenCreateDialog(false);
       setNewCollection({ name: "", description: "" });
       fetchCollections();
@@ -74,7 +74,7 @@ const CollectionList = () => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this collection?")) {
       try {
-        await api.deleteCollection(id);
+        await api.delete(`/collections/${id}`);
         fetchCollections();
         showSnackbar("Collection deleted successfully", "success");
       } catch (err) {

@@ -125,7 +125,7 @@ const CollectionList = () => {
           ) : (
             <Grid container spacing={3}>
               {collections.map((collection) => (
-                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={collection.id}>
+                <Grid item xs={12} sm={6} md={4} key={collection.id}>
                   <Card
                     elevation={2}
                     sx={{

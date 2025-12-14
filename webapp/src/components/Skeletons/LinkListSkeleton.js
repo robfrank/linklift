@@ -5,7 +5,7 @@ const LinkListSkeleton = ({ count = 3 }) => {
   return (
     <Grid container spacing={2}>
       {Array.from(new Array(count)).map((_, index) => (
-        <Grid size={12} key={index}>
+        <Grid item xs={12} key={index}>
           <Card elevation={1}>
             <CardContent>
               <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>

@@ -6,8 +6,7 @@ export enum DownloadStatus {
 }
 
 export interface Content {
-  id: string; // usually same as linkId? no, content has its own ID usually, but here it says `data.data` which is `Content`.
-  // Wait, let's verify content structure.
+  id: string;
   linkId: string;
   textContent: string; // or extractedText
   htmlContent?: string;

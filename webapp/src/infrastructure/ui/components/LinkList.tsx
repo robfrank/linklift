@@ -180,7 +180,7 @@ export const LinkList: React.FC<LinkListProps> = ({
             <>
               <Grid container spacing={2}>
                 {links.map((link) => (
-                  <Grid size={12} key={link.id}>
+                  <Grid item xs={12} key={link.id}>
                     <Card elevation={1} sx={{ transition: "elevation 0.2s", "&:hover": { elevation: 3 } }}>
                       <CardContent>
                         <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
@@ -196,7 +196,6 @@ export const LinkList: React.FC<LinkListProps> = ({
 
                         <Box display="flex" justifyContent="space-between" alignItems="center">
                           <Typography variant="caption" color="text.secondary">
-                            {/* @ts-ignore */}
                             Added {formatDate(link.extractedAt)}
                           </Typography>
 

@@ -150,7 +150,7 @@ const CollectionDetail = () => {
         ) : (
           <Grid container spacing={2}>
             {links.map((link) => (
-              <Grid size={12} key={link.id}>
+              <Grid item xs={12} key={link.id}>
                 <Card elevation={1} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1 }}>
                   <CardContent sx={{ flexGrow: 1, py: 1, "&:last-child": { pb: 1 } }}>
                     <Box display="flex" alignItems="center" gap={2}>

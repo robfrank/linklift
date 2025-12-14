@@ -19,12 +19,6 @@ export class ApiLinkRepository implements ILinkRepository {
         sortDirection
       }
     });
-    // The previous api implementation returned response.data.data
-    // My axios instance is just returning the axial response.
-    // Let's verify what the backend returns.
-    // Based on src/services/api.js, it extracted response.data.data.
-    // My axios-instance is standard axios.
-    // Backend usually returns { status: "...", message: "...", data: { ... } }
 
     return response.data.data;
   }

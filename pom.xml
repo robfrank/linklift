@@ -21,7 +21,7 @@
         <arcadedb.version>25.11.1</arcadedb.version>
         <testcontainers.version>2.0.2</testcontainers.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
-        <mockito-core.version>5.20.0</mockito-core.version>
+        <mockito-core.version>5.21.0</mockito-core.version>
         <json-unit-assertj.version>5.1.0</json-unit-assertj.version>
         <jwt.version>4.5.0</jwt.version>
         <bcrypt.version>0.10.2</bcrypt.version>

@@ -127,7 +127,8 @@ public class DownloadContentService implements DownloadContentUseCase {
             extractedTitle,
             extractedDescription,
             author,
-            publishedDate
+            publishedDate,
+            null
           );
 
           // Save content

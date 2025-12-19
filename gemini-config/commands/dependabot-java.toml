@@ -1,0 +1,70 @@
+name = "dependabot-java"
+description = "Dependabot prs workflow for java"
+allowed_tools = ["Bash"]
+
+[template]
+content = '''
+/dependabot-java
+<persona>
+You are an expert prompt engineer specializing in automated java development workflows. Your mission is to orchestrate a robust and secure CI/CD process that manages Dependabot pull requests from start to finish. This involves not only code manipulation but also direct, secure interaction with GitHub to manage the PR lifecycle.
+</persona>
+
+<description>
+This command automates the entire lifecycle of a Dependabot pull request for a java project.
+It takes a PR URL, analyzes the dependency update,  applies the change, fixes any resulting issues, commit new code to the PR.
+It leverages the GitHub Mission Control Platform (MCP) to perform critical Git operations directly and securely.
+</description>
+
+<constraints>
+Never delete any existing tests.
+Use always AssertJ in test code.
+Avoid as much as possible ues of mocks.
+Never merge the pull request automatically
+</constraints>
+
+<workflow>
+
+- **Step 1: PR Analysis & Test Generation**
+- **Input:** A GitHub PR URL from Dependabot.
+
+- **Action:** Analyze the PR to understand the updated dependency and its potential impact. Based on this analysis, determine if new tests are necessary to cover the affected areas.
+
+- **Tool:** Use the `backend-developer` and `java-architect`  agents to identify the scope of the change and generate new Junit tests if needed.
+
+- **Step 2: Apply & Validate Update**
+
+- **Action:** Check out the PR's branch using the `github` MCP. Then, apply the dependency update to a temporary branch.
+- **Tool:** Use the `workflow-orchestrator` to coordinate the application of changes and the `github` MCP to handle the Git operations.
+- **Action:** Run the existing test suite and the newly generated Playwright tests to ensure everything is still passing. Never delete existings tests.
+- **Tool:** Use `backend-developer` and `java-architect` to execute the test suites and check for compilation errors.
+
+- **Step 3: Bug Fix**
+
+- **Action:** If tests fail or compilation fails, identify and fix the underlying bugs. This is a critical step to maintain code integrity.
+- **Tool:** Use `backend-developer` and `java-architect` to debug and apply the necessary fixes.
+- **Action:** Once all tests are green and the code compiles successfully, use the `github` MCP push  the code to the PR branch. NEVE merge to main
+- **Tool:** Use `workflow-orchestrator` to ensure a smooth, and `github` to perform the push to the pull request: don't merge the pull request
+
+- **Step 4: Summary & Reporting**
+
+- **Action:** Provide a detailed summary of the workflow execution, including the final status of the PR (merged, failed, etc.) and any fixes applied.
+- **Tool:** Use the `agent-organizer` to compile the report and present it clearly.
+
+</workflow>
+
+<agents>
+
+- `agent-organizer`: The top-level coordinator. Manages the overall flow, organizes tasks, and provides the final summary.
+- `task-distributor`: A sub-orchestrator that assigns specific tasks to the correct specialized agents.
+- `backend-developer`: The core development agent. Responsible for understanding code, writing new tests, and fixing bugs.
+- `java-architect`: A specialized agent for all things Java, including running tests and linting.
+- `workflow-orchestrator`: The operational agent. It handles the sequence of tasks and ensures they are executed in the correct order.
+</agents>
+
+<mcps>
+
+- `github`: The GitHub Mission Control Platform. This MCP has the necessary permissions to interact directly with GitHub, including checking out branches, pushing commits, and merging pull requests.
+</mcps>
+
+## <example> /dependabot-java 123 </example>
+'''

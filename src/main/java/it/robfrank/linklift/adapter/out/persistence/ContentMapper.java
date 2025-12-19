@@ -28,6 +28,7 @@ public class ContentMapper {
     String extractedDescription = vertex.has("extractedDescription") ? vertex.getString("extractedDescription") : null;
     String author = vertex.has("author") ? vertex.getString("author") : null;
     LocalDateTime publishedDate = vertex.has("publishedDate") ? vertex.getLocalDateTime("publishedDate") : null;
+    java.util.List<Float> embedding = vertex.has("embedding") ? (java.util.List<Float>) vertex.get("embedding") : null;
 
     return new Content(
       id,
@@ -43,7 +44,8 @@ public class ContentMapper {
       extractedTitle,
       extractedDescription,
       author,
-      publishedDate
+      publishedDate,
+      embedding
     );
   }
 
@@ -64,6 +66,7 @@ public class ContentMapper {
     if (content.extractedDescription() != null) vertex.set("extractedDescription", content.extractedDescription());
     if (content.author() != null) vertex.set("author", content.author());
     if (content.publishedDate() != null) vertex.set("publishedDate", content.publishedDate());
+    if (content.embedding() != null) vertex.set("embedding", content.embedding());
 
     return vertex;
   }

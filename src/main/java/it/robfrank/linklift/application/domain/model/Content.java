@@ -21,7 +21,8 @@ public record Content(
   @JsonProperty("extractedTitle") @Nullable String extractedTitle,
   @JsonProperty("extractedDescription") @Nullable String extractedDescription,
   @JsonProperty("author") @Nullable String author,
-  @JsonProperty("publishedDate") @Nullable LocalDateTime publishedDate
+  @JsonProperty("publishedDate") @Nullable LocalDateTime publishedDate,
+  @JsonProperty("embedding") @Nullable java.util.List<Float> embedding
 ) {
   public Content {
     downloadedAt = downloadedAt.truncatedTo(ChronoUnit.SECONDS);
@@ -42,6 +43,6 @@ public record Content(
     @Nullable String mimeType,
     @NonNull DownloadStatus status
   ) {
-    this(id, linkId, htmlContent, textContent, contentLength, downloadedAt, mimeType, status, null, null, null, null, null, null);
+    this(id, linkId, htmlContent, textContent, contentLength, downloadedAt, mimeType, status, null, null, null, null, null, null, null);
   }
 }

@@ -4,6 +4,8 @@ import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
 import it.robfrank.linklift.application.domain.model.Content;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 
@@ -88,6 +90,32 @@ public class ArcadeContentRepository {
       });
     } catch (Exception e) {
       throw new DatabaseException("Failed to delete content by link ID: " + e.getMessage(), e);
+    }
+  }
+
+  public List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
+    try {
+      var resultSet = database.query("sql", "SELECT FROM Content WHERE embedding VECTOR KNN [?, ?]", queryVector, limit);
+      List<Content> results = new ArrayList<>();
+      while (resultSet.hasNext()) {
+        results.add(mapper.mapToDomain(resultSet.next().toElement().asVertex()));
+      }
+      return results;
+    } catch (Exception e) {
+      throw new DatabaseException("Failed to find similar content: " + e.getMessage(), e);
+    }
+  }
+
+  public List<Content> findContentsWithoutEmbeddings(int limit) {
+    try {
+      var resultSet = database.query("sql", "SELECT FROM Content WHERE embedding IS NULL AND textContent IS NOT NULL LIMIT ?", limit);
+      List<Content> results = new ArrayList<>();
+      while (resultSet.hasNext()) {
+        results.add(mapper.mapToDomain(resultSet.next().toElement().asVertex()));
+      }
+      return results;
+    } catch (Exception e) {
+      throw new DatabaseException("Failed to find contents without embeddings: " + e.getMessage(), e);
     }
   }
 }

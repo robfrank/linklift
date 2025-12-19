@@ -42,6 +42,9 @@ class DownloadContentServiceTest {
   @Mock
   private LoadLinksPort loadLinksPort;
 
+  @Mock
+  private EmbeddingGenerator embeddingGenerator;
+
   private DownloadContentService downloadContentService;
 
   @BeforeEach
@@ -53,7 +56,8 @@ class DownloadContentServiceTest {
       eventPublisher,
       contentExtractorPort,
       contentSummarizerPort,
-      loadLinksPort
+      loadLinksPort,
+      embeddingGenerator
     );
   }
 

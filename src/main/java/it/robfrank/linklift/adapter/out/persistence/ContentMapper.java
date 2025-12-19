@@ -13,10 +13,15 @@ public class ContentMapper {
   public @NonNull Content mapToDomain(@NonNull Vertex vertex) {
     String id = vertex.getString("id");
     String linkId = vertex.getString("linkId");
+    LocalDateTime downloadedAt = vertex.getLocalDateTime("downloadedAt");
+
+    if (id == null || linkId == null || downloadedAt == null) {
+      throw new IllegalStateException("Required fields missing in vertex");
+    }
+
     String htmlContent = vertex.getString("htmlContent");
     String textContent = vertex.getString("textContent");
     Integer contentLength = vertex.getInteger("contentLength");
-    LocalDateTime downloadedAt = vertex.getLocalDateTime("downloadedAt");
     String mimeType = vertex.getString("mimeType");
     String statusStr = vertex.getString("status");
     DownloadStatus status = statusStr != null ? DownloadStatus.valueOf(statusStr) : DownloadStatus.PENDING;
@@ -28,6 +33,8 @@ public class ContentMapper {
     String extractedDescription = vertex.has("extractedDescription") ? vertex.getString("extractedDescription") : null;
     String author = vertex.has("author") ? vertex.getString("author") : null;
     LocalDateTime publishedDate = vertex.has("publishedDate") ? vertex.getLocalDateTime("publishedDate") : null;
+
+    @SuppressWarnings("unchecked")
     java.util.List<Float> embedding = vertex.has("embedding") ? (java.util.List<Float>) vertex.get("embedding") : null;
 
     return new Content(

@@ -12,7 +12,6 @@ import org.jspecify.annotations.NonNull;
 public class ArcadeContentRepository {
 
   private static final String CONTENT_TYPE = "Content";
-  private static final String HAS_CONTENT_EDGE = "HasContent";
 
   private final RemoteDatabase database;
   private final ContentMapper mapper;
@@ -39,6 +38,7 @@ public class ArcadeContentRepository {
 
       if (resultSet.hasNext()) {
         var vertex = resultSet.next().toElement().asVertex();
+        if (vertex == null) throw new DatabaseException("Failed to get vertex from result set");
         return Optional.of(mapper.mapToDomain(vertex));
       }
       return Optional.empty();
@@ -53,6 +53,7 @@ public class ArcadeContentRepository {
 
       if (resultSet.hasNext()) {
         var vertex = resultSet.next().toElement().asVertex();
+        if (vertex == null) throw new DatabaseException("Failed to get vertex from result set");
         return Optional.of(mapper.mapToDomain(vertex));
       }
       return Optional.empty();
@@ -93,12 +94,15 @@ public class ArcadeContentRepository {
     }
   }
 
-  public List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
+  public @NonNull List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
     try {
       var resultSet = database.query("sql", "SELECT FROM Content WHERE embedding VECTOR KNN [?, ?]", queryVector, limit);
       List<Content> results = new ArrayList<>();
       while (resultSet.hasNext()) {
-        results.add(mapper.mapToDomain(resultSet.next().toElement().asVertex()));
+        var vertex = resultSet.next().toElement().asVertex();
+        if (vertex != null) {
+          results.add(mapper.mapToDomain(vertex));
+        }
       }
       return results;
     } catch (Exception e) {
@@ -106,12 +110,15 @@ public class ArcadeContentRepository {
     }
   }
 
-  public List<Content> findContentsWithoutEmbeddings(int limit) {
+  public @NonNull List<Content> findContentsWithoutEmbeddings(int limit) {
     try {
       var resultSet = database.query("sql", "SELECT FROM Content WHERE embedding IS NULL AND textContent IS NOT NULL LIMIT ?", limit);
       List<Content> results = new ArrayList<>();
       while (resultSet.hasNext()) {
-        results.add(mapper.mapToDomain(resultSet.next().toElement().asVertex()));
+        var vertex = resultSet.next().toElement().asVertex();
+        if (vertex != null) {
+          results.add(mapper.mapToDomain(vertex));
+        }
       }
       return results;
     } catch (Exception e) {

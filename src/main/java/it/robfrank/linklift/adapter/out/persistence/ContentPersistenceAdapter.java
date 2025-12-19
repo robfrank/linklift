@@ -3,6 +3,7 @@ package it.robfrank.linklift.adapter.out.persistence;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.port.out.LoadContentPort;
 import it.robfrank.linklift.application.port.out.SaveContentPort;
+import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 
@@ -37,5 +38,15 @@ public class ContentPersistenceAdapter implements SaveContentPort, LoadContentPo
   @Override
   public void deleteContentByLinkId(@NonNull String linkId) {
     repository.deleteByLinkId(linkId);
+  }
+
+  @Override
+  public @NonNull List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
+    return repository.findSimilar(queryVector, limit);
+  }
+
+  @Override
+  public @NonNull List<Content> findContentsWithoutEmbeddings(int limit) {
+    return repository.findContentsWithoutEmbeddings(limit);
   }
 }

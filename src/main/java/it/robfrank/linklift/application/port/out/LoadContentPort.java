@@ -10,4 +10,10 @@ public interface LoadContentPort {
 
   @NonNull
   Optional<Content> findContentById(@NonNull String contentId);
+
+  @NonNull
+  java.util.List<Content> findSimilar(@NonNull java.util.List<Float> queryVector, int limit);
+
+  @NonNull
+  java.util.List<Content> findContentsWithoutEmbeddings(int limit);
 }

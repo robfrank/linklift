@@ -47,10 +47,13 @@ public class OllamaEmbeddingAdapter implements EmbeddingGenerator {
         throw new RuntimeException("Failed to generate embedding: " + response.body());
       }
 
-      Map<String, Object> responseBody = objectMapper.readValue(response.body(), Map.class);
-      List<Double> embeddingDouble = (List<Double>) responseBody.get("embedding");
+      Map<String, Object> responseBody = objectMapper.readValue(response.body(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
+      Object embeddingObj = responseBody.get("embedding");
+      if (!(embeddingObj instanceof List<?> list)) {
+        throw new RuntimeException("Unexpected response format from Ollama: embedding field missing or not a list");
+      }
 
-      return embeddingDouble.stream().map(Double::floatValue).toList();
+      return list.stream().filter(Number.class::isInstance).map(Number.class::cast).map(Number::floatValue).toList();
     } catch (IOException | InterruptedException e) {
       logger.error("Error generating embedding via Ollama", e);
       throw new RuntimeException("Error generating embedding", e);

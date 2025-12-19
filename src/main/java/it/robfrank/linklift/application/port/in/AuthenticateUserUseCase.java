@@ -1,5 +1,7 @@
 package it.robfrank.linklift.application.port.in;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * Use case interface for user authentication.
  * Handles login and token generation.
@@ -10,9 +12,12 @@ public interface AuthenticateUserUseCase {
    *
    * @param command the authentication command
    * @return authentication result with tokens
-   * @throws it.robfrank.linklift.application.domain.exception.AuthenticationException if authentication fails
+   * @throws it.robfrank.linklift.application.domain.exception.AuthenticationException if
+   *                                                                                   authentication
+   *                                                                                   fails
    */
-  AuthenticationResult authenticate(AuthenticateUserCommand command);
+  @NonNull
+  AuthenticationResult authenticate(@NonNull AuthenticateUserCommand command);
 
   /**
    * Result of successful authentication.

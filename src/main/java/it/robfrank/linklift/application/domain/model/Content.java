@@ -3,6 +3,7 @@ package it.robfrank.linklift.application.domain.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -22,7 +23,7 @@ public record Content(
   @JsonProperty("extractedDescription") @Nullable String extractedDescription,
   @JsonProperty("author") @Nullable String author,
   @JsonProperty("publishedDate") @Nullable LocalDateTime publishedDate,
-  @JsonProperty("embedding") @Nullable java.util.List<Float> embedding
+  @JsonProperty("embedding") @Nullable List<Float> embedding
 ) {
   public Content {
     downloadedAt = downloadedAt.truncatedTo(ChronoUnit.SECONDS);

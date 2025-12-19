@@ -3,23 +3,15 @@ package it.robfrank.linklift;
 import com.arcadedb.remote.RemoteDatabase;
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.*;
-import it.robfrank.linklift.adapter.out.ai.OllamaEmbeddingAdapter;
-import it.robfrank.linklift.adapter.out.content.SimpleTextSummarizer;
-import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
-import it.robfrank.linklift.adapter.out.http.HttpContentDownloader;
-import it.robfrank.linklift.adapter.out.http.JsoupContentExtractor;
+import it.robfrank.linklift.adapter.out.ai.*;
+import it.robfrank.linklift.adapter.out.content.*;
+import it.robfrank.linklift.adapter.out.event.*;
+import it.robfrank.linklift.adapter.out.http.*;
 import it.robfrank.linklift.adapter.out.persistence.*;
-import it.robfrank.linklift.adapter.out.persistence.ArcadeCollectionRepository;
-import it.robfrank.linklift.adapter.out.persistence.CollectionPersistenceAdapter;
-import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
-import it.robfrank.linklift.adapter.out.security.JwtTokenAdapter;
+import it.robfrank.linklift.adapter.out.security.*;
 import it.robfrank.linklift.application.domain.event.*;
 import it.robfrank.linklift.application.domain.service.*;
-import it.robfrank.linklift.application.domain.service.CreateCollectionService;
-import it.robfrank.linklift.application.domain.service.GetRelatedLinksService;
 import it.robfrank.linklift.application.port.in.*;
-import it.robfrank.linklift.application.port.in.CreateCollectionUseCase;
-import it.robfrank.linklift.application.port.in.GetRelatedLinksUseCase;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import it.robfrank.linklift.config.SecureConfiguration;
 import it.robfrank.linklift.config.WebBuilder;
@@ -40,7 +32,7 @@ public class Application {
     String arcadedbServer = System.getProperty("linklift.arcadedb.host", "localhost");
 
     logger.info("Starting LinkLift application with ArcadeDB server: {}", arcadedbServer);
-    logger.atInfo().addArgument(() -> SecureConfiguration.getConfigurationHints()).log("Security configuration: {}");
+    logger.atInfo().addArgument(SecureConfiguration.getConfigurationHints()).log("Security configuration: {}");
 
     new DatabaseInitializer(arcadedbServer, 2480, "root", "playwithdata").initializeDatabase();
 

@@ -6,7 +6,6 @@ import it.robfrank.linklift.application.port.out.EmbeddingGenerator;
 import it.robfrank.linklift.application.port.out.LoadContentPort;
 import it.robfrank.linklift.application.port.out.SaveContentPort;
 import java.util.List;
-import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +26,7 @@ public class BackfillEmbeddingsService implements BackfillEmbeddingsUseCase {
   @Override
   public void backfill() {
     logger.info("Starting embedding backfill process...");
-    List<@NonNull Content> contents = loadContentPort.findContentsWithoutEmbeddings();
+    List<Content> contents = loadContentPort.findContentsWithoutEmbeddings(1000);
     logger.info("Found {} contents without embeddings", contents.size());
 
     int successCount = 0;
@@ -44,14 +43,18 @@ public class BackfillEmbeddingsService implements BackfillEmbeddingsUseCase {
             content.htmlContent(),
             content.textContent(),
             content.contentLength(),
-            content.title(),
-            content.description(),
-            content.author(),
+            content.downloadedAt(),
+            content.mimeType(),
+            content.status(),
+            content.summary(),
             content.heroImageUrl(),
+            content.extractedTitle(),
+            content.extractedDescription(),
+            content.author(),
             content.publishedDate(),
             embedding
           );
-          saveContentPort.save(updatedContent);
+          saveContentPort.saveContent(updatedContent);
           successCount++;
         } catch (Exception e) {
           logger.error("Failed to generate embedding for content id: {}", content.id(), e);

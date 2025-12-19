@@ -1,6 +1,6 @@
 package it.robfrank.linklift.application.port.in;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 public interface BackfillEmbeddingsUseCase {
   void backfill();

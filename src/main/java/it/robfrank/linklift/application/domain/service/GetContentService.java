@@ -17,7 +17,8 @@ public class GetContentService implements GetContentUseCase {
   }
 
   @Override
-  public @NonNull Optional<Content> getContent(@NonNull GetContentQuery query) {
+  @NonNull
+  public Optional<Content> getContent(@NonNull GetContentQuery query) {
     ValidationUtils.requireNotNull(query, "query");
     ValidationUtils.requireNotEmpty(query.linkId(), "linkId");
     return loadContentPort.findContentByLinkId(query.linkId());

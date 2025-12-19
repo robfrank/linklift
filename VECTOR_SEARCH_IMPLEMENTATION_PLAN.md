@@ -109,12 +109,23 @@ Add settings to `application.toml` or equivalent:
     - Input: Query string.
     - Process: `Query` -> `Ollama Embedding` -> `ArcadeDB KNN Search`.
 
-## 6. Backfill Strategy
+## 7. Refinement & Robustness
 
-For existing links without embeddings:
+### 7.1 Test File Refactoring
 
-1.  **Admin Task**: Create a utility or endpoint `POST /api/admin/embeddings/reindex`.
-2.  **Batch Processing**:
-    - Fetch chunks of `Content` where `embedding IS NULL`.
-    - For each, generate embedding via Ollama and update ArcadeDB.
-    - Add logs to track progress.
+- [ ] Address remaining `Potential null pointer access` warnings in the test suites (e.g., `GetContentServiceTest`, `DownloadContentServiceTest`).
+- [ ] Refine mock behavior to ensure non-null results where expected by the domain logic.
+- [ ] Add explicit null checks and use `@NonNull` annotations consistently in test helpers.
+
+### 7.2 Configuration Externalization
+
+- [ ] Remove hardcoded Ollama URL and model name from `OllamaEmbeddingAdapter`.
+- [ ] Implement a configuration mechanism (e.g., using `SecureConfiguration` or a new `AppConfiguration` class) to load these values from environment variables or a configuration file.
+- [ ] Default to `http://localhost:11434` and `nomic-embed-text` if not provided.
+
+### 7.3 UI Integration
+
+- [ ] Implement the Search bar in the frontend dashboard.
+- [ ] Integrate with the `GET /api/v1/search?q=...` endpoint.
+- [ ] Create an Admin dashboard or menu item for triggering the embedding backfill.
+- [ ] Integrate with the `POST /api/v1/admin/backfill-embeddings` endpoint.

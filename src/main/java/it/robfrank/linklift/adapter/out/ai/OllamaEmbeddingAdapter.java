@@ -30,7 +30,8 @@ public class OllamaEmbeddingAdapter implements EmbeddingGenerator {
   }
 
   @Override
-  public @NonNull List<Float> generateEmbedding(@NonNull String text) {
+  @NonNull
+  public List<Float> generateEmbedding(@NonNull String text) {
     try {
       Map<String, String> requestBody = Map.of("model", model, "prompt", text);
       String body = objectMapper.writeValueAsString(requestBody);

@@ -16,7 +16,8 @@ public class ContentPersistenceAdapter implements SaveContentPort, LoadContentPo
   }
 
   @Override
-  public @NonNull Content saveContent(@NonNull Content content) {
+  @NonNull
+  public Content saveContent(@NonNull Content content) {
     return repository.save(content);
   }
 
@@ -26,12 +27,14 @@ public class ContentPersistenceAdapter implements SaveContentPort, LoadContentPo
   }
 
   @Override
-  public @NonNull Optional<Content> findContentByLinkId(@NonNull String linkId) {
+  @NonNull
+  public Optional<Content> findContentByLinkId(@NonNull String linkId) {
     return repository.findByLinkId(linkId);
   }
 
   @Override
-  public @NonNull Optional<Content> findContentById(@NonNull String contentId) {
+  @NonNull
+  public Optional<Content> findContentById(@NonNull String contentId) {
     return repository.findById(contentId);
   }
 
@@ -41,12 +44,14 @@ public class ContentPersistenceAdapter implements SaveContentPort, LoadContentPo
   }
 
   @Override
-  public @NonNull List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
+  @NonNull
+  public List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
     return repository.findSimilar(queryVector, limit);
   }
 
   @Override
-  public @NonNull List<Content> findContentsWithoutEmbeddings(int limit) {
+  @NonNull
+  public List<Content> findContentsWithoutEmbeddings(int limit) {
     return repository.findContentsWithoutEmbeddings(limit);
   }
 }

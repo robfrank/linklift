@@ -8,7 +8,7 @@ This guide will help you set up the development environment and understand the d
 
 ### Required Software
 
-- **Java 17 or higher**: [Download from Oracle](https://www.oracle.com/java/technologies/downloads/) or use OpenJDK
+- **Java 25 or higher**: [Download from Oracle](https://www.oracle.com/java/technologies/downloads/) or use OpenJDK
 - **Maven 3.8+**: [Installation Guide](https://maven.apache.org/install.html)
 - **Docker & Docker Compose**: [Get Docker](https://docs.docker.com/get-docker/)
 - **Git**: [Download Git](https://git-scm.com/downloads)

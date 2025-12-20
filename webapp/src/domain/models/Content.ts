@@ -14,6 +14,10 @@ export interface Content {
   extractionDate: string;
   summary?: string;
   topImage?: string;
+  extractedTitle?: string;
+  extractedDescription?: string;
+  extractedAuthor?: string;
+  publishedDate?: string;
 }
 
 export interface ContentResponse {

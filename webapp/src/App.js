@@ -14,6 +14,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./components/NotFound";
 import CollectionList from "./components/Collections/CollectionList";
 import CollectionDetail from "./components/Collections/CollectionDetail";
+import SearchPage from "./infrastructure/ui/pages/SearchPage";
+import AdminPage from "./infrastructure/ui/pages/AdminPage";
 
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -72,6 +74,22 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <CollectionDetail />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/search"
+                  element={
+                    <ProtectedRoute>
+                      <SearchPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <AdminPage />
                     </ProtectedRoute>
                   }
                 />

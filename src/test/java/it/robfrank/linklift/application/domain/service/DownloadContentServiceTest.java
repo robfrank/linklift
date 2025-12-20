@@ -64,6 +64,13 @@ class DownloadContentServiceTest {
       embeddingGenerator,
       executorService
     );
+
+    // Default mock behavior for new ports
+    when(contentExtractorPort.extractMetadata(any(), any())).thenReturn(
+      new ContentExtractorPort.ExtractedMetadata("Test Title", "Test Desc", "html", "text", "Author", "img", "2023-01-01")
+    );
+    when(contentSummarizerPort.generateSummary(any(), anyInt())).thenReturn("Test Summary");
+    when(embeddingGenerator.generateEmbedding(any())).thenReturn(java.util.List.of(0.1f, 0.2f, 0.3f));
   }
 
   @Test
@@ -94,14 +101,7 @@ class DownloadContentServiceTest {
     ArgumentCaptor<ContentDownloadStartedEvent> startedEventCaptor = ArgumentCaptor.forClass(ContentDownloadStartedEvent.class);
     verify(eventPublisher, atLeastOnce()).publish(startedEventCaptor.capture());
 
-    ContentDownloadStartedEvent startedEvent = startedEventCaptor
-      .getAllValues()
-      .stream()
-      .filter(event -> event instanceof ContentDownloadStartedEvent)
-      .map(event -> (ContentDownloadStartedEvent) event)
-      .findFirst()
-      .orElse(null);
-
+    ContentDownloadStartedEvent startedEvent = startedEventCaptor.getValue();
     assertThat(startedEvent).isNotNull();
     assertThat(startedEvent.getLinkId()).isEqualTo("link-123");
     assertThat(startedEvent.getUrl()).isEqualTo("https://example.com");
@@ -142,20 +142,16 @@ class DownloadContentServiceTest {
     assertThat(savedContent.mimeType()).isEqualTo("text/html");
     assertThat(savedContent.contentLength()).isEqualTo(2048);
     assertThat(savedContent.status()).isEqualTo(DownloadStatus.COMPLETED);
+    assertThat(savedContent.summary()).isEqualTo("Test Summary");
+    assertThat(savedContent.extractedTitle()).isEqualTo("Test Title");
+    assertThat(savedContent.embedding()).containsExactly(0.1f, 0.2f, 0.3f);
 
     verify(saveContentPort).createHasContentEdge(eq("link-123"), eq(savedContent.id()));
 
     ArgumentCaptor<ContentDownloadCompletedEvent> completedEventCaptor = ArgumentCaptor.forClass(ContentDownloadCompletedEvent.class);
     verify(eventPublisher, atLeastOnce()).publish(completedEventCaptor.capture());
 
-    ContentDownloadCompletedEvent completedEvent = completedEventCaptor
-      .getAllValues()
-      .stream()
-      .filter(event -> event instanceof ContentDownloadCompletedEvent)
-      .map(event -> (ContentDownloadCompletedEvent) event)
-      .findFirst()
-      .orElse(null);
-
+    ContentDownloadCompletedEvent completedEvent = completedEventCaptor.getValue();
     assertThat(completedEvent).isNotNull();
     assertThat(completedEvent.getContent().linkId()).isEqualTo("link-123");
   }
@@ -189,14 +185,7 @@ class DownloadContentServiceTest {
     ArgumentCaptor<ContentDownloadFailedEvent> failedEventCaptor = ArgumentCaptor.forClass(ContentDownloadFailedEvent.class);
     verify(eventPublisher, atLeastOnce()).publish(failedEventCaptor.capture());
 
-    ContentDownloadFailedEvent failedEvent = failedEventCaptor
-      .getAllValues()
-      .stream()
-      .filter(event -> event instanceof ContentDownloadFailedEvent)
-      .map(event -> (ContentDownloadFailedEvent) event)
-      .findFirst()
-      .orElse(null);
-
+    ContentDownloadFailedEvent failedEvent = failedEventCaptor.getValue();
     assertThat(failedEvent).isNotNull();
     assertThat(failedEvent.getLinkId()).isEqualTo("link-123");
     assertThat(failedEvent.getErrorMessage()).contains("Download failed");
@@ -232,16 +221,56 @@ class DownloadContentServiceTest {
     ArgumentCaptor<ContentDownloadFailedEvent> failedEventCaptor = ArgumentCaptor.forClass(ContentDownloadFailedEvent.class);
     verify(eventPublisher, atLeastOnce()).publish(failedEventCaptor.capture());
 
-    ContentDownloadFailedEvent failedEvent = failedEventCaptor
-      .getAllValues()
-      .stream()
-      .filter(event -> event instanceof ContentDownloadFailedEvent)
-      .map(event -> (ContentDownloadFailedEvent) event)
-      .findFirst()
-      .orElse(null);
-
+    ContentDownloadFailedEvent failedEvent = failedEventCaptor.getValue();
     assertThat(failedEvent).isNotNull();
     assertThat(failedEvent.getErrorMessage()).contains("exceeds maximum limit");
+  }
+
+  @Test
+  void downloadContentAsync_shouldCompleteWithoutEmbedding_whenEmbeddingGenerationFails() {
+    // Arrange
+    DownloadContentCommand command = new DownloadContentCommand("link-123", "https://example.com");
+    ContentDownloaderPort.DownloadedContent downloadedContent = new ContentDownloaderPort.DownloadedContent(
+      "<html><body>Test Content</body></html>",
+      "Test Content",
+      "text/html",
+      2048
+    );
+
+    ContentExtractorPort.ExtractedMetadata metadata = new ContentExtractorPort.ExtractedMetadata(
+      "Title",
+      "Desc",
+      "<html>test</html>",
+      "text",
+      "Author",
+      "img",
+      "2023-01-01"
+    );
+
+    doReturn(CompletableFuture.completedFuture(downloadedContent)).when(contentDownloader).downloadContent(anyString());
+    when(contentExtractorPort.extractMetadata(any(), any())).thenReturn(metadata);
+    when(embeddingGenerator.generateEmbedding(anyString())).thenThrow(new RuntimeException("Ollama down"));
+    when(saveContentPort.saveContent(any(Content.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    // Act
+    downloadContentService.downloadContentAsync(command);
+
+    // Wait for async processing
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+
+    // Assert
+    ArgumentCaptor<Content> contentCaptor = ArgumentCaptor.forClass(Content.class);
+    verify(saveContentPort).saveContent(contentCaptor.capture());
+
+    Content savedContent = contentCaptor.getValue();
+    assertThat(savedContent.status()).isEqualTo(DownloadStatus.COMPLETED);
+    assertThat(savedContent.embedding()).isNull(); // Should be null but download still completes
+
+    verify(eventPublisher, atLeastOnce()).publish(any(ContentDownloadCompletedEvent.class));
   }
 
   @Test

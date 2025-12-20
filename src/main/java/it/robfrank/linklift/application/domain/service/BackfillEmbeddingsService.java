@@ -55,7 +55,7 @@ public class BackfillEmbeddingsService implements BackfillEmbeddingsUseCase {
           break;
         }
 
-        logger.info("Processing batch of {} contents", contents.size());
+        logger.atInfo().addArgument(() -> contents.size()).log("Processing batch of {} contents");
         for (Content content : contents) {
           try {
             String text = content.textContent();

@@ -7,6 +7,7 @@ import com.arcadedb.remote.RemoteDatabase;
 import com.arcadedb.remote.RemoteSchema;
 import com.arcadedb.schema.Type;
 import java.time.Duration;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -32,7 +33,8 @@ class DatabaseInitializerTest {
     .waitingFor(Wait.forHttp("/api/v1/ready").forPort(2480).forStatusCode(204));
 
   @Test
-  void name() {
+  @DisplayName("initialize database schema")
+  void initializeDatabaseSchema() {
     new DatabaseInitializer(arcadeDBContainer.getHost(), arcadeDBContainer.getMappedPort(2480), "root", "playwithdata").initializeDatabase();
 
     RemoteDatabase db = new RemoteDatabase(arcadeDBContainer.getHost(), arcadeDBContainer.getMappedPort(2480), "linklift", "root", "playwithdata");
@@ -40,5 +42,7 @@ class DatabaseInitializerTest {
     RemoteSchema schema = db.getSchema();
     assertThat(schema.existsType("Link")).isTrue();
     assertThat(schema.getType("Link").getProperty("extractedAt").getType()).isEqualTo(Type.DATETIME_SECOND);
+    assertThat(schema.existsType("Content")).isTrue();
+    assertThat(schema.getType("Content").getProperty("linkId").getType()).isEqualTo(Type.STRING);
   }
 }

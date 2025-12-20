@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
@@ -36,6 +37,7 @@ public class DownloadContentService implements DownloadContentUseCase {
   private final ContentSummarizerPort contentSummarizer;
   private final LoadLinksPort loadLinksPort;
   private final EmbeddingGenerator embeddingGenerator;
+  private final ExecutorService executorService;
 
   public DownloadContentService(
     @NonNull ContentDownloaderPort contentDownloader,
@@ -44,7 +46,8 @@ public class DownloadContentService implements DownloadContentUseCase {
     @NonNull ContentExtractorPort contentExtractor,
     @NonNull ContentSummarizerPort contentSummarizer,
     @NonNull LoadLinksPort loadLinksPort,
-    @NonNull EmbeddingGenerator embeddingGenerator
+    @NonNull EmbeddingGenerator embeddingGenerator,
+    @NonNull ExecutorService executorService
   ) {
     this.contentDownloader = contentDownloader;
     this.saveContentPort = saveContentPort;
@@ -53,6 +56,7 @@ public class DownloadContentService implements DownloadContentUseCase {
     this.contentSummarizer = contentSummarizer;
     this.loadLinksPort = loadLinksPort;
     this.embeddingGenerator = embeddingGenerator;
+    this.executorService = executorService;
   }
 
   @Override
@@ -114,7 +118,7 @@ public class DownloadContentService implements DownloadContentUseCase {
           }
 
           // Create Content entity
-          String contentId = java.util.Objects.requireNonNull(UUID.randomUUID().toString());
+          String contentId = UUID.randomUUID().toString();
 
           String extractedTitle = metadata != null ? metadata.title() : null;
           String extractedDescription = metadata != null ? metadata.description() : null;

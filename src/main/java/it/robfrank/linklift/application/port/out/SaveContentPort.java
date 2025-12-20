@@ -7,6 +7,9 @@ public interface SaveContentPort {
   @NonNull
   Content saveContent(@NonNull Content content);
 
+  @NonNull
+  Content updateContent(@NonNull Content content);
+
   void createHasContentEdge(@NonNull String linkId, @NonNull String contentId);
 
   void deleteContentByLinkId(@NonNull String linkId);

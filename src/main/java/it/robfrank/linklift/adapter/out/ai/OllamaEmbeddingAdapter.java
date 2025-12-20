@@ -9,6 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +55,14 @@ public class OllamaEmbeddingAdapter implements EmbeddingGenerator {
         throw new RuntimeException("Unexpected response format from Ollama: embedding field missing or not a list");
       }
 
-      return list.stream().filter(Number.class::isInstance).map(Number.class::cast).map(Number::floatValue).toList();
-    } catch (IOException | InterruptedException e) {
+      return list.stream().filter(Objects::nonNull).map(n -> ((Number) n).floatValue()).toList();
+    } catch (IOException e) {
       logger.error("Error generating embedding via Ollama", e);
       throw new RuntimeException("Error generating embedding", e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      logger.error("Interrupted while generating embedding via Ollama", e);
+      throw new RuntimeException("Interrupted while generating embedding", e);
     }
   }
 }

@@ -22,6 +22,12 @@ public class ContentPersistenceAdapter implements SaveContentPort, LoadContentPo
   }
 
   @Override
+  @NonNull
+  public Content updateContent(@NonNull Content content) {
+    return repository.update(content);
+  }
+
+  @Override
   public void createHasContentEdge(@NonNull String linkId, @NonNull String contentId) {
     repository.createHasContentEdge(linkId, contentId);
   }

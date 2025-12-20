@@ -32,6 +32,52 @@ public class ArcadeContentRepository {
     }
   }
 
+  public @NonNull Content update(@NonNull Content content) {
+    try {
+      database.transaction(() -> {
+        database.command(
+          "sql",
+          """
+          UPDATE Content SET
+          linkId = ?,
+          htmlContent = ?,
+          textContent = ?,
+          contentLength = ?,
+          downloadedAt = ?,
+          mimeType = ?,
+          status = ?,
+          summary = ?,
+          heroImageUrl = ?,
+          extractedTitle = ?,
+          extractedDescription = ?,
+          author = ?,
+          publishedDate = ?,
+          embedding = ?
+          WHERE id = ?
+          """,
+          content.linkId(),
+          content.htmlContent(),
+          content.textContent(),
+          content.contentLength(),
+          content.downloadedAt(),
+          content.mimeType(),
+          content.status().name(),
+          content.summary(),
+          content.heroImageUrl(),
+          content.extractedTitle(),
+          content.extractedDescription(),
+          content.author(),
+          content.publishedDate(),
+          content.embedding(),
+          content.id()
+        );
+      });
+      return content;
+    } catch (Exception e) {
+      throw new DatabaseException("Failed to update content: " + e.getMessage(), e);
+    }
+  }
+
   public @NonNull Optional<Content> findByLinkId(@NonNull String linkId) {
     try {
       var resultSet = database.query("sql", "SELECT FROM Content WHERE linkId = ?", linkId);

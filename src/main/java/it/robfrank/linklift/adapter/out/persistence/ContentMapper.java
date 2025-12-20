@@ -15,9 +15,9 @@ public class ContentMapper {
     String linkId = vertex.getString("linkId");
     LocalDateTime downloadedAt = vertex.getLocalDateTime("downloadedAt");
 
-    if (id == null || linkId == null || downloadedAt == null) {
-      throw new IllegalStateException("Required fields missing in vertex");
-    }
+    if (id == null) throw new IllegalStateException("Required field 'id' missing in vertex");
+    if (linkId == null) throw new IllegalStateException("Required field 'linkId' missing in vertex");
+    if (downloadedAt == null) throw new IllegalStateException("Required field 'downloadedAt' missing in vertex");
 
     String htmlContent = vertex.getString("htmlContent");
     String textContent = vertex.getString("textContent");

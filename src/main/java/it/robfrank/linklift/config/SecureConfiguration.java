@@ -21,6 +21,8 @@ public final class SecureConfiguration {
   // Environment variable names
   private static final String JWT_SECRET_ENV = "LINKLIFT_JWT_SECRET";
   private static final String JWT_SECRET_FILE_ENV = "LINKLIFT_JWT_SECRET_FILE";
+  private static final String OLLAMA_URL_ENV = "LINKLIFT_OLLAMA_URL";
+  private static final String OLLAMA_MODEL_ENV = "LINKLIFT_OLLAMA_MODEL";
 
   // Development fallback - WARNING: Never use in production
   private static final String DEVELOPMENT_JWT_SECRET = generateSecureDevSecret();
@@ -113,7 +115,8 @@ public final class SecureConfiguration {
 
   /**
    * Generates a secure development secret that's different per installation.
-   * This prevents accidental use of the same development secret across environments.
+   * This prevents accidental use of the same development secret across
+   * environments.
    */
   private static String generateSecureDevSecret() {
     try {
@@ -149,5 +152,19 @@ public final class SecureConfiguration {
     } else {
       return "Production environment. Ensure '%s' or '%s' is configured with a secure secret".formatted(JWT_SECRET_ENV, JWT_SECRET_FILE_ENV);
     }
+  }
+
+  /**
+   * Retrieves the Ollama API URL.
+   */
+  public static String getOllamaUrl() {
+    return System.getenv().getOrDefault(OLLAMA_URL_ENV, "http://localhost:11434");
+  }
+
+  /**
+   * Retrieves the Ollama model name.
+   */
+  public static String getOllamaModel() {
+    return System.getenv().getOrDefault(OLLAMA_MODEL_ENV, "nomic-embed-text");
   }
 }

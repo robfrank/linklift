@@ -19,6 +19,8 @@ import java.net.http.HttpClient;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +73,14 @@ public class Application {
     SimpleTextSummarizer contentSummarizer = new SimpleTextSummarizer();
 
     // Initialize ai adapters
-    OllamaEmbeddingAdapter embeddingGenerator = new OllamaEmbeddingAdapter(httpClient, null, null);
+    OllamaEmbeddingAdapter embeddingGenerator = new OllamaEmbeddingAdapter(
+      httpClient,
+      SecureConfiguration.getOllamaUrl(),
+      SecureConfiguration.getOllamaModel()
+    );
+
+    // Initialize executor service for background tasks
+    ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     // Create and configure event publisher
     SimpleEventPublisher eventPublisher = new SimpleEventPublisher();
@@ -97,7 +106,8 @@ public class Application {
       contentExtractor,
       contentSummarizer,
       linkPersistenceAdapter,
-      embeddingGenerator
+      embeddingGenerator,
+      executorService
     );
     configureEventSubscribers(eventPublisher, downloadContentUseCase);
 
@@ -107,7 +117,8 @@ public class Application {
     BackfillEmbeddingsUseCase backfillEmbeddingsUseCase = new BackfillEmbeddingsService(
       contentPersistenceAdapter,
       contentPersistenceAdapter,
-      embeddingGenerator
+      embeddingGenerator,
+      executorService
     );
 
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);
@@ -271,7 +282,14 @@ public class Application {
     // Initialize content extractors
     JsoupContentExtractor contentExtractor = new JsoupContentExtractor();
     SimpleTextSummarizer contentSummarizer = new SimpleTextSummarizer();
-    OllamaEmbeddingAdapter embeddingGenerator = new OllamaEmbeddingAdapter(httpClient, null, null);
+    OllamaEmbeddingAdapter embeddingGenerator = new OllamaEmbeddingAdapter(
+      httpClient,
+      SecureConfiguration.getOllamaUrl(),
+      SecureConfiguration.getOllamaModel()
+    );
+
+    // Initialize executor service for background tasks
+    ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     SimpleEventPublisher eventPublisher = new SimpleEventPublisher();
 
@@ -296,7 +314,8 @@ public class Application {
       contentExtractor,
       contentSummarizer,
       linkPersistenceAdapter,
-      embeddingGenerator
+      embeddingGenerator,
+      executorService
     );
 
     configureEventSubscribers(eventPublisher, downloadContentUseCase);
@@ -307,7 +326,8 @@ public class Application {
     BackfillEmbeddingsUseCase backfillEmbeddingsUseCase = new BackfillEmbeddingsService(
       contentPersistenceAdapter,
       contentPersistenceAdapter,
-      embeddingGenerator
+      embeddingGenerator,
+      executorService
     );
 
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);

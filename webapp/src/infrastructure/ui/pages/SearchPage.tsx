@@ -4,6 +4,7 @@ import { Container, Typography, Box, Paper, Grid, Card, CardContent, Button, Cir
 import { OpenInNew, Article } from "@mui/icons-material";
 import { useSearch } from "../hooks/useSearch";
 import { ContentViewerModal } from "../components/ContentViewer/ContentViewerModal";
+import { Content, ContentResponse } from "../../../domain/models/Content";
 
 const SearchPage = () => {
   const location = useLocation();
@@ -54,21 +55,21 @@ const SearchPage = () => {
           </Paper>
         ) : (
           <Grid container spacing={3}>
-            {searchResults.map((content: any) => (
-              <Grid item xs={12} key={content.id}>
+            {searchResults.map((response: ContentResponse) => (
+              <Grid size={12} key={response.data.id}>
                 <Card elevation={2}>
                   <CardContent>
                     <Typography variant="h6" component="h2" gutterBottom>
-                      {content.extractedTitle || "Untitled Content"}
+                      {response.data.extractedTitle || "Untitled Content"}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" paragraph>
-                      {content.summary ||
-                        content.extractedDescription ||
-                        (content.textContent ? content.textContent.substring(0, 200) + "..." : "No summary available.")}
+                      {response.data.summary ||
+                        response.data.extractedDescription ||
+                        (response.data.textContent ? response.data.textContent.substring(0, 200) + "..." : "No summary available.")}
                     </Typography>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                       <Typography variant="caption" color="text.secondary">
-                        Link ID: {content.linkId}
+                        Link ID: {response.data.linkId}
                       </Typography>
                       <Box>
                         <Button
@@ -76,7 +77,7 @@ const SearchPage = () => {
                           startIcon={<Article />}
                           variant="contained"
                           sx={{ mr: 1 }}
-                          onClick={() => handleViewContent(content.linkId, content.extractedTitle || "Content")}
+                          onClick={() => handleViewContent(response.data.linkId, response.data.extractedTitle || "Content")}
                         >
                           View Full Content
                         </Button>

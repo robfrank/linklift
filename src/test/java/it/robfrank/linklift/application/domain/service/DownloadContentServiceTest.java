@@ -98,8 +98,6 @@ class DownloadContentServiceTest {
     }
 
     // Assert
-    verify(eventPublisher, atLeastOnce()).publish(any(ContentDownloadStartedEvent.class));
-
     ArgumentCaptor<ContentDownloadStartedEvent> startedEventCaptor = ArgumentCaptor.forClass(ContentDownloadStartedEvent.class);
     verify(eventPublisher, atLeastOnce()).publish(startedEventCaptor.capture());
 

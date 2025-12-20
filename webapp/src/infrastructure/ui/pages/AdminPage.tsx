@@ -22,7 +22,7 @@ const AdminPage = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card elevation={3}>
             <CardHeader title="Vector Search Maintenance" subheader="Manage embeddings and vector backfill" avatar={<Storage color="primary" />} />
             <CardContent>

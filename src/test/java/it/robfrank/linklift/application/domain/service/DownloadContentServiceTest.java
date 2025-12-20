@@ -15,14 +15,18 @@ import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;
 import it.robfrank.linklift.application.port.out.*;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class DownloadContentServiceTest {
 
   @Mock
@@ -70,7 +74,7 @@ class DownloadContentServiceTest {
       new ContentExtractorPort.ExtractedMetadata("Test Title", "Test Desc", "html", "text", "Author", "img", "2023-01-01")
     );
     when(contentSummarizerPort.generateSummary(any(), anyInt())).thenReturn("Test Summary");
-    when(embeddingGenerator.generateEmbedding(any())).thenReturn(java.util.List.of(0.1f, 0.2f, 0.3f));
+    when(embeddingGenerator.generateEmbedding(any())).thenReturn(List.of(0.1f, 0.2f, 0.3f));
   }
 
   @Test

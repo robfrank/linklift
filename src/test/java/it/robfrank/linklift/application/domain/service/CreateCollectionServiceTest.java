@@ -9,10 +9,13 @@ import it.robfrank.linklift.application.port.in.CreateCollectionCommand;
 import it.robfrank.linklift.application.port.out.CollectionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class CreateCollectionServiceTest {
 
   @Mock

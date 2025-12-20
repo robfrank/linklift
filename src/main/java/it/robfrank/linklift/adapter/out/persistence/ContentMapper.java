@@ -6,6 +6,7 @@ import com.arcadedb.remote.RemoteMutableVertex;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.jspecify.annotations.NonNull;
 
 public class ContentMapper {
@@ -35,7 +36,7 @@ public class ContentMapper {
     LocalDateTime publishedDate = vertex.has("publishedDate") ? vertex.getLocalDateTime("publishedDate") : null;
 
     @SuppressWarnings("unchecked")
-    java.util.List<Float> embedding = vertex.has("embedding") ? (java.util.List<Float>) vertex.get("embedding") : null;
+    List<Float> embedding = vertex.has("embedding") ? (List<Float>) vertex.get("embedding") : null;
 
     return new Content(
       id,

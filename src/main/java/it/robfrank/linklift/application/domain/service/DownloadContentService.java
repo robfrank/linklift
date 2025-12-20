@@ -14,6 +14,7 @@ import it.robfrank.linklift.application.port.out.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -127,7 +128,7 @@ public class DownloadContentService implements DownloadContentUseCase {
           LocalDateTime publishedDate = parseDate(metadata != null ? metadata.publishedDate() : null);
 
           // Generate embedding
-          java.util.List<Float> embedding = null;
+          List<Float> embedding = null;
           if (metadata != null) {
             String textForEmbedding = metadata.textContent();
             if (textForEmbedding != null && !textForEmbedding.isBlank()) {

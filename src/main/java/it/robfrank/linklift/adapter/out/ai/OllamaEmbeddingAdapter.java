@@ -1,5 +1,6 @@
 package it.robfrank.linklift.adapter.out.ai;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.robfrank.linklift.application.port.out.EmbeddingGenerator;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class OllamaEmbeddingAdapter implements EmbeddingGenerator {
         throw new RuntimeException("Failed to generate embedding: " + response.body());
       }
 
-      Map<String, Object> responseBody = objectMapper.readValue(response.body(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
+      Map<String, Object> responseBody = objectMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
       Object embeddingObj = responseBody.get("embedding");
       if (!(embeddingObj instanceof List<?> list)) {
         throw new RuntimeException("Unexpected response format from Ollama: embedding field missing or not a list");

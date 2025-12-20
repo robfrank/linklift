@@ -16,6 +16,7 @@ import it.robfrank.linklift.application.domain.model.DownloadStatus;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;
 import it.robfrank.linklift.application.port.out.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -42,6 +43,12 @@ class DownloadContentServiceTest {
   @Mock
   private LoadLinksPort loadLinksPort;
 
+  @Mock
+  private EmbeddingGenerator embeddingGenerator;
+
+  @Mock
+  private ExecutorService executorService;
+
   private DownloadContentService downloadContentService;
 
   @BeforeEach
@@ -53,7 +60,9 @@ class DownloadContentServiceTest {
       eventPublisher,
       contentExtractorPort,
       contentSummarizerPort,
-      loadLinksPort
+      loadLinksPort,
+      embeddingGenerator,
+      executorService
     );
   }
 

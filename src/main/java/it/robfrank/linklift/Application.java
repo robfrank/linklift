@@ -3,29 +3,22 @@ package it.robfrank.linklift;
 import com.arcadedb.remote.RemoteDatabase;
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.*;
-import it.robfrank.linklift.adapter.out.content.SimpleTextSummarizer;
-import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
-import it.robfrank.linklift.adapter.out.http.HttpContentDownloader;
-import it.robfrank.linklift.adapter.out.http.JsoupContentExtractor;
+import it.robfrank.linklift.adapter.out.ai.*;
+import it.robfrank.linklift.adapter.out.content.*;
+import it.robfrank.linklift.adapter.out.event.*;
+import it.robfrank.linklift.adapter.out.http.*;
 import it.robfrank.linklift.adapter.out.persistence.*;
-import it.robfrank.linklift.adapter.out.persistence.ArcadeCollectionRepository;
-import it.robfrank.linklift.adapter.out.persistence.CollectionPersistenceAdapter;
-import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
-import it.robfrank.linklift.adapter.out.security.JwtTokenAdapter;
+import it.robfrank.linklift.adapter.out.security.*;
 import it.robfrank.linklift.application.domain.event.*;
 import it.robfrank.linklift.application.domain.service.*;
-import it.robfrank.linklift.application.domain.service.CreateCollectionService;
-import it.robfrank.linklift.application.domain.service.GetRelatedLinksService;
 import it.robfrank.linklift.application.port.in.*;
-import it.robfrank.linklift.application.port.in.CreateCollectionUseCase;
-import it.robfrank.linklift.application.port.in.GetRelatedLinksUseCase;
-import it.robfrank.linklift.application.port.out.ContentDownloaderPort;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import it.robfrank.linklift.config.SecureConfiguration;
 import it.robfrank.linklift.config.WebBuilder;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
@@ -41,7 +34,7 @@ public class Application {
     String arcadedbServer = System.getProperty("linklift.arcadedb.host", "localhost");
 
     logger.info("Starting LinkLift application with ArcadeDB server: {}", arcadedbServer);
-    logger.atInfo().addArgument(() -> SecureConfiguration.getConfigurationHints()).log("Security configuration: {}");
+    logger.atInfo().addArgument(SecureConfiguration.getConfigurationHints()).log("Security configuration: {}");
 
     new DatabaseInitializer(arcadedbServer, 2480, "root", "playwithdata").initializeDatabase();
 
@@ -51,9 +44,6 @@ public class Application {
     LinkMapper linkMapper = new LinkMapper();
     ArcadeLinkRepository linkRepository = new ArcadeLinkRepository(database, linkMapper);
     LinkPersistenceAdapter linkPersistenceAdapter = new LinkPersistenceAdapter(linkRepository);
-
-    ExecutorService contentExtractionExecutor = Executors.newFixedThreadPool(1); // Single thread for content
-    // extraction
 
     ArcadeContentRepository contentRepository = new ArcadeContentRepository(database);
     ContentPersistenceAdapter contentPersistenceAdapter = new ContentPersistenceAdapter(contentRepository);
@@ -74,7 +64,7 @@ public class Application {
     JwtTokenAdapter jwtTokenAdapter = new JwtTokenAdapter(JWT_SECRET);
 
     // Initialize HTTP client for content download
-    HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+    HttpClient httpClient = Objects.requireNonNull(HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build());
 
     HttpContentDownloader contentDownloader = new HttpContentDownloader(httpClient);
 
@@ -82,9 +72,18 @@ public class Application {
     JsoupContentExtractor contentExtractor = new JsoupContentExtractor();
     SimpleTextSummarizer contentSummarizer = new SimpleTextSummarizer();
 
+    // Initialize ai adapters
+    OllamaEmbeddingAdapter embeddingGenerator = new OllamaEmbeddingAdapter(
+      httpClient,
+      SecureConfiguration.getOllamaUrl(),
+      SecureConfiguration.getOllamaModel()
+    );
+
+    // Initialize executor service for background tasks
+    ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
     // Create and configure event publisher
     SimpleEventPublisher eventPublisher = new SimpleEventPublisher();
-    ContentDownloaderPort linkContentExtractorService = new HttpContentDownloader(httpClient);
 
     // Initialize services
     CreateUserService userService = new CreateUserService(userPersistenceAdapter, userPersistenceAdapter, passwordSecurityAdapter, eventPublisher);
@@ -106,11 +105,21 @@ public class Application {
       eventPublisher,
       contentExtractor,
       contentSummarizer,
-      linkPersistenceAdapter
+      linkPersistenceAdapter,
+      embeddingGenerator,
+      executorService
     );
     configureEventSubscribers(eventPublisher, downloadContentUseCase);
+
+    SearchContentUseCase searchContentUseCase = new SearchContentService(contentPersistenceAdapter, embeddingGenerator);
     GetContentUseCase getContentUseCase = new GetContentService(contentPersistenceAdapter);
     DeleteContentUseCase deleteContentUseCase = new DeleteContentService(contentPersistenceAdapter);
+    BackfillEmbeddingsUseCase backfillEmbeddingsUseCase = new BackfillEmbeddingsService(
+      contentPersistenceAdapter,
+      contentPersistenceAdapter,
+      embeddingGenerator,
+      executorService
+    );
 
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);
     ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
@@ -141,7 +150,15 @@ public class Application {
     ListLinksController listLinksController = new ListLinksController(listLinksUseCase);
     GetContentController getContentController = new GetContentController(getContentUseCase, downloadContentUseCase);
     DeleteContentController deleteContentController = new DeleteContentController(deleteContentUseCase);
+    SearchContentController searchContentController = new SearchContentController(searchContentUseCase);
+    AdminController adminController = new AdminController(backfillEmbeddingsUseCase);
+
     AuthenticationController authenticationController = new AuthenticationController(userService, authenticationService, authenticationService);
+
+    // Initialize Link Management
+    UpdateLinkUseCase updateLinkUseCase = new UpdateLinkService(linkPersistenceAdapter, linkPersistenceAdapter);
+    DeleteLinkUseCase deleteLinkUseCase = new DeleteLinkService(linkPersistenceAdapter, linkPersistenceAdapter);
+    LinkController linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase);
 
     // Build and start web application
     Javalin app = new WebBuilder()
@@ -149,10 +166,13 @@ public class Application {
       .withAuthenticationController(authenticationController)
       .withLinkController(newLinkController)
       .withListLinksController(listLinksController)
+      .withSearchController(searchContentController)
       .withGetContentController(getContentController)
       .withDeleteContentController(deleteContentController)
+      .withAdminController(adminController)
       .withCollectionController(collectionController)
       .withGetRelatedLinksController(getRelatedLinksController)
+      .withLinkManagementController(linkController)
       .build();
 
     app.start(7070);
@@ -236,9 +256,6 @@ public class Application {
     ArcadeLinkRepository linkRepository = new ArcadeLinkRepository(database, linkMapper);
     LinkPersistenceAdapter linkPersistenceAdapter = new LinkPersistenceAdapter(linkRepository);
 
-    ExecutorService contentExtractionExecutor = Executors.newFixedThreadPool(1); // Single thread for content
-    // extraction
-
     ArcadeContentRepository contentRepository = new ArcadeContentRepository(database);
     ContentPersistenceAdapter contentPersistenceAdapter = new ContentPersistenceAdapter(contentRepository);
 
@@ -258,17 +275,23 @@ public class Application {
     JwtTokenAdapter jwtTokenAdapter = new JwtTokenAdapter(JWT_SECRET);
 
     // Initialize HTTP client for content download
-    HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+    HttpClient httpClient = Objects.requireNonNull(HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build());
 
     HttpContentDownloader contentDownloader = new HttpContentDownloader(httpClient);
 
     // Initialize content extractors
     JsoupContentExtractor contentExtractor = new JsoupContentExtractor();
     SimpleTextSummarizer contentSummarizer = new SimpleTextSummarizer();
+    OllamaEmbeddingAdapter embeddingGenerator = new OllamaEmbeddingAdapter(
+      httpClient,
+      SecureConfiguration.getOllamaUrl(),
+      SecureConfiguration.getOllamaModel()
+    );
+
+    // Initialize executor service for background tasks
+    ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     SimpleEventPublisher eventPublisher = new SimpleEventPublisher();
-
-    ContentDownloaderPort linkContentExtractorService = new HttpContentDownloader(httpClient);
 
     // Initialize services
     CreateUserService userService = new CreateUserService(userPersistenceAdapter, userPersistenceAdapter, passwordSecurityAdapter, eventPublisher);
@@ -290,13 +313,22 @@ public class Application {
       eventPublisher,
       contentExtractor,
       contentSummarizer,
-      linkPersistenceAdapter
+      linkPersistenceAdapter,
+      embeddingGenerator,
+      executorService
     );
 
     configureEventSubscribers(eventPublisher, downloadContentUseCase);
 
+    SearchContentUseCase searchContentUseCase = new SearchContentService(contentPersistenceAdapter, embeddingGenerator);
     GetContentUseCase getContentUseCase = new GetContentService(contentPersistenceAdapter);
     DeleteContentUseCase deleteContentUseCase = new DeleteContentService(contentPersistenceAdapter);
+    BackfillEmbeddingsUseCase backfillEmbeddingsUseCase = new BackfillEmbeddingsService(
+      contentPersistenceAdapter,
+      contentPersistenceAdapter,
+      embeddingGenerator,
+      executorService
+    );
 
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);
     ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
@@ -326,6 +358,10 @@ public class Application {
     NewLinkController newLinkController = new NewLinkController(newLinkUseCase);
     ListLinksController listLinksController = new ListLinksController(listLinksUseCase);
     GetContentController getContentController = new GetContentController(getContentUseCase, downloadContentUseCase);
+    DeleteContentController deleteContentController = new DeleteContentController(deleteContentUseCase);
+    SearchContentController searchContentController = new SearchContentController(searchContentUseCase);
+    AdminController adminController = new AdminController(backfillEmbeddingsUseCase);
+
     AuthenticationController authenticationController = new AuthenticationController(userService, authenticationService, authenticationService);
 
     // Initialize Link Management
@@ -339,7 +375,10 @@ public class Application {
       .withAuthenticationController(authenticationController)
       .withLinkController(newLinkController)
       .withListLinksController(listLinksController)
+      .withSearchController(searchContentController)
       .withGetContentController(getContentController)
+      .withDeleteContentController(deleteContentController)
+      .withAdminController(adminController)
       .withCollectionController(collectionController)
       .withGetRelatedLinksController(getRelatedLinksController)
       .withLinkManagementController(linkController)

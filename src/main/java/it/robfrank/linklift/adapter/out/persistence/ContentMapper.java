@@ -13,10 +13,15 @@ public class ContentMapper {
   public @NonNull Content mapToDomain(@NonNull Vertex vertex) {
     String id = vertex.getString("id");
     String linkId = vertex.getString("linkId");
+    LocalDateTime downloadedAt = vertex.getLocalDateTime("downloadedAt");
+
+    if (id == null) throw new IllegalStateException("Required field 'id' missing in vertex");
+    if (linkId == null) throw new IllegalStateException("Required field 'linkId' missing in vertex");
+    if (downloadedAt == null) throw new IllegalStateException("Required field 'downloadedAt' missing in vertex");
+
     String htmlContent = vertex.getString("htmlContent");
     String textContent = vertex.getString("textContent");
     Integer contentLength = vertex.getInteger("contentLength");
-    LocalDateTime downloadedAt = vertex.getLocalDateTime("downloadedAt");
     String mimeType = vertex.getString("mimeType");
     String statusStr = vertex.getString("status");
     DownloadStatus status = statusStr != null ? DownloadStatus.valueOf(statusStr) : DownloadStatus.PENDING;
@@ -28,6 +33,9 @@ public class ContentMapper {
     String extractedDescription = vertex.has("extractedDescription") ? vertex.getString("extractedDescription") : null;
     String author = vertex.has("author") ? vertex.getString("author") : null;
     LocalDateTime publishedDate = vertex.has("publishedDate") ? vertex.getLocalDateTime("publishedDate") : null;
+
+    @SuppressWarnings("unchecked")
+    java.util.List<Float> embedding = vertex.has("embedding") ? (java.util.List<Float>) vertex.get("embedding") : null;
 
     return new Content(
       id,
@@ -43,7 +51,8 @@ public class ContentMapper {
       extractedTitle,
       extractedDescription,
       author,
-      publishedDate
+      publishedDate,
+      embedding
     );
   }
 
@@ -64,6 +73,7 @@ public class ContentMapper {
     if (content.extractedDescription() != null) vertex.set("extractedDescription", content.extractedDescription());
     if (content.author() != null) vertex.set("author", content.author());
     if (content.publishedDate() != null) vertex.set("publishedDate", content.publishedDate());
+    if (content.embedding() != null) vertex.set("embedding", content.embedding());
 
     return vertex;
   }

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
@@ -35,6 +36,8 @@ public class DownloadContentService implements DownloadContentUseCase {
   private final ContentExtractorPort contentExtractor;
   private final ContentSummarizerPort contentSummarizer;
   private final LoadLinksPort loadLinksPort;
+  private final EmbeddingGenerator embeddingGenerator;
+  private final ExecutorService executorService;
 
   public DownloadContentService(
     @NonNull ContentDownloaderPort contentDownloader,
@@ -42,7 +45,9 @@ public class DownloadContentService implements DownloadContentUseCase {
     @NonNull DomainEventPublisher eventPublisher,
     @NonNull ContentExtractorPort contentExtractor,
     @NonNull ContentSummarizerPort contentSummarizer,
-    @NonNull LoadLinksPort loadLinksPort
+    @NonNull LoadLinksPort loadLinksPort,
+    @NonNull EmbeddingGenerator embeddingGenerator,
+    @NonNull ExecutorService executorService
   ) {
     this.contentDownloader = contentDownloader;
     this.saveContentPort = saveContentPort;
@@ -50,6 +55,8 @@ public class DownloadContentService implements DownloadContentUseCase {
     this.contentExtractor = contentExtractor;
     this.contentSummarizer = contentSummarizer;
     this.loadLinksPort = loadLinksPort;
+    this.embeddingGenerator = embeddingGenerator;
+    this.executorService = executorService;
   }
 
   @Override
@@ -94,10 +101,16 @@ public class DownloadContentService implements DownloadContentUseCase {
               metadata = contentExtractor.extractMetadata(html, url);
 
               // Generate summary if text content is available
-              if (metadata.textContent() != null && !metadata.textContent().isBlank()) {
-                summary = contentSummarizer.generateSummary(metadata.textContent(), MAX_SUMMARY_LENGTH);
-              } else if (downloadedContent.textContent() != null) {
-                summary = contentSummarizer.generateSummary(downloadedContent.textContent(), MAX_SUMMARY_LENGTH);
+              if (metadata != null) {
+                String textContent = metadata.textContent();
+                if (textContent != null && !textContent.isBlank()) {
+                  summary = contentSummarizer.generateSummary(textContent, MAX_SUMMARY_LENGTH);
+                } else {
+                  String downloadedText = downloadedContent.textContent();
+                  if (downloadedText != null && !downloadedText.isBlank()) {
+                    summary = contentSummarizer.generateSummary(downloadedText, MAX_SUMMARY_LENGTH);
+                  }
+                }
               }
             } catch (Exception e) {
               logger.error("Failed to extract metadata or generate summary for link: {}", id, e);
@@ -113,6 +126,19 @@ public class DownloadContentService implements DownloadContentUseCase {
           String heroImageUrl = metadata != null ? metadata.heroImageUrl() : null;
           LocalDateTime publishedDate = parseDate(metadata != null ? metadata.publishedDate() : null);
 
+          // Generate embedding
+          java.util.List<Float> embedding = null;
+          if (metadata != null) {
+            String textForEmbedding = metadata.textContent();
+            if (textForEmbedding != null && !textForEmbedding.isBlank()) {
+              try {
+                embedding = embeddingGenerator.generateEmbedding(textForEmbedding);
+              } catch (Exception e) {
+                logger.error("Failed to generate embedding for link: {}", id, e);
+              }
+            }
+          }
+
           Content content = new Content(
             contentId,
             id,
@@ -127,7 +153,8 @@ public class DownloadContentService implements DownloadContentUseCase {
             extractedTitle,
             extractedDescription,
             author,
-            publishedDate
+            publishedDate,
+            embedding
           );
 
           // Save content

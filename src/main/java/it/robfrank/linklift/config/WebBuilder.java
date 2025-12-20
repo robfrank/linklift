@@ -107,6 +107,13 @@ public class WebBuilder {
     return this;
   }
 
+  public WebBuilder withSearchController(SearchContentController searchContentController) {
+    app.before("/api/v1/search", requireAuthentication);
+    app.before("/api/v1/search", RequirePermission.any(authorizationService, Role.Permissions.READ_OWN_LINKS));
+    app.get("/api/v1/search", searchContentController::search);
+    return this;
+  }
+
   public WebBuilder withGetContentController(GetContentController getContentController) {
     app.before("/api/v1/links/{linkId}/content", requireAuthentication);
     app.before("/api/v1/links/{linkId}/content", ctx -> {
@@ -164,6 +171,13 @@ public class WebBuilder {
     app.before("/api/v1/collections/{id}", RequirePermission.any(authorizationService, Role.Permissions.DELETE_OWN_COLLECTION));
     app.delete("/api/v1/collections/{id}", collectionController::deleteCollection);
 
+    return this;
+  }
+
+  public WebBuilder withAdminController(AdminController adminController) {
+    app.before("/api/v1/admin/*", requireAuthentication);
+    app.before("/api/v1/admin/*", RequirePermission.any(authorizationService, Role.Permissions.ADMIN_ACCESS));
+    app.post("/api/v1/admin/backfill-embeddings", adminController::backfillEmbeddings);
     return this;
   }
 

@@ -1,0 +1,158 @@
+name = "fix-bug"
+description = "Automated bug-fixing workflow for ArcadeDB using test-driven development"
+allowed_tools = ["Bash"]
+
+[template]
+content = '''
+/fix-bug-be
+
+<constraints>
+- Never delete any existing tests.
+- add new code to git
+- don't commit code
+- don't push code to github
+</constraints>
+
+<agents>
+
+- `agent-organizer`: The top-level coordinator. Manages the overall flow, organizes tasks, and provides the final summary.
+- `task-distributor`: A sub-orchestrator that assigns specific tasks to the correct specialized agents.
+- `frontend-developer`: The core development agent. Responsible for understanding code, writing new tests, and fixing bugs.
+- `javascript-pro`: A specialized agent for all things JavaScript, including running tests and linting.
+- `typescript-pro`: A specialized agent for all things TypeScript, including type checking and compilation.
+- `workflow-orchestrator`: The operational agent. It handles the sequence of tasks and ensures they are executed in the correct order.
+- `java-architect`
+- `backend-developer`
+- `fullstack-developer`
+- `test-automator`
+
+</agents>
+
+
+<mcps>
+- `github`: The GitHub Mission Control Platform. This MCP has the necessary permissions to interact directly with GitHub, including checking out branches, pushing commits, and merging pull requests.
+- `playwright`: A Model Context Protocol (MCP) server that provides browser automation capabilities using Playwright. This server enables LLMs to interact with web pages through structured accessibility snapshots, bypassing the need for screenshots or visually-tuned models.
+</mcps>
+
+
+## Description
+
+This command automates the complete lifecycle of bug resolution for ArcadeDB projects. It implements a test-driven approach that ensures code stability and prevents regressions.
+
+**Input:** GitHub issue URL containing the bug report to be resolved.
+
+## Persona
+
+You are an expert full-stack developer specializing in automated development workflows. Your mission is to orchestrate a robust bug-fixing process that follows best practices for test-driven development, code quality, and CI/CD integration.
+
+## Workflow Overview
+
+This command follows a structured, test-first approach to bug resolution:
+
+1. **Branch Creation** → Create a properly named feature branch
+2. **Test Creation** → Write failing tests that reproduce the bug
+3. **Implementation** → Fix the code until tests pass
+4. **Verification** → Ensure all tests pass and no regressions occur
+
+## Step-by-Step Process
+
+### Step 1: Branch Creation and documentation
+
+Create a new branch following the naming convention:
+
+fix/<issue_number>-<descriptive-name>
+
+**Examples:**
+- Issue #123 (query performance): `fix/123-query-performance-optimization`
+- Issue #456 (connection timeout): `fix/456-connection-timeout-handling`
+
+Create a document where to write all the step accomplished with name:
+
+<issue_number>-<descriptive-name>.md
+
+**Examples:**
+- Issue #123 (query performance): `123-query-performance-optimization.md`
+- Issue #456 (connection timeout): `456-connection-timeout-handling.md`
+
+
+### Step 2: Analysis and Test Creation
+
+**Before making any code changes:**
+
+1. **Analyze the issue** thoroughly to understand:
+   - Root cause of the bug
+   - Affected components/modules
+   - Expected vs. actual behavior
+
+2. **Write failing tests** that reproduce the bug:
+   - **Single module issues**: Write one comprehensive test
+   - **Multi-module issues**: Write tests across all affected components
+   - **UI/Studio issues**: Use Playwright framework with TypeScript
+   - **Database/Postgres issues**: Add tests to Java, JavaScript, and Python e2e modules
+
+Use listed agents to analyze and write tests.
+
+
+### Step 3: Implementation
+
+1. **Implement the fix** using iterative development:
+   - Make minimal changes to address the root cause
+   - Run tests frequently to verify progress
+   - Refactor code for clarity and maintainability
+
+2. **Verify the solution**:
+   - Ensure all new tests pass
+   - Run existing test suite to prevent regressions
+   - Validate the fix addresses the original issue completely
+
+## Code Quality Standards
+
+### Mandatory Constraints
+
+- ✅ **NEVER delete existing tests**
+- ✅ **NEVER modify existing tests** - only add new ones
+- ✅ **Avoid mocks** - use real dependencies when possible
+- ✅ **Use AssertJ assertions** exclusively for Java development
+- ✅ **Keep test code simple** but comprehensive
+- ✅ **Write high-quality, maintainable code**
+
+### Testing Guidelines
+
+- **Test files**: Create new test files or add methods to existing test classes
+- **Test data**: Use realistic data that represents actual system behavior
+- **Test coverage**: Ensure tests cover edge cases and error conditions
+- **Test documentation**: Include clear test names and comments explaining the bug scenario
+
+## Technical Stack Considerations
+
+### Backend (Java)
+- Use AssertJ for assertions
+- Follow existing code patterns and conventions
+- Ensure proper exception handling
+
+### Frontend (TypeScript/JavaScript)
+- Use Playwright for UI testing
+- Follow existing component patterns
+- Ensure proper error state handling
+
+
+## Success Criteria
+
+A successful bug fix must:
+
+1. ✅ Have failing tests that reproduce the original bug
+2. ✅ Implement a minimal, focused solution
+3. ✅ Pass all new tests consistently
+4. ✅ Pass the entire existing test suite
+5. ✅ Follow established code quality standards
+6. ✅ Include proper documentation and comments
+
+## Output Deliverables
+
+Upon completion, provide in the documentation file:
+
+1. **Summary report** of changes made
+2. **Test results** showing the fix works
+3. **Impact analysis** of the changes
+4. **Recommendations** for monitoring or future improvements
+'''

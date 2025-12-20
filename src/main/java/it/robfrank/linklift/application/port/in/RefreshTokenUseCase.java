@@ -1,5 +1,8 @@
 package it.robfrank.linklift.application.port.in;
 
+import it.robfrank.linklift.application.port.in.AuthenticateUserUseCase.AuthenticationResult;
+import org.jspecify.annotations.NonNull;
+
 /**
  * Use case interface for refreshing authentication tokens.
  */
@@ -9,7 +12,12 @@ public interface RefreshTokenUseCase {
    *
    * @param command the refresh token command
    * @return new authentication tokens
-   * @throws it.robfrank.linklift.application.domain.exception.AuthenticationException if refresh token is invalid
+   * @throws it.robfrank.linklift.application.domain.exception.AuthenticationException if
+   *                                                                                   refresh
+   *                                                                                   token
+   *                                                                                   is
+   *                                                                                   invalid
    */
-  AuthenticateUserUseCase.AuthenticationResult refreshToken(RefreshTokenCommand command);
+  @NonNull
+  AuthenticationResult refreshToken(@NonNull RefreshTokenCommand command);
 }

@@ -3,6 +3,7 @@ package it.robfrank.linklift.adapter.out.persistence;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.port.out.LoadContentPort;
 import it.robfrank.linklift.application.port.out.SaveContentPort;
+import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 
@@ -15,8 +16,15 @@ public class ContentPersistenceAdapter implements SaveContentPort, LoadContentPo
   }
 
   @Override
-  public @NonNull Content saveContent(@NonNull Content content) {
+  @NonNull
+  public Content saveContent(@NonNull Content content) {
     return repository.save(content);
+  }
+
+  @Override
+  @NonNull
+  public Content updateContent(@NonNull Content content) {
+    return repository.update(content);
   }
 
   @Override
@@ -25,17 +33,31 @@ public class ContentPersistenceAdapter implements SaveContentPort, LoadContentPo
   }
 
   @Override
-  public @NonNull Optional<Content> findContentByLinkId(@NonNull String linkId) {
+  @NonNull
+  public Optional<Content> findContentByLinkId(@NonNull String linkId) {
     return repository.findByLinkId(linkId);
   }
 
   @Override
-  public @NonNull Optional<Content> findContentById(@NonNull String contentId) {
+  @NonNull
+  public Optional<Content> findContentById(@NonNull String contentId) {
     return repository.findById(contentId);
   }
 
   @Override
   public void deleteContentByLinkId(@NonNull String linkId) {
     repository.deleteByLinkId(linkId);
+  }
+
+  @Override
+  @NonNull
+  public List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
+    return repository.findSimilar(queryVector, limit);
+  }
+
+  @Override
+  @NonNull
+  public List<Content> findContentsWithoutEmbeddings(int limit) {
+    return repository.findContentsWithoutEmbeddings(limit);
   }
 }

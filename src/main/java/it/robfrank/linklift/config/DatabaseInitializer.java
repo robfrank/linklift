@@ -66,18 +66,12 @@ public class DatabaseInitializer {
       walk
         .filter(Files::isRegularFile)
         .sorted()
-        .peek(sqlFile -> System.out.println("applying sqlFile = " + sqlFile))
+        .peek(sqlFile -> logger.info("applying sqlFile = {} ", sqlFile))
         .forEach(sqlFile -> {
           try {
             String script = readScript(sqlFile);
-            String[] statements = script.split(";"); // Split by semicolon
             db.transaction(() -> {
-              for (String statement : statements) {
-                String trimmedStatement = statement.trim();
-                if (!trimmedStatement.isEmpty()) {
-                  db.command("sql", trimmedStatement); // Execute each statement individually
-                }
-              }
+              db.command("sqlscript", script); // Execute each statement individually
             });
           } catch (IOException e) {
             logger.error("Error while reading schema files", e);

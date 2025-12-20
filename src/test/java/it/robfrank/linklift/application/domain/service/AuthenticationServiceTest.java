@@ -12,6 +12,7 @@ import it.robfrank.linklift.application.port.in.AuthenticateUserCommand;
 import it.robfrank.linklift.application.port.out.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,22 +23,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class AuthenticationServiceTest {
 
   @Mock
-  private LoadUserPort loadUserPort;
+  private @NonNull LoadUserPort loadUserPort;
 
   @Mock
-  private SaveUserPort saveUserPort;
+  private @NonNull SaveUserPort saveUserPort;
 
   @Mock
-  private PasswordSecurityPort passwordSecurityPort;
+  private @NonNull PasswordSecurityPort passwordSecurityPort;
 
   @Mock
-  private JwtTokenPort jwtTokenPort;
+  private @NonNull JwtTokenPort jwtTokenPort;
 
   @Mock
-  private AuthTokenPort authTokenPort;
+  private @NonNull AuthTokenPort authTokenPort;
 
   @Mock
-  private DomainEventPublisher eventPublisher;
+  private @NonNull DomainEventPublisher eventPublisher;
 
   private AuthenticationService authenticationService;
 

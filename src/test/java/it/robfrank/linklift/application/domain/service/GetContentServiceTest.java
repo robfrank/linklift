@@ -50,14 +50,18 @@ class GetContentServiceTest {
     Optional<Content> result = getContentService.getContent(query);
 
     // Assert
-    assertThat(result).isPresent();
-    assertThat(result.get().id()).isEqualTo("content-456");
-    assertThat(result.get().linkId()).isEqualTo("link-123");
-    assertThat(result.get().htmlContent()).isEqualTo("<html><body>Test</body></html>");
-    assertThat(result.get().textContent()).isEqualTo("Test");
-    assertThat(result.get().contentLength()).isEqualTo(1024);
-    assertThat(result.get().mimeType()).isEqualTo("text/html");
-    assertThat(result.get().status()).isEqualTo(DownloadStatus.COMPLETED);
+    assertThat(result)
+      .isPresent()
+      .get()
+      .satisfies(content -> {
+        assertThat(content.id()).isEqualTo("content-456");
+        assertThat(content.linkId()).isEqualTo("link-123");
+        assertThat(content.htmlContent()).isEqualTo("<html><body>Test</body></html>");
+        assertThat(content.textContent()).isEqualTo("Test");
+        assertThat(content.contentLength()).isEqualTo(1024);
+        assertThat(content.mimeType()).isEqualTo("text/html");
+        assertThat(content.status()).isEqualTo(DownloadStatus.COMPLETED);
+      });
 
     verify(loadContentPort, times(1)).findContentByLinkId("link-123");
   }

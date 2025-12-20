@@ -1,8 +1,57 @@
 import React, { useState } from "react";
 import { AppBar, Toolbar, Typography, Button, Box, Menu, MenuItem, Avatar, IconButton } from "@mui/material";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Add as AddIcon, AccountCircle, Login as LoginIcon, PersonAdd as PersonAddIcon, Folder } from "@mui/icons-material";
+import {
+  Home as HomeIcon,
+  Add as AddIcon,
+  AccountCircle,
+  Login as LoginIcon,
+  PersonAdd as PersonAddIcon,
+  Folder,
+  Search as SearchIcon,
+  Settings
+} from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
+import { alpha, styled, InputBase } from "@mui/material";
+
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.common.white, 0.25)
+  },
+  marginRight: theme.spacing(2),
+  marginLeft: 0,
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: theme.spacing(3),
+    width: "auto"
+  }
+}));
+
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center"
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: "20ch"
+    }
+  }
+}));
 
 const Header = () => {
   const location = useLocation();
@@ -11,6 +60,14 @@ const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const isActive = (path) => location.pathname === path;
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearchSubmit = (e) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+    }
+  };
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -40,9 +97,26 @@ const Header = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" component="div" sx={{ display: { xs: "none", sm: "block" }, mr: 2 }}>
           LinkLift
         </Typography>
+
+        {isAuthenticated && (
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Search links..."
+              inputProps={{ "aria-label": "search" }}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleSearchSubmit}
+            />
+          </Search>
+        )}
+
+        <Box sx={{ flexGrow: 1 }} />
 
         {isAuthenticated ? (
           <>
@@ -122,6 +196,13 @@ const Header = () => {
                   </Typography>
                 </MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                <MenuItem divider />
+                <MenuItem component={RouterLink} to="/admin" onClick={handleClose}>
+                  <IconButton size="small" sx={{ mr: 1 }}>
+                    <Settings fontSize="small" />
+                  </IconButton>
+                  Admin
+                </MenuItem>
               </Menu>
             </Box>
           </>

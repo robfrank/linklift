@@ -10,6 +10,8 @@ import { RefreshContentUseCase } from "../domain/usecases/RefreshContentUseCase"
 import { DeleteContentUseCase } from "../domain/usecases/DeleteContentUseCase";
 import { GetCollectionsUseCase } from "../domain/usecases/GetCollectionsUseCase";
 import { AddLinkToCollectionUseCase } from "../domain/usecases/AddLinkToCollectionUseCase";
+import { SearchContentUseCase } from "../domain/usecases/SearchContentUseCase";
+import { BackfillEmbeddingsUseCase } from "../domain/usecases/BackfillEmbeddingsUseCase";
 
 export class DIContainer {
   private static _instance: DIContainer;
@@ -61,6 +63,14 @@ export class DIContainer {
 
   public resolveAddLinkToCollectionUseCase(): AddLinkToCollectionUseCase {
     return new AddLinkToCollectionUseCase(this._collectionRepository);
+  }
+
+  public resolveSearchContentUseCase(): SearchContentUseCase {
+    return new SearchContentUseCase(this._contentRepository);
+  }
+
+  public resolveBackfillEmbeddingsUseCase(): BackfillEmbeddingsUseCase {
+    return new BackfillEmbeddingsUseCase(this._contentRepository);
   }
 }
 

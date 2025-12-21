@@ -9,7 +9,8 @@ import {
   PersonAdd as PersonAddIcon,
   Folder,
   Search as SearchIcon,
-  Settings
+  Settings,
+  Hub
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 import { alpha, styled, InputBase } from "@mui/material";

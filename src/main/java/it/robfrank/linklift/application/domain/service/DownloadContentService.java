@@ -37,6 +37,7 @@ public class DownloadContentService implements DownloadContentUseCase {
   private final ContentExtractorPort contentExtractor;
   private final ContentSummarizerPort contentSummarizer;
   private final LoadLinksPort loadLinksPort;
+  private final SaveLinkPort saveLinkPort;
   private final EmbeddingGenerator embeddingGenerator;
   private final ExecutorService executorService;
 
@@ -47,6 +48,7 @@ public class DownloadContentService implements DownloadContentUseCase {
     @NonNull ContentExtractorPort contentExtractor,
     @NonNull ContentSummarizerPort contentSummarizer,
     @NonNull LoadLinksPort loadLinksPort,
+    @NonNull SaveLinkPort saveLinkPort,
     @NonNull EmbeddingGenerator embeddingGenerator,
     @NonNull ExecutorService executorService
   ) {
@@ -56,6 +58,7 @@ public class DownloadContentService implements DownloadContentUseCase {
     this.contentExtractor = contentExtractor;
     this.contentSummarizer = contentSummarizer;
     this.loadLinksPort = loadLinksPort;
+    this.saveLinkPort = saveLinkPort;
     this.embeddingGenerator = embeddingGenerator;
     this.executorService = executorService;
   }
@@ -126,6 +129,25 @@ public class DownloadContentService implements DownloadContentUseCase {
           String author = metadata != null ? metadata.author() : null;
           String heroImageUrl = metadata != null ? metadata.heroImageUrl() : null;
           LocalDateTime publishedDate = parseDate(metadata != null ? metadata.publishedDate() : null);
+          List<String> extractedUrls = metadata != null ? metadata.extractedUrls() : List.of();
+
+          // Update link with extracted URLs if available
+          if (extractedUrls != null && !extractedUrls.isEmpty()) {
+            Link existingLink = loadLinksPort.getLinkById(id);
+            if (existingLink != null) {
+              Link updatedLink = new Link(
+                existingLink.id(),
+                existingLink.url(),
+                existingLink.title(),
+                existingLink.description(),
+                existingLink.extractedAt(),
+                existingLink.contentType(),
+                extractedUrls
+              );
+              saveLinkPort.saveLink(updatedLink);
+              saveLinkPort.syncLinkConnections(updatedLink);
+            }
+          }
 
           // Generate embedding
           List<Float> embedding = null;
@@ -162,10 +184,14 @@ public class DownloadContentService implements DownloadContentUseCase {
           Content savedContent = saveContentPort.saveContent(content);
 
           // Create HasContent edge
-          saveContentPort.createHasContentEdge(id, savedContent.id());
-
-          // Publish success event
-          eventPublisher.publish(new ContentDownloadCompletedEvent(savedContent));
+          // Ensure savedContent is not null before accessing its id
+          if (savedContent != null) {
+            saveContentPort.createHasContentEdge(id, savedContent.id());
+            // Publish success event
+            eventPublisher.publish(new ContentDownloadCompletedEvent(savedContent));
+          } else {
+            logger.warn("Saved content was null for link: {}. Cannot create edge or publish completion event.", id);
+          }
 
           logger.info("Content download completed for link: {}", id);
         } catch (Exception e) {

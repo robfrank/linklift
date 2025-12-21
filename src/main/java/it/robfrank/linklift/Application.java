@@ -108,6 +108,7 @@ public class Application {
       contentExtractor,
       contentSummarizer,
       linkPersistenceAdapter,
+      linkPersistenceAdapter,
       embeddingGenerator,
       executorService
     );
@@ -125,6 +126,7 @@ public class Application {
 
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);
     ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
+    GetGraphUseCase getGraphUseCase = new GetGraphService(linkPersistenceAdapter);
 
     // Initialize Collection and Related Links components
     ArcadeCollectionRepository collectionRepository = new ArcadeCollectionRepository(database);
@@ -149,7 +151,10 @@ public class Application {
 
     // Initialize controllers
     NewLinkController newLinkController = new NewLinkController(newLinkUseCase);
-    ListLinksController listLinksController = new ListLinksController(listLinksUseCase);
+    ListLinksController listLinksController = new ListLinksController.Builder()
+      .withListLinksUseCase(listLinksUseCase)
+      .withGetGraphUseCase(getGraphUseCase)
+      .build();
     GetContentController getContentController = new GetContentController(getContentUseCase, downloadContentUseCase);
     DeleteContentController deleteContentController = new DeleteContentController(deleteContentUseCase);
     SearchContentController searchContentController = new SearchContentController(searchContentUseCase);
@@ -316,6 +321,7 @@ public class Application {
       contentExtractor,
       contentSummarizer,
       linkPersistenceAdapter,
+      linkPersistenceAdapter,
       embeddingGenerator,
       executorService
     );
@@ -334,6 +340,7 @@ public class Application {
 
     NewLinkUseCase newLinkUseCase = new NewLinkService(linkPersistenceAdapter, eventPublisher);
     ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
+    GetGraphUseCase getGraphUseCase = new GetGraphService(linkPersistenceAdapter);
 
     // Initialize Collection and Related Links components
     ArcadeCollectionRepository collectionRepository = new ArcadeCollectionRepository(database);
@@ -358,7 +365,10 @@ public class Application {
 
     // Initialize controllers
     NewLinkController newLinkController = new NewLinkController(newLinkUseCase);
-    ListLinksController listLinksController = new ListLinksController(listLinksUseCase);
+    ListLinksController listLinksController = new ListLinksController.Builder()
+      .withListLinksUseCase(listLinksUseCase)
+      .withGetGraphUseCase(getGraphUseCase)
+      .build();
     GetContentController getContentController = new GetContentController(getContentUseCase, downloadContentUseCase);
     DeleteContentController deleteContentController = new DeleteContentController(deleteContentUseCase);
     SearchContentController searchContentController = new SearchContentController(searchContentUseCase);

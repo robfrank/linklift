@@ -48,7 +48,15 @@ public class NewLinkService implements NewLinkUseCase {
 
     var id = UUID.randomUUID().toString();
 
-    var link = new Link(id, newLinkCommand.url(), newLinkCommand.title(), newLinkCommand.description(), LocalDateTime.now(), "text/html");
+    Link link = new Link(
+      id,
+      newLinkCommand.url(),
+      newLinkCommand.title(),
+      newLinkCommand.description(),
+      LocalDateTime.now(),
+      null,
+      java.util.Collections.emptyList()
+    );
 
     var savedLink = linkPersistenceAdapter.saveLinkForUser(link, newLinkCommand.userId());
 

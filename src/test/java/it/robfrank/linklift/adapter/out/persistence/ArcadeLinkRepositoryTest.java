@@ -58,7 +58,8 @@ class ArcadeLinkRepositoryTest {
       "Test Title",
       "Test Description",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-      "text/html"
+      "text/html",
+      java.util.List.of()
     );
 
     var savedLink = linkRepository.saveLink(testLink);
@@ -75,7 +76,8 @@ class ArcadeLinkRepositoryTest {
       "Test Title",
       "Test Description",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-      "text/html"
+      "text/html",
+      java.util.List.of()
     );
 
     var savedLink = linkRepository.saveLink(testLink);
@@ -93,7 +95,8 @@ class ArcadeLinkRepositoryTest {
       "Test Title",
       "Test Description",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-      "text/html"
+      "text/html",
+      java.util.List.of()
     );
 
     var savedLink = linkRepository.saveLink(testLink);

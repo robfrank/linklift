@@ -31,11 +31,12 @@ public class JsoupContentExtractor implements ContentExtractorPort {
       String heroImageUrl = extractHeroImage(doc, url);
       String mainContent = extractMainContent(doc);
       String textContent = extractTextContent(doc);
+      List<String> extractedUrls = extractUrls(doc, url);
 
-      return new ExtractedMetadata(title, description, author, publishedDate, heroImageUrl, mainContent, textContent);
+      return new ExtractedMetadata(title, description, author, publishedDate, heroImageUrl, mainContent, textContent, extractedUrls);
     } catch (Exception e) {
       logger.error("Failed to extract metadata from HTML", e);
-      return new ExtractedMetadata(null, null, null, null, null, null, null);
+      return new ExtractedMetadata(null, null, null, null, null, null, null, null);
     }
   }
 
@@ -144,5 +145,10 @@ public class JsoupContentExtractor implements ContentExtractorPort {
     } catch (Exception e) {
       return url;
     }
+  }
+
+  private @NonNull List<String> extractUrls(@NonNull Document doc, @NonNull String baseUrl) {
+    Elements links = doc.select("a[href]");
+    return links.stream().map(link -> link.attr("abs:href")).filter(href -> !href.isEmpty()).filter(href -> href.startsWith("http")).distinct().toList();
   }
 }

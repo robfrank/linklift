@@ -45,14 +45,19 @@ public class ArcadeLinkRepository {
           contentType = ?,
           fullText = ?,
           summary = ?,
-          imageUrl = ?
+          imageUrl = ?,
+          extractedUrls = ?
           """,
           link.id(),
           link.url(),
           link.title(),
           link.description(),
           link.extractedAt().truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-          link.contentType()
+          link.contentType(),
+          null, // fullText
+          null, // summary
+          null, // imageUrl
+          link.extractedUrls()
         );
       });
       return link;
@@ -103,14 +108,19 @@ public class ArcadeLinkRepository {
           contentType = ?,
           fullText = ?,
           summary = ?,
-          imageUrl = ?
+          imageUrl = ?,
+          extractedUrls = ?
           """,
           link.id(),
           link.url(),
           link.title(),
           link.description(),
           link.extractedAt().truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-          link.contentType()
+          link.contentType(),
+          null, // fullText
+          null, // summary
+          null, // imageUrl
+          link.extractedUrls()
         );
 
         // Then, create the OwnsLink relationship
@@ -481,5 +491,63 @@ public class ArcadeLinkRepository {
     } catch (ArcadeDBException e) {
       throw new DatabaseException("Failed to get related links for: " + linkId, e);
     }
+  }
+
+  public void syncLinkConnections(String linkId, List<String> extractedUrls) {
+    if (extractedUrls == null || extractedUrls.isEmpty()) {
+      return;
+    }
+
+    database.transaction(() -> {
+      // 1. Remove existing explicit LINKS_TO edges from this link to other Links
+      database.command("sql", "DELETE EDGE LINKS_TO FROM (SELECT FROM Link WHERE id = ?)", linkId);
+
+      // 2. Create new LINKS_TO edges for each extracted URL that exists in our
+      // database
+      for (String targetUrl : extractedUrls) {
+        // Find links that have this URL (can be multiple links with same URL if shared
+        // across users)
+        database.command("sql", "CREATE EDGE LINKS_TO FROM (SELECT FROM Link WHERE id = ?) TO (SELECT FROM Link WHERE url = ?)", linkId, targetUrl);
+      }
+    });
+  }
+
+  public it.robfrank.linklift.application.domain.model.GraphData getGraphData(String userId) {
+    List<it.robfrank.linklift.application.domain.model.GraphData.LinkNode> nodes = new java.util.ArrayList<>();
+    List<it.robfrank.linklift.application.domain.model.GraphData.LinkEdge> edges = new java.util.ArrayList<>();
+
+    database.transaction(() -> {
+      // 1. Fetch all links the user owns
+      java.util.List<com.arcadedb.graph.Vertex> links = new java.util.ArrayList<>();
+      com.arcadedb.query.sql.executor.ResultSet resultSet = database.query("sql", "SELECT expand(out('OwnsLink')) FROM User WHERE id = ?", userId);
+      while (resultSet.hasNext()) {
+        links.add(resultSet.next().getVertex().get());
+      }
+
+      // 2. Map links to nodes
+      for (com.arcadedb.graph.Vertex link : links) {
+        nodes.add(
+          new it.robfrank.linklift.application.domain.model.GraphData.LinkNode(
+            link.getString("id"),
+            link.getString("title") != null ? link.getString("title") : link.getString("url"),
+            link.getString("url")
+          )
+        );
+      }
+
+      // 3. Fetch all LINKS_TO edges between these links
+      com.arcadedb.query.sql.executor.ResultSet edgeResultSet = database.query(
+        "sql",
+        "SELECT out.id as source, in.id as target FROM LINKS_TO WHERE out.id IN (SELECT id FROM Link WHERE @rid IN (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?)) AND in.id IN (SELECT id FROM Link WHERE @rid IN (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?))",
+        userId,
+        userId
+      );
+      while (edgeResultSet.hasNext()) {
+        com.arcadedb.query.sql.executor.Result result = edgeResultSet.next();
+        edges.add(new it.robfrank.linklift.application.domain.model.GraphData.LinkEdge(result.getProperty("source"), result.getProperty("target")));
+      }
+    });
+
+    return new it.robfrank.linklift.application.domain.model.GraphData(nodes, edges);
   }
 }

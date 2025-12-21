@@ -23,7 +23,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Test class to demonstrate ArcadeDB graph operations for the LinkLift project.
- * This test shows the improved performance and functionality of using graph relationships
+ * This test shows the improved performance and functionality of using graph
+ * relationships
  * instead of denormalized userId fields.
  */
 @Testcontainers
@@ -90,7 +91,8 @@ class GraphOperationsTest {
       "Graph Test",
       "Testing graph relationships",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-      "text/html"
+      "text/html",
+      java.util.List.of()
     );
 
     // When: Save the link with user relationship using graph approach
@@ -129,9 +131,33 @@ class GraphOperationsTest {
 
     // Create multiple links for the user
     List<Link> testLinks = List.of(
-      new Link(UUID.randomUUID().toString(), "https://link1.com", "Link 1", "First link", LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html"),
-      new Link(UUID.randomUUID().toString(), "https://link2.com", "Link 2", "Second link", LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html"),
-      new Link(UUID.randomUUID().toString(), "https://link3.com", "Link 3", "Third link", LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html")
+      new Link(
+        UUID.randomUUID().toString(),
+        "https://link1.com",
+        "Link 1",
+        "First link",
+        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+        "text/html",
+        java.util.List.of()
+      ),
+      new Link(
+        UUID.randomUUID().toString(),
+        "https://link2.com",
+        "Link 2",
+        "Second link",
+        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+        "text/html",
+        java.util.List.of()
+      ),
+      new Link(
+        UUID.randomUUID().toString(),
+        "https://link3.com",
+        "Link 3",
+        "Third link",
+        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+        "text/html",
+        java.util.List.of()
+      )
     );
 
     // Save links with graph relationships
@@ -190,7 +216,8 @@ class GraphOperationsTest {
       "Transfer Test",
       "Testing ownership transfer",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-      "text/html"
+      "text/html",
+      java.util.List.of()
     );
     linkRepository.saveLinkForUser(testLink, user1Id);
 
@@ -233,7 +260,8 @@ class GraphOperationsTest {
       "Delete Test",
       "Testing deletion",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-      "text/html"
+      "text/html",
+      java.util.List.of()
     );
     linkRepository.saveLinkForUser(testLink, userId);
 

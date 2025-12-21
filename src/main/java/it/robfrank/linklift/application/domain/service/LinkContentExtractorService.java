@@ -42,7 +42,8 @@ public class LinkContentExtractorService {
           originalLink.title(),
           originalLink.description(),
           originalLink.extractedAt(),
-          originalLink.contentType()
+          originalLink.contentType(),
+          originalLink.extractedUrls()
         );
         saveLinkPort.save(updatedLink, event.getUserId());
         log.atInfo().addArgument(() -> originalLink.url()).log("Successfully extracted content and updated link for: {}");
@@ -53,7 +54,8 @@ public class LinkContentExtractorService {
   }
 
   private String extractMainContent(Document document) {
-    // This is a simplified extraction. A more robust solution might use a library like boilerpipe or custom logic.
+    // This is a simplified extraction. A more robust solution might use a library
+    // like boilerpipe or custom logic.
     // For now, let's try to get content from common article tags.
     Elements article = document.select("article, .article, .post-content, .entry-content");
     if (!article.isEmpty()) {

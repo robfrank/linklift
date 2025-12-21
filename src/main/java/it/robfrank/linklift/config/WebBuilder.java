@@ -104,6 +104,10 @@ public class WebBuilder {
     app.before("/api/v1/links", requireAuthentication);
     app.before("/api/v1/links", RequirePermission.any(authorizationService, Role.Permissions.READ_OWN_LINKS));
     app.get("/api/v1/links", listLinksController::listLinks);
+
+    app.before("/api/v1/graph", requireAuthentication);
+    app.before("/api/v1/graph", RequirePermission.any(authorizationService, Role.Permissions.READ_OWN_LINKS));
+    app.get("/api/v1/graph", listLinksController::getGraph);
     return this;
   }
 

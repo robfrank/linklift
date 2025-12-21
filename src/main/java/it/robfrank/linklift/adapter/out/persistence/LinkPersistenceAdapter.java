@@ -1,6 +1,7 @@
 package it.robfrank.linklift.adapter.out.persistence;
 
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
+import it.robfrank.linklift.application.domain.model.GraphData;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
@@ -65,6 +66,7 @@ public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort, Upda
   /**
    * Check if a user owns a specific link.
    */
+  @Override
   public boolean userOwnsLink(String userId, String linkId) {
     return linkRepository.userOwnsLink(userId, linkId);
   }
@@ -99,5 +101,15 @@ public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort, Upda
   @Override
   public @NonNull Link updateLink(@NonNull Link link) {
     return Objects.requireNonNull(linkRepository.updateLink(link));
+  }
+
+  @Override
+  public GraphData getGraphData(String userId) {
+    return linkRepository.getGraphData(userId);
+  }
+
+  @Override
+  public void syncLinkConnections(Link link) {
+    linkRepository.syncLinkConnections(link.id(), link.extractedUrls());
   }
 }

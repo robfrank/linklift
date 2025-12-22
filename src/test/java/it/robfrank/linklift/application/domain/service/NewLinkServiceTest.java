@@ -82,15 +82,6 @@ class NewLinkServiceTest {
     assertThat(capturedLink.description()).isEqualTo(command.description());
     assertThat(capturedLink.contentType()).isEqualTo("text/html");
 
-    // Verify event was published
-    // ArgumentCaptor<LinkCreatedEvent> eventCaptor =
-    // ArgumentCaptor.forClass(LinkCreatedEvent.class);
-    // verify(eventPublisher, times(1)).publish(eventCaptor.capture());
-
-    // LinkCreatedEvent capturedEvent = eventCaptor.getValue();
-    // assertThat(capturedEvent.getLink()).isEqualTo(expectedLink);
-    // assertThat(capturedEvent.getUserId()).isEqualTo("user-123");
-
     // Verify async content download was triggered
     verify(downloadContentUseCase, times(1)).downloadContentAsync(any());
   }

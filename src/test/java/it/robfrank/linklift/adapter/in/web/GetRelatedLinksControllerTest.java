@@ -34,8 +34,8 @@ class GetRelatedLinksControllerTest {
   void getRelatedLinks_shouldReturn200_withRelatedLinks() {
     // Given
     List<Link> relatedLinks = Arrays.asList(
-      new Link("link-2", "https://example.com/2", "Related 1", "Desc 1", LocalDateTime.now(), "text/html", java.util.List.of()),
-      new Link("link-3", "https://example.com/3", "Related 2", "Desc 2", LocalDateTime.now(), "text/html", java.util.List.of())
+      new Link("link-2", "https://example.com/2", "Related 1", "Desc 1", LocalDateTime.now(), "text/html", List.of()),
+      new Link("link-3", "https://example.com/3", "Related 2", "Desc 2", LocalDateTime.now(), "text/html", List.of())
     );
 
     when(getRelatedLinksUseCase.getRelatedLinks(eq("link-1"), eq("user-123"))).thenReturn(relatedLinks);

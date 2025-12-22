@@ -175,8 +175,8 @@ class CollectionControllerTest {
     // Given
     Collection collection = new Collection("col-123", "My Collection", "Description", "user-123", null);
     List<Link> links = Arrays.asList(
-      new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html", java.util.List.of()),
-      new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html", java.util.List.of())
+      new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html", List.of()),
+      new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html", List.of())
     );
     CollectionWithLinks collectionWithLinks = new CollectionWithLinks(collection, links);
 

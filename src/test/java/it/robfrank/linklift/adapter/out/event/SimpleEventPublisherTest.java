@@ -6,6 +6,7 @@ import it.robfrank.linklift.application.domain.event.DomainEvent;
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.model.Link;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +27,7 @@ class SimpleEventPublisherTest {
     AtomicBoolean linkCreatedHandlerCalled = new AtomicBoolean(false);
     AtomicBoolean genericEventHandlerCalled = new AtomicBoolean(false);
 
-    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", java.util.List.of());
+    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", List.of());
     LinkCreatedEvent event = new LinkCreatedEvent(link, "user1");
 
     // Subscribe to specific event type
@@ -68,7 +69,7 @@ class SimpleEventPublisherTest {
     }
 
     TestEvent testEvent = new TestEvent("test");
-    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", java.util.List.of());
+    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", List.of());
     LinkCreatedEvent linkEvent = new LinkCreatedEvent(link, "user1");
 
     // Subscribe only to LinkCreatedEvent
@@ -94,7 +95,7 @@ class SimpleEventPublisherTest {
     // Arrange
     AtomicInteger handlerCallCount = new AtomicInteger(0);
 
-    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", java.util.List.of());
+    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", List.of());
     LinkCreatedEvent event = new LinkCreatedEvent(link, "user1");
 
     eventPublisher.subscribe(LinkCreatedEvent.class, e -> {

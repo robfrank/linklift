@@ -14,6 +14,7 @@ import it.robfrank.linklift.application.port.in.DownloadContentUseCase;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.out.DomainEventPublisher;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +59,7 @@ class NewLinkServiceTest {
       "Example Description",
       LocalDateTime.now(),
       "text/html",
-      java.util.List.of()
+      List.of()
     );
 
     when(linkPersistenceAdapter.saveLinkForUser(any(Link.class), eq("user-123"))).thenReturn(expectedLink);

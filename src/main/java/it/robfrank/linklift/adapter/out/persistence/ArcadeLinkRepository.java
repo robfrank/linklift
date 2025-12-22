@@ -6,6 +6,7 @@ import com.arcadedb.query.sql.executor.ResultSet;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
+import it.robfrank.linklift.application.domain.model.GraphData;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
@@ -45,14 +46,19 @@ public class ArcadeLinkRepository {
           contentType = ?,
           fullText = ?,
           summary = ?,
-          imageUrl = ?
+          imageUrl = ?,
+          extractedUrls = ?
           """,
           link.id(),
           link.url(),
           link.title(),
           link.description(),
           link.extractedAt().truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-          link.contentType()
+          link.contentType(),
+          null, // fullText
+          null, // summary
+          null, // imageUrl
+          link.extractedUrls()
         );
       });
       return link;
@@ -103,14 +109,19 @@ public class ArcadeLinkRepository {
           contentType = ?,
           fullText = ?,
           summary = ?,
-          imageUrl = ?
+          imageUrl = ?,
+          extractedUrls = ?
           """,
           link.id(),
           link.url(),
           link.title(),
           link.description(),
           link.extractedAt().truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-          link.contentType()
+          link.contentType(),
+          null, // fullText
+          null, // summary
+          null, // imageUrl
+          link.extractedUrls()
         );
 
         // Then, create the OwnsLink relationship
@@ -127,7 +138,7 @@ public class ArcadeLinkRepository {
           link.extractedAt().truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         );
 
-        // Extract domain and create BELONGS_TO_DOMAIN edge
+        // Extract domain and create belongsToDomain edge
         try {
           String domainName = new URI(link.url()).getHost();
           if (domainName != null) {
@@ -141,7 +152,7 @@ public class ArcadeLinkRepository {
             // Create Edge
             database.command(
               "sql",
-              "CREATE EDGE BELONGS_TO_DOMAIN FROM (SELECT FROM Link WHERE id = ?) TO (SELECT FROM Domain WHERE name = ?)",
+              "CREATE EDGE belongsToDomain FROM (SELECT FROM Link WHERE id = ?) TO (SELECT FROM Domain WHERE name = ?)",
               link.id(),
               domainName
             );
@@ -378,8 +389,6 @@ public class ArcadeLinkRepository {
    */
   public void transferLinkOwnership(String linkId, String fromUserId, String toUserId) {
     try {
-      // "7666936a-4c4e-4acd-8146-ab1bf60088ec"
-      System.out.println("linkId = " + linkId);
       database.transaction(() -> {
         // Delete existing ownership
         ResultSet resultSet = database.query(
@@ -393,7 +402,9 @@ public class ArcadeLinkRepository {
           linkId
         );
 
-        System.out.println("resultSet.hasNext() = " + resultSet.next().getEdge().get().toJSON(true));
+        if (resultSet.hasNext()) {
+          logger.debug("Found OwnsLink edge to delete: {}", resultSet.next().getEdge().get().toJSON(true));
+        }
       });
       database.transaction(() -> {
         database.command(
@@ -458,8 +469,8 @@ public class ArcadeLinkRepository {
           SELECT * FROM (
             SELECT expand(
                 unionall(
-                    out('BELONGS_TO_DOMAIN').in('BELONGS_TO_DOMAIN'),
-                    out('HAS_TAG').in('HAS_TAG')
+                    out('belongsToDomain').in('belongsToDomain'),
+                    out('hasTag').in('hasTag')
                 )
             )
             FROM Link
@@ -481,5 +492,77 @@ public class ArcadeLinkRepository {
     } catch (ArcadeDBException e) {
       throw new DatabaseException("Failed to get related links for: " + linkId, e);
     }
+  }
+
+  public void syncLinkConnections(String linkId, List<String> extractedUrls) {
+    if (linkId == null || linkId.isBlank()) {
+      logger.warn("Attempted to sync link connections with null or blank linkId");
+      return;
+    }
+
+    if (extractedUrls == null || extractedUrls.isEmpty()) {
+      return;
+    }
+
+    database.transaction(() -> {
+      // Get the source link's RID
+      var sourceResult = database.query("sql", "SELECT @rid as rid FROM Link WHERE id = ?", linkId);
+      if (!sourceResult.hasNext()) {
+        logger.warn("Source link not found: {}", linkId);
+        return;
+      }
+      var sourceRid = sourceResult.next().getProperty("rid");
+
+      // 1. Remove existing explicit linksTo edges from this link to other Links
+      database.command("sql", "DELETE FROM linksTo WHERE @out = ?", sourceRid);
+
+      // 2. Create new linksTo edges for each extracted URL that exists in our
+      // database
+      for (String targetUrl : extractedUrls) {
+        // Find all links with this URL and create edges to them
+        var targetLinks = database.query("sql", "SELECT @rid as rid FROM Link WHERE url = ?", targetUrl);
+        while (targetLinks.hasNext()) {
+          var result = targetLinks.next();
+          var targetRid = result.getProperty("rid");
+          // Create edge using RIDs for both source and target
+          database.command("sql", "CREATE EDGE linksTo FROM ? TO ?", sourceRid, targetRid);
+        }
+      }
+    });
+  }
+
+  public GraphData getGraphData(String userId) {
+    List<GraphData.LinkNode> nodes = new java.util.ArrayList<>();
+    List<GraphData.LinkEdge> edges = new java.util.ArrayList<>();
+
+    database.transaction(() -> {
+      // 1. Fetch all links the user owns
+      java.util.List<com.arcadedb.graph.Vertex> links = new java.util.ArrayList<>();
+      com.arcadedb.query.sql.executor.ResultSet resultSet = database.query("sql", "SELECT expand(out('OwnsLink')) FROM User WHERE id = ?", userId);
+      while (resultSet.hasNext()) {
+        links.add(resultSet.next().getVertex().get());
+      }
+
+      // 2. Map links to nodes
+      for (com.arcadedb.graph.Vertex link : links) {
+        nodes.add(
+          new GraphData.LinkNode(link.getString("id"), link.getString("title") != null ? link.getString("title") : link.getString("url"), link.getString("url"))
+        );
+      }
+
+      // 3. Fetch all linksTo edges between these links
+      var edgeResultSet = database.query(
+        "sql",
+        "SELECT out.id as source, in.id as target FROM linksTo WHERE out.id IN (SELECT id FROM Link WHERE @rid IN (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?)) AND in.id IN (SELECT id FROM Link WHERE @rid IN (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?))",
+        userId,
+        userId
+      );
+      while (edgeResultSet.hasNext()) {
+        var result = edgeResultSet.next();
+        edges.add(new GraphData.LinkEdge(result.getProperty("source"), result.getProperty("target")));
+      }
+    });
+
+    return new GraphData(nodes, edges);
   }
 }

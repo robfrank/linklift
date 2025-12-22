@@ -36,7 +36,15 @@ public class UpdateLinkService implements UpdateLinkUseCase {
     String newTitle = command.title() != null ? command.title() : existingLink.title();
     String newDescription = command.description() != null ? command.description() : existingLink.description();
 
-    Link updatedLink = new Link(existingLink.id(), existingLink.url(), newTitle, newDescription, existingLink.extractedAt(), existingLink.contentType());
+    Link updatedLink = new Link(
+      existingLink.id(),
+      existingLink.url(),
+      newTitle,
+      newDescription,
+      existingLink.extractedAt(),
+      existingLink.contentType(),
+      existingLink.extractedUrls()
+    );
 
     return updateLinkPort.updateLink(updatedLink);
   }

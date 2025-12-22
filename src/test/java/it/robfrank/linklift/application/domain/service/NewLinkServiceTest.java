@@ -51,7 +51,15 @@ class NewLinkServiceTest {
     // Arrange
     NewLinkCommand command = new NewLinkCommand("https://example.com", "Example Title", "Example Description", "user-123");
 
-    Link expectedLink = new Link("test-id", "https://example.com", "Example Title", "Example Description", LocalDateTime.now(), "text/html");
+    Link expectedLink = new Link(
+      "test-id",
+      "https://example.com",
+      "Example Title",
+      "Example Description",
+      LocalDateTime.now(),
+      "text/html",
+      java.util.List.of()
+    );
 
     when(linkPersistenceAdapter.saveLinkForUser(any(Link.class), eq("user-123"))).thenReturn(expectedLink);
     // Act
@@ -73,14 +81,6 @@ class NewLinkServiceTest {
     assertThat(capturedLink.title()).isEqualTo(command.title());
     assertThat(capturedLink.description()).isEqualTo(command.description());
     assertThat(capturedLink.contentType()).isEqualTo("text/html");
-
-    // Verify event was published
-    //        ArgumentCaptor<LinkCreatedEvent> eventCaptor = ArgumentCaptor.forClass(LinkCreatedEvent.class);
-    //        verify(eventPublisher, times(1)).publish(eventCaptor.capture());
-
-    //        LinkCreatedEvent capturedEvent = eventCaptor.getValue();
-    //        assertThat(capturedEvent.getLink()).isEqualTo(expectedLink);
-    //        assertThat(capturedEvent.getUserId()).isEqualTo("user-123");
 
     // Verify async content download was triggered
     verify(downloadContentUseCase, times(1)).downloadContentAsync(any());

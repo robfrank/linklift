@@ -9,7 +9,8 @@ import {
   PersonAdd as PersonAddIcon,
   Folder,
   Search as SearchIcon,
-  Settings
+  Settings,
+  Hub
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 import { alpha, styled, InputBase } from "@mui/material";
@@ -145,6 +146,18 @@ const Header = () => {
                 }}
               >
                 Collections
+              </Button>
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/graph"
+                startIcon={<Hub />}
+                sx={{
+                  mr: 1,
+                  backgroundColor: isActive("/graph") ? "rgba(255, 255, 255, 0.1)" : "transparent"
+                }}
+              >
+                Graph
               </Button>
               <Button
                 color="inherit"

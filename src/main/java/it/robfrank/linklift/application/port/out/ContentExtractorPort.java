@@ -1,5 +1,6 @@
 package it.robfrank.linklift.application.port.out;
 
+import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -12,7 +13,7 @@ public interface ContentExtractorPort {
    * Extracts metadata and content from HTML.
    *
    * @param html the HTML content to extract from
-   * @param url the original URL (for resolving relative URLs)
+   * @param url  the original URL (for resolving relative URLs)
    * @return extracted metadata
    */
   ExtractedMetadata extractMetadata(@NonNull String html, @NonNull String url);
@@ -27,6 +28,7 @@ public interface ContentExtractorPort {
     @Nullable String publishedDate,
     @Nullable String heroImageUrl,
     @Nullable String mainContent,
-    @Nullable String textContent
+    @Nullable String textContent,
+    @Nullable List<String> extractedUrls
   ) {}
 }

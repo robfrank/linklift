@@ -48,6 +48,12 @@ class DownloadContentServiceTest {
   private LoadLinksPort loadLinksPort;
 
   @Mock
+  private SaveLinkPort saveLinkPort;
+
+  @Mock
+  private UpdateLinkPort updateLinkPort;
+
+  @Mock
   private EmbeddingGenerator embeddingGenerator;
 
   @Mock
@@ -65,16 +71,18 @@ class DownloadContentServiceTest {
       contentExtractorPort,
       contentSummarizerPort,
       loadLinksPort,
+      saveLinkPort,
+      updateLinkPort,
       embeddingGenerator,
       executorService
     );
 
     // Default mock behavior for new ports
-    when(contentExtractorPort.extractMetadata(any(), any())).thenReturn(
-      new ContentExtractorPort.ExtractedMetadata("Test Title", "Test Desc", "html", "text", "Author", "img", "2023-01-01")
-    );
-    when(contentSummarizerPort.generateSummary(any(), anyInt())).thenReturn("Test Summary");
-    when(embeddingGenerator.generateEmbedding(any())).thenReturn(List.of(0.1f, 0.2f, 0.3f));
+    lenient()
+      .when(contentExtractorPort.extractMetadata(any(), any()))
+      .thenReturn(new ContentExtractorPort.ExtractedMetadata("Test Title", "Test Desc", "Author", "2023-01-01", "img", "html", "text", List.of()));
+    lenient().when(contentSummarizerPort.generateSummary(any(), anyInt())).thenReturn("Test Summary");
+    lenient().when(embeddingGenerator.generateEmbedding(any())).thenReturn(List.of(0.1f, 0.2f, 0.3f));
   }
 
   @Test
@@ -244,11 +252,12 @@ class DownloadContentServiceTest {
     ContentExtractorPort.ExtractedMetadata metadata = new ContentExtractorPort.ExtractedMetadata(
       "Title",
       "Desc",
+      "Author",
+      "2023-01-01",
+      "img",
       "<html>test</html>",
       "text",
-      "Author",
-      "img",
-      "2023-01-01"
+      List.of()
     );
 
     doReturn(CompletableFuture.completedFuture(downloadedContent)).when(contentDownloader).downloadContent(anyString());

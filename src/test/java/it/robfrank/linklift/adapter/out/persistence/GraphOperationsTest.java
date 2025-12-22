@@ -23,7 +23,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Test class to demonstrate ArcadeDB graph operations for the LinkLift project.
- * This test shows the improved performance and functionality of using graph relationships
+ * This test shows the improved performance and functionality of using graph
+ * relationships
  * instead of denormalized userId fields.
  */
 @Testcontainers
@@ -90,7 +91,8 @@ class GraphOperationsTest {
       "Graph Test",
       "Testing graph relationships",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-      "text/html"
+      "text/html",
+      java.util.List.of()
     );
 
     // When: Save the link with user relationship using graph approach
@@ -129,9 +131,33 @@ class GraphOperationsTest {
 
     // Create multiple links for the user
     List<Link> testLinks = List.of(
-      new Link(UUID.randomUUID().toString(), "https://link1.com", "Link 1", "First link", LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html"),
-      new Link(UUID.randomUUID().toString(), "https://link2.com", "Link 2", "Second link", LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html"),
-      new Link(UUID.randomUUID().toString(), "https://link3.com", "Link 3", "Third link", LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "text/html")
+      new Link(
+        UUID.randomUUID().toString(),
+        "https://link1.com",
+        "Link 1",
+        "First link",
+        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+        "text/html",
+        java.util.List.of()
+      ),
+      new Link(
+        UUID.randomUUID().toString(),
+        "https://link2.com",
+        "Link 2",
+        "Second link",
+        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+        "text/html",
+        java.util.List.of()
+      ),
+      new Link(
+        UUID.randomUUID().toString(),
+        "https://link3.com",
+        "Link 3",
+        "Third link",
+        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+        "text/html",
+        java.util.List.of()
+      )
     );
 
     // Save links with graph relationships
@@ -190,7 +216,8 @@ class GraphOperationsTest {
       "Transfer Test",
       "Testing ownership transfer",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-      "text/html"
+      "text/html",
+      java.util.List.of()
     );
     linkRepository.saveLinkForUser(testLink, user1Id);
 
@@ -233,7 +260,8 @@ class GraphOperationsTest {
       "Delete Test",
       "Testing deletion",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-      "text/html"
+      "text/html",
+      java.util.List.of()
     );
     linkRepository.saveLinkForUser(testLink, userId);
 
@@ -247,6 +275,79 @@ class GraphOperationsTest {
     // Then: Link should be deleted and relationship should be gone
     assertThat(linkRepository.findLinkById(linkId)).isEmpty();
     assertThat(linkRepository.userOwnsLink(userId, linkId)).isFalse();
+  }
+
+  @Test
+  void shouldCreateConnectionsBetweenLinks() {
+    // Given: Create a test user
+    String userId = UUID.randomUUID().toString();
+    User testUser = new User(
+      userId,
+      "linkstouser",
+      "linksto@example.com",
+      "hashedPassword",
+      "salt",
+      LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+      null,
+      true,
+      "LinksTo",
+      "User",
+      null
+    );
+    userRepository.save(testUser);
+
+    // And: Create two links, one referencing the other
+    String sourceLinkId = UUID.randomUUID().toString();
+    String targetUrl = "https://referenced-link.com";
+    String targetLinkId = UUID.randomUUID().toString();
+
+    Link targetLink = new Link(
+      targetLinkId,
+      targetUrl,
+      "Target Link",
+      "The referenced link",
+      LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+      "text/html",
+      List.of()
+    );
+    linkRepository.saveLinkForUser(targetLink, userId);
+
+    Link sourceLink = new Link(
+      sourceLinkId,
+      "https://source-link.com",
+      "Source Link",
+      "The referencing link",
+      LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+      "text/html",
+      List.of(targetUrl) // Contains URL of target link
+    );
+    linkRepository.saveLinkForUser(sourceLink, userId);
+
+    // When: Sync connections
+    linkRepository.syncLinkConnections(sourceLinkId, List.of(targetUrl));
+
+    // Then: Verify a 'linksTo' edge exists between source and target
+
+    // Get RIDs for source and target
+    var sourceRid = database.query("sql", "SELECT @rid as rid FROM Link WHERE id = ?", sourceLinkId).next().getProperty("rid");
+    var targetRid = database.query("sql", "SELECT @rid as rid FROM Link WHERE id = ?", targetLinkId).next().getProperty("rid");
+
+    Long count = database
+      .query(
+        "sql",
+        """
+        SELECT count(*) as count
+        FROM linksTo
+        WHERE @out = ? AND @in = ?
+        """,
+        sourceRid,
+        targetRid
+      )
+      .next()
+      .<Number>getProperty("count")
+      .longValue();
+
+    assertThat(count).isGreaterThan(0L);
   }
 
   private void cleanupTestData() {

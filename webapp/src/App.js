@@ -16,6 +16,7 @@ import CollectionList from "./components/Collections/CollectionList";
 import CollectionDetail from "./components/Collections/CollectionDetail";
 import SearchPage from "./infrastructure/ui/pages/SearchPage";
 import AdminPage from "./infrastructure/ui/pages/AdminPage";
+import GraphPage from "./infrastructure/ui/pages/GraphPage";
 
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -82,6 +83,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <SearchPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/graph"
+                  element={
+                    <ProtectedRoute>
+                      <GraphPage />
                     </ProtectedRoute>
                   }
                 />

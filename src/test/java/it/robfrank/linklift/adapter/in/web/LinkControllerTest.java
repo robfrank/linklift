@@ -37,7 +37,15 @@ class LinkControllerTest {
   @Test
   void updateLink_shouldReturn200_whenLinkIsUpdated() {
     // Given
-    Link updatedLink = new Link("link-123", "https://example.com", "Updated Title", "Updated Description", LocalDateTime.now(), "text/html");
+    Link updatedLink = new Link(
+      "link-123",
+      "https://example.com",
+      "Updated Title",
+      "Updated Description",
+      LocalDateTime.now(),
+      "text/html",
+      java.util.List.of()
+    );
     when(updateLinkUseCase.updateLink(any(UpdateLinkCommand.class))).thenReturn(updatedLink);
 
     JavalinTest.test((app, client) -> {
@@ -106,7 +114,7 @@ class LinkControllerTest {
   @Test
   void updateLink_shouldUpdateOnlyTitle_whenDescriptionIsNull() {
     // Given
-    Link updatedLink = new Link("link-123", "https://example.com", "New Title", "Old Description", LocalDateTime.now(), "text/html");
+    Link updatedLink = new Link("link-123", "https://example.com", "New Title", "Old Description", LocalDateTime.now(), "text/html", java.util.List.of());
     when(updateLinkUseCase.updateLink(any(UpdateLinkCommand.class))).thenReturn(updatedLink);
 
     JavalinTest.test((app, client) -> {

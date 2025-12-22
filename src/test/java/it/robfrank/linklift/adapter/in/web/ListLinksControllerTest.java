@@ -10,6 +10,7 @@ import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
+import it.robfrank.linklift.application.port.in.GetGraphUseCase;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
 import it.robfrank.linklift.application.port.in.ListLinksUseCase;
 import java.time.LocalDateTime;
@@ -22,18 +23,20 @@ import org.mockito.Mockito;
 class ListLinksControllerTest {
 
   private ListLinksUseCase listLinksUseCase;
+  private GetGraphUseCase getGraphUseCase;
   private ListLinksController listLinksController;
 
   @BeforeEach
   void setUp() {
     listLinksUseCase = Mockito.mock(ListLinksUseCase.class);
-    listLinksController = new ListLinksController(listLinksUseCase);
+    getGraphUseCase = Mockito.mock(GetGraphUseCase.class);
+    listLinksController = new ListLinksController.Builder().withListLinksUseCase(listLinksUseCase).withGetGraphUseCase(getGraphUseCase).build();
   }
 
   @Test
   void listLinks_shouldReturn200_withDefaultParameters() {
     // Given
-    List<Link> links = List.of(new Link("1", "https://example.com", "Example", "Description", LocalDateTime.now(), "text/html"));
+    List<Link> links = List.of(new Link("1", "https://example.com", "Example", "Description", LocalDateTime.now(), "text/html", java.util.List.of()));
     LinkPage linkPage = new LinkPage(links, 0, 20, 1, 1, false, false);
 
     when(listLinksUseCase.listLinks(any(ListLinksQuery.class))).thenReturn(linkPage);
@@ -148,7 +151,7 @@ class ListLinksControllerTest {
   @Test
   void builder_shouldCreateController() {
     // When
-    ListLinksController controller = new ListLinksController.Builder().withListLinksUseCase(listLinksUseCase).build();
+    ListLinksController controller = new ListLinksController.Builder().withListLinksUseCase(listLinksUseCase).withGetGraphUseCase(getGraphUseCase).build();
 
     // Then
     assertThat(controller).isNotNull();

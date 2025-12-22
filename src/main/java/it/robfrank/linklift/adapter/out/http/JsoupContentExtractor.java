@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 public class JsoupContentExtractor implements ContentExtractorPort {
 
   private static final Logger logger = LoggerFactory.getLogger(JsoupContentExtractor.class);
+  private static final int MAX_EXTRACTED_URLS = 200;
 
   @Override
   public ExtractedMetadata extractMetadata(@NonNull String html, @NonNull String url) {
@@ -31,11 +32,12 @@ public class JsoupContentExtractor implements ContentExtractorPort {
       String heroImageUrl = extractHeroImage(doc, url);
       String mainContent = extractMainContent(doc);
       String textContent = extractTextContent(doc);
+      List<String> extractedUrls = extractUrls(doc, url);
 
-      return new ExtractedMetadata(title, description, author, publishedDate, heroImageUrl, mainContent, textContent);
+      return new ExtractedMetadata(title, description, author, publishedDate, heroImageUrl, mainContent, textContent, extractedUrls);
     } catch (Exception e) {
       logger.error("Failed to extract metadata from HTML", e);
-      return new ExtractedMetadata(null, null, null, null, null, null, null);
+      return new ExtractedMetadata(null, null, null, null, null, null, null, null);
     }
   }
 
@@ -144,5 +146,23 @@ public class JsoupContentExtractor implements ContentExtractorPort {
     } catch (Exception e) {
       return url;
     }
+  }
+
+  private @NonNull List<String> extractUrls(@NonNull Document doc, @NonNull String baseUrl) {
+    Elements links = doc.select("a[href]");
+    List<String> urls = links
+      .stream()
+      .map(link -> link.attr("abs:href"))
+      .filter(href -> !href.isEmpty())
+      .filter(href -> href.startsWith("http"))
+      .distinct()
+      .limit(MAX_EXTRACTED_URLS)
+      .toList();
+
+    if (links.size() > MAX_EXTRACTED_URLS) {
+      logger.warn("Extracted URLs limited to {} from {} total links found in {}", MAX_EXTRACTED_URLS, links.size(), baseUrl);
+    }
+
+    return urls;
   }
 }

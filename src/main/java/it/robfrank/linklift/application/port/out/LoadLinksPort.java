@@ -1,5 +1,6 @@
 package it.robfrank.linklift.application.port.out;
 
+import it.robfrank.linklift.application.domain.model.GraphData;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
@@ -11,6 +12,8 @@ public interface LoadLinksPort {
   List<Link> getRelatedLinks(String linkId, String userId);
 
   Link getLinkById(String id);
+
+  GraphData getGraphData(String userId);
 
   boolean userOwnsLink(String userId, String linkId);
 }

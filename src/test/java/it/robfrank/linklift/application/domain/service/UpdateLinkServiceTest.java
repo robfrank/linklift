@@ -40,7 +40,7 @@ class UpdateLinkServiceTest {
     // Arrange
     String linkId = "link-123";
     String userId = "user-123";
-    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html");
+    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html", java.util.List.of());
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, "New Title", "New Description", userId);
 
     when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);
@@ -68,7 +68,7 @@ class UpdateLinkServiceTest {
     // Arrange
     String linkId = "link-123";
     String userId = "user-123";
-    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html");
+    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html", java.util.List.of());
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, "New Title", null, userId);
 
     when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);
@@ -88,7 +88,7 @@ class UpdateLinkServiceTest {
     // Arrange
     String linkId = "link-123";
     String userId = "user-123";
-    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html");
+    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html", java.util.List.of());
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, null, "New Description", userId);
 
     when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);
@@ -108,7 +108,7 @@ class UpdateLinkServiceTest {
     // Arrange
     String linkId = "link-123";
     String userId = "user-123";
-    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html");
+    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html", java.util.List.of());
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, "New Title", "New Description", userId);
 
     when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);

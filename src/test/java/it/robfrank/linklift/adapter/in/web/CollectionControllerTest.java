@@ -55,9 +55,10 @@ class CollectionControllerTest {
 
   /**
    * Helper method to configure authentication for tests.
-   * Sets up a SecurityContext with the given userId in the Javalin app's before filter.
+   * Sets up a SecurityContext with the given userId in the Javalin app's before
+   * filter.
    *
-   * @param app the Javalin test app
+   * @param app    the Javalin test app
    * @param userId the user ID to authenticate as
    */
   private void setupAuthentication(Javalin app, String userId) {
@@ -174,8 +175,8 @@ class CollectionControllerTest {
     // Given
     Collection collection = new Collection("col-123", "My Collection", "Description", "user-123", null);
     List<Link> links = Arrays.asList(
-      new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html"),
-      new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html")
+      new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html", java.util.List.of()),
+      new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html", java.util.List.of())
     );
     CollectionWithLinks collectionWithLinks = new CollectionWithLinks(collection, links);
 

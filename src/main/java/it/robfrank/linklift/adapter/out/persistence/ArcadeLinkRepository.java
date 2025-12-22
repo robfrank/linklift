@@ -389,8 +389,6 @@ public class ArcadeLinkRepository {
    */
   public void transferLinkOwnership(String linkId, String fromUserId, String toUserId) {
     try {
-      // "7666936a-4c4e-4acd-8146-ab1bf60088ec"
-      System.out.println("linkId = " + linkId);
       database.transaction(() -> {
         // Delete existing ownership
         ResultSet resultSet = database.query(
@@ -404,7 +402,9 @@ public class ArcadeLinkRepository {
           linkId
         );
 
-        System.out.println("resultSet.hasNext() = " + resultSet.next().getEdge().get().toJSON(true));
+        if (resultSet.hasNext()) {
+          logger.debug("Found OwnsLink edge to delete: {}", resultSet.next().getEdge().get().toJSON(true));
+        }
       });
       database.transaction(() -> {
         database.command(
@@ -495,6 +495,11 @@ public class ArcadeLinkRepository {
   }
 
   public void syncLinkConnections(String linkId, List<String> extractedUrls) {
+    if (linkId == null || linkId.isBlank()) {
+      logger.warn("Attempted to sync link connections with null or blank linkId");
+      return;
+    }
+
     if (extractedUrls == null || extractedUrls.isEmpty()) {
       return;
     }

@@ -15,7 +15,7 @@ public class LinkMapper {
       vertex.getString("description"),
       vertex.getLocalDateTime("extractedAt"),
       vertex.getString("contentType"),
-      vertex.getList("extractedUrls") == null ? java.util.Collections.emptyList() : (java.util.List<String>) (Object) vertex.getList("extractedUrls")
+      (java.util.List<String>) (Object) vertex.getList("extractedUrls")
     );
   }
 

@@ -54,7 +54,7 @@ public class NewLinkService implements NewLinkUseCase {
       newLinkCommand.title(),
       newLinkCommand.description(),
       LocalDateTime.now(),
-      null,
+      "text/html",
       java.util.Collections.emptyList()
     );
 

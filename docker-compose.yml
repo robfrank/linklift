@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   arcadedb:
-    image: arcadedata/arcadedb:25.10.1@sha256:6b20892b15dfca2525707ef7ede2cf6dd29bc0a7992467714c4102d54045e717
+    image: arcadedata/arcadedb:25.11.1@sha256:0b08709613302c2ef6d570519103187d42853bfd6f56aabc1c6a51c89bc2e072
     container_name: arcadedb
     environment:
       - JAVA_OPTS=-Darcadedb.server.rootPassword=playwithdata -Darcadedb.server.plugins=Prometheus:com.arcadedb.metrics.prometheus.PrometheusMetricsPlugin

@@ -80,7 +80,7 @@ class NewLinkServiceTest {
     assertThat(capturedLink.url()).isEqualTo(command.url());
     assertThat(capturedLink.title()).isEqualTo(command.title());
     assertThat(capturedLink.description()).isEqualTo(command.description());
-    assertThat(capturedLink.contentType()).isNull();
+    assertThat(capturedLink.contentType()).isEqualTo("text/html");
 
     // Verify event was published
     // ArgumentCaptor<LinkCreatedEvent> eventCaptor =

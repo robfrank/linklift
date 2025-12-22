@@ -44,7 +44,7 @@ class LinkControllerTest {
       "Updated Description",
       LocalDateTime.now(),
       "text/html",
-      java.util.List.of()
+      List.of()
     );
     when(updateLinkUseCase.updateLink(any(UpdateLinkCommand.class))).thenReturn(updatedLink);
 
@@ -114,7 +114,7 @@ class LinkControllerTest {
   @Test
   void updateLink_shouldUpdateOnlyTitle_whenDescriptionIsNull() {
     // Given
-    Link updatedLink = new Link("link-123", "https://example.com", "New Title", "Old Description", LocalDateTime.now(), "text/html", java.util.List.of());
+    Link updatedLink = new Link("link-123", "https://example.com", "New Title", "Old Description", LocalDateTime.now(), "text/html", List.of());
     when(updateLinkUseCase.updateLink(any(UpdateLinkCommand.class))).thenReturn(updatedLink);
 
     JavalinTest.test((app, client) -> {

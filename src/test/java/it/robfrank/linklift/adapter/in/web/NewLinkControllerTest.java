@@ -12,6 +12,7 @@ import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 import java.time.LocalDateTime;
+import java.util.List;
 import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class NewLinkControllerTest {
   @Test
   void processLink_shouldReturn201_whenLinkIsValid() {
     when(newLinkUseCase.newLink(any(NewLinkCommand.class))).thenReturn(
-      new Link("123456", "http://www.google.com", "Google", "Search engine", LocalDateTime.now(), "text/html", java.util.List.of())
+      new Link("123456", "http://www.google.com", "Google", "Search engine", LocalDateTime.now(), "text/html", List.of())
     );
 
     JavalinTest.test((app, client) -> {

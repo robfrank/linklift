@@ -1,6 +1,7 @@
 package it.robfrank.linklift.adapter.out.persistence;
 
 import com.arcadedb.exception.ArcadeDBException;
+import com.arcadedb.graph.Vertex;
 import com.arcadedb.query.sql.executor.Result;
 import com.arcadedb.query.sql.executor.ResultSet;
 import com.arcadedb.remote.RemoteDatabase;
@@ -15,6 +16,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -403,7 +405,7 @@ public class ArcadeLinkRepository {
         );
 
         if (resultSet.hasNext()) {
-          logger.debug("Found OwnsLink edge to delete: {}", resultSet.next().getEdge().get().toJSON(true));
+          logger.atDebug().addArgument(() -> resultSet.next().getEdge().get().toJSON(true)).log("Found OwnsLink edge to delete: {}");
         }
       });
       database.transaction(() -> {
@@ -532,19 +534,19 @@ public class ArcadeLinkRepository {
   }
 
   public GraphData getGraphData(String userId) {
-    List<GraphData.LinkNode> nodes = new java.util.ArrayList<>();
-    List<GraphData.LinkEdge> edges = new java.util.ArrayList<>();
+    List<GraphData.LinkNode> nodes = new ArrayList<>();
+    List<GraphData.LinkEdge> edges = new ArrayList<>();
 
     database.transaction(() -> {
       // 1. Fetch all links the user owns
-      java.util.List<com.arcadedb.graph.Vertex> links = new java.util.ArrayList<>();
-      com.arcadedb.query.sql.executor.ResultSet resultSet = database.query("sql", "SELECT expand(out('OwnsLink')) FROM User WHERE id = ?", userId);
+      List<Vertex> links = new ArrayList<>();
+      ResultSet resultSet = database.query("sql", "SELECT expand(out('OwnsLink')) FROM User WHERE id = ?", userId);
       while (resultSet.hasNext()) {
         links.add(resultSet.next().getVertex().get());
       }
 
       // 2. Map links to nodes
-      for (com.arcadedb.graph.Vertex link : links) {
+      for (Vertex link : links) {
         nodes.add(
           new GraphData.LinkNode(link.getString("id"), link.getString("title") != null ? link.getString("title") : link.getString("url"), link.getString("url"))
         );

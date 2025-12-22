@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -55,7 +56,7 @@ public class NewLinkService implements NewLinkUseCase {
       newLinkCommand.description(),
       LocalDateTime.now(),
       "text/html",
-      java.util.Collections.emptyList()
+      Collections.emptyList()
     );
 
     var savedLink = linkPersistenceAdapter.saveLinkForUser(link, newLinkCommand.userId());

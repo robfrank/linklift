@@ -51,6 +51,9 @@ class DownloadContentServiceTest {
   private SaveLinkPort saveLinkPort;
 
   @Mock
+  private UpdateLinkPort updateLinkPort;
+
+  @Mock
   private EmbeddingGenerator embeddingGenerator;
 
   @Mock
@@ -69,6 +72,7 @@ class DownloadContentServiceTest {
       contentSummarizerPort,
       loadLinksPort,
       saveLinkPort,
+      updateLinkPort,
       embeddingGenerator,
       executorService
     );

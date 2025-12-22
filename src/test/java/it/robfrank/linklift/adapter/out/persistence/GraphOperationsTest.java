@@ -277,6 +277,79 @@ class GraphOperationsTest {
     assertThat(linkRepository.userOwnsLink(userId, linkId)).isFalse();
   }
 
+  @Test
+  void shouldCreateConnectionsBetweenLinks() {
+    // Given: Create a test user
+    String userId = UUID.randomUUID().toString();
+    User testUser = new User(
+      userId,
+      "linkstouser",
+      "linksto@example.com",
+      "hashedPassword",
+      "salt",
+      LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+      null,
+      true,
+      "LinksTo",
+      "User",
+      null
+    );
+    userRepository.save(testUser);
+
+    // And: Create two links, one referencing the other
+    String sourceLinkId = UUID.randomUUID().toString();
+    String targetUrl = "https://referenced-link.com";
+    String targetLinkId = UUID.randomUUID().toString();
+
+    Link targetLink = new Link(
+      targetLinkId,
+      targetUrl,
+      "Target Link",
+      "The referenced link",
+      LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+      "text/html",
+      List.of()
+    );
+    linkRepository.saveLinkForUser(targetLink, userId);
+
+    Link sourceLink = new Link(
+      sourceLinkId,
+      "https://source-link.com",
+      "Source Link",
+      "The referencing link",
+      LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+      "text/html",
+      List.of(targetUrl) // Contains URL of target link
+    );
+    linkRepository.saveLinkForUser(sourceLink, userId);
+
+    // When: Sync connections
+    linkRepository.syncLinkConnections(sourceLinkId, List.of(targetUrl));
+
+    // Then: Verify a 'linksTo' edge exists between source and target
+
+    // Get RIDs for source and target
+    var sourceRid = database.query("sql", "SELECT @rid as rid FROM Link WHERE id = ?", sourceLinkId).next().getProperty("rid");
+    var targetRid = database.query("sql", "SELECT @rid as rid FROM Link WHERE id = ?", targetLinkId).next().getProperty("rid");
+
+    Long count = database
+      .query(
+        "sql",
+        """
+        SELECT count(*) as count
+        FROM linksTo
+        WHERE @out = ? AND @in = ?
+        """,
+        sourceRid,
+        targetRid
+      )
+      .next()
+      .<Number>getProperty("count")
+      .longValue();
+
+    assertThat(count).isGreaterThan(0L);
+  }
+
   private void cleanupTestData() {
     try {
       // Clean up any existing test data

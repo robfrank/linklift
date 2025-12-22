@@ -10,7 +10,15 @@ import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;
 import it.robfrank.linklift.application.port.in.DownloadContentUseCase;
-import it.robfrank.linklift.application.port.out.*;
+import it.robfrank.linklift.application.port.out.ContentDownloaderPort;
+import it.robfrank.linklift.application.port.out.ContentExtractorPort;
+import it.robfrank.linklift.application.port.out.ContentSummarizerPort;
+import it.robfrank.linklift.application.port.out.DomainEventPublisher;
+import it.robfrank.linklift.application.port.out.EmbeddingGenerator;
+import it.robfrank.linklift.application.port.out.LoadLinksPort;
+import it.robfrank.linklift.application.port.out.SaveContentPort;
+import it.robfrank.linklift.application.port.out.SaveLinkPort;
+import it.robfrank.linklift.application.port.out.UpdateLinkPort;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,6 +46,7 @@ public class DownloadContentService implements DownloadContentUseCase {
   private final ContentSummarizerPort contentSummarizer;
   private final LoadLinksPort loadLinksPort;
   private final SaveLinkPort saveLinkPort;
+  private final UpdateLinkPort updateLinkPort;
   private final EmbeddingGenerator embeddingGenerator;
   private final ExecutorService executorService;
 
@@ -49,6 +58,7 @@ public class DownloadContentService implements DownloadContentUseCase {
     @NonNull ContentSummarizerPort contentSummarizer,
     @NonNull LoadLinksPort loadLinksPort,
     @NonNull SaveLinkPort saveLinkPort,
+    @NonNull UpdateLinkPort updateLinkPort,
     @NonNull EmbeddingGenerator embeddingGenerator,
     @NonNull ExecutorService executorService
   ) {
@@ -59,6 +69,7 @@ public class DownloadContentService implements DownloadContentUseCase {
     this.contentSummarizer = contentSummarizer;
     this.loadLinksPort = loadLinksPort;
     this.saveLinkPort = saveLinkPort;
+    this.updateLinkPort = updateLinkPort;
     this.embeddingGenerator = embeddingGenerator;
     this.executorService = executorService;
   }
@@ -144,7 +155,7 @@ public class DownloadContentService implements DownloadContentUseCase {
                 existingLink.contentType(),
                 extractedUrls
               );
-              saveLinkPort.saveLink(updatedLink);
+              updateLinkPort.updateLink(updatedLink);
               saveLinkPort.syncLinkConnections(updatedLink);
             }
           }

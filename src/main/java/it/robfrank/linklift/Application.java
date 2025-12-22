@@ -109,6 +109,7 @@ public class Application {
       contentSummarizer,
       linkPersistenceAdapter,
       linkPersistenceAdapter,
+      linkPersistenceAdapter,
       embeddingGenerator,
       executorService
     );
@@ -320,6 +321,7 @@ public class Application {
       eventPublisher,
       contentExtractor,
       contentSummarizer,
+      linkPersistenceAdapter,
       linkPersistenceAdapter,
       linkPersistenceAdapter,
       embeddingGenerator,

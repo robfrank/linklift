@@ -52,15 +52,7 @@ class NewLinkServiceTest {
     // Arrange
     NewLinkCommand command = new NewLinkCommand("https://example.com", "Example Title", "Example Description", "user-123");
 
-    Link expectedLink = new Link(
-      "test-id",
-      "https://example.com",
-      "Example Title",
-      "Example Description",
-      LocalDateTime.now(),
-      "text/html",
-      List.of()
-    );
+    Link expectedLink = new Link("test-id", "https://example.com", "Example Title", "Example Description", LocalDateTime.now(), "text/html", List.of());
 
     when(linkPersistenceAdapter.saveLinkForUser(any(Link.class), eq("user-123"))).thenReturn(expectedLink);
     // Act

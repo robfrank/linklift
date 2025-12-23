@@ -37,15 +37,7 @@ class LinkControllerTest {
   @Test
   void updateLink_shouldReturn200_whenLinkIsUpdated() {
     // Given
-    Link updatedLink = new Link(
-      "link-123",
-      "https://example.com",
-      "Updated Title",
-      "Updated Description",
-      LocalDateTime.now(),
-      "text/html",
-      List.of()
-    );
+    Link updatedLink = new Link("link-123", "https://example.com", "Updated Title", "Updated Description", LocalDateTime.now(), "text/html", List.of());
     when(updateLinkUseCase.updateLink(any(UpdateLinkCommand.class))).thenReturn(updatedLink);
 
     JavalinTest.test((app, client) -> {

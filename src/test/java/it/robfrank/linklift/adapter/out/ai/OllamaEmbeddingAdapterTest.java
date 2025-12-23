@@ -1,7 +1,7 @@
 package it.robfrank.linklift.adapter.out.ai;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ class OllamaEmbeddingAdapterTest {
   // ==================== Happy Path Tests ====================
 
   @Test
-  void generateEmbedding_shouldReturnEmbedding_whenValidResponseReceived() throws IOException, InterruptedException {
+  void generateEmbedding_shouldReturnEmbedding_whenValidResponseReceived() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -59,7 +59,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void generateEmbedding_shouldSendCorrectRequest_withProperModelAndPrompt() throws IOException, InterruptedException {
+  void generateEmbedding_shouldSendCorrectRequest_withProperModelAndPrompt() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -79,7 +79,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void generateEmbedding_shouldHandleEmptyEmbeddingVector() throws IOException, InterruptedException {
+  void generateEmbedding_shouldHandleEmptyEmbeddingVector() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -96,7 +96,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void generateEmbedding_shouldFilterNullValuesFromEmbedding() throws IOException, InterruptedException {
+  void generateEmbedding_shouldFilterNullValuesFromEmbedding() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -115,7 +115,7 @@ class OllamaEmbeddingAdapterTest {
   // ==================== Error Handling Tests ====================
 
   @Test
-  void generateEmbedding_shouldThrowException_whenHttpStatusIsNotOK() throws IOException, InterruptedException {
+  void generateEmbedding_shouldThrowException_whenHttpStatusIsNotOK() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -130,7 +130,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void generateEmbedding_shouldThrowException_when404NotFound() throws IOException, InterruptedException {
+  void generateEmbedding_shouldThrowException_when404NotFound() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "missing-model");
 
@@ -145,7 +145,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void generateEmbedding_shouldThrowException_whenResponseIsMalformedJSON() throws IOException, InterruptedException {
+  void generateEmbedding_shouldThrowException_whenResponseIsMalformedJSON() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -159,7 +159,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void generateEmbedding_shouldThrowException_whenEmbeddingFieldIsMissing() throws IOException, InterruptedException {
+  void generateEmbedding_shouldThrowException_whenEmbeddingFieldIsMissing() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -175,7 +175,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void generateEmbedding_shouldThrowException_whenEmbeddingIsNotList() throws IOException, InterruptedException {
+  void generateEmbedding_shouldThrowException_whenEmbeddingIsNotList() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -191,7 +191,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void generateEmbedding_shouldThrowException_onIOError() throws IOException, InterruptedException {
+  void generateEmbedding_shouldThrowException_onIOError() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -204,7 +204,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void generateEmbedding_shouldThrowException_onInterruption() throws IOException, InterruptedException {
+  void generateEmbedding_shouldThrowException_onInterruption() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -222,7 +222,7 @@ class OllamaEmbeddingAdapterTest {
   // ==================== Configuration Tests ====================
 
   @Test
-  void constructor_shouldUseDefaultUrl_whenNotProvided() throws IOException, InterruptedException {
+  void constructor_shouldUseDefaultUrl_whenNotProvided() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, null, "test-model");
 
@@ -239,7 +239,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void constructor_shouldUseDefaultModel_whenNotProvided() throws IOException, InterruptedException {
+  void constructor_shouldUseDefaultModel_whenNotProvided() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", null);
 
@@ -258,7 +258,7 @@ class OllamaEmbeddingAdapterTest {
   // ==================== Large Data Tests ====================
 
   @Test
-  void generateEmbedding_shouldHandleLargEmbeddingVector() throws IOException, InterruptedException {
+  void generateEmbedding_shouldHandleLargEmbeddingVector() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -266,7 +266,7 @@ class OllamaEmbeddingAdapterTest {
     StringBuilder embeddingJson = new StringBuilder("{\"embedding\": [");
     for (int i = 0; i < 1024; i++) {
       if (i > 0) embeddingJson.append(", ");
-      embeddingJson.append(String.format("%.4f", i / 1024.0f));
+      embeddingJson.append("%.4f".formatted(i / 1024.0f));
     }
     embeddingJson.append("]}");
 
@@ -282,7 +282,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void generateEmbedding_shouldHandleVeryLongPrompt() throws IOException, InterruptedException {
+  void generateEmbedding_shouldHandleVeryLongPrompt() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -304,7 +304,7 @@ class OllamaEmbeddingAdapterTest {
   // ==================== Dimension Validation Tests ====================
 
   @Test
-  void generateEmbedding_shouldLogWarning_whenDimensionMismatchDetected() throws IOException, InterruptedException {
+  void generateEmbedding_shouldLogWarning_whenDimensionMismatchDetected() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 
@@ -324,7 +324,7 @@ class OllamaEmbeddingAdapterTest {
   }
 
   @Test
-  void generateEmbedding_shouldValidateDimensionsOnlyOnce() throws IOException, InterruptedException {
+  void generateEmbedding_shouldValidateDimensionsOnlyOnce() throws Exception {
     // Arrange
     adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
 

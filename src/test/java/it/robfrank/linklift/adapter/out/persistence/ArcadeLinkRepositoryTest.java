@@ -9,6 +9,7 @@ import it.robfrank.linklift.config.DatabaseInitializer;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +60,7 @@ class ArcadeLinkRepositoryTest {
       "Test Description",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      java.util.List.of()
+      List.of()
     );
 
     var savedLink = linkRepository.saveLink(testLink);
@@ -77,7 +78,7 @@ class ArcadeLinkRepositoryTest {
       "Test Description",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      java.util.List.of()
+      List.of()
     );
 
     var savedLink = linkRepository.saveLink(testLink);
@@ -96,7 +97,7 @@ class ArcadeLinkRepositoryTest {
       "Test Description",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      java.util.List.of()
+      List.of()
     );
 
     var savedLink = linkRepository.saveLink(testLink);

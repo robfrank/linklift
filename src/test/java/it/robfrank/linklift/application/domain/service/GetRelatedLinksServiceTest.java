@@ -37,9 +37,9 @@ class GetRelatedLinksServiceTest {
     String linkId = "link-123";
     String userId = "user-123";
     List<Link> relatedLinks = Arrays.asList(
-      new Link("link-2", "https://example.com/2", "Related 1", "Desc 1", LocalDateTime.now(), "text/html", java.util.List.of()),
-      new Link("link-3", "https://example.com/3", "Related 2", "Desc 2", LocalDateTime.now(), "text/html", java.util.List.of()),
-      new Link("link-4", "https://example.com/4", "Related 3", "Desc 3", LocalDateTime.now(), "text/html", java.util.List.of())
+      new Link("link-2", "https://example.com/2", "Related 1", "Desc 1", LocalDateTime.now(), "text/html", List.of()),
+      new Link("link-3", "https://example.com/3", "Related 2", "Desc 2", LocalDateTime.now(), "text/html", List.of()),
+      new Link("link-4", "https://example.com/4", "Related 3", "Desc 3", LocalDateTime.now(), "text/html", List.of())
     );
 
     when(loadLinksPort.getRelatedLinks(linkId, userId)).thenReturn(relatedLinks);

@@ -1,7 +1,7 @@
 package it.robfrank.linklift.application.domain.service;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 import it.robfrank.linklift.application.domain.exception.ValidationException;

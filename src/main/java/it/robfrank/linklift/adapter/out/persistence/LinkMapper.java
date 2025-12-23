@@ -4,6 +4,7 @@ import com.arcadedb.graph.MutableVertex;
 import com.arcadedb.graph.Vertex;
 import com.arcadedb.remote.RemoteMutableVertex;
 import it.robfrank.linklift.application.domain.model.Link;
+import java.util.List;
 
 public class LinkMapper {
 
@@ -15,7 +16,7 @@ public class LinkMapper {
       vertex.getString("description"),
       vertex.getLocalDateTime("extractedAt"),
       vertex.getString("contentType"),
-      (java.util.List<String>) (Object) vertex.getList("extractedUrls")
+      (List<String>) (Object) vertex.getList("extractedUrls")
     );
   }
 

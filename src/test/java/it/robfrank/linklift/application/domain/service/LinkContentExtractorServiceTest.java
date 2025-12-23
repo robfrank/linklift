@@ -8,6 +8,7 @@ import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.out.SaveLinkPort;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +42,7 @@ class LinkContentExtractorServiceTest {
   void shouldExtractContentAndUpdateLink() throws Exception {
     // Given
     String url = "https://example.com";
-    Link originalLink = new Link("id-123", url, "Original Title", "Original Description", LocalDateTime.now(), "text/html", java.util.List.of());
+    Link originalLink = new Link("id-123", url, "Original Title", "Original Description", LocalDateTime.now(), "text/html", List.of());
     LinkCreatedEvent event = new LinkCreatedEvent(originalLink, "user-1");
 
     // Mock Jsoup.connect().get() to return a dummy document

@@ -92,7 +92,7 @@ class GraphOperationsTest {
       "Testing graph relationships",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      java.util.List.of()
+      List.of()
     );
 
     // When: Save the link with user relationship using graph approach
@@ -138,7 +138,7 @@ class GraphOperationsTest {
         "First link",
         LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
         "text/html",
-        java.util.List.of()
+        List.of()
       ),
       new Link(
         UUID.randomUUID().toString(),
@@ -147,7 +147,7 @@ class GraphOperationsTest {
         "Second link",
         LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
         "text/html",
-        java.util.List.of()
+        List.of()
       ),
       new Link(
         UUID.randomUUID().toString(),
@@ -156,7 +156,7 @@ class GraphOperationsTest {
         "Third link",
         LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
         "text/html",
-        java.util.List.of()
+        List.of()
       )
     );
 
@@ -217,7 +217,7 @@ class GraphOperationsTest {
       "Testing ownership transfer",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      java.util.List.of()
+      List.of()
     );
     linkRepository.saveLinkForUser(testLink, user1Id);
 
@@ -261,7 +261,7 @@ class GraphOperationsTest {
       "Testing deletion",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      java.util.List.of()
+      List.of()
     );
     linkRepository.saveLinkForUser(testLink, userId);
 

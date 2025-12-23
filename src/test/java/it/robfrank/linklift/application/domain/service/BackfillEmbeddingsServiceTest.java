@@ -1,7 +1,6 @@
 package it.robfrank.linklift.application.domain.service;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import it.robfrank.linklift.application.domain.model.Content;
@@ -10,6 +9,7 @@ import it.robfrank.linklift.application.port.out.EmbeddingGenerator;
 import it.robfrank.linklift.application.port.out.LoadContentPort;
 import it.robfrank.linklift.application.port.out.SaveContentPort;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -53,7 +53,7 @@ class BackfillEmbeddingsServiceTest {
   // ==================== Happy Path Tests ====================
 
   @Test
-  void backfill_shouldProcessSingleBatch_whenContentExists() throws InterruptedException {
+  void backfill_shouldProcessSingleBatch_whenContentExists() throws Exception {
     // Arrange
     Content content = createTestContent("id-1", "link-1", "text content");
     List<Float> embedding = List.of(0.1f, 0.2f, 0.3f);
@@ -74,7 +74,7 @@ class BackfillEmbeddingsServiceTest {
   }
 
   @Test
-  void backfill_shouldProcessMultipleBatches_whenLargeDataSet() throws InterruptedException {
+  void backfill_shouldProcessMultipleBatches_whenLargeDataSet() throws Exception {
     // Arrange
     Content content1 = createTestContent("id-1", "link-1", "text1");
     Content content2 = createTestContent("id-2", "link-2", "text2");
@@ -98,7 +98,7 @@ class BackfillEmbeddingsServiceTest {
   }
 
   @Test
-  void backfill_shouldNotProcessContent_whenTextContentIsNull() throws InterruptedException {
+  void backfill_shouldNotProcessContent_whenTextContentIsNull() throws Exception {
     // Arrange
     Content content = new Content("id-1", "link-1", "html", null, 0, FIXED_TEST_TIME, "text/html", DownloadStatus.COMPLETED);
 
@@ -116,7 +116,7 @@ class BackfillEmbeddingsServiceTest {
   }
 
   @Test
-  void backfill_shouldNotProcessContent_whenTextContentIsBlank() throws InterruptedException {
+  void backfill_shouldNotProcessContent_whenTextContentIsBlank() throws Exception {
     // Arrange
     Content content = new Content("id-1", "link-1", "html", "   ", 0, FIXED_TEST_TIME, "text/html", DownloadStatus.COMPLETED);
 
@@ -137,7 +137,7 @@ class BackfillEmbeddingsServiceTest {
   // ==================== Concurrency Tests ====================
 
   @Test
-  void backfill_shouldNotAllowConcurrentExecution_whenBackfillAlreadyRunning() throws InterruptedException {
+  void backfill_shouldNotAllowConcurrentExecution_whenBackfillAlreadyRunning() throws Exception {
     // Arrange
     CountDownLatch latch = new CountDownLatch(1);
     Content content = createTestContent("id-1", "link-1", "text");
@@ -162,7 +162,7 @@ class BackfillEmbeddingsServiceTest {
   }
 
   @Test
-  void backfill_shouldAllowNewBackfillAfterPreviousCompletes() throws InterruptedException {
+  void backfill_shouldAllowNewBackfillAfterPreviousCompletes() throws Exception {
     // Arrange
     when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of());
 
@@ -189,7 +189,7 @@ class BackfillEmbeddingsServiceTest {
   // ==================== Error Resilience Tests ====================
 
   @Test
-  void backfill_shouldContinueProcessing_whenEmbeddingGenerationFails() throws InterruptedException {
+  void backfill_shouldContinueProcessing_whenEmbeddingGenerationFails() throws Exception {
     // Arrange
     Content content1 = createTestContent("id-1", "link-1", "text1");
     Content content2 = createTestContent("id-2", "link-2", "text2");
@@ -214,7 +214,7 @@ class BackfillEmbeddingsServiceTest {
   }
 
   @Test
-  void backfill_shouldResetFlag_afterCompletion() throws InterruptedException {
+  void backfill_shouldResetFlag_afterCompletion() throws Exception {
     // Arrange
     when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of());
 
@@ -242,7 +242,7 @@ class BackfillEmbeddingsServiceTest {
   // ==================== Content Update Tests ====================
 
   @Test
-  void backfill_shouldPreserveAllContentFields_whenUpdatingWithEmbedding() throws InterruptedException {
+  void backfill_shouldPreserveAllContentFields_whenUpdatingWithEmbedding() throws Exception {
     // Arrange
     LocalDateTime downloadTime = LocalDateTime.of(2024, 1, 15, 10, 30);
     LocalDateTime publishTime = LocalDateTime.of(2024, 1, 10, 8, 0);
@@ -304,7 +304,7 @@ class BackfillEmbeddingsServiceTest {
   // ==================== Edge Cases ====================
 
   @Test
-  void backfill_shouldHandleEmptyBatch() throws InterruptedException {
+  void backfill_shouldHandleEmptyBatch() throws Exception {
     // Arrange
     when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of());
 
@@ -321,12 +321,12 @@ class BackfillEmbeddingsServiceTest {
   }
 
   @Test
-  void backfill_shouldHandleLargeEmbeddingVectors() throws InterruptedException {
+  void backfill_shouldHandleLargeEmbeddingVectors() throws Exception {
     // Arrange
     Content content = createTestContent("id-1", "link-1", "text");
 
     // Create a large embedding vector (1024 dimensions)
-    List<Float> largeEmbedding = new java.util.ArrayList<>();
+    List<Float> largeEmbedding = new ArrayList<>();
     for (int i = 0; i < 1024; i++) {
       largeEmbedding.add((float) i / 1024.0f);
     }

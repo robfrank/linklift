@@ -44,8 +44,8 @@ class GetCollectionServiceTest {
 
     Collection collection = new Collection(collectionId, "My Collection", "Description", userId, null);
     List<Link> links = Arrays.asList(
-      new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html", java.util.List.of()),
-      new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html", java.util.List.of())
+      new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html", List.of()),
+      new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html", List.of())
     );
 
     when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));

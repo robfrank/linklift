@@ -432,40 +432,61 @@ class OllamaEmbeddingAdapterTest {
 
    ```
 
-2. **Add validation in constructor:**
+2. **Add lazy dimension validation:**
+
+   The actual implementation uses a lazy, thread-safe validation approach that occurs on the first successful embedding generation, rather than in the constructor. This avoids infinite recursion and defers validation until the Ollama service is actually called.
 
    ```java
-   public OllamaEmbeddingAdapter(
-       HttpClient httpClient,
-       String ollamaUrl,
-       String model
-   ) {
-       this.httpClient = httpClient;
-       this.ollamaUrl = ollamaUrl;
-       this.model = model;
+   private volatile boolean dimensionValidated = false;
 
-       // Validate dimensions on first embedding
-       validateDimensions();
-   }
-
-   private void validateDimensions() {
+   @Override
+   @NonNull
+   public List<Float> generateEmbedding(@NonNull String text) {
        try {
-           List<Float> testEmbedding = generateEmbedding("test");
-           int actualDims = testEmbedding.size();
-           int expectedDims = SecureConfiguration.getOllamaExpectedDimensions();
+           // ... HTTP request code ...
 
-           if (actualDims != expectedDims) {
-               logger.warn(
-                   "Dimension mismatch detected! Model '{}' produces {} dimensions, " +
-                   "but schema expects {}. Update LINKLIFT_OLLAMA_DIMENSIONS or rebuild vector index.",
-                   model, actualDims, expectedDims
-               );
+           Map<String, Object> responseBody = objectMapper.readValue(response.body(), ...);
+           List<Float> embedding = extractEmbeddingFromResponse(responseBody);
+
+           // Validate dimensions on first successful embedding (thread-safe lazy validation)
+           if (!dimensionValidated) {
+               validateDimensions(embedding.size());
            }
-       } catch (Exception e) {
-           logger.error("Failed to validate embedding dimensions", e);
+
+           return embedding;
+       } catch (IOException e) {
+           // ... error handling ...
        }
    }
+
+   private synchronized void validateDimensions(int actualDimensions) {
+       if (dimensionValidated) {
+           return; // Already validated by another thread
+       }
+
+       int expectedDimensions = SecureConfiguration.getOllamaExpectedDimensions();
+       if (actualDimensions != expectedDimensions) {
+           logger.warn(
+               "Dimension mismatch detected! Model '{}' produces {} dimensions, " +
+               "but schema/configuration expects {} dimensions. " +
+               "Update LINKLIFT_OLLAMA_DIMENSIONS environment variable to match, " +
+               "or update the vector index schema to {} dimensions.",
+               model, actualDimensions, expectedDimensions, actualDimensions
+           );
+       } else {
+           logger.debug("Embedding dimensions validated: {} dimensions match expected configuration", actualDimensions);
+       }
+
+       dimensionValidated = true;
+   }
    ```
+
+   **Key Benefits:**
+
+   - Avoids infinite recursion (validation doesn't call generateEmbedding)
+   - Thread-safe with synchronized method and volatile flag
+   - Lazy validation (only on first successful embedding)
+   - Defers validation until Ollama service is actually available
 
 **Files to modify:**
 

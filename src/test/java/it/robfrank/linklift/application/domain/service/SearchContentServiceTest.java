@@ -20,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SearchContentServiceTest {
 
+  private static final LocalDateTime FIXED_TEST_TIME = LocalDateTime.of(2024, 1, 1, 12, 0);
+
   @Mock
   private LoadContentPort loadContentPort;
 
@@ -29,7 +31,7 @@ class SearchContentServiceTest {
   private SearchContentService searchContentService;
 
   private static Content createTestContent(String id, String linkId) {
-    return new Content(id, linkId, null, "test content", null, LocalDateTime.now(), null, DownloadStatus.COMPLETED);
+    return new Content(id, linkId, null, "test content", null, FIXED_TEST_TIME, null, DownloadStatus.COMPLETED);
   }
 
   @BeforeEach

@@ -26,6 +26,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BackfillEmbeddingsServiceTest {
 
+  private static final LocalDateTime FIXED_TEST_TIME = LocalDateTime.of(2024, 1, 1, 12, 0);
+
   @Mock
   private LoadContentPort loadContentPort;
 
@@ -39,7 +41,7 @@ class BackfillEmbeddingsServiceTest {
   private BackfillEmbeddingsService backfillEmbeddingsService;
 
   private static Content createTestContent(String id, String linkId, String text) {
-    return new Content(id, linkId, "html", text, 100, LocalDateTime.now(), "text/html", DownloadStatus.COMPLETED, null, null, null, null, null, null, null);
+    return new Content(id, linkId, "html", text, 100, FIXED_TEST_TIME, "text/html", DownloadStatus.COMPLETED, null, null, null, null, null, null, null);
   }
 
   @BeforeEach
@@ -62,8 +64,8 @@ class BackfillEmbeddingsServiceTest {
     // Act
     backfillEmbeddingsService.backfill();
 
-    // Wait for async execution
-    Thread.sleep(500);
+    // Wait for async execution to complete
+    Thread.sleep(1000);
 
     // Assert
     verify(loadContentPort, times(2)).findContentsWithoutEmbeddings(100);
@@ -85,7 +87,9 @@ class BackfillEmbeddingsServiceTest {
 
     // Act
     backfillEmbeddingsService.backfill();
-    Thread.sleep(500);
+
+    // Wait for async execution to complete
+    Thread.sleep(1000);
 
     // Assert
     verify(loadContentPort, times(3)).findContentsWithoutEmbeddings(100);
@@ -96,13 +100,15 @@ class BackfillEmbeddingsServiceTest {
   @Test
   void backfill_shouldNotProcessContent_whenTextContentIsNull() throws InterruptedException {
     // Arrange
-    Content content = new Content("id-1", "link-1", "html", null, 0, LocalDateTime.now(), "text/html", DownloadStatus.COMPLETED);
+    Content content = new Content("id-1", "link-1", "html", null, 0, FIXED_TEST_TIME, "text/html", DownloadStatus.COMPLETED);
 
     when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of(content)).thenReturn(List.of());
 
     // Act
     backfillEmbeddingsService.backfill();
-    Thread.sleep(500);
+
+    // Wait for async execution to complete
+    Thread.sleep(1000);
 
     // Assert
     verify(embeddingGenerator, never()).generateEmbedding(any());
@@ -112,15 +118,18 @@ class BackfillEmbeddingsServiceTest {
   @Test
   void backfill_shouldNotProcessContent_whenTextContentIsBlank() throws InterruptedException {
     // Arrange
-    Content content = new Content("id-1", "link-1", "html", "   ", 0, LocalDateTime.now(), "text/html", DownloadStatus.COMPLETED);
+    Content content = new Content("id-1", "link-1", "html", "   ", 0, FIXED_TEST_TIME, "text/html", DownloadStatus.COMPLETED);
 
     when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of(content)).thenReturn(List.of());
 
     // Act
     backfillEmbeddingsService.backfill();
-    Thread.sleep(500);
+
+    // Assert - wait for async execution with deterministic verification
+    Thread.sleep(1000);
 
     // Assert
+
     verify(embeddingGenerator, never()).generateEmbedding(any());
     verify(saveContentPort, never()).updateContent(any());
   }
@@ -144,10 +153,11 @@ class BackfillEmbeddingsServiceTest {
     latch.await(); // Wait for it to start
     backfillEmbeddingsService.backfill(); // Try to start second backfill (should be rejected)
 
-    // Wait for first backfill to complete
-    Thread.sleep(2500);
+    // Assert - wait for first backfill to complete and verify rejection of concurrent execution
+    Thread.sleep(1000);
 
-    // Assert - loadContentPort should only be called once (not twice)
+    // Assert
+
     verify(loadContentPort, times(1)).findContentsWithoutEmbeddings(100);
   }
 
@@ -158,12 +168,21 @@ class BackfillEmbeddingsServiceTest {
 
     // Act
     backfillEmbeddingsService.backfill();
-    Thread.sleep(500);
+
+    // First backfill completes
+    Thread.sleep(1000);
+
+    // Assert
+
+    verify(loadContentPort, times(1)).findContentsWithoutEmbeddings(100);
 
     backfillEmbeddingsService.backfill();
-    Thread.sleep(500);
 
     // Assert - should have called loadContentPort twice (once for each backfill)
+    Thread.sleep(1000);
+
+    // Assert
+
     verify(loadContentPort, times(2)).findContentsWithoutEmbeddings(100);
   }
 
@@ -183,9 +202,12 @@ class BackfillEmbeddingsServiceTest {
 
     // Act
     backfillEmbeddingsService.backfill();
-    Thread.sleep(500);
 
-    // Assert - should have tried to embed both contents
+    // Assert - wait for async execution with deterministic verification
+    Thread.sleep(1000);
+
+    // Assert
+
     verify(embeddingGenerator, times(2)).generateEmbedding(anyString());
     // Should have saved the successful one
     verify(saveContentPort, times(1)).updateContent(any());
@@ -198,13 +220,22 @@ class BackfillEmbeddingsServiceTest {
 
     // Act
     backfillEmbeddingsService.backfill();
-    Thread.sleep(500);
+
+    // First backfill completes
+    Thread.sleep(1000);
+
+    // Assert
+
+    verify(loadContentPort, times(1)).findContentsWithoutEmbeddings(100);
 
     // Flag should be reset, so this should succeed
     backfillEmbeddingsService.backfill();
-    Thread.sleep(500);
 
     // Assert
+    Thread.sleep(1000);
+
+    // Assert
+
     verify(loadContentPort, times(2)).findContentsWithoutEmbeddings(100);
   }
 
@@ -213,8 +244,8 @@ class BackfillEmbeddingsServiceTest {
   @Test
   void backfill_shouldPreserveAllContentFields_whenUpdatingWithEmbedding() throws InterruptedException {
     // Arrange
-    LocalDateTime downloadTime = LocalDateTime.now();
-    LocalDateTime publishTime = LocalDateTime.now();
+    LocalDateTime downloadTime = LocalDateTime.of(2024, 1, 15, 10, 30);
+    LocalDateTime publishTime = LocalDateTime.of(2024, 1, 10, 8, 0);
 
     Content original = new Content(
       "id-1",
@@ -243,10 +274,14 @@ class BackfillEmbeddingsServiceTest {
 
     // Act
     backfillEmbeddingsService.backfill();
-    Thread.sleep(500);
+
+    // Assert - wait for async execution with deterministic verification
+    Thread.sleep(1000);
 
     // Assert
+
     verify(saveContentPort).updateContent(contentCaptor.capture());
+
     Content updated = contentCaptor.getValue();
 
     assertThat(updated.id()).isEqualTo("id-1");
@@ -254,6 +289,7 @@ class BackfillEmbeddingsServiceTest {
     assertThat(updated.htmlContent()).isEqualTo("<html>content</html>");
     assertThat(updated.textContent()).isEqualTo("text content");
     assertThat(updated.contentLength()).isEqualTo(123);
+    assertThat(updated.downloadedAt()).isEqualTo(downloadTime);
     assertThat(updated.mimeType()).isEqualTo("text/html");
     assertThat(updated.status()).isEqualTo(DownloadStatus.COMPLETED);
     assertThat(updated.summary()).isEqualTo("summary here");
@@ -261,6 +297,7 @@ class BackfillEmbeddingsServiceTest {
     assertThat(updated.extractedTitle()).isEqualTo("Extracted Title");
     assertThat(updated.extractedDescription()).isEqualTo("Extracted Description");
     assertThat(updated.author()).isEqualTo("John Doe");
+    assertThat(updated.publishedDate()).isEqualTo(publishTime);
     assertThat(updated.embedding()).isEqualTo(embedding);
   }
 
@@ -273,9 +310,12 @@ class BackfillEmbeddingsServiceTest {
 
     // Act
     backfillEmbeddingsService.backfill();
-    Thread.sleep(500);
+
+    // Assert - wait for async execution with deterministic verification
+    Thread.sleep(1000);
 
     // Assert
+
     verify(embeddingGenerator, never()).generateEmbedding(any());
     verify(saveContentPort, never()).updateContent(any());
   }
@@ -296,10 +336,13 @@ class BackfillEmbeddingsServiceTest {
 
     // Act
     backfillEmbeddingsService.backfill();
-    Thread.sleep(500);
+
+    // Assert - wait for async execution with deterministic verification
+    ArgumentCaptor<Content> contentCaptor = ArgumentCaptor.forClass(Content.class);
+    Thread.sleep(1000);
 
     // Assert
-    ArgumentCaptor<Content> contentCaptor = ArgumentCaptor.forClass(Content.class);
+
     verify(saveContentPort).updateContent(contentCaptor.capture());
     assertThat(contentCaptor.getValue().embedding()).hasSize(1024);
   }

@@ -23,6 +23,7 @@ public final class SecureConfiguration {
   private static final String JWT_SECRET_FILE_ENV = "LINKLIFT_JWT_SECRET_FILE";
   private static final String OLLAMA_URL_ENV = "LINKLIFT_OLLAMA_URL";
   private static final String OLLAMA_MODEL_ENV = "LINKLIFT_OLLAMA_MODEL";
+  private static final String OLLAMA_DIMENSIONS_ENV = "LINKLIFT_OLLAMA_DIMENSIONS";
 
   // Development fallback - WARNING: Never use in production
   private static final String DEVELOPMENT_JWT_SECRET = generateSecureDevSecret();
@@ -166,5 +167,20 @@ public final class SecureConfiguration {
    */
   public static String getOllamaModel() {
     return System.getenv().getOrDefault(OLLAMA_MODEL_ENV, "nomic-embed-text");
+  }
+
+  /**
+   * Retrieves the expected embedding dimensions from the Ollama model.
+   * Defaults to 384 dimensions (for all-minilm or similar models).
+   * Set LINKLIFT_OLLAMA_DIMENSIONS environment variable to override.
+   */
+  public static int getOllamaExpectedDimensions() {
+    String dimensionStr = System.getenv().getOrDefault(OLLAMA_DIMENSIONS_ENV, "384");
+    try {
+      return Integer.parseInt(dimensionStr);
+    } catch (NumberFormatException e) {
+      logger.warn("Invalid value for {}. Expected integer, got: {}. Defaulting to 384", OLLAMA_DIMENSIONS_ENV, dimensionStr);
+      return 384;
+    }
   }
 }

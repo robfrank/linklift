@@ -159,7 +159,7 @@ public class Application {
     GetContentController getContentController = new GetContentController(getContentUseCase, downloadContentUseCase);
     DeleteContentController deleteContentController = new DeleteContentController(deleteContentUseCase);
     SearchContentController searchContentController = new SearchContentController(searchContentUseCase);
-    AdminController adminController = new AdminController(backfillEmbeddingsUseCase);
+    AdminController adminController = new AdminController(backfillEmbeddingsUseCase, executorService);
 
     AuthenticationController authenticationController = new AuthenticationController(userService, authenticationService, authenticationService);
 
@@ -374,7 +374,7 @@ public class Application {
     GetContentController getContentController = new GetContentController(getContentUseCase, downloadContentUseCase);
     DeleteContentController deleteContentController = new DeleteContentController(deleteContentUseCase);
     SearchContentController searchContentController = new SearchContentController(searchContentUseCase);
-    AdminController adminController = new AdminController(backfillEmbeddingsUseCase);
+    AdminController adminController = new AdminController(backfillEmbeddingsUseCase, executorService);
 
     AuthenticationController authenticationController = new AuthenticationController(userService, authenticationService, authenticationService);
 

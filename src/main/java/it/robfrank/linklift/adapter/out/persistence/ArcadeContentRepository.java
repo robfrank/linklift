@@ -23,10 +23,42 @@ public class ArcadeContentRepository {
 
   public @NonNull Content save(@NonNull Content content) {
     try {
-      var vertex = database.newVertex(CONTENT_TYPE);
-      mapper.mapToVertex(content, vertex);
-      vertex.save();
-      return mapper.mapToDomain(vertex);
+      database.transaction(() -> {
+        database.command(
+          "sql",
+          """
+          INSERT INTO Content (
+            id, linkId, htmlContent, textContent, contentLength, downloadedAt,
+            mimeType, status, summary, heroImageUrl, extractedTitle,
+            extractedDescription, author, publishedDate, embedding
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          """,
+          content.id(),
+          content.linkId(),
+          content.htmlContent(),
+          content.textContent(),
+          content.contentLength(),
+          content.downloadedAt(),
+          content.mimeType(),
+          content.status().name(),
+          content.summary(),
+          content.heroImageUrl(),
+          content.extractedTitle(),
+          content.extractedDescription(),
+          content.author(),
+          content.publishedDate(),
+          content.embedding()
+        );
+      });
+      // After insert, retrieve the saved vertex to return the complete object
+      var resultSet = database.query("sql", "SELECT FROM Content WHERE id = ?", content.id());
+      if (resultSet.hasNext()) {
+        var vertex = resultSet.next().toElement().asVertex();
+        if (vertex != null) {
+          return mapper.mapToDomain(vertex);
+        }
+      }
+      return content;
     } catch (Exception e) {
       throw new DatabaseException("Failed to save content: " + e.getMessage(), e);
     }

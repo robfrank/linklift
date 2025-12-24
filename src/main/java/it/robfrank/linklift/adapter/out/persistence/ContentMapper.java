@@ -58,16 +58,19 @@ public class ContentMapper {
   }
 
   public @NonNull MutableVertex mapToVertex(@NonNull Content content, @NonNull RemoteMutableVertex vertex) {
+    // Set required fields
     vertex.set("id", content.id());
     vertex.set("linkId", content.linkId());
-    vertex.set("htmlContent", content.htmlContent());
-    vertex.set("textContent", content.textContent());
-    vertex.set("contentLength", content.contentLength());
     vertex.set("downloadedAt", content.downloadedAt());
-    vertex.set("mimeType", content.mimeType());
     vertex.set("status", content.status().name());
 
-    // New fields for Phase 1 Feature 1
+    // Set nullable base fields - only set if not null to avoid ArcadeDB serialization issues
+    if (content.htmlContent() != null) vertex.set("htmlContent", content.htmlContent());
+    if (content.textContent() != null) vertex.set("textContent", content.textContent());
+    if (content.contentLength() != null) vertex.set("contentLength", content.contentLength());
+    if (content.mimeType() != null) vertex.set("mimeType", content.mimeType());
+
+    // Set nullable Phase 1 Feature 1 fields
     if (content.summary() != null) vertex.set("summary", content.summary());
     if (content.heroImageUrl() != null) vertex.set("heroImageUrl", content.heroImageUrl());
     if (content.extractedTitle() != null) vertex.set("extractedTitle", content.extractedTitle());

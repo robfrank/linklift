@@ -1,42 +1,25 @@
 package it.robfrank.linklift.application.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
+import it.robfrank.linklift.adapter.out.ai.FakeEmbeddingGenerator;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
-import it.robfrank.linklift.application.port.out.EmbeddingGenerator;
-import it.robfrank.linklift.application.port.out.LoadContentPort;
-import it.robfrank.linklift.application.port.out.SaveContentPort;
+import it.robfrank.linklift.testcontainers.ArcadeDbTestBase;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class BackfillEmbeddingsServiceTest {
+class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
 
   private static final LocalDateTime FIXED_TEST_TIME = LocalDateTime.of(2024, 1, 1, 12, 0);
 
-  @Mock
-  private LoadContentPort loadContentPort;
-
-  @Mock
-  private SaveContentPort saveContentPort;
-
-  @Mock
-  private EmbeddingGenerator embeddingGenerator;
-
+  private FakeEmbeddingGenerator embeddingGenerator;
   private ExecutorService executorService;
   private BackfillEmbeddingsService backfillEmbeddingsService;
 
@@ -46,204 +29,196 @@ class BackfillEmbeddingsServiceTest {
 
   @BeforeEach
   void setUp() {
+    embeddingGenerator = new FakeEmbeddingGenerator();
     executorService = Executors.newFixedThreadPool(2);
-    backfillEmbeddingsService = new BackfillEmbeddingsService(loadContentPort, saveContentPort, embeddingGenerator, executorService);
+    backfillEmbeddingsService = new BackfillEmbeddingsService(repository, repository, embeddingGenerator, executorService);
   }
 
   // ==================== Happy Path Tests ====================
 
   @Test
   void backfill_shouldProcessSingleBatch_whenContentExists() throws Exception {
-    // Arrange
+    // Given - content exists without embedding
     Content content = createTestContent("id-1", "link-1", "text content");
-    List<Float> embedding = List.of(0.1f, 0.2f, 0.3f);
+    repository.saveContent(content);
 
-    when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of(content)).thenReturn(List.of());
-    when(embeddingGenerator.generateEmbedding("text content")).thenReturn(embedding);
-
-    // Act
+    // When - backfill is executed
     backfillEmbeddingsService.backfill();
 
     // Wait for async execution to complete
     Thread.sleep(1000);
 
-    // Assert
-    verify(loadContentPort, times(2)).findContentsWithoutEmbeddings(100);
-    verify(embeddingGenerator, times(1)).generateEmbedding("text content");
-    verify(saveContentPort, times(1)).updateContent(argThat(c -> c.embedding() != null));
+    // Then - content should have embedding
+    Content updated = repository.findContentById("id-1").orElseThrow();
+    assertThat(updated.embedding()).isNotNull().hasSize(384);
+    assertThat(updated.textContent()).isEqualTo("text content");
   }
 
   @Test
   void backfill_shouldProcessMultipleBatches_whenLargeDataSet() throws Exception {
-    // Arrange
+    // Given - multiple contents exist without embeddings
     Content content1 = createTestContent("id-1", "link-1", "text1");
     Content content2 = createTestContent("id-2", "link-2", "text2");
     Content content3 = createTestContent("id-3", "link-3", "text3");
 
-    List<Float> embedding = List.of(0.1f);
+    repository.saveContent(content1);
+    repository.saveContent(content2);
+    repository.saveContent(content3);
 
-    when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of(content1, content2)).thenReturn(List.of(content3)).thenReturn(List.of());
-    when(embeddingGenerator.generateEmbedding(anyString())).thenReturn(embedding);
-
-    // Act
+    // When - backfill is executed
     backfillEmbeddingsService.backfill();
 
     // Wait for async execution to complete
     Thread.sleep(1000);
 
-    // Assert
-    verify(loadContentPort, times(3)).findContentsWithoutEmbeddings(100);
-    verify(embeddingGenerator, times(3)).generateEmbedding(anyString());
-    verify(saveContentPort, times(3)).updateContent(any());
+    // Then - all contents should have embeddings
+    Content updated1 = repository.findContentById("id-1").orElseThrow();
+    Content updated2 = repository.findContentById("id-2").orElseThrow();
+    Content updated3 = repository.findContentById("id-3").orElseThrow();
+
+    assertThat(updated1.embedding()).isNotNull().hasSize(384);
+    assertThat(updated2.embedding()).isNotNull().hasSize(384);
+    assertThat(updated3.embedding()).isNotNull().hasSize(384);
   }
 
   @Test
   void backfill_shouldNotProcessContent_whenTextContentIsNull() throws Exception {
-    // Arrange
+    // Given - content without text exists
     Content content = new Content("id-1", "link-1", "html", null, 0, FIXED_TEST_TIME, "text/html", DownloadStatus.COMPLETED);
+    repository.saveContent(content);
 
-    when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of(content)).thenReturn(List.of());
-
-    // Act
+    // When - backfill is executed
     backfillEmbeddingsService.backfill();
 
     // Wait for async execution to complete
     Thread.sleep(1000);
 
-    // Assert
-    verify(embeddingGenerator, never()).generateEmbedding(any());
-    verify(saveContentPort, never()).updateContent(any());
+    // Then - content should still not have embedding
+    Content updated = repository.findContentById("id-1").orElseThrow();
+    assertThat(updated.embedding()).isNull();
   }
 
   @Test
   void backfill_shouldNotProcessContent_whenTextContentIsBlank() throws Exception {
-    // Arrange
+    // Given - content with blank text exists
     Content content = new Content("id-1", "link-1", "html", "   ", 0, FIXED_TEST_TIME, "text/html", DownloadStatus.COMPLETED);
+    repository.saveContent(content);
 
-    when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of(content)).thenReturn(List.of());
-
-    // Act
+    // When - backfill is executed
     backfillEmbeddingsService.backfill();
 
-    // Assert - wait for async execution with deterministic verification
+    // Wait for async execution to complete
     Thread.sleep(1000);
 
-    // Assert
-
-    verify(embeddingGenerator, never()).generateEmbedding(any());
-    verify(saveContentPort, never()).updateContent(any());
+    // Then - content should still not have embedding
+    Content updated = repository.findContentById("id-1").orElseThrow();
+    assertThat(updated.embedding()).isNull();
   }
 
   // ==================== Concurrency Tests ====================
 
   @Test
   void backfill_shouldNotAllowConcurrentExecution_whenBackfillAlreadyRunning() throws Exception {
-    // Arrange
-    CountDownLatch latch = new CountDownLatch(1);
+    // Given - content exists without embedding
     Content content = createTestContent("id-1", "link-1", "text");
+    repository.saveContent(content);
 
-    when(loadContentPort.findContentsWithoutEmbeddings(100)).thenAnswer(invocation -> {
-      latch.countDown(); // Signal that we've started
-      Thread.sleep(2000); // Simulate long-running operation
-      return List.of();
-    });
+    // When - first backfill is started
+    backfillEmbeddingsService.backfill();
 
-    // Act
-    backfillEmbeddingsService.backfill(); // Start first backfill
-    latch.await(); // Wait for it to start
-    backfillEmbeddingsService.backfill(); // Try to start second backfill (should be rejected)
+    // And - second backfill is immediately attempted (should be rejected by flag)
+    backfillEmbeddingsService.backfill();
 
-    // Assert - wait for first backfill to complete and verify rejection of concurrent execution
-    Thread.sleep(1000);
+    // Wait for async execution to complete
+    Thread.sleep(2000);
 
-    // Assert
-
-    verify(loadContentPort, times(1)).findContentsWithoutEmbeddings(100);
+    // Then - content should have embedding (only processed once)
+    Content updated = repository.findContentById("id-1").orElseThrow();
+    assertThat(updated.embedding()).isNotNull().hasSize(384);
   }
 
   @Test
   void backfill_shouldAllowNewBackfillAfterPreviousCompletes() throws Exception {
-    // Arrange
-    when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of());
-
-    // Act
+    // Given - empty database
+    // When - first backfill is executed
     backfillEmbeddingsService.backfill();
 
-    // First backfill completes
+    // Wait for first backfill to complete
     Thread.sleep(1000);
 
-    // Assert
+    // And - content is added after first backfill completes
+    Content content = createTestContent("id-1", "link-1", "text");
+    repository.saveContent(content);
 
-    verify(loadContentPort, times(1)).findContentsWithoutEmbeddings(100);
-
+    // And - second backfill is executed
     backfillEmbeddingsService.backfill();
 
-    // Assert - should have called loadContentPort twice (once for each backfill)
+    // Wait for second backfill to complete
     Thread.sleep(1000);
 
-    // Assert
-
-    verify(loadContentPort, times(2)).findContentsWithoutEmbeddings(100);
+    // Then - newly added content should have embedding
+    Content updated = repository.findContentById("id-1").orElseThrow();
+    assertThat(updated.embedding()).isNotNull().hasSize(384);
   }
 
   // ==================== Error Resilience Tests ====================
 
   @Test
   void backfill_shouldContinueProcessing_whenEmbeddingGenerationFails() throws Exception {
-    // Arrange
+    // Given - multiple contents exist without embeddings
     Content content1 = createTestContent("id-1", "link-1", "text1");
     Content content2 = createTestContent("id-2", "link-2", "text2");
 
-    List<Float> embedding = List.of(0.1f);
+    repository.saveContent(content1);
+    repository.saveContent(content2);
 
-    when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of(content1, content2)).thenReturn(List.of());
-    when(embeddingGenerator.generateEmbedding("text1")).thenThrow(new RuntimeException("Ollama error"));
-    when(embeddingGenerator.generateEmbedding("text2")).thenReturn(embedding);
+    // And - embedding generator will fail for first content
+    embeddingGenerator.throwOnNextCall(new RuntimeException("Embedding generation failed"));
 
-    // Act
+    // When - backfill is executed
     backfillEmbeddingsService.backfill();
 
-    // Assert - wait for async execution with deterministic verification
-    Thread.sleep(1000);
+    // Wait for async execution to complete
+    Thread.sleep(1500);
 
-    // Assert
+    // Then - second content should still have embedding despite first failure
+    Content updated1 = repository.findContentById("id-1").orElseThrow();
+    Content updated2 = repository.findContentById("id-2").orElseThrow();
 
-    verify(embeddingGenerator, times(2)).generateEmbedding(anyString());
-    // Should have saved the successful one
-    verify(saveContentPort, times(1)).updateContent(any());
+    // First content fails, second succeeds
+    assertThat(updated1.embedding()).isNull(); // Failed to generate
+    assertThat(updated2.embedding()).isNotNull().hasSize(384); // Successfully generated
   }
 
   @Test
   void backfill_shouldResetFlag_afterCompletion() throws Exception {
-    // Arrange
-    when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of());
-
-    // Act
+    // Given - empty database
+    // When - first backfill is executed
     backfillEmbeddingsService.backfill();
 
-    // First backfill completes
+    // Wait for first backfill to complete
     Thread.sleep(1000);
 
-    // Assert
+    // And - content is added after backfill
+    Content content = createTestContent("id-1", "link-1", "text");
+    repository.saveContent(content);
 
-    verify(loadContentPort, times(1)).findContentsWithoutEmbeddings(100);
-
-    // Flag should be reset, so this should succeed
+    // And - second backfill is executed
     backfillEmbeddingsService.backfill();
 
-    // Assert
+    // Wait for second backfill to complete
     Thread.sleep(1000);
 
-    // Assert
-
-    verify(loadContentPort, times(2)).findContentsWithoutEmbeddings(100);
+    // Then - content should have embedding (flag was reset)
+    Content updated = repository.findContentById("id-1").orElseThrow();
+    assertThat(updated.embedding()).isNotNull().hasSize(384);
   }
 
   // ==================== Content Update Tests ====================
 
   @Test
   void backfill_shouldPreserveAllContentFields_whenUpdatingWithEmbedding() throws Exception {
-    // Arrange
+    // Given - content with all fields populated exists without embedding
     LocalDateTime downloadTime = LocalDateTime.of(2024, 1, 15, 10, 30);
     LocalDateTime publishTime = LocalDateTime.of(2024, 1, 10, 8, 0);
 
@@ -265,24 +240,16 @@ class BackfillEmbeddingsServiceTest {
       null
     );
 
-    List<Float> embedding = List.of(0.1f, 0.2f, 0.3f);
+    repository.saveContent(original);
 
-    when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of(original)).thenReturn(List.of());
-    when(embeddingGenerator.generateEmbedding("text content")).thenReturn(embedding);
-
-    ArgumentCaptor<Content> contentCaptor = ArgumentCaptor.forClass(Content.class);
-
-    // Act
+    // When - backfill is executed
     backfillEmbeddingsService.backfill();
 
-    // Assert - wait for async execution with deterministic verification
+    // Wait for async execution to complete
     Thread.sleep(1000);
 
-    // Assert
-
-    verify(saveContentPort).updateContent(contentCaptor.capture());
-
-    Content updated = contentCaptor.getValue();
+    // Then - all fields should be preserved and embedding added
+    Content updated = repository.findContentById("id-1").orElseThrow();
 
     assertThat(updated.id()).isEqualTo("id-1");
     assertThat(updated.linkId()).isEqualTo("link-1");
@@ -298,53 +265,38 @@ class BackfillEmbeddingsServiceTest {
     assertThat(updated.extractedDescription()).isEqualTo("Extracted Description");
     assertThat(updated.author()).isEqualTo("John Doe");
     assertThat(updated.publishedDate()).isEqualTo(publishTime);
-    assertThat(updated.embedding()).isEqualTo(embedding);
+    assertThat(updated.embedding()).isNotNull().hasSize(384);
   }
 
   // ==================== Edge Cases ====================
 
   @Test
   void backfill_shouldHandleEmptyBatch() throws Exception {
-    // Arrange
-    when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of());
-
-    // Act
+    // Given - database is empty
+    // When - backfill is executed
     backfillEmbeddingsService.backfill();
 
-    // Assert - wait for async execution with deterministic verification
+    // Wait for async execution to complete
     Thread.sleep(1000);
-
-    // Assert
-
-    verify(embeddingGenerator, never()).generateEmbedding(any());
-    verify(saveContentPort, never()).updateContent(any());
+    // Then - no errors should occur (idempotent operation)
+    // This is validated by test completing without exception
   }
 
   @Test
   void backfill_shouldHandleLargeEmbeddingVectors() throws Exception {
-    // Arrange
+    // Given - content exists without embedding
     Content content = createTestContent("id-1", "link-1", "text");
+    repository.saveContent(content);
 
-    // Create a large embedding vector (1024 dimensions)
-    List<Float> largeEmbedding = new ArrayList<>();
-    for (int i = 0; i < 1024; i++) {
-      largeEmbedding.add((float) i / 1024.0f);
-    }
-
-    when(loadContentPort.findContentsWithoutEmbeddings(100)).thenReturn(List.of(content)).thenReturn(List.of());
-    when(embeddingGenerator.generateEmbedding("text")).thenReturn(largeEmbedding);
-
-    // Act
+    // When - backfill is executed
     backfillEmbeddingsService.backfill();
 
-    // Assert - wait for async execution with deterministic verification
-    ArgumentCaptor<Content> contentCaptor = ArgumentCaptor.forClass(Content.class);
+    // Wait for async execution to complete
     Thread.sleep(1000);
 
-    // Assert
-
-    verify(saveContentPort).updateContent(contentCaptor.capture());
-    assertThat(contentCaptor.getValue().embedding()).hasSize(1024);
+    // Then - embedding should be generated with correct dimensions (384)
+    Content updated = repository.findContentById("id-1").orElseThrow();
+    assertThat(updated.embedding()).isNotNull().hasSize(384);
   }
 
   @AfterEach

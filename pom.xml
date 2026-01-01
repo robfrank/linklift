@@ -26,7 +26,7 @@
         <jwt.version>4.5.0</jwt.version>
         <bcrypt.version>0.10.2</bcrypt.version>
         <jspecify.version>1.0.0</jspecify.version>
-        <jsoup.version>1.21.2</jsoup.version>
+        <jsoup.version>1.22.1</jsoup.version>
 
         <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
         <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>

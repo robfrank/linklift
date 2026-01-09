@@ -81,7 +81,7 @@ public class DatabaseInitializer {
   }
 
   @NonNull
-  private static String readScript(Path sqlFile) throws IOException {
+  private String readScript(Path sqlFile) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(sqlFile), StandardCharsets.UTF_8));
     StringBuilder sb = new StringBuilder();
     String line;

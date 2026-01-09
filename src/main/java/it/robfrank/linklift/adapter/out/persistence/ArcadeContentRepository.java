@@ -50,6 +50,7 @@ public class ArcadeContentRepository {
           content.embedding()
         );
       });
+
       // After insert, retrieve the saved vertex to return the complete object
       var resultSet = database.query("sql", "SELECT FROM Content WHERE id = ?", content.id());
       if (resultSet.hasNext()) {

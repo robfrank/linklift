@@ -14,7 +14,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
  */
 public class ArcadeDbContainer extends GenericContainer<ArcadeDbContainer> {
 
-  private static final String IMAGE = "arcadedata/arcadedb:25.11.1:" + Constants.getRawVersion();
+  private static final String IMAGE = "arcadedata/arcadedb-headless:" + Constants.getRawVersion();
   private static final int ARCADE_PORT = 2480;
   private static final String DEFAULT_DATABASE = "linklift";
   private static final String ROOT_PASSWORD = "playwithdata";

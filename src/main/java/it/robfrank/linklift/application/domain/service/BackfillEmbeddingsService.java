@@ -60,7 +60,17 @@ public class BackfillEmbeddingsService implements BackfillEmbeddingsUseCase {
           try {
             String text = content.textContent();
             if (text != null && !text.isBlank()) {
-              List<Float> embedding = embeddingGenerator.generateEmbedding(text);
+              List<Float> embeddingList = embeddingGenerator.generateEmbedding(text);
+
+              // Convert List<Float> to float[] for Content constructor
+              float[] embedding = null;
+              if (embeddingList != null && !embeddingList.isEmpty()) {
+                embedding = new float[embeddingList.size()];
+                for (int i = 0; i < embeddingList.size(); i++) {
+                  embedding[i] = embeddingList.get(i);
+                }
+              }
+
               Content updatedContent = new Content(
                 content.id(),
                 content.linkId(),

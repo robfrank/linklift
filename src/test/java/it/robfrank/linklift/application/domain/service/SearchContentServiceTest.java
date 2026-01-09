@@ -24,6 +24,17 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
     return new Content(id, linkId, null, "test content", null, FIXED_TEST_TIME, null, DownloadStatus.COMPLETED);
   }
 
+  private static float[] toFloatArray(List<Float> list) {
+    if (list == null || list.isEmpty()) {
+      return null;
+    }
+    float[] array = new float[list.size()];
+    for (int i = 0; i < list.size(); i++) {
+      array[i] = list.get(i);
+    }
+    return array;
+  }
+
   @BeforeEach
   void setUp() {
     embeddingGenerator = new FakeEmbeddingGenerator();
@@ -51,7 +62,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       content.extractedDescription(),
       content.author(),
       content.publishedDate(),
-      embeddingGenerator.generateEmbedding("test query")
+      toFloatArray(embeddingGenerator.generateEmbedding("test query"))
     );
     repository.saveContent(content);
 
@@ -82,7 +93,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       differentContent.extractedDescription(),
       differentContent.author(),
       differentContent.publishedDate(),
-      embeddingGenerator.generateEmbedding("completely different content")
+      toFloatArray(embeddingGenerator.generateEmbedding("completely different content"))
     );
     repository.saveContent(differentContent);
 
@@ -90,7 +101,8 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
     List<Content> results = searchContentService.search("no matching content", 10);
 
     // Then - no results should be returned (orthogonal embeddings)
-    // Note: This depends on embedding similarity - for deterministic test, we accept either empty or low similarity
+    // Note: This depends on embedding similarity - for deterministic test, we
+    // accept either empty or low similarity
     assertThat(results).isNotNull();
   }
 
@@ -113,7 +125,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
         null,
         null,
         null,
-        embeddingGenerator.generateEmbedding("test query")
+        toFloatArray(embeddingGenerator.generateEmbedding("test query"))
       );
       repository.saveContent(content);
     }
@@ -143,7 +155,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       null,
       null,
-      embeddingGenerator.generateEmbedding("multi result query")
+      toFloatArray(embeddingGenerator.generateEmbedding("multi result query"))
     );
     Content result2 = new Content(
       "id-2",
@@ -160,7 +172,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       null,
       null,
-      embeddingGenerator.generateEmbedding("multi result query")
+      toFloatArray(embeddingGenerator.generateEmbedding("multi result query"))
     );
     Content result3 = new Content(
       "id-3",
@@ -177,7 +189,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       null,
       null,
-      embeddingGenerator.generateEmbedding("multi result query")
+      toFloatArray(embeddingGenerator.generateEmbedding("multi result query"))
     );
 
     repository.saveContent(result1);
@@ -240,7 +252,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       null,
       null,
-      embeddingGenerator.generateEmbedding("recovery test")
+      toFloatArray(embeddingGenerator.generateEmbedding("recovery test"))
     );
     repository.saveContent(content);
 
@@ -271,7 +283,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       null,
       null,
-      embeddingGenerator.generateEmbedding("test")
+      toFloatArray(embeddingGenerator.generateEmbedding("test"))
     );
     repository.saveContent(content);
 
@@ -300,7 +312,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       null,
       null,
-      embeddingGenerator.generateEmbedding("test")
+      toFloatArray(embeddingGenerator.generateEmbedding("test"))
     );
     repository.saveContent(content);
 
@@ -329,7 +341,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       null,
       null,
-      embeddingGenerator.generateEmbedding("test")
+      toFloatArray(embeddingGenerator.generateEmbedding("test"))
     );
     repository.saveContent(content);
 
@@ -359,7 +371,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       null,
       null,
-      embeddingGenerator.generateEmbedding(query)
+      toFloatArray(embeddingGenerator.generateEmbedding(query))
     );
     repository.saveContent(result);
 
@@ -389,7 +401,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       null,
       null,
-      embeddingGenerator.generateEmbedding(query)
+      toFloatArray(embeddingGenerator.generateEmbedding(query))
     );
     repository.saveContent(result);
 
@@ -419,7 +431,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       null,
       null,
-      embeddingGenerator.generateEmbedding(query)
+      toFloatArray(embeddingGenerator.generateEmbedding(query))
     );
     repository.saveContent(result);
 

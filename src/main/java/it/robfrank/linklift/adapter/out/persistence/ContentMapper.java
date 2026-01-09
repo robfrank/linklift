@@ -36,7 +36,16 @@ public class ContentMapper {
     LocalDateTime publishedDate = vertex.has("publishedDate") ? vertex.getLocalDateTime("publishedDate") : null;
 
     @SuppressWarnings("unchecked")
-    List<Float> embedding = vertex.has("embedding") ? (List<Float>) vertex.get("embedding") : null;
+    List<Float> embeddingList = vertex.has("embedding") ? (List<Float>) vertex.get("embedding") : null;
+
+    // Convert List<Float> to float[] for Content constructor
+    float[] embedding = null;
+    if (embeddingList != null && !embeddingList.isEmpty()) {
+      embedding = new float[embeddingList.size()];
+      for (int i = 0; i < embeddingList.size(); i++) {
+        embedding[i] = embeddingList.get(i);
+      }
+    }
 
     return new Content(
       id,

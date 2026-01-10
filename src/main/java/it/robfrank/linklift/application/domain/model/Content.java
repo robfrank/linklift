@@ -44,6 +44,6 @@ public record Content(
     @Nullable String mimeType,
     @NonNull DownloadStatus status
   ) {
-    this(id, linkId, htmlContent, textContent, contentLength, downloadedAt, mimeType, status, null, null, null, null, null, null, new float[] {});
+    this(id, linkId, htmlContent, textContent, contentLength, downloadedAt, mimeType, status, null, null, null, null, null, null, null);
   }
 }

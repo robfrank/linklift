@@ -181,13 +181,23 @@ class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
     // Wait for async execution to complete
     Thread.sleep(1500);
 
-    // Then - second content should still have embedding despite first failure
+    // Then - one content should fail and the other should succeed (order not
+    // guaranteed)
     Content updated1 = repository.findContentById("id-1").orElseThrow();
     Content updated2 = repository.findContentById("id-2").orElseThrow();
 
-    // First content fails, second succeeds
-    assertThat(updated1.embedding()).isNull(); // Failed to generate
-    assertThat(updated2.embedding()).isNotNull().hasSize(384); // Successfully generated
+    // Verify one failed (null embedding) and one succeeded (384-dim embedding)
+    boolean updated1Failed = updated1.embedding() == null;
+    boolean updated2Failed = updated2.embedding() == null;
+
+    assertThat(updated1Failed ^ updated2Failed).as("Exactly one backfill attempt should have failed").isTrue();
+
+    if (!updated1Failed) {
+      assertThat(updated1.embedding()).hasSize(384);
+    }
+    if (!updated2Failed) {
+      assertThat(updated2.embedding()).hasSize(384);
+    }
   }
 
   @Test

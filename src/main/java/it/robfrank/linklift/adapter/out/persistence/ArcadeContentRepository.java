@@ -1,11 +1,17 @@
 package it.robfrank.linklift.adapter.out.persistence;
 
+import com.arcadedb.graph.MutableVertex;
+import com.arcadedb.query.sql.executor.Result;
+import com.arcadedb.query.sql.executor.ResultSet;
 import com.arcadedb.remote.RemoteDatabase;
+import com.arcadedb.remote.RemoteMutableVertex;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
 import it.robfrank.linklift.application.domain.model.Content;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 
@@ -24,41 +30,10 @@ public class ArcadeContentRepository {
   public @NonNull Content save(@NonNull Content content) {
     try {
       database.transaction(() -> {
-        database.command(
-          "sql",
-          """
-          INSERT INTO Content (
-            id, linkId, htmlContent, textContent, contentLength, downloadedAt,
-            mimeType, status, summary, heroImageUrl, extractedTitle,
-            extractedDescription, author, publishedDate, embedding
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          """,
-          content.id(),
-          content.linkId(),
-          content.htmlContent(),
-          content.textContent(),
-          content.contentLength(),
-          content.downloadedAt(),
-          content.mimeType(),
-          content.status().name(),
-          content.summary(),
-          content.heroImageUrl(),
-          content.extractedTitle(),
-          content.extractedDescription(),
-          content.author(),
-          content.publishedDate(),
-          content.embedding()
-        );
+        MutableVertex vertex = database.newVertex("Content");
+        mapper.mapToVertex(content, vertex);
+        vertex.save();
       });
-
-      // After insert, retrieve the saved vertex to return the complete object
-      var resultSet = database.query("sql", "SELECT FROM Content WHERE id = ?", content.id());
-      if (resultSet.hasNext()) {
-        var vertex = resultSet.next().toElement().asVertex();
-        if (vertex != null) {
-          return mapper.mapToDomain(vertex);
-        }
-      }
       return content;
     } catch (Exception e) {
       throw new DatabaseException("Failed to save content: " + e.getMessage(), e);
@@ -68,47 +43,26 @@ public class ArcadeContentRepository {
   public @NonNull Content update(@NonNull Content content) {
     try {
       database.transaction(() -> {
-        database.command(
-          "sql",
-          """
-          UPDATE Content SET
-          linkId = ?,
-          htmlContent = ?,
-          textContent = ?,
-          contentLength = ?,
-          downloadedAt = ?,
-          mimeType = ?,
-          status = ?,
-          summary = ?,
-          heroImageUrl = ?,
-          extractedTitle = ?,
-          extractedDescription = ?,
-          author = ?,
-          publishedDate = ?,
-          embedding = ?
-          WHERE id = ?
-          """,
-          content.linkId(),
-          content.htmlContent(),
-          content.textContent(),
-          content.contentLength(),
-          content.downloadedAt(),
-          content.mimeType(),
-          content.status().name(),
-          content.summary(),
-          content.heroImageUrl(),
-          content.extractedTitle(),
-          content.extractedDescription(),
-          content.author(),
-          content.publishedDate(),
-          content.embedding(),
-          content.id()
-        );
+        database
+          .query("sql", "SELECT FROM Content WHERE id = ?", content.id())
+          .stream()
+          .findFirst()
+          .flatMap(Result::getVertex)
+          .ifPresent(vertex -> {
+            MutableVertex mutableVertex = vertex.modify();
+            mapper.mapToVertex(content, mutableVertex);
+            mutableVertex.save();
+          });
       });
       return content;
     } catch (Exception e) {
       throw new DatabaseException("Failed to update content: " + e.getMessage(), e);
     }
+  }
+
+  private String formatDate(LocalDateTime dateTime) {
+    if (dateTime == null) return null;
+    return dateTime.truncatedTo(java.time.temporal.ChronoUnit.SECONDS).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
   }
 
   public @NonNull Optional<Content> findByLinkId(@NonNull String linkId) {
@@ -175,12 +129,21 @@ public class ArcadeContentRepository {
 
   public @NonNull List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
     try {
-      var resultSet = database.query("sql", "SELECT FROM Content WHERE embedding VECTOR KNN [?, ?]", queryVector, limit);
+      // Use vectorNeighbors and handle the result set which contains {distance,
+      // vertex}
+      var resultSet = database.query("sql", "SELECT expand(vectorNeighbors('Content[embedding]', ?, ?))", queryVector, limit);
       List<Content> results = new ArrayList<>();
       while (resultSet.hasNext()) {
-        var vertex = resultSet.next().toElement().asVertex();
-        if (vertex != null) {
-          results.add(mapper.mapToDomain(vertex));
+        var result = resultSet.next();
+        Object vertexVal = result.getProperty("vertex");
+        if (vertexVal instanceof Map map) {
+          // In the remote driver, nested vertices in projections might be returned as
+          // Maps
+          @SuppressWarnings("unchecked")
+          Map<String, Object> vertexMap = (Map<String, Object>) vertexVal;
+          results.add(mapper.mapFromMap(vertexMap));
+        } else if (result.isVertex()) {
+          results.add(mapper.mapToDomain(result.toElement().asVertex()));
         }
       }
       return results;
@@ -191,7 +154,7 @@ public class ArcadeContentRepository {
 
   public @NonNull List<Content> findContentsWithoutEmbeddings(int limit) {
     try {
-      var resultSet = database.query("sql", "SELECT FROM Content WHERE embedding IS NULL AND textContent IS NOT NULL LIMIT ?", limit);
+      var resultSet = database.query("sql", "SELECT FROM Content WHERE needsEmbedding = true AND textContent IS NOT NULL LIMIT ?", limit);
       List<Content> results = new ArrayList<>();
       while (resultSet.hasNext()) {
         var vertex = resultSet.next().toElement().asVertex();
@@ -203,5 +166,14 @@ public class ArcadeContentRepository {
     } catch (Exception e) {
       throw new DatabaseException("Failed to find contents without embeddings: " + e.getMessage(), e);
     }
+  }
+
+  private List<Float> toList(float[] array) {
+    if (array == null) return null;
+    List<Float> list = new ArrayList<>(array.length);
+    for (float f : array) {
+      list.add(f);
+    }
+    return list;
   }
 }

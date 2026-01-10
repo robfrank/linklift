@@ -1,5 +1,7 @@
 package it.robfrank.linklift.application.domain.service;
 
+// test comment
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -71,7 +73,8 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
     List<Content> results = searchContentService.search(query, 10);
 
     // Then - matching content should be returned
-    assertThat(results).isNotEmpty().contains(content);
+    assertThat(results).isNotEmpty();
+    assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(content);
   }
 
   @Test
@@ -101,8 +104,6 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
     List<Content> results = searchContentService.search("no matching content", 10);
 
     // Then - no results should be returned (orthogonal embeddings)
-    // Note: This depends on embedding similarity - for deterministic test, we
-    // accept either empty or low similarity
     assertThat(results).isNotNull();
   }
 
@@ -319,8 +320,9 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
     // When - search with negative limit is performed
     List<Content> results = searchContentService.search("test", -1);
 
-    // Then - behavior depends on implementation (may be empty or return results)
-    assertThat(results).isNotNull();
+    // Then - behavior depends on implementation (should be empty as per
+    // SearchContentService improvement)
+    assertThat(results).isEmpty();
   }
 
   @Test
@@ -379,7 +381,8 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
     List<Content> results = searchContentService.search(query, 10);
 
     // Then - results should be returned
-    assertThat(results).isNotEmpty().contains(result);
+    assertThat(results).isNotEmpty();
+    assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(result);
   }
 
   @Test
@@ -409,7 +412,8 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
     List<Content> results = searchContentService.search(query, 10);
 
     // Then - results should be returned (long queries are supported)
-    assertThat(results).isNotEmpty().contains(result);
+    assertThat(results).isNotEmpty();
+    assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(result);
   }
 
   @Test
@@ -439,6 +443,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
     List<Content> results = searchContentService.search(query, 10);
 
     // Then - results should be returned
-    assertThat(results).isNotEmpty().contains(result);
+    assertThat(results).isNotEmpty();
+    assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(result);
   }
 }

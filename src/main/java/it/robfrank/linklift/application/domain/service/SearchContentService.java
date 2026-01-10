@@ -22,8 +22,16 @@ public class SearchContentService implements SearchContentUseCase {
   public @NonNull List<Content> search(@NonNull String query, int limit) {
     ValidationUtils.requireNotEmpty(query, "query");
 
+    if (limit <= 0) {
+      return List.of();
+    }
+
+    // Cap limit to a reasonable maximum for vector search if needed,
+    // but for now let's just avoid negative/zero and very large values that might
+    // crash the index
+    int effectiveLimit = Math.min(limit, 1000);
+
     List<Float> queryVector = embeddingGenerator.generateEmbedding(query);
-    List<Content> results = loadContentPort.findSimilar(queryVector, limit);
-    return results;
+    return loadContentPort.findSimilar(queryVector, effectiveLimit);
   }
 }

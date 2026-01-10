@@ -5,7 +5,9 @@ import it.robfrank.linklift.application.port.in.BackfillEmbeddingsUseCase;
 import it.robfrank.linklift.application.port.out.EmbeddingGenerator;
 import it.robfrank.linklift.application.port.out.LoadContentPort;
 import it.robfrank.linklift.application.port.out.SaveContentPort;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
@@ -48,15 +50,18 @@ public class BackfillEmbeddingsService implements BackfillEmbeddingsUseCase {
       logger.info("Starting embedding backfill process...");
       int totalSuccess = 0;
       int totalFail = 0;
+      Set<String> failedIds = new HashSet<>();
 
       while (true) {
         List<Content> contents = loadContentPort.findContentsWithoutEmbeddings(BATCH_SIZE);
-        if (contents.isEmpty()) {
+        List<Content> toProcess = contents.stream().filter(c -> !failedIds.contains(c.id())).toList();
+
+        if (toProcess.isEmpty()) {
           break;
         }
 
-        logger.atInfo().addArgument(() -> contents.size()).log("Processing batch of {} contents");
-        for (Content content : contents) {
+        logger.atInfo().addArgument(() -> toProcess.size()).log("Processing batch of {} contents");
+        for (Content content : toProcess) {
           try {
             String text = content.textContent();
             if (text != null && !text.isBlank()) {
@@ -93,6 +98,7 @@ public class BackfillEmbeddingsService implements BackfillEmbeddingsUseCase {
             }
           } catch (Exception e) {
             logger.error("Failed to generate embedding for content id: {}", content.id(), e);
+            failedIds.add(content.id());
             totalFail++;
           }
         }

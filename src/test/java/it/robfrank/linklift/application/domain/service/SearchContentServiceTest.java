@@ -74,7 +74,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
 
     // Then - matching content should be returned
     assertThat(results).isNotEmpty();
-    assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(content);
+    assertThat(results.getFirst()).usingRecursiveComparison().isEqualTo(content);
   }
 
   @Test
@@ -382,7 +382,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
 
     // Then - results should be returned
     assertThat(results).isNotEmpty();
-    assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(result);
+    assertThat(results.getFirst()).usingRecursiveComparison().isEqualTo(result);
   }
 
   @Test
@@ -413,7 +413,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
 
     // Then - results should be returned (long queries are supported)
     assertThat(results).isNotEmpty();
-    assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(result);
+    assertThat(results.getFirst()).usingRecursiveComparison().isEqualTo(result);
   }
 
   @Test
@@ -444,6 +444,6 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
 
     // Then - results should be returned
     assertThat(results).isNotEmpty();
-    assertThat(results.get(0)).usingRecursiveComparison().isEqualTo(result);
+    assertThat(results.getFirst()).usingRecursiveComparison().isEqualTo(result);
   }
 }

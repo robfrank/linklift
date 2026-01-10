@@ -2,7 +2,6 @@ package it.robfrank.linklift.adapter.out.persistence;
 
 import com.arcadedb.graph.MutableVertex;
 import com.arcadedb.graph.Vertex;
-import com.arcadedb.remote.RemoteMutableVertex;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
 import java.time.LocalDateTime;

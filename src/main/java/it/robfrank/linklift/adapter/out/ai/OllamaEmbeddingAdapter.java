@@ -90,11 +90,15 @@ public class OllamaEmbeddingAdapter implements EmbeddingGenerator {
 
     if (actualDimensions != expectedDimensions) {
       logger.warn(
-          "Dimension mismatch detected! Model '{}' produces {} dimensions, "
-              + "but schema/configuration expects {} dimensions. "
-              + "Update LINKLIFT_OLLAMA_DIMENSIONS environment variable to match, "
-              + "or update the vector index schema to {} dimensions.",
-          model, actualDimensions, expectedDimensions, actualDimensions);
+        "Dimension mismatch detected! Model '{}' produces {} dimensions, " +
+        "but schema/configuration expects {} dimensions. " +
+        "Update LINKLIFT_OLLAMA_DIMENSIONS environment variable to match, " +
+        "or update the vector index schema to {} dimensions.",
+        model,
+        actualDimensions,
+        expectedDimensions,
+        actualDimensions
+      );
     } else {
       logger.debug("Embedding dimensions validated: {} dimensions match expected configuration", actualDimensions);
     }

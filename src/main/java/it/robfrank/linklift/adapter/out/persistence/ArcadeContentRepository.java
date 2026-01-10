@@ -60,11 +60,6 @@ public class ArcadeContentRepository {
     }
   }
 
-  private String formatDate(LocalDateTime dateTime) {
-    if (dateTime == null) return null;
-    return dateTime.truncatedTo(java.time.temporal.ChronoUnit.SECONDS).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-  }
-
   public @NonNull Optional<Content> findByLinkId(@NonNull String linkId) {
     try {
       var resultSet = database.query("sql", "SELECT FROM Content WHERE linkId = ?", linkId);
@@ -166,14 +161,5 @@ public class ArcadeContentRepository {
     } catch (Exception e) {
       throw new DatabaseException("Failed to find contents without embeddings: " + e.getMessage(), e);
     }
-  }
-
-  private List<Float> toList(float[] array) {
-    if (array == null) return null;
-    List<Float> list = new ArrayList<>(array.length);
-    for (float f : array) {
-      list.add(f);
-    }
-    return list;
   }
 }

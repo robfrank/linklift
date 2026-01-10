@@ -11,9 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ContentMapper {
 
+  private static final Logger logger = LoggerFactory.getLogger(ContentMapper.class);
   private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   public @NonNull Content mapToDomain(@NonNull Vertex vertex) {
@@ -36,7 +39,7 @@ public class ContentMapper {
     // Let's make it optional in domain but required in map if we want to be strict.
     // Actually, let's just use current time if missing to avoid test failures.
     if (downloadedAt == null) {
-      downloadedAt = LocalDateTime.now();
+      throw new IllegalStateException("Required field 'downloadedAt' missing in map");
     }
 
     String htmlContent = (String) map.get("htmlContent");
@@ -113,6 +116,7 @@ public class ContentMapper {
         try {
           return LocalDateTime.parse(s);
         } catch (Exception e2) {
+          logger.warn("Failed to parse date time from string: {}", s);
           return null;
         }
       }
@@ -153,6 +157,7 @@ public class ContentMapper {
       // WORKAROUND for ArcadeDB 25.12 LSM_VECTOR index NPE
       // The server throws NPE if an indexed vector property is null or missing.
       // We provide a dummy vector of 384 zeros as a placeholder.
+      // See: https://github.com/ArcadeData/arcadedb/issues/1569
       float[] dummy = new float[384];
       vertex.set("embedding", toList(dummy));
       vertex.set("needsEmbedding", true);

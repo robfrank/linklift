@@ -9,22 +9,22 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 /**
- * Testcontainer for ArcadeDB that handles database lifecycle and schema initialization.
- * This container provides a real ArcadeDB instance for integration testing with vector search capabilities.
+ * Testcontainer for ArcadeDB that handles database lifecycle and schema
+ * initialization.
+ * This container provides a real ArcadeDB instance for integration testing with
+ * vector search capabilities.
  */
 public class ArcadeDbContainer extends GenericContainer<ArcadeDbContainer> {
 
   private static final String IMAGE = "arcadedata/arcadedb-headless:" + Constants.getRawVersion();
   private static final int ARCADE_PORT = 2480;
   private static final String DEFAULT_DATABASE = "linklift";
-  private static final String ROOT_PASSWORD = "playwithdata";
+  private static final String ROOT_PASSWORD = System.getProperty("arcadedb.server.rootPassword", "playwithdata");
 
   public ArcadeDbContainer() {
     super(IMAGE);
     withExposedPorts(ARCADE_PORT);
     withEnv("JAVA_OPTS", "-Darcadedb.server.rootPassword=" + ROOT_PASSWORD);
-    // Wait for server to start (look for "ArcadeDB Server started" in logs)
-    //    waitingFor(Wait.forLogMessage(".*ArcadeDB Server started in.*", 1).withStartupTimeout(java.time.Duration.ofSeconds(60)));
     waitingFor(Wait.forHttp("/api/v1/ready").forPort(2480).forStatusCode(204));
   }
 
@@ -56,7 +56,8 @@ public class ArcadeDbContainer extends GenericContainer<ArcadeDbContainer> {
   }
 
   /**
-   * Creates and initializes a RemoteDatabase connection with vector search schema.
+   * Creates and initializes a RemoteDatabase connection with vector search
+   * schema.
    * This should be called in @BeforeEach to get a fresh database connection.
    *
    * @return initialized RemoteDatabase instance
@@ -88,45 +89,6 @@ public class ArcadeDbContainer extends GenericContainer<ArcadeDbContainer> {
   private void initializeSchema(@NonNull RemoteDatabase db) {
     DatabaseInitializer databaseInitializer = new DatabaseInitializer(getHost(), getMappedPort(ARCADE_PORT), "root", getRootPassword());
     databaseInitializer.initializeSchema(db);
-    //    db.transaction(() -> {
-    //      // Create Content vertex type
-    //      db.command("sql", "CREATE VERTEX TYPE Content IF NOT EXISTS");
-    //
-    //      // Create properties
-    //      db.command("sql", "CREATE PROPERTY Content.id IF NOT EXISTS STRING (MANDATORY TRUE, NOTNULL TRUE)");
-    //      db.command("sql", "CREATE PROPERTY Content.linkId IF NOT EXISTS STRING (MANDATORY TRUE, NOTNULL TRUE)");
-    //      db.command("sql", "CREATE PROPERTY Content.htmlContent IF NOT EXISTS STRING");
-    //      db.command("sql", "CREATE PROPERTY Content.textContent IF NOT EXISTS STRING");
-    //      db.command("sql", "CREATE PROPERTY Content.contentLength IF NOT EXISTS INTEGER");
-    //      db.command("sql", "CREATE PROPERTY Content.downloadedAt IF NOT EXISTS DATETIME_SECOND");
-    //      db.command("sql", "CREATE PROPERTY Content.mimeType IF NOT EXISTS STRING");
-    //      db.command("sql", "CREATE PROPERTY Content.status IF NOT EXISTS STRING");
-    //      db.command("sql", "CREATE PROPERTY Content.summary IF NOT EXISTS STRING");
-    //      db.command("sql", "CREATE PROPERTY Content.heroImageUrl IF NOT EXISTS STRING");
-    //      db.command("sql", "CREATE PROPERTY Content.extractedTitle IF NOT EXISTS STRING");
-    //      db.command("sql", "CREATE PROPERTY Content.extractedDescription IF NOT EXISTS STRING");
-    //      db.command("sql", "CREATE PROPERTY Content.author IF NOT EXISTS STRING");
-    //      db.command("sql", "CREATE PROPERTY Content.publishedDate IF NOT EXISTS DATETIME_SECOND");
-    //      db.command("sql", "CREATE PROPERTY Content.embedding IF NOT EXISTS LIST OF FLOAT");
-    //
-    //      // Create indexes
-    //      db.command("sql", "CREATE INDEX IF NOT EXISTS ON Content (id) UNIQUE");
-    //      db.command("sql", "CREATE INDEX IF NOT EXISTS ON Content (linkId) UNIQUE");
-    //
-    //      // Create vector index for similarity search
-    //      // Using LSM_VECTOR with COSINE similarity for 384-dimensional embeddings
-    //      db.command(
-    //          "sql",
-    //          """
-    //                CREATE INDEX IF NOT EXISTS ON Content(embedding) LSM_VECTOR METADATA {
-    //                  "dimensions": 384,
-    //                  "maxConnections": 16,
-    //                  "beamWidth": 100,
-    //                  "similarity": "COSINE"
-    //                }
-    //              """
-    //      );
-    //    });
   }
 
   /**
@@ -139,12 +101,5 @@ public class ArcadeDbContainer extends GenericContainer<ArcadeDbContainer> {
     RemoteServer server = new RemoteServer(getHost(), getMappedPort(ARCADE_PORT), "root", getRootPassword());
     server.drop(DEFAULT_DATABASE);
     server.close();
-    //    try {
-    //      db.transaction(() -> {
-    //        db.command("sqlscript", "DELETE VERTEX Content");
-    //      });
-    //    } catch (Exception e) {
-    //      // Ignore errors during cleanup (e.g., if Content type doesn't exist yet)
-    //    }
   }
 }

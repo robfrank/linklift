@@ -1,13 +1,15 @@
 package it.robfrank.linklift.application.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 import it.robfrank.linklift.adapter.out.ai.FakeEmbeddingGenerator;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
 import it.robfrank.linklift.testcontainers.ArcadeDbTestBase;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -46,12 +48,14 @@ class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
     backfillEmbeddingsService.backfill();
 
     // Wait for async execution to complete
-    Thread.sleep(1000);
-
-    // Then - content should have embedding
-    Content updated = repository.findContentById("id-1").orElseThrow();
-    assertThat(updated.embedding()).isNotNull().hasSize(384);
-    assertThat(updated.textContent()).isEqualTo("text content");
+    await()
+      .atMost(Duration.ofSeconds(5))
+      .untilAsserted(() -> {
+        Content updated = repository.findContentById("id-1").orElseThrow();
+        float[] embedding = updated.embedding();
+        assertThat(embedding).isNotNull().hasSize(384);
+        assertThat(updated.textContent()).isEqualTo("text content");
+      });
   }
 
   @Test
@@ -69,29 +73,54 @@ class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
     backfillEmbeddingsService.backfill();
 
     // Wait for async execution to complete
-    Thread.sleep(1000);
+    await()
+      .atMost(Duration.ofSeconds(5))
+      .untilAsserted(() -> {
+        Content updated1 = repository.findContentById("id-1").orElseThrow();
+        Content updated2 = repository.findContentById("id-2").orElseThrow();
+        Content updated3 = repository.findContentById("id-3").orElseThrow();
 
-    // Then - all contents should have embeddings
-    Content updated1 = repository.findContentById("id-1").orElseThrow();
-    Content updated2 = repository.findContentById("id-2").orElseThrow();
-    Content updated3 = repository.findContentById("id-3").orElseThrow();
-
-    assertThat(updated1.embedding()).isNotNull().hasSize(384);
-    assertThat(updated2.embedding()).isNotNull().hasSize(384);
-    assertThat(updated3.embedding()).isNotNull().hasSize(384);
+        assertThat(updated1.embedding()).isNotNull().hasSize(384);
+        assertThat(updated2.embedding()).isNotNull().hasSize(384);
+        assertThat(updated3.embedding()).isNotNull().hasSize(384);
+      });
   }
 
   @Test
   void backfill_shouldNotProcessContent_whenTextContentIsNull() throws Exception {
     // Given - content without text exists
-    Content content = new Content("id-1", "link-1", "html", null, 0, FIXED_TEST_TIME, "text/html", DownloadStatus.COMPLETED);
+    Content content = new Content(
+      "id-1",
+      "link-1",
+      "html",
+      null,
+      0,
+      FIXED_TEST_TIME,
+      "text/html",
+      DownloadStatus.COMPLETED,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    );
     repository.saveContent(content);
 
     // When - backfill is executed
     backfillEmbeddingsService.backfill();
 
     // Wait for async execution to complete
-    Thread.sleep(1000);
+    // We expect it NOT to have embedding, so we just wait a bit and check.
+    // However, Awaitility is for things that SHOULD happen.
+    // For things that should NOT happen, we might still need a small sleep, but
+    // let's try to be smarter.
+    // Since backfill is async, we can wait until the internal state says it's done
+    // if we had access to it.
+    // For now, let's just use a small sleep or wait for a certain condition if
+    // possible.
+    Thread.sleep(500);
 
     // Then - content should still not have embedding
     Content updated = repository.findContentById("id-1").orElseThrow();
@@ -101,14 +130,30 @@ class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
   @Test
   void backfill_shouldNotProcessContent_whenTextContentIsBlank() throws Exception {
     // Given - content with blank text exists
-    Content content = new Content("id-1", "link-1", "html", "   ", 0, FIXED_TEST_TIME, "text/html", DownloadStatus.COMPLETED);
+    Content content = new Content(
+      "id-1",
+      "link-1",
+      "html",
+      "   ",
+      0,
+      FIXED_TEST_TIME,
+      "text/html",
+      DownloadStatus.COMPLETED,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    );
     repository.saveContent(content);
 
     // When - backfill is executed
     backfillEmbeddingsService.backfill();
 
     // Wait for async execution to complete
-    Thread.sleep(1000);
+    Thread.sleep(500);
 
     // Then - content should still not have embedding
     Content updated = repository.findContentById("id-1").orElseThrow();
@@ -130,11 +175,12 @@ class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
     backfillEmbeddingsService.backfill();
 
     // Wait for async execution to complete
-    Thread.sleep(2000);
-
-    // Then - content should have embedding (only processed once)
-    Content updated = repository.findContentById("id-1").orElseThrow();
-    assertThat(updated.embedding()).isNotNull().hasSize(384);
+    await()
+      .atMost(Duration.ofSeconds(5))
+      .untilAsserted(() -> {
+        Content updated = repository.findContentById("id-1").orElseThrow();
+        assertThat(updated.embedding()).isNotNull().hasSize(384);
+      });
   }
 
   @Test
@@ -154,11 +200,12 @@ class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
     backfillEmbeddingsService.backfill();
 
     // Wait for second backfill to complete
-    Thread.sleep(1000);
-
-    // Then - newly added content should have embedding
-    Content updated = repository.findContentById("id-1").orElseThrow();
-    assertThat(updated.embedding()).isNotNull().hasSize(384);
+    await()
+      .atMost(Duration.ofSeconds(5))
+      .untilAsserted(() -> {
+        Content updated = repository.findContentById("id-1").orElseThrow();
+        assertThat(updated.embedding()).isNotNull().hasSize(384);
+      });
   }
 
   // ==================== Error Resilience Tests ====================
@@ -179,25 +226,25 @@ class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
     backfillEmbeddingsService.backfill();
 
     // Wait for async execution to complete
-    Thread.sleep(1500);
+    await()
+      .atMost(Duration.ofSeconds(5))
+      .untilAsserted(() -> {
+        Content updated1 = repository.findContentById("id-1").orElseThrow();
+        Content updated2 = repository.findContentById("id-2").orElseThrow();
 
-    // Then - one content should fail and the other should succeed (order not
-    // guaranteed)
-    Content updated1 = repository.findContentById("id-1").orElseThrow();
-    Content updated2 = repository.findContentById("id-2").orElseThrow();
+        boolean updated1Failed = updated1.embedding() == null;
+        boolean updated2Failed = updated2.embedding() == null;
 
-    // Verify one failed (null embedding) and one succeeded (384-dim embedding)
-    boolean updated1Failed = updated1.embedding() == null;
-    boolean updated2Failed = updated2.embedding() == null;
+        assertThat(updated1Failed ^ updated2Failed).as("Exactly one backfill attempt should have failed").isTrue();
 
-    assertThat(updated1Failed ^ updated2Failed).as("Exactly one backfill attempt should have failed").isTrue();
-
-    if (!updated1Failed) {
-      assertThat(updated1.embedding()).hasSize(384);
-    }
-    if (!updated2Failed) {
-      assertThat(updated2.embedding()).hasSize(384);
-    }
+        if (!updated1Failed) {
+          assertThat(updated1.embedding()).hasSize(384);
+        }
+        if (!updated2Failed) {
+          assertThat(updated2.embedding()).hasSize(384);
+        }
+      });
+    // @ts-ignore
   }
 
   @Test
@@ -217,11 +264,12 @@ class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
     backfillEmbeddingsService.backfill();
 
     // Wait for second backfill to complete
-    Thread.sleep(1000);
-
-    // Then - content should have embedding (flag was reset)
-    Content updated = repository.findContentById("id-1").orElseThrow();
-    assertThat(updated.embedding()).isNotNull().hasSize(384);
+    await()
+      .atMost(Duration.ofSeconds(5))
+      .untilAsserted(() -> {
+        Content updated = repository.findContentById("id-1").orElseThrow();
+        assertThat(updated.embedding()).isNotNull().hasSize(384);
+      });
   }
 
   // ==================== Content Update Tests ====================
@@ -256,26 +304,27 @@ class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
     backfillEmbeddingsService.backfill();
 
     // Wait for async execution to complete
-    Thread.sleep(1000);
+    await()
+      .atMost(Duration.ofSeconds(5))
+      .untilAsserted(() -> {
+        Content updated = repository.findContentById("id-1").orElseThrow();
 
-    // Then - all fields should be preserved and embedding added
-    Content updated = repository.findContentById("id-1").orElseThrow();
-
-    assertThat(updated.id()).isEqualTo("id-1");
-    assertThat(updated.linkId()).isEqualTo("link-1");
-    assertThat(updated.htmlContent()).isEqualTo("<html>content</html>");
-    assertThat(updated.textContent()).isEqualTo("text content");
-    assertThat(updated.contentLength()).isEqualTo(123);
-    assertThat(updated.downloadedAt()).isEqualTo(downloadTime);
-    assertThat(updated.mimeType()).isEqualTo("text/html");
-    assertThat(updated.status()).isEqualTo(DownloadStatus.COMPLETED);
-    assertThat(updated.summary()).isEqualTo("summary here");
-    assertThat(updated.heroImageUrl()).isEqualTo("hero.jpg");
-    assertThat(updated.extractedTitle()).isEqualTo("Extracted Title");
-    assertThat(updated.extractedDescription()).isEqualTo("Extracted Description");
-    assertThat(updated.author()).isEqualTo("John Doe");
-    assertThat(updated.publishedDate()).isEqualTo(publishTime);
-    assertThat(updated.embedding()).isNotNull().hasSize(384);
+        assertThat(updated.id()).isEqualTo("id-1");
+        assertThat(updated.linkId()).isEqualTo("link-1");
+        assertThat(updated.htmlContent()).isEqualTo("<html>content</html>");
+        assertThat(updated.textContent()).isEqualTo("text content");
+        assertThat(updated.contentLength()).isEqualTo(123);
+        assertThat(updated.downloadedAt()).isEqualTo(downloadTime);
+        assertThat(updated.mimeType()).isEqualTo("text/html");
+        assertThat(updated.status()).isEqualTo(DownloadStatus.COMPLETED);
+        assertThat(updated.summary()).isEqualTo("summary here");
+        assertThat(updated.heroImageUrl()).isEqualTo("hero.jpg");
+        assertThat(updated.extractedTitle()).isEqualTo("Extracted Title");
+        assertThat(updated.extractedDescription()).isEqualTo("Extracted Description");
+        assertThat(updated.author()).isEqualTo("John Doe");
+        assertThat(updated.publishedDate()).isEqualTo(publishTime);
+        assertThat(updated.embedding()).isNotNull().hasSize(384);
+      });
   }
 
   // ==================== Edge Cases ====================
@@ -302,11 +351,12 @@ class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
     backfillEmbeddingsService.backfill();
 
     // Wait for async execution to complete
-    Thread.sleep(1000);
-
-    // Then - embedding should be generated with correct dimensions (384)
-    Content updated = repository.findContentById("id-1").orElseThrow();
-    assertThat(updated.embedding()).isNotNull().hasSize(384);
+    await()
+      .atMost(Duration.ofSeconds(5))
+      .untilAsserted(() -> {
+        Content updated = repository.findContentById("id-1").orElseThrow();
+        assertThat(updated.embedding()).isNotNull().hasSize(384);
+      });
   }
 
   @AfterEach

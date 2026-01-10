@@ -23,7 +23,7 @@ public record Content(
   @JsonProperty("extractedDescription") @Nullable String extractedDescription,
   @JsonProperty("author") @Nullable String author,
   @JsonProperty("publishedDate") @Nullable LocalDateTime publishedDate,
-  @JsonProperty("embedding") @Nullable List<Float> embedding
+  @JsonProperty("embedding") @Nullable float[] embedding
 ) {
   public Content {
     downloadedAt = downloadedAt.truncatedTo(ChronoUnit.SECONDS);

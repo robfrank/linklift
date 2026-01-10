@@ -153,15 +153,24 @@ public class DownloadContentService implements DownloadContentUseCase {
           }
 
           // Generate embedding
-          List<Float> embedding = null;
+          List<Float> embeddingList = null;
           if (metadata != null) {
             String textForEmbedding = metadata.textContent();
             if (textForEmbedding != null && !textForEmbedding.isBlank()) {
               try {
-                embedding = embeddingGenerator.generateEmbedding(textForEmbedding);
+                embeddingList = embeddingGenerator.generateEmbedding(textForEmbedding);
               } catch (Exception e) {
                 logger.error("Failed to generate embedding for link: {}", id, e);
               }
+            }
+          }
+
+          // Convert List<Float> to float[] for Content constructor
+          float[] embedding = null;
+          if (embeddingList != null && !embeddingList.isEmpty()) {
+            embedding = new float[embeddingList.size()];
+            for (int i = 0; i < embeddingList.size(); i++) {
+              embedding[i] = embeddingList.get(i);
             }
           }
 

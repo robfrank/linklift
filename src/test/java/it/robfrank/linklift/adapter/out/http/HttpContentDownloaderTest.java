@@ -1,58 +1,37 @@
 package it.robfrank.linklift.adapter.out.http;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
+import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import it.robfrank.linklift.application.domain.exception.ContentDownloadException;
 import it.robfrank.linklift.application.port.out.ContentDownloaderPort;
-import java.io.IOException;
 import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.Optional;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
+@WireMockTest(httpPort = 8081)
 class HttpContentDownloaderTest {
 
-  @Mock
-  private HttpClient httpClient;
-
-  @Mock
-  private HttpResponse<String> httpResponse;
-
-  @Mock
-  private HttpHeaders httpHeaders;
-
   private HttpContentDownloader httpContentDownloader;
+  private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
 
   @BeforeEach
   void setUp() {
-    MockitoAnnotations.openMocks(this);
     httpContentDownloader = new HttpContentDownloader(httpClient);
   }
 
   @Test
   void downloadContent_shouldReturnDownloadedContentOnSuccess() throws Exception {
     // Arrange
-    String url = "https://example.com";
+    String url = "http://localhost:8081/success";
     String htmlContent = "<html><body><p>Test content</p></body></html>";
 
-    when(httpResponse.statusCode()).thenReturn(200);
-    when(httpResponse.body()).thenReturn(htmlContent);
-    when(httpResponse.headers()).thenReturn(httpHeaders);
-    when(httpHeaders.firstValue("Content-Type")).thenReturn(Optional.of("text/html; charset=UTF-8"));
-
-    when(httpClient.sendAsync(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(CompletableFuture.completedFuture(httpResponse));
+    stubFor(get(urlEqualTo("/success")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "text/html; charset=UTF-8").withBody(htmlContent)));
 
     // Act
     CompletableFuture<ContentDownloaderPort.DownloadedContent> future = httpContentDownloader.downloadContent(url);
@@ -65,21 +44,16 @@ class HttpContentDownloaderTest {
     assertThat(result.mimeType()).isEqualTo("text/html; charset=UTF-8");
     assertThat(result.contentLength()).isGreaterThan(0);
 
-    verify(httpClient, times(1)).sendAsync(any(HttpRequest.class), any(HttpResponse.BodyHandler.class));
+    verify(getRequestedFor(urlEqualTo("/success")));
   }
 
   @Test
   void downloadContent_shouldExtractTextFromHtml() throws Exception {
     // Arrange
-    String url = "https://example.com";
+    String url = "http://localhost:8081/html";
     String htmlContent = "<html><head><title>Test</title></head><body><h1>Hello</h1><p>World</p></body></html>";
 
-    when(httpResponse.statusCode()).thenReturn(200);
-    when(httpResponse.body()).thenReturn(htmlContent);
-    when(httpResponse.headers()).thenReturn(httpHeaders);
-    when(httpHeaders.firstValue("Content-Type")).thenReturn(Optional.of("text/html"));
-
-    when(httpClient.sendAsync(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(CompletableFuture.completedFuture(httpResponse));
+    stubFor(get(urlEqualTo("/html")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "text/html").withBody(htmlContent)));
 
     // Act
     CompletableFuture<ContentDownloaderPort.DownloadedContent> future = httpContentDownloader.downloadContent(url);
@@ -95,15 +69,10 @@ class HttpContentDownloaderTest {
   @Test
   void downloadContent_shouldUseDefaultContentTypeWhenNotProvided() throws Exception {
     // Arrange
-    String url = "https://example.com";
+    String url = "http://localhost:8081/no-content-type";
     String htmlContent = "<html><body>Test</body></html>";
 
-    when(httpResponse.statusCode()).thenReturn(200);
-    when(httpResponse.body()).thenReturn(htmlContent);
-    when(httpResponse.headers()).thenReturn(httpHeaders);
-    when(httpHeaders.firstValue("Content-Type")).thenReturn(Optional.empty());
-
-    when(httpClient.sendAsync(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(CompletableFuture.completedFuture(httpResponse));
+    stubFor(get(urlEqualTo("/no-content-type")).willReturn(aResponse().withStatus(200).withBody(htmlContent)));
 
     // Act
     CompletableFuture<ContentDownloaderPort.DownloadedContent> future = httpContentDownloader.downloadContent(url);
@@ -116,11 +85,9 @@ class HttpContentDownloaderTest {
   @Test
   void downloadContent_shouldFailOnClientError() {
     // Arrange
-    String url = "https://example.com";
+    String url = "http://localhost:8081/404";
 
-    when(httpResponse.statusCode()).thenReturn(404);
-
-    when(httpClient.sendAsync(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(CompletableFuture.completedFuture(httpResponse));
+    stubFor(get(urlEqualTo("/404")).willReturn(aResponse().withStatus(404)));
 
     // Act
     CompletableFuture<ContentDownloaderPort.DownloadedContent> future = httpContentDownloader.downloadContent(url);
@@ -132,12 +99,10 @@ class HttpContentDownloaderTest {
       assert false : "Expected exception was not thrown";
     } catch (ExecutionException e) {
       assertThat(e.getCause()).isInstanceOf(ContentDownloadException.class);
-      String message = e.getCause().getMessage();
-      // Could be either "HTTP error 404" from thenCompose or wrapped in exceptionally
-      assertThat(message).satisfiesAnyOf(
-        msg -> assertThat(msg).contains("HTTP error 404"),
-        msg -> assertThat(msg).contains("Failed to download content from URL")
-      );
+      // The outer message is what we see first
+      assertThat(e.getCause().getMessage()).contains("Failed to download content from URL");
+      // The inner message contains the status code
+      assertThat(e.getCause().getCause().getMessage()).contains("HTTP error 404");
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
@@ -146,24 +111,24 @@ class HttpContentDownloaderTest {
   @Test
   void downloadContent_shouldRetryOnServerError() throws Exception {
     // Arrange
-    String url = "https://example.com";
+    String url = "http://localhost:8081/retry";
     String htmlContent = "<html><body>Success</body></html>";
 
-    // Create two separate response mocks for first and second attempt
-    HttpResponse<String> errorResponse = mock(HttpResponse.class);
-    HttpResponse<String> successResponse = mock(HttpResponse.class);
+    // First call returns 503, second call returns 200
+    stubFor(
+      get(urlEqualTo("/retry"))
+        .inScenario("Retry Scenario")
+        .whenScenarioStateIs(com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED)
+        .willReturn(aResponse().withStatus(503))
+        .willSetStateTo("Succeeded")
+    );
 
-    when(errorResponse.statusCode()).thenReturn(503);
-
-    when(successResponse.statusCode()).thenReturn(200);
-    when(successResponse.body()).thenReturn(htmlContent);
-    when(successResponse.headers()).thenReturn(httpHeaders);
-    when(httpHeaders.firstValue("Content-Type")).thenReturn(Optional.of("text/html"));
-
-    // First call returns error, second call returns success
-    when(httpClient.sendAsync(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
-      .thenReturn(CompletableFuture.completedFuture(errorResponse))
-      .thenReturn(CompletableFuture.completedFuture(successResponse));
+    stubFor(
+      get(urlEqualTo("/retry"))
+        .inScenario("Retry Scenario")
+        .whenScenarioStateIs("Succeeded")
+        .willReturn(aResponse().withStatus(200).withHeader("Content-Type", "text/html").withBody(htmlContent))
+    );
 
     // Act
     CompletableFuture<ContentDownloaderPort.DownloadedContent> future = httpContentDownloader.downloadContent(url);
@@ -174,17 +139,15 @@ class HttpContentDownloaderTest {
     assertThat(result.textContent()).contains("Success");
 
     // Verify retry happened
-    verify(httpClient, times(2)).sendAsync(any(HttpRequest.class), any(HttpResponse.BodyHandler.class));
+    verify(2, getRequestedFor(urlEqualTo("/retry")));
   }
 
   @Test
   void downloadContent_shouldFailAfterMaxRetries() {
     // Arrange
-    String url = "https://example.com";
+    String url = "http://localhost:8081/fail-retries";
 
-    when(httpResponse.statusCode()).thenReturn(503);
-
-    when(httpClient.sendAsync(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(CompletableFuture.completedFuture(httpResponse));
+    stubFor(get(urlEqualTo("/fail-retries")).willReturn(aResponse().withStatus(503)));
 
     // Act
     CompletableFuture<ContentDownloaderPort.DownloadedContent> future = httpContentDownloader.downloadContent(url);
@@ -200,17 +163,15 @@ class HttpContentDownloaderTest {
     }
 
     // Verify all 3 attempts were made
-    verify(httpClient, times(3)).sendAsync(any(HttpRequest.class), any(HttpResponse.BodyHandler.class));
+    verify(3, getRequestedFor(urlEqualTo("/fail-retries")));
   }
 
   @Test
   void downloadContent_shouldHandleNetworkErrors() {
     // Arrange
-    String url = "https://example.com";
+    String url = "http://localhost:8081/network-error";
 
-    when(httpClient.sendAsync(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(
-      CompletableFuture.failedFuture(new IOException("Network error"))
-    );
+    stubFor(get(urlEqualTo("/network-error")).willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
     // Act
     CompletableFuture<ContentDownloaderPort.DownloadedContent> future = httpContentDownloader.downloadContent(url);

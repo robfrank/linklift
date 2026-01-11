@@ -12,10 +12,11 @@ LinkLift is a RESTful web service for managing web links with comprehensive CRUD
 ### Key Features
 
 - **🔗 Link Management**: Create and list web links with metadata
+- **🔍 Vector Search**: Semantic search powered by Ollama embeddings and ArcadeDB vector index
 - **🏗️ Clean Architecture**: Hexagonal architecture with strict layer separation
 - **📊 Pagination & Sorting**: Efficient data retrieval with flexible sorting options
 - **⚡ Event-Driven**: Domain events for loose coupling and extensibility
-- **🧪 Comprehensive Testing**: Unit, integration, and acceptance tests
+- **🧪 Comprehensive Testing**: Unit, integration, and optional E2E tests with real Ollama
 - **🛡️ Error Handling**: Centralized exception handling with meaningful error codes
 - **🔄 Database Agnostic**: Repository pattern enables flexible data storage
 
@@ -282,16 +283,47 @@ The project includes comprehensive testing at multiple levels:
 **Test Categories:**
 
 - **Unit Tests**: Fast, isolated tests for business logic
-- **Integration Tests**: Tests with real database interactions
+- **Integration Tests**: Tests with real database interactions using Testcontainers
 - **Controller Tests**: API endpoint testing using JavalinTest
+- **E2E Tests**: Optional end-to-end tests with real Ollama embeddings (slow, requires Docker)
+
+**Running Tests:**
 
 ```bash
-# Run all tests
+# Run all tests (excludes E2E tests by default)
 mvn test
+
+# Run E2E tests with real Ollama embeddings (optional, slow ~2-3 minutes)
+mvn test -Pe2e-tests
+
+# Run specific test
+mvn test -Dtest=BackfillEmbeddingsServiceTest
 
 # View test reports
 open target/surefire-reports/index.html
 ```
+
+**E2E Testing with Real Ollama:**
+
+The optional E2E tests validate the complete vector search workflow with real Ollama embeddings:
+
+- Uses Testcontainers for ArcadeDB and Ollama
+- Validates actual semantic similarity (not fake embeddings)
+- Verifies embedding dimensions match real model output
+- **Prerequisites**: Docker with ~400MB available for Ollama image
+- **Execution time**: ~2-3 minutes per test suite
+- **Use case**: Pre-release validation, embedding logic changes
+
+```bash
+# Run E2E tests (requires Docker)
+mvn test -Pe2e-tests
+```
+
+**Testing Strategy:**
+
+- **Development**: Use fast integration tests with fake embeddings
+- **Pre-release**: Run E2E tests to validate real Ollama integration
+- **CI/CD**: E2E tests run on main branch only (not on PRs)
 
 ## Configuration
 

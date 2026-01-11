@@ -18,17 +18,50 @@ services:
       retries: 10
       start_period: 10s
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: "curl -f http://localhost:11434/ || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ollama-init
+    volumes:
+      - ollama_models:/root/.ollama
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: /bin/sh -c "ollama pull all-minilm:l6-v2 && echo 'Model all-minilm:l6-v2 ready'"
+    restart: "no"
+
   linklift:
     image: robfrank/linklift:latest
     container_name: linklift
     environment:
       - LINKLIFT_JWT_SECRET=whatthefuckisajwtsecretandwhyishouldsetit
+      - LINKLIFT_OLLAMA_URL=http://ollama:11434
+      - LINKLIFT_OLLAMA_MODEL=all-minilm:l6-v2
+      - LINKLIFT_OLLAMA_DIMENSIONS=384
       - JAVA_OPTS=-Dlinklift.arcadedb.host=arcadedb -Xmx512M -XX:+UseZGC -XX:+ZGenerational
     ports:
       - "7070:7070"
     depends_on:
       arcadedb:
         condition: service_healthy
+      ollama:
+        condition: service_healthy
+      ollama-init:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   webapp:
@@ -42,4 +75,6 @@ services:
 
 volumes:
   arcadedb_data:
+    driver: local
+  ollama_models:
     driver: local

@@ -29,6 +29,9 @@ builder:
 env:
   clear:
     JAVA_OPTS: "-Xmx2G -Dlinklift.arcadedb.host=linklift-arcadedb"
+    LINKLIFT_OLLAMA_URL: "http://linklift-ollama:11434"
+    LINKLIFT_OLLAMA_MODEL: "all-minilm:l6-v2"
+    LINKLIFT_OLLAMA_DIMENSIONS: "384"
 
 ssh:
   user: player
@@ -44,3 +47,11 @@ accessories:
     env:
       clear:
         JAVA_OPTS: "-Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin"
+
+  ollama:
+    image: ollama/ollama:latest
+    host: <%= ENV["HOST_IP"] %>
+    port: 11434
+    volumes:
+      - /home/player/linklift/ollama:/root/.ollama
+    cmd: serve

@@ -164,9 +164,11 @@ public final class SecureConfiguration {
 
   /**
    * Retrieves the Ollama model name.
+   * Defaults to all-minilm:l6-v2 which produces 384-dimensional embeddings,
+   * matching the vector index schema configuration.
    */
   public static String getOllamaModel() {
-    return System.getenv().getOrDefault(OLLAMA_MODEL_ENV, "nomic-embed-text");
+    return System.getenv().getOrDefault(OLLAMA_MODEL_ENV, "all-minilm:l6-v2");
   }
 
   /**

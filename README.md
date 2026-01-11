@@ -43,6 +43,15 @@ LinkLift is a RESTful web service for managing web links with comprehensive CRUD
    docker-compose up -d
    ```
 
+   This starts all required services:
+
+   - ArcadeDB (database)
+   - Ollama (AI embeddings for vector search)
+   - LinkLift API
+   - LinkLift Webapp
+
+   **Note:** First start takes 2-3 minutes to pull the Ollama model (~23MB)
+
 3. **Verify installation**
 
    ```bash
@@ -51,6 +60,9 @@ LinkLift is a RESTful web service for managing web links with comprehensive CRUD
 
    curl http://localhost:7070/api/v1/links
    # Expected: {"data": {"content": [], ...}, "message": "Links retrieved successfully"}
+
+   curl http://localhost:11434/
+   # Expected: Ollama is running
    ```
 
 ### Alternative: Manual Setup
@@ -150,7 +162,8 @@ LinkLift follows **Hexagonal Architecture** (Ports and Adapters) with clear sepa
 
 - **☕ Java 17**: Modern language features and performance
 - **🚀 Javalin**: Lightweight, fast web framework
-- **🗄️ ArcadeDB**: Multi-model database (Graph, Document, Key-Value)
+- **🗄️ ArcadeDB**: Multi-model database (Graph, Document, Key-Value) with vector search
+- **🤖 Ollama**: Local AI embeddings generation (all-minilm:l6-v2)
 - **🔨 Maven**: Build automation and dependency management
 - **🧪 JUnit 5**: Modern testing framework with comprehensive assertions
 - **🐳 Docker**: Containerization for consistent environments
@@ -326,9 +339,13 @@ mvn test -Pe2e-tests
 
 ### Environment Variables
 
-| Variable                 | Default   | Description              |
-| ------------------------ | --------- | ------------------------ |
-| `linklift.arcadedb.host` | localhost | ArcadeDB server hostname |
+| Variable                     | Default                | Description                   |
+| ---------------------------- | ---------------------- | ----------------------------- |
+| `linklift.arcadedb.host`     | localhost              | ArcadeDB server hostname      |
+| `LINKLIFT_JWT_SECRET`        | Auto-generated (dev)   | JWT authentication secret     |
+| `LINKLIFT_OLLAMA_URL`        | http://localhost:11434 | Ollama API endpoint           |
+| `LINKLIFT_OLLAMA_MODEL`      | all-minilm:l6-v2       | Ollama embedding model        |
+| `LINKLIFT_OLLAMA_DIMENSIONS` | 384                    | Expected embedding dimensions |
 
 ### Database Configuration
 
@@ -340,6 +357,32 @@ mvn test -Pe2e-tests
 - Password: playwithdata
 
 **Web UI:** http://localhost:2480 (ArcadeDB Studio)
+
+### Ollama Configuration (Vector Search)
+
+**Ollama Service:**
+
+- Host: localhost:11434 (Docker Compose) or linklift-ollama:11434 (Kamal)
+- Model: all-minilm:l6-v2 (384 dimensions)
+- Purpose: Generate embeddings for semantic search
+
+**Model Details:**
+
+- The `all-minilm:l6-v2` model produces 384-dimensional embeddings
+- This matches the vector index configuration in the database schema
+- Model is automatically pulled on first start via `ollama-init` service
+
+**Testing Ollama:**
+
+```bash
+# Check Ollama is running
+curl http://localhost:11434/
+
+# Generate a test embedding
+curl -X POST http://localhost:11434/api/embeddings \
+  -H "Content-Type: application/json" \
+  -d '{"model":"all-minilm:l6-v2","prompt":"test"}'
+```
 
 ## Documentation
 

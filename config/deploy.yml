@@ -35,7 +35,7 @@ ssh:
 
 accessories:
   arcadedb:
-    image: arcadedata/arcadedb-headless:25.11.1@sha256:d41c020c572242bdd3157ca92f5f5644bf92c9886643017738ffea841a92a39c
+    image: arcadedata/arcadedb-headless:25.12.1@sha256:5743b157ed0ffe2e466d476d6da404eee23e209d8107459b1529e25373b1787c
     host: <%= ENV["HOST_IP"] %>
     volumes:
       - /home/player/linklift/config:/home/arcadedb/config

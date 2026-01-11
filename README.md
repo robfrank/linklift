@@ -12,7 +12,7 @@ LinkLift is a RESTful web service for managing web links with comprehensive CRUD
 ### Key Features
 
 - **🔗 Link Management**: Create and list web links with metadata
-  - **🔍 Vector Search**: Semantic search powered by Ollama embeddings and ArcadeDB vector index
+- **🔍 Vector Search**: Semantic search powered by Ollama embeddings and ArcadeDB vector index
 - **🏗️ Clean Architecture**: Hexagonal architecture with strict layer separation
 - **📊 Pagination & Sorting**: Efficient data retrieval with flexible sorting options
 - **⚡ Event-Driven**: Domain events for loose coupling and extensibility
@@ -292,6 +292,9 @@ The project includes comprehensive testing at multiple levels:
 ```bash
 # Run all tests (excludes E2E tests by default)
 mvn test
+
+# Run E2E tests with real Ollama embeddings (optional, slow ~2-3 minutes)
+mvn test -Pe2e-tests
 
 # Run specific test
 mvn test -Dtest=BackfillEmbeddingsServiceTest

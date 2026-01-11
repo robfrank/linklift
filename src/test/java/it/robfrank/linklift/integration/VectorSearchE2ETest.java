@@ -30,6 +30,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.ollama.OllamaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 /**
@@ -56,9 +57,7 @@ class VectorSearchE2ETest {
   private static final ArcadeDbContainer arcadeDb = new ArcadeDbContainer();
 
   @Container
-  private static final GenericContainer<?> ollama = new GenericContainer<>(DockerImageName.parse("ollama/ollama:latest"))
-    .withExposedPorts(11434)
-    .waitingFor(Wait.forHttp("/").forPort(11434).forStatusCode(200));
+  private static final OllamaContainer ollama = new OllamaContainer(DockerImageName.parse("ollama/ollama:latest"));
 
   private RemoteDatabase database;
   private ContentPersistenceAdapter repository;

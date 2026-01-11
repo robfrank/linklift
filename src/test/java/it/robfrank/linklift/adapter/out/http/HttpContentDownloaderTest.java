@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import it.robfrank.linklift.application.domain.exception.ContentDownloadException;
 import it.robfrank.linklift.application.port.out.ContentDownloaderPort;
 import java.net.http.HttpClient;
@@ -124,7 +125,7 @@ class HttpContentDownloaderTest {
     stubFor(
       get(urlEqualTo("/retry"))
         .inScenario("Retry Scenario")
-        .whenScenarioStateIs(com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED)
+        .whenScenarioStateIs(Scenario.STARTED)
         .willReturn(aResponse().withStatus(503))
         .willSetStateTo("Succeeded")
     );

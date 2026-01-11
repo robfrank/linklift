@@ -3,11 +3,7 @@ package it.robfrank.linklift.application.domain.service;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
@@ -91,7 +87,7 @@ class LinkContentExtractorServiceTest {
     assertThat(capturedLink.url()).isEqualTo(originalLink.url());
 
     // Verify that WireMock was called
-    com.github.tomakehurst.wiremock.client.WireMock.verify(getRequestedFor(urlEqualTo("/test.html")));
+    WireMock.verify(getRequestedFor(urlEqualTo("/test.html")));
   }
 
   @Test
@@ -116,6 +112,6 @@ class LinkContentExtractorServiceTest {
     // IOException occurs.
     verify(saveLinkPort, never()).save(any(), anyString());
 
-    com.github.tomakehurst.wiremock.client.WireMock.verify(getRequestedFor(urlEqualTo("/fail.html")));
+    WireMock.verify(getRequestedFor(urlEqualTo("/fail.html")));
   }
 }

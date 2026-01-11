@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.net.http.HttpClient;
 import java.util.List;
@@ -148,7 +149,7 @@ class OllamaEmbeddingAdapterTest {
   void generateEmbedding_shouldThrowException_onIOError() throws Exception {
     // Arrange
     // WireMock can simulate connection resets or other network issues
-    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withFault(com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER)));
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
     // Act & Assert
     assertThatThrownBy(() -> adapter.generateEmbedding("test")).isInstanceOf(RuntimeException.class).hasMessageContaining("Error generating embedding");

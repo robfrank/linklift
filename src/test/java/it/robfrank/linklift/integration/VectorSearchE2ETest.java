@@ -19,26 +19,28 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.ollama.OllamaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 /**
  * OPTIONAL End-to-End tests for vector search with REAL Ollama embeddings.
  * <p>
  * These tests validate the complete vector search workflow with actual semantic similarity
- * from Ollama's all-minilm:l6-v2 model (384 dimensions).
+ * from Ollama's nomic-embed-text model.
  * <p>
  * WARNING:
- * - Slow (~30-60s per test due to model loading)
- * - Large (~400MB Ollama image + 23MB model download)
+ * - Slow (~60s per test due to model loading)
+ * - Large (~400MB Ollama image download)
  * - Optional (most testing covered by integration tests with fake embeddings)
  * <p>
  * Run with: mvn test -Pe2e-tests
@@ -48,13 +50,15 @@ class VectorSearchE2ETest {
 
   private static final Logger logger = LoggerFactory.getLogger(VectorSearchE2ETest.class);
   private static final LocalDateTime FIXED_TEST_TIME = LocalDateTime.of(2024, 1, 1, 12, 0);
-  private static final String OLLAMA_MODEL = "all-minilm:l6-v2";
+  private static final String OLLAMA_MODEL = "nomic-embed-text";
 
   @Container
   private static final ArcadeDbContainer arcadeDb = new ArcadeDbContainer();
 
   @Container
-  private static final OllamaContainer ollama = new OllamaContainer(DockerImageName.parse("ollama/ollama:latest"));
+  private static final GenericContainer<?> ollama = new GenericContainer<>(DockerImageName.parse("ollama/ollama:latest"))
+    .withExposedPorts(11434)
+    .waitingFor(Wait.forHttp("/").forPort(11434).forStatusCode(200));
 
   private RemoteDatabase database;
   private ContentPersistenceAdapter repository;
@@ -84,7 +88,7 @@ class VectorSearchE2ETest {
     repository = new ContentPersistenceAdapter(arcadeRepo);
 
     // Set up REAL Ollama embedding adapter
-    String ollamaUrl = "http://%s:%d".formatted(ollama.getHost(), ollama.getMappedPort(11434));
+    String ollamaUrl = String.format("http://%s:%d", ollama.getHost(), ollama.getMappedPort(11434));
 
     embeddingAdapter = new OllamaEmbeddingAdapter(HttpClient.newHttpClient(), ollamaUrl, OLLAMA_MODEL);
 
@@ -183,7 +187,7 @@ class VectorSearchE2ETest {
       assertThat(cookingIndex).as("Cooking content should rank lower than AI content").isGreaterThan(1);
     }
 
-    logger.atInfo().addArgument(() -> results.stream().map(Content::id).toList()).log("Search results for 'artificial intelligence and AI': {}");
+    logger.info("Search results for 'artificial intelligence and AI': {}", results.stream().map(Content::id).toList());
   }
 
   /**
@@ -211,12 +215,12 @@ class VectorSearchE2ETest {
         assertThat(updated.embedding()).isNotNull();
       });
 
-    // Then - embedding should have correct dimensions (384 for all-minilm:l6-v2)
+    // Then - embedding should have correct dimensions (768 for nomic-embed-text)
     Content updated = repository.findContentById("test-1").orElseThrow();
     float[] embedding = updated.embedding();
 
     assertThat(embedding).isNotNull();
-    assertThat(embedding.length).as("all-minilm:l6-v2 model should produce 384-dimensional embeddings").isEqualTo(384);
+    assertThat(embedding.length).as("nomic-embed-text model should produce 768-dimensional embeddings").isEqualTo(768);
 
     // Verify all values are valid floats (not NaN, not Infinity)
     for (float value : embedding) {

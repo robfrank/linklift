@@ -36,11 +36,11 @@ import org.testcontainers.utility.DockerImageName;
  * OPTIONAL End-to-End tests for vector search with REAL Ollama embeddings.
  * <p>
  * These tests validate the complete vector search workflow with actual semantic similarity
- * from Ollama's nomic-embed-text model.
+ * from Ollama's all-minilm:l6-v2 model (384 dimensions).
  * <p>
  * WARNING:
- * - Slow (~60s per test due to model loading)
- * - Large (~400MB Ollama image download)
+ * - Slow (~30-60s per test due to model loading)
+ * - Large (~400MB Ollama image + 23MB model download)
  * - Optional (most testing covered by integration tests with fake embeddings)
  * <p>
  * Run with: mvn test -Pe2e-tests
@@ -50,7 +50,7 @@ class VectorSearchE2ETest {
 
   private static final Logger logger = LoggerFactory.getLogger(VectorSearchE2ETest.class);
   private static final LocalDateTime FIXED_TEST_TIME = LocalDateTime.of(2024, 1, 1, 12, 0);
-  private static final String OLLAMA_MODEL = "nomic-embed-text";
+  private static final String OLLAMA_MODEL = "all-minilm:l6-v2";
 
   @Container
   private static final ArcadeDbContainer arcadeDb = new ArcadeDbContainer();
@@ -215,12 +215,12 @@ class VectorSearchE2ETest {
         assertThat(updated.embedding()).isNotNull();
       });
 
-    // Then - embedding should have correct dimensions (768 for nomic-embed-text)
+    // Then - embedding should have correct dimensions (384 for all-minilm:l6-v2)
     Content updated = repository.findContentById("test-1").orElseThrow();
     float[] embedding = updated.embedding();
 
     assertThat(embedding).isNotNull();
-    assertThat(embedding.length).as("nomic-embed-text model should produce 768-dimensional embeddings").isEqualTo(768);
+    assertThat(embedding.length).as("all-minilm:l6-v2 model should produce 384-dimensional embeddings").isEqualTo(384);
 
     // Verify all values are valid floats (not NaN, not Infinity)
     for (float value : embedding) {

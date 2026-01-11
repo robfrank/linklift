@@ -34,7 +34,7 @@ Implementation of optional end-to-end tests that validate the entire vector sear
 **Key Features:**
 
 - Uses Testcontainers for both ArcadeDB and Ollama
-- Pulls `nomic-embed-text` model on startup
+- Pulls `all-minilm:l6-v2` model on startup (384 dimensions)
 - Creates real OllamaEmbeddingAdapter (not FakeEmbeddingGenerator)
 - Wires up real services: BackfillEmbeddingsService, SearchContentService
 
@@ -50,7 +50,7 @@ Implementation of optional end-to-end tests that validate the entire vector sear
 
 2. **endToEnd_realEmbeddings_shouldValidateDimensions**
    - Saves content and runs backfill with REAL Ollama
-   - Retrieves content and verifies embedding has 768 dimensions (nomic-embed-text)
+   - Retrieves content and verifies embedding has 384 dimensions (all-minilm:l6-v2)
    - Validates all embedding values are finite (not NaN, not Infinity)
    - **Goal:** Catch dimension mismatches with real model
 
@@ -151,11 +151,12 @@ mvn test
 
    - At least 2GB memory available
    - ~400MB for Ollama image download (first run only)
+   - ~23MB for all-minilm:l6-v2 model
    - ~50MB for ArcadeDB image
 
 3. **Expected execution time:**
-   - First run: ~3-5 minutes (model download + pull)
-   - Subsequent runs: ~2-3 minutes (model cached)
+   - First run: ~2-3 minutes (Ollama image + model download)
+   - Subsequent runs: ~1-2 minutes (images cached)
 
 ### Troubleshooting
 
@@ -168,7 +169,7 @@ mvn test
 
 - Check network connectivity
 - Verify Docker can access Docker Hub
-- Try pulling manually: `docker run ollama/ollama ollama pull nomic-embed-text`
+- Try pulling manually: `docker run ollama/ollama ollama pull all-minilm:l6-v2`
 
 **Issue: Tests timeout**
 
@@ -179,8 +180,8 @@ mvn test
 **Issue: Dimension mismatch error**
 
 - Verify LINKLIFT_OLLAMA_DIMENSIONS environment variable matches model
-- nomic-embed-text produces 768 dimensions
-- Update vector index schema if using different model
+- all-minilm:l6-v2 produces 384 dimensions (matches default schema)
+- Update vector index schema or use different model if dimensions mismatch
 
 ## Test Results
 
@@ -262,9 +263,9 @@ mvn test -Pe2e-tests
 
 1. **Model Configuration**
 
-   - Document which model is expected (nomic-embed-text)
-   - Document expected dimensions (768)
-   - Update tests if changing models
+   - Document which model is expected (all-minilm:l6-v2)
+   - Document expected dimensions (384)
+   - Update tests if changing models (ensure dimensions match schema)
 
 2. **Monitoring**
 

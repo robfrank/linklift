@@ -11,7 +11,10 @@
     <name>linklift</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <normalized.os.name>${os.name}</normalized.os.name>
+        <docker-maven-plugin.platform>linux/amd64,linux/arm64</docker-maven-plugin.platform>
 
+        <!-- Dependency versions -->
         <junit.version>6.0.2</junit.version>
         <assertj.version>3.27.6</assertj.version>
         <picocli.version>4.7.6</picocli.version>
@@ -28,7 +31,13 @@
         <bcrypt.version>0.10.2</bcrypt.version>
         <jspecify.version>1.0.0</jspecify.version>
         <jsoup.version>1.22.1</jsoup.version>
+        <wiremock.version>3.13.2</wiremock.version>
+        <jackson.version>2.18.3</jackson.version>
+        <logback-classic.version>1.5.24</logback-classic.version>
+        <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
+        <micrometer-core.version>1.16.1</micrometer-core.version>
 
+        <!-- Plugin versions -->
         <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
         <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
@@ -39,17 +48,15 @@
         <native-image-maven-plugin.version>0.11.3</native-image-maven-plugin.version>
         <arch-unit-maven-plugin.version>4.0.2</arch-unit-maven-plugin.version>
         <docker-maven-plugin.version>0.48.0</docker-maven-plugin.version>
+        <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
 
+        <!-- Rewrite versions -->
         <rewrite-static-analysis.version>2.25.0</rewrite-static-analysis.version>
         <rewrite-logging-frameworks.version>3.21.0</rewrite-logging-frameworks.version>
         <rewrite-maven-plugin.version>6.27.0</rewrite-maven-plugin.version>
         <rewrite-migrate-java.version>3.25.0</rewrite-migrate-java.version>
         <rewrite-testing-frameworks.version>3.25.0</rewrite-testing-frameworks.version>
 
-        <normalized.os.name>${os.name}</normalized.os.name>
-
-        <docker-maven-plugin.platform>linux/amd64,linux/arm64</docker-maven-plugin.platform>
-        <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
     </properties>
     <scm>
         <developerConnection>scm:git:https://github.com/robfrank/linklift.git</developerConnection>
@@ -321,6 +328,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -393,12 +407,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.5.24</version>
+            <version>${logback-classic.version}</version>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>9.0</version>
+            <version>${logstash-logback-encoder.version}</version>
         </dependency>
 
         <!-- Metrics -->
@@ -410,12 +424,12 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
-            <version>1.16.1</version>
+            <version>${micrometer-core.version}</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>1.16.1</version>
+            <version>${micrometer-core.version}</version>
         </dependency>
 
         <dependency>
@@ -468,6 +482,12 @@
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <version>${awaitility.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

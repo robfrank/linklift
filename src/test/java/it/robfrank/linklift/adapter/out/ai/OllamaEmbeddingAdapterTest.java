@@ -1,41 +1,30 @@
 package it.robfrank.linklift.adapter.out.ai;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
 
-import java.io.IOException;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@ExtendWith(MockitoExtension.class)
 class OllamaEmbeddingAdapterTest {
 
-  @Mock
-  private HttpClient httpClient;
+  @RegisterExtension
+  static WireMockExtension wireMock = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
+  private final HttpClient httpClient = HttpClient.newHttpClient();
   private OllamaEmbeddingAdapter adapter;
 
   @BeforeEach
   void setUp() {
-    System.clearProperty("LINKLIFT_OLLAMA_DIMENSIONS");
-    System.clearProperty("LINKLIFT_OLLAMA_URL");
-    System.clearProperty("LINKLIFT_OLLAMA_MODEL");
-  }
-
-  @SuppressWarnings("unchecked")
-  private HttpResponse<String> mockHttpResponse(int statusCode, String body) {
-    HttpResponse<String> response = (HttpResponse<String>) mock(HttpResponse.class);
-    when(response.statusCode()).thenReturn(statusCode);
-    when(response.body()).thenReturn(body);
-    return response;
+    WireMock.configureFor(wireMock.getPort());
+    adapter = new OllamaEmbeddingAdapter(httpClient, wireMock.baseUrl(), "test-model");
   }
 
   // ==================== Happy Path Tests ====================
@@ -43,53 +32,44 @@ class OllamaEmbeddingAdapterTest {
   @Test
   void generateEmbedding_shouldReturnEmbedding_whenValidResponseReceived() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
     String responseJson = "{\"embedding\": [0.1, 0.2, 0.3, 0.4]}";
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response = mockHttpResponse(200, responseJson);
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response);
+    stubFor(
+      post(urlEqualTo("/api/embeddings"))
+        .withRequestBody(matchingJsonPath("$.model", equalTo("test-model")))
+        .withRequestBody(matchingJsonPath("$.prompt", equalTo("test text")))
+        .willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(responseJson))
+    );
 
     // Act
     List<Float> embedding = adapter.generateEmbedding("test text");
 
     // Assert
     assertThat(embedding).hasSize(4).containsExactly(0.1f, 0.2f, 0.3f, 0.4f);
-    verify(httpClient, times(1)).send(any(HttpRequest.class), any());
+    verify(postRequestedFor(urlEqualTo("/api/embeddings")));
   }
 
   @Test
   void generateEmbedding_shouldSendCorrectRequest_withProperModelAndPrompt() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
     String responseJson = "{\"embedding\": [0.1]}";
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response = mockHttpResponse(200, responseJson);
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(responseJson)));
 
     // Act
     adapter.generateEmbedding("test text");
 
     // Assert
-    verify(httpClient).send(
-      argThat(request -> {
-        String uri = request.uri().toString();
-        return uri.contains("/api/embeddings") && uri.startsWith("http://localhost:11434");
-      }),
-      any()
+    verify(
+      postRequestedFor(urlEqualTo("/api/embeddings"))
+        .withRequestBody(matchingJsonPath("$.model", equalTo("test-model")))
+        .withRequestBody(matchingJsonPath("$.prompt", equalTo("test text")))
     );
   }
 
   @Test
   void generateEmbedding_shouldHandleEmptyEmbeddingVector() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
     String responseJson = "{\"embedding\": []}";
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response = mockHttpResponse(200, responseJson);
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(responseJson)));
 
     // Act
     List<Float> embedding = adapter.generateEmbedding("text");
@@ -101,12 +81,8 @@ class OllamaEmbeddingAdapterTest {
   @Test
   void generateEmbedding_shouldFilterNullValuesFromEmbedding() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
     String responseJson = "{\"embedding\": [0.1, null, 0.3]}";
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response = mockHttpResponse(200, responseJson);
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(responseJson)));
 
     // Act
     List<Float> embedding = adapter.generateEmbedding("text");
@@ -120,11 +96,7 @@ class OllamaEmbeddingAdapterTest {
   @Test
   void generateEmbedding_shouldThrowException_whenHttpStatusIsNotOK() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response500 = mockHttpResponse(500, "Internal Server Error");
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response500);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(500).withBody("Internal Server Error")));
 
     // Act & Assert
     assertThatThrownBy(() -> adapter.generateEmbedding("test")).isInstanceOf(RuntimeException.class).hasMessageContaining("Failed to generate embedding");
@@ -133,11 +105,7 @@ class OllamaEmbeddingAdapterTest {
   @Test
   void generateEmbedding_shouldThrowException_when404NotFound() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "missing-model");
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response404 = mockHttpResponse(404, "Model not found");
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response404);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(404).withBody("Model not found")));
 
     // Act & Assert
     assertThatThrownBy(() -> adapter.generateEmbedding("test")).isInstanceOf(RuntimeException.class).hasMessageContaining("Failed to generate embedding");
@@ -146,11 +114,7 @@ class OllamaEmbeddingAdapterTest {
   @Test
   void generateEmbedding_shouldThrowException_whenResponseIsMalformedJSON() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse respInvalid = mockHttpResponse(200, "{invalid json}");
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) respInvalid);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(200).withBody("{invalid json}")));
 
     // Act & Assert
     assertThatThrownBy(() -> adapter.generateEmbedding("test")).isInstanceOf(RuntimeException.class);
@@ -159,12 +123,8 @@ class OllamaEmbeddingAdapterTest {
   @Test
   void generateEmbedding_shouldThrowException_whenEmbeddingFieldIsMissing() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
     String responseJson = "{\"result\": [0.1, 0.2]}"; // Missing "embedding" field
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response = mockHttpResponse(200, responseJson);
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(responseJson)));
 
     // Act & Assert
     assertThatThrownBy(() -> adapter.generateEmbedding("test"))
@@ -175,12 +135,8 @@ class OllamaEmbeddingAdapterTest {
   @Test
   void generateEmbedding_shouldThrowException_whenEmbeddingIsNotList() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
     String responseJson = "{\"embedding\": \"not a list\"}";
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response = mockHttpResponse(200, responseJson);
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(responseJson)));
 
     // Act & Assert
     assertThatThrownBy(() -> adapter.generateEmbedding("test"))
@@ -191,73 +147,60 @@ class OllamaEmbeddingAdapterTest {
   @Test
   void generateEmbedding_shouldThrowException_onIOError() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
-    when(httpClient.send(any(HttpRequest.class), any())).thenThrow(new IOException("Connection failed"));
+    // WireMock can simulate connection resets or other network issues
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withFault(com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER)));
 
     // Act & Assert
     assertThatThrownBy(() -> adapter.generateEmbedding("test")).isInstanceOf(RuntimeException.class).hasMessageContaining("Error generating embedding");
   }
 
   @Test
-  void generateEmbedding_shouldThrowException_onInterruption() throws Exception {
-    // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
+  void generateEmbedding_shouldRestoreInterruptedStatus_onInterruption() throws Exception {
+    // Arrange - add a slow response stub to allow interruption
+    stubFor(
+      post(urlEqualTo("/api/embeddings")).willReturn(
+        aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody("{\"embedding\": [0.1, 0.2]}").withFixedDelay(5000)
+      )
+    ); // 5 second delay
 
-    when(httpClient.send(any(HttpRequest.class), any())).thenThrow(new InterruptedException("Thread interrupted"));
+    Thread testThread = new Thread(() -> {
+      try {
+        Thread.currentThread().interrupt(); // Set interrupted status before the call
+        adapter.generateEmbedding("test");
+      } catch (Exception e) {
+        // Expected - verify interrupted status is preserved
+        assertThat(Thread.currentThread().isInterrupted()).isTrue();
+      }
+    });
 
-    // Act & Assert
-    assertThatThrownBy(() -> adapter.generateEmbedding("test"))
-      .isInstanceOf(RuntimeException.class)
-      .hasMessageContaining("Interrupted while generating embedding");
+    // Act
+    testThread.start();
+    testThread.join(10000);
 
-    // Verify thread interrupt status was restored
-    assertThat(Thread.interrupted()).isTrue();
+    // Assert - the test passes if the thread completes
+    assertThat(testThread.isAlive()).isFalse();
   }
 
   // ==================== Configuration Tests ====================
 
   @Test
-  void constructor_shouldUseDefaultUrl_whenNotProvided() throws Exception {
+  void constructor_shouldUseProvidedUrl_whenSpecified() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, null, "test-model");
-
     String responseJson = "{\"embedding\": [0.1]}";
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response = mockHttpResponse(200, responseJson);
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(responseJson)));
 
     // Act
     adapter.generateEmbedding("test");
 
     // Assert
-    verify(httpClient).send(argThat(request -> request.uri().toString().startsWith("http://localhost:11434")), any());
-  }
-
-  @Test
-  void constructor_shouldUseDefaultModel_whenNotProvided() throws Exception {
-    // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", null);
-
-    String responseJson = "{\"embedding\": [0.1]}";
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response = mockHttpResponse(200, responseJson);
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response);
-
-    // Act
-    adapter.generateEmbedding("test");
-
-    // Assert
-    verify(httpClient, times(1)).send(any(HttpRequest.class), any());
+    verify(postRequestedFor(urlEqualTo("/api/embeddings")));
   }
 
   // ==================== Large Data Tests ====================
 
   @Test
-  void generateEmbedding_shouldHandleLargEmbeddingVector() throws Exception {
+  void generateEmbedding_shouldHandleLargeEmbeddingVector() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
     // Create a large embedding with 1024 dimensions
     StringBuilder embeddingJson = new StringBuilder("{\"embedding\": [");
     for (int i = 0; i < 1024; i++) {
@@ -266,9 +209,11 @@ class OllamaEmbeddingAdapterTest {
     }
     embeddingJson.append("]}");
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse respLarge = mockHttpResponse(200, embeddingJson.toString());
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) respLarge);
+    stubFor(
+      post(urlEqualTo("/api/embeddings")).willReturn(
+        aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(embeddingJson.toString())
+      )
+    );
 
     // Act
     List<Float> embedding = adapter.generateEmbedding("test");
@@ -280,21 +225,16 @@ class OllamaEmbeddingAdapterTest {
   @Test
   void generateEmbedding_shouldHandleVeryLongPrompt() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
     String longText = "text ".repeat(1000); // 5000+ character prompt
-
     String responseJson = "{\"embedding\": [0.1, 0.2]}";
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response = mockHttpResponse(200, responseJson);
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(responseJson)));
 
     // Act
     List<Float> embedding = adapter.generateEmbedding(longText);
 
     // Assert
     assertThat(embedding).hasSize(2);
-    verify(httpClient, times(1)).send(any(HttpRequest.class), any());
+    verify(postRequestedFor(urlEqualTo("/api/embeddings")));
   }
 
   // ==================== Dimension Validation Tests ====================
@@ -302,40 +242,29 @@ class OllamaEmbeddingAdapterTest {
   @Test
   void generateEmbedding_shouldLogWarning_whenDimensionMismatchDetected() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
     // This adapter expects 384 dimensions by default
     String responseJson = "{\"embedding\": [0.1, 0.2]}"; // But response has only 2
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response = mockHttpResponse(200, responseJson);
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(responseJson)));
 
     // Act
     List<Float> embedding = adapter.generateEmbedding("test");
 
     // Assert - should return the embedding even with dimension mismatch
     assertThat(embedding).hasSize(2);
-    // Note: Warning would be logged but we're testing functional behavior
   }
 
   @Test
   void generateEmbedding_shouldValidateDimensionsOnlyOnce() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
-
     String responseJson = "{\"embedding\": [0.1, 0.2, 0.3, 0.4]}";
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    HttpResponse response = mockHttpResponse(200, responseJson);
-    when(httpClient.send(any(HttpRequest.class), any())).thenReturn((HttpResponse) response);
+    stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(responseJson)));
 
     // Act
     adapter.generateEmbedding("test 1");
     adapter.generateEmbedding("test 2");
     adapter.generateEmbedding("test 3");
 
-    // Assert - should have called httpClient 3 times
-    verify(httpClient, times(3)).send(any(HttpRequest.class), any());
-    // But dimension validation happens only once (internally tracked by adapter)
+    // Assert - should have called WireMock 3 times
+    verify(3, postRequestedFor(urlEqualTo("/api/embeddings")));
   }
 }

@@ -214,7 +214,8 @@ Missing component tests to implement:
 
 1. ✅ Implement missing service unit tests (COMPLETED)
 2. Implement missing controller integration tests
-3. Verify test coverage meets >80% target
+3. ✅ Refactor HTTP tests with WireMock (COMPLETED)
+4. Verify test coverage meets >80% target
 
 ### Short Term (Sprint 2 - Backend Quality)
 

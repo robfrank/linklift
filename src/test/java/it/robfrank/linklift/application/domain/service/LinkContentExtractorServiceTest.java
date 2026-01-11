@@ -1,6 +1,7 @@
 package it.robfrank.linklift.application.domain.service;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
@@ -8,7 +9,8 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.out.SaveLinkPort;
@@ -21,16 +23,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-@WireMockTest(httpPort = 8080)
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class LinkContentExtractorServiceTest {
+
+  @RegisterExtension
+  static WireMockExtension wireMock = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
   private LinkContentExtractorService linkContentExtractorService;
 
@@ -41,6 +46,7 @@ class LinkContentExtractorServiceTest {
 
   @BeforeEach
   void setUp() {
+    WireMock.configureFor(wireMock.getPort());
     testExecutorService = Executors.newSingleThreadExecutor();
     linkContentExtractorService = new LinkContentExtractorService(testExecutorService, saveLinkPort);
   }
@@ -49,7 +55,7 @@ class LinkContentExtractorServiceTest {
   @DisplayName("should extract content and update link when LinkCreatedEvent is received")
   void shouldExtractContentAndUpdateLink() throws Exception {
     // Given
-    String url = "http://localhost:8080/test.html";
+    String url = wireMock.baseUrl() + "/test.html";
     Link originalLink = new Link("id-123", url, "Original Title", "Original Description", LocalDateTime.now(), "text/html", List.of());
     LinkCreatedEvent event = new LinkCreatedEvent(originalLink, "user-1");
 
@@ -92,7 +98,7 @@ class LinkContentExtractorServiceTest {
   @DisplayName("should handle extraction failure gracefully")
   void shouldHandleExtractionFailure() throws Exception {
     // Given
-    String url = "http://localhost:8080/fail.html";
+    String url = wireMock.baseUrl() + "/fail.html";
     Link originalLink = new Link("id-123", url, "Original Title", "Original Description", LocalDateTime.now(), "text/html", List.of());
     LinkCreatedEvent event = new LinkCreatedEvent(originalLink, "user-1");
 

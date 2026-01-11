@@ -1,10 +1,12 @@
 package it.robfrank.linklift.adapter.out.http;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import it.robfrank.linklift.application.domain.exception.ContentDownloadException;
 import it.robfrank.linklift.application.port.out.ContentDownloaderPort;
 import java.net.http.HttpClient;
@@ -13,22 +15,26 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@WireMockTest(httpPort = 8081)
 class HttpContentDownloaderTest {
+
+  @RegisterExtension
+  static WireMockExtension wireMock = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
   private HttpContentDownloader httpContentDownloader;
   private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
 
   @BeforeEach
   void setUp() {
+    WireMock.configureFor(wireMock.getPort());
     httpContentDownloader = new HttpContentDownloader(httpClient);
   }
 
   @Test
   void downloadContent_shouldReturnDownloadedContentOnSuccess() throws Exception {
     // Arrange
-    String url = "http://localhost:8081/success";
+    String url = wireMock.baseUrl() + "/success";
     String htmlContent = "<html><body><p>Test content</p></body></html>";
 
     stubFor(get(urlEqualTo("/success")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "text/html; charset=UTF-8").withBody(htmlContent)));
@@ -50,7 +56,7 @@ class HttpContentDownloaderTest {
   @Test
   void downloadContent_shouldExtractTextFromHtml() throws Exception {
     // Arrange
-    String url = "http://localhost:8081/html";
+    String url = wireMock.baseUrl() + "/html";
     String htmlContent = "<html><head><title>Test</title></head><body><h1>Hello</h1><p>World</p></body></html>";
 
     stubFor(get(urlEqualTo("/html")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "text/html").withBody(htmlContent)));
@@ -69,7 +75,7 @@ class HttpContentDownloaderTest {
   @Test
   void downloadContent_shouldUseDefaultContentTypeWhenNotProvided() throws Exception {
     // Arrange
-    String url = "http://localhost:8081/no-content-type";
+    String url = wireMock.baseUrl() + "/no-content-type";
     String htmlContent = "<html><body>Test</body></html>";
 
     stubFor(get(urlEqualTo("/no-content-type")).willReturn(aResponse().withStatus(200).withBody(htmlContent)));
@@ -85,7 +91,7 @@ class HttpContentDownloaderTest {
   @Test
   void downloadContent_shouldFailOnClientError() {
     // Arrange
-    String url = "http://localhost:8081/404";
+    String url = wireMock.baseUrl() + "/404";
 
     stubFor(get(urlEqualTo("/404")).willReturn(aResponse().withStatus(404)));
 
@@ -111,7 +117,7 @@ class HttpContentDownloaderTest {
   @Test
   void downloadContent_shouldRetryOnServerError() throws Exception {
     // Arrange
-    String url = "http://localhost:8081/retry";
+    String url = wireMock.baseUrl() + "/retry";
     String htmlContent = "<html><body>Success</body></html>";
 
     // First call returns 503, second call returns 200
@@ -145,7 +151,7 @@ class HttpContentDownloaderTest {
   @Test
   void downloadContent_shouldFailAfterMaxRetries() {
     // Arrange
-    String url = "http://localhost:8081/fail-retries";
+    String url = wireMock.baseUrl() + "/fail-retries";
 
     stubFor(get(urlEqualTo("/fail-retries")).willReturn(aResponse().withStatus(503)));
 
@@ -169,7 +175,7 @@ class HttpContentDownloaderTest {
   @Test
   void downloadContent_shouldHandleNetworkErrors() {
     // Arrange
-    String url = "http://localhost:8081/network-error";
+    String url = wireMock.baseUrl() + "/network-error";
 
     stubFor(get(urlEqualTo("/network-error")).willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
 

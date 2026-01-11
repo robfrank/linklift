@@ -606,7 +606,7 @@ class VectorSearchE2ETest {
 
     // Then - REAL embedding has correct dimensions
     Content retrieved = repository.findContentById("id-1").orElseThrow();
-    assertThat(retrieved.embedding()).hasSize(768); // Actual nomic-embed-text dimension
+    assertThat(retrieved.embedding()).hasSize(384); // Configured dimension size (ArcadeDbContainer uses 384)
   }
 
   @AfterEach

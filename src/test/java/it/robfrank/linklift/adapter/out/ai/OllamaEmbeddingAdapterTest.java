@@ -1,27 +1,30 @@
 package it.robfrank.linklift.adapter.out.ai;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.net.http.HttpClient;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@WireMockTest(httpPort = 11434)
 class OllamaEmbeddingAdapterTest {
+
+  @RegisterExtension
+  static WireMockExtension wireMock = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
   private final HttpClient httpClient = HttpClient.newHttpClient();
   private OllamaEmbeddingAdapter adapter;
 
   @BeforeEach
   void setUp() {
-    System.clearProperty("LINKLIFT_OLLAMA_DIMENSIONS");
-    System.clearProperty("LINKLIFT_OLLAMA_URL");
-    System.clearProperty("LINKLIFT_OLLAMA_MODEL");
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "test-model");
+    WireMock.configureFor(wireMock.getPort());
+    adapter = new OllamaEmbeddingAdapter(httpClient, wireMock.baseUrl(), "test-model");
   }
 
   // ==================== Happy Path Tests ====================
@@ -102,7 +105,6 @@ class OllamaEmbeddingAdapterTest {
   @Test
   void generateEmbedding_shouldThrowException_when404NotFound() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, "http://localhost:11434", "missing-model");
     stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(404).withBody("Model not found")));
 
     // Act & Assert
@@ -152,12 +154,38 @@ class OllamaEmbeddingAdapterTest {
     assertThatThrownBy(() -> adapter.generateEmbedding("test")).isInstanceOf(RuntimeException.class).hasMessageContaining("Error generating embedding");
   }
 
+  @Test
+  void generateEmbedding_shouldRestoreInterruptedStatus_onInterruption() throws Exception {
+    // Arrange - add a slow response stub to allow interruption
+    stubFor(
+      post(urlEqualTo("/api/embeddings")).willReturn(
+        aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody("{\"embedding\": [0.1, 0.2]}").withFixedDelay(5000)
+      )
+    ); // 5 second delay
+
+    Thread testThread = new Thread(() -> {
+      try {
+        Thread.currentThread().interrupt(); // Set interrupted status before the call
+        adapter.generateEmbedding("test");
+      } catch (Exception e) {
+        // Expected - verify interrupted status is preserved
+        assertThat(Thread.currentThread().isInterrupted()).isTrue();
+      }
+    });
+
+    // Act
+    testThread.start();
+    testThread.join(10000);
+
+    // Assert - the test passes if the thread completes
+    assertThat(testThread.isAlive()).isFalse();
+  }
+
   // ==================== Configuration Tests ====================
 
   @Test
-  void constructor_shouldUseDefaultUrl_whenNotProvided() throws Exception {
+  void constructor_shouldUseProvidedUrl_whenSpecified() throws Exception {
     // Arrange
-    adapter = new OllamaEmbeddingAdapter(httpClient, null, "test-model");
     String responseJson = "{\"embedding\": [0.1]}";
     stubFor(post(urlEqualTo("/api/embeddings")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json").withBody(responseJson)));
 
@@ -171,7 +199,7 @@ class OllamaEmbeddingAdapterTest {
   // ==================== Large Data Tests ====================
 
   @Test
-  void generateEmbedding_shouldHandleLargEmbeddingVector() throws Exception {
+  void generateEmbedding_shouldHandleLargeEmbeddingVector() throws Exception {
     // Arrange
     // Create a large embedding with 1024 dimensions
     StringBuilder embeddingJson = new StringBuilder("{\"embedding\": [");

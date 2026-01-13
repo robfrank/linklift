@@ -19,12 +19,15 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.ollama.OllamaContainer;
@@ -84,7 +87,7 @@ class VectorSearchE2ETest {
     repository = new ContentPersistenceAdapter(arcadeRepo);
 
     // Set up REAL Ollama embedding adapter
-    String ollamaUrl = "http://%s:%d".formatted(ollama.getHost(), ollama.getMappedPort(11434));
+    String ollamaUrl = String.format("http://%s:%d", ollama.getHost(), ollama.getMappedPort(11434));
 
     embeddingAdapter = new OllamaEmbeddingAdapter(HttpClient.newHttpClient(), ollamaUrl, OLLAMA_MODEL);
 
@@ -183,7 +186,7 @@ class VectorSearchE2ETest {
       assertThat(cookingIndex).as("Cooking content should rank lower than AI content").isGreaterThan(1);
     }
 
-    logger.atInfo().addArgument(() -> results.stream().map(Content::id).toList()).log("Search results for 'artificial intelligence and AI': {}");
+    logger.info("Search results for 'artificial intelligence and AI': {}", results.stream().map(Content::id).toList());
   }
 
   /**

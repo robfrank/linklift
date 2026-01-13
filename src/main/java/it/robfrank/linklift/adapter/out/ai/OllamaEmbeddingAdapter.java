@@ -20,6 +20,13 @@ public class OllamaEmbeddingAdapter implements EmbeddingGenerator {
 
   private static final Logger logger = LoggerFactory.getLogger(OllamaEmbeddingAdapter.class);
 
+  /**
+   * Maximum characters to send to the model.
+   * The all-minilm:l6-v2 model has a context length of 256 tokens.
+   * Using 512 characters as a safe limit (typically 1 char ≈ 0.5 tokens for English text).
+   */
+  private static final int MAX_TEXT_LENGTH = 512;
+
   private final String ollamaUrl;
   private final String model;
   private final HttpClient httpClient;
@@ -39,7 +46,10 @@ public class OllamaEmbeddingAdapter implements EmbeddingGenerator {
   @NonNull
   public List<Float> generateEmbedding(@NonNull String text) {
     try {
-      Map<String, String> requestBody = Map.of("model", model, "prompt", text);
+      // Truncate text if it exceeds the model's context length
+      String truncatedText = truncateText(text);
+
+      Map<String, String> requestBody = Map.of("model", model, "prompt", truncatedText);
       String body = objectMapper.writeValueAsString(requestBody);
 
       HttpRequest request = HttpRequest.newBuilder()
@@ -104,5 +114,22 @@ public class OllamaEmbeddingAdapter implements EmbeddingGenerator {
     }
 
     dimensionValidated = true;
+  }
+
+  /**
+   * Truncates text to fit within the model's context length.
+   * Logs a warning if truncation occurs.
+   *
+   * @param text The input text
+   * @return Truncated text if necessary, otherwise the original text
+   */
+  private String truncateText(String text) {
+    if (text == null || text.length() <= MAX_TEXT_LENGTH) {
+      return text;
+    }
+
+    logger.warn("Text length ({} chars) exceeds maximum ({} chars) for model '{}'. Truncating to fit context window.", text.length(), MAX_TEXT_LENGTH, model);
+
+    return text.substring(0, MAX_TEXT_LENGTH);
   }
 }

@@ -49,7 +49,7 @@ accessories:
         JAVA_OPTS: "-Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin"
 
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.13.5@sha256:2c9595c555fd70a28363489ac03bd5bf9e7c5bdf2890373c3a830ffd7252ce6d
     host: <%= ENV["HOST_IP"] %>
     port: 11434
     volumes:

@@ -23,7 +23,7 @@
         <javalin.version>6.7.0</javalin.version>
         <arcadedb.version>25.12.1</arcadedb.version>
         <testcontainers.version>2.0.3</testcontainers.version>
-        <awaitility.version>4.2.0</awaitility.version>
+        <awaitility.version>4.3.0</awaitility.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <mockito-core.version>5.21.0</mockito-core.version>
         <json-unit-assertj.version>5.1.0</json-unit-assertj.version>

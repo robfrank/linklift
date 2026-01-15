@@ -34,7 +34,7 @@
         <wiremock.version>3.13.2</wiremock.version>
         <jackson.version>2.20.1</jackson.version>
         <logback-classic.version>1.5.24</logback-classic.version>
-        <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
+        <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <micrometer-core.version>1.16.1</micrometer-core.version>
 
         <!-- Plugin versions -->

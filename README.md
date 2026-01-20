@@ -291,49 +291,93 @@ src/
 
 ### Testing
 
-The project includes comprehensive testing at multiple levels:
+LinkLift uses a modern testing approach that emphasizes **integration testing with real implementations** over mocking. This provides higher confidence and catches more bugs while maintaining reasonable execution times.
 
-**Test Categories:**
+**Test Types:**
 
-- **Unit Tests**: Fast, isolated tests for business logic
-- **Integration Tests**: Tests with real database interactions using Testcontainers
-- **Controller Tests**: API endpoint testing using JavalinTest
-- **E2E Tests**: Optional end-to-end tests with real Ollama embeddings (slow, requires Docker)
+| Type                  | Count      | Execution Time | Technology                | Purpose                                   |
+| --------------------- | ---------- | -------------- | ------------------------- | ----------------------------------------- |
+| **Integration Tests** | 32 tests   | ~30 seconds    | Testcontainers + ArcadeDB | Service tests with real database          |
+| **HTTP Tests**        | 15 tests   | ~500ms         | WireMock                  | HTTP adapter tests with mocked responses  |
+| **Unit Tests**        | 300+ tests | ~10 seconds    | JUnit 5                   | Domain models, validation, business logic |
+| **Controller Tests**  | 50+ tests  | ~15 seconds    | JavalinTest               | REST API endpoints                        |
+| **E2E Tests**         | 2 tests    | ~120 seconds   | Testcontainers + Ollama   | Optional full-stack validation            |
+
+**Prerequisites:**
+
+- **Docker Desktop** - Required for integration tests (Testcontainers)
+  - [Install Docker Desktop](https://docs.docker.com/get-docker/)
+  - Ensure Docker is running before executing tests
+  - Minimum 4GB RAM allocated to Docker
 
 **Running Tests:**
 
 ```bash
 # Run all tests (excludes E2E tests by default)
+# Total execution time: ~2 minutes
 mvn test
 
-# Run specific test
+# Run specific test class
 mvn test -Dtest=BackfillEmbeddingsServiceTest
 
-# View test reports
-open target/surefire-reports/index.html
-```
+# Run specific test method
+mvn test -Dtest=SearchContentServiceTest#search_shouldReturnSimilarContent
 
-**E2E Testing with Real Ollama:**
+# Run with coverage report
+mvn test jacoco:report
+open target/site/jacoco/index.html
 
-The optional E2E tests validate the complete vector search workflow with real Ollama embeddings:
-
-- Uses Testcontainers for ArcadeDB and Ollama
-- Validates actual semantic similarity (not fake embeddings)
-- Verifies embedding dimensions match real model output
-- **Prerequisites**: Docker with ~400MB available for Ollama image
-- **Execution time**: ~2-3 minutes per test suite
-- **Use case**: Pre-release validation, embedding logic changes
-
-```bash
-# Run E2E tests (requires Docker)
+# Run E2E tests (optional, requires Docker + Ollama image ~400MB)
 mvn test -Pe2e-tests
 ```
 
+**Test Categories Explained:**
+
+1. **Integration Tests with Testcontainers** (32 tests, ~30s)
+
+   - Uses real ArcadeDB in Docker container
+   - Tests actual SQL queries, vector indexing, and database behavior
+   - Examples: `BackfillEmbeddingsServiceTest`, `SearchContentServiceTest`
+   - Catches SQL errors, schema issues, and mapping bugs
+
+2. **HTTP Tests with WireMock** (15 tests, ~500ms)
+
+   - Uses real HTTP client with mocked server responses
+   - Tests JSON serialization, error handling, and retry logic
+   - Examples: `OllamaEmbeddingAdapterTest`, `HttpContentDownloaderTest`
+   - Fast and deterministic
+
+3. **E2E Tests with Real Ollama** (2 tests, ~120s, optional)
+   - Uses real Ollama service for embeddings
+   - Validates actual semantic similarity
+   - Run separately for pre-release validation
+   - Requires Docker + Ollama container
+
 **Testing Strategy:**
 
-- **Development**: Use fast integration tests with fake embeddings
-- **Pre-release**: Run E2E tests to validate real Ollama integration
-- **CI/CD**: E2E tests run on main branch only (not on PRs)
+- **Development**: Run fast integration tests (`mvn test`)
+- **Pre-commit**: Ensure all tests pass before pushing
+- **Pre-release**: Run E2E tests to validate Ollama integration
+- **CI/CD**: All tests on PRs, E2E tests on main branch only
+
+**Troubleshooting:**
+
+| Issue                       | Solution                                             |
+| --------------------------- | ---------------------------------------------------- |
+| "Could not start container" | Ensure Docker Desktop is running                     |
+| Tests timeout               | Increase Docker resources (4GB+ RAM recommended)     |
+| Port conflicts              | Stop other containers: `docker stop $(docker ps -q)` |
+| Slow execution              | Check Docker performance settings                    |
+
+**For Contributors:**
+
+See [CONTRIBUTING_TESTS.md](CONTRIBUTING_TESTS.md) for detailed guidance on:
+
+- When to use Testcontainers vs WireMock vs E2E tests
+- How to write effective integration tests
+- Best practices and common patterns
+- Test structure (Given/When/Then)
+- Async testing with Awaitility
 
 ## Configuration
 

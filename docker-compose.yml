@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   arcadedb:
-    image: arcadedata/arcadedb:25.12.1@sha256:ee88b81b18451347c6cb70d56e4a739af99b1696774f205207d838ad3534dc61
+    image: arcadedata/arcadedb:26.1.1@sha256:8773afd807e7869c0cf616d46f1a2b89b31be74c608581637a890295b35f18bd
     container_name: arcadedb
     environment:
       - JAVA_OPTS=-Darcadedb.server.rootPassword=playwithdata -Darcadedb.server.plugins=Prometheus:com.arcadedb.metrics.prometheus.PrometheusMetricsPlugin
@@ -19,7 +19,7 @@ services:
       start_period: 10s
 
   ollama:
-    image: ollama/ollama:0.14.3@sha256:a7471e7e503643d06767053fa4c825eaa7cafb1586f7256ce29080bcbf57bf5c
+    image: ollama/ollama:0.15.1@sha256:e0ae5354a9e4c85160df4698a45ae360cd0c12ef90e484b12fc870c28f491892
     container_name: ollama
     ports:
       - "11434:11434"
@@ -34,7 +34,7 @@ services:
     restart: unless-stopped
 
   ollama-init:
-    image: ollama/ollama:0.14.3@sha256:a7471e7e503643d06767053fa4c825eaa7cafb1586f7256ce29080bcbf57bf5c
+    image: ollama/ollama:0.15.1@sha256:e0ae5354a9e4c85160df4698a45ae360cd0c12ef90e484b12fc870c28f491892
     container_name: ollama-init
     environment:
       - OLLAMA_HOST=http://ollama:11434

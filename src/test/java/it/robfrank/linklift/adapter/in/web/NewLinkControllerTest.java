@@ -67,13 +67,13 @@ class NewLinkControllerTest {
       Response response = client.put(
         "/link",
         """
-        {"url":"http://www.google.com"
+        {"url":""
         }
         """
       );
       assertThat(response.code()).isEqualTo(400);
       String body = response.body().string();
-      assertThatJson(body).node("REQUEST_BODY").isArray().element(0).node("message").isEqualTo("Title cannot be empty");
+      assertThatJson(body).node("REQUEST_BODY").isArray().element(0).node("message").isEqualTo("Url cannot be empty");
     });
   }
 

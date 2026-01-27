@@ -99,6 +99,11 @@ public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort, Upda
   }
 
   @Override
+  public List<Link> findLinksByIds(List<String> ids) {
+    return linkRepository.findLinksByIds(ids);
+  }
+
+  @Override
   public @NonNull Link updateLink(@NonNull Link link) {
     return Objects.requireNonNull(linkRepository.updateLink(link));
   }

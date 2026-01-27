@@ -114,4 +114,42 @@ class LinkContentExtractorServiceTest {
 
     WireMock.verify(getRequestedFor(urlEqualTo("/fail.html")));
   }
+
+  @Test
+  @DisplayName("should use extracted title and description when missing in original link")
+  void shouldExtractTitleAndDescriptionWhenMissing() throws Exception {
+    // Given
+    String url = wireMock.baseUrl() + "/fill.html";
+    // Title and description are null/empty
+    Link originalLink = new Link("id-empty", url, null, "", LocalDateTime.now(), "text/html", List.of());
+    LinkCreatedEvent event = new LinkCreatedEvent(originalLink, "user-1");
+
+    String html =
+      """
+      <html>
+          <head>
+              <title>Extracted Title</title>
+              <meta name="description" content="Extracted Description">
+          </head>
+          <body>
+          </body>
+      </html>
+      """;
+
+    stubFor(get(urlEqualTo("/fill.html")).willReturn(aResponse().withStatus(200).withHeader("Content-Type", "text/html").withBody(html)));
+
+    // When
+    linkContentExtractorService.handle(event);
+
+    // Then
+    testExecutorService.shutdown();
+    testExecutorService.awaitTermination(5, TimeUnit.SECONDS);
+
+    ArgumentCaptor<Link> linkCaptor = ArgumentCaptor.forClass(Link.class);
+    verify(saveLinkPort).save(linkCaptor.capture(), eq("user-1"));
+
+    Link capturedLink = linkCaptor.getValue();
+    assertThat(capturedLink.title()).isEqualTo("Extracted Title");
+    assertThat(capturedLink.description()).isEqualTo("Extracted Description");
+  }
 }

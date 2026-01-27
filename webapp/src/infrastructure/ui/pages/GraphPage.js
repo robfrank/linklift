@@ -4,17 +4,15 @@ import useGraph from "../../../hooks/useGraph";
 import GraphView from "../../../components/Graph/GraphView";
 
 const GraphPage = () => {
-  const { graphData, loading, fetchGraph } = useGraph();
+  const { graphData, loading, fetchGraph, expandNode } = useGraph();
 
   useEffect(() => {
     fetchGraph();
   }, [fetchGraph]);
 
   const handleNodeClick = (node) => {
-    // Optionally navigate to link details or expand
-    if (node.url) {
-      window.open(node.url, "_blank");
-    }
+    // Navigate neighbours on click
+    expandNode(node.id);
   };
 
   return (

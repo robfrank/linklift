@@ -21,12 +21,7 @@ public class NewLinkController {
     String currentUserId = SecurityContext.getCurrentUserId(ctx);
 
     // Parse and validate the request body
-    var requestBody = ctx
-      .bodyValidator(LinkRequest.class)
-      .check(request -> isNotEmpty(request.url()), "Url cannot be empty")
-      .check(request -> isNotEmpty(request.title()), "Title cannot be empty")
-      .check(request -> isNotEmpty(request.description()), "Description cannot be empty")
-      .get();
+    var requestBody = ctx.bodyValidator(LinkRequest.class).check(request -> isNotEmpty(request.url()), "Url cannot be empty").get();
 
     // Create command with user context
     NewLinkCommand linkCommand = new NewLinkCommand(requestBody.url(), requestBody.title(), requestBody.description(), currentUserId);

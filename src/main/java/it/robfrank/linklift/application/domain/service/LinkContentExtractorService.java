@@ -36,11 +36,20 @@ public class LinkContentExtractorService {
         String imageUrl = extractImageUrl(document);
         String summary = generateSummary(extractedText); // Placeholder for actual summary generation
 
+        String extractedTitle = extractTitle(document);
+        String extractedDescription = extractDescription(document);
+
+        String titleToUse = (originalLink.title() != null && !originalLink.title().isBlank()) ? originalLink.title() : extractedTitle;
+
+        String descriptionToUse = (originalLink.description() != null && !originalLink.description().isBlank())
+          ? originalLink.description()
+          : extractedDescription;
+
         Link updatedLink = new Link(
           originalLink.id(),
           originalLink.url(),
-          originalLink.title(),
-          originalLink.description(),
+          titleToUse,
+          descriptionToUse,
           originalLink.extractedAt(),
           originalLink.contentType(),
           originalLink.extractedUrls()
@@ -95,5 +104,24 @@ public class LinkContentExtractorService {
     }
     int summaryLength = Math.min(text.length(), 200);
     return text.substring(0, summaryLength) + (text.length() > 200 ? "..." : "");
+  }
+
+  private String extractTitle(Document document) {
+    String title = document.title();
+    return title != null && !title.isEmpty() ? title : null;
+  }
+
+  private String extractDescription(Document document) {
+    // Try meta description
+    Elements metaDesc = document.select("meta[name=description]");
+    if (!metaDesc.isEmpty()) {
+      return metaDesc.attr("content");
+    }
+    // Try og:description
+    Elements ogDesc = document.select("meta[property=og:description]");
+    if (!ogDesc.isEmpty()) {
+      return ogDesc.attr("content");
+    }
+    return null;
   }
 }

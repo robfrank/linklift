@@ -203,7 +203,7 @@ public class Application {
     AddLinkToCollectionUseCase addLinkToCollectionUseCase = new AddLinkToCollectionService(collectionPersistenceAdapter);
     RemoveLinkFromCollectionUseCase removeLinkFromCollectionUseCase = new RemoveLinkFromCollectionService(collectionPersistenceAdapter);
     DeleteCollectionUseCase deleteCollectionUseCase = new DeleteCollectionService(collectionPersistenceAdapter);
-    GetRelatedLinksUseCase getRelatedLinksUseCase = new GetRelatedLinksService(linkPersistenceAdapter);
+    GetRelatedLinksUseCase getRelatedLinksUseCase = new GetRelatedLinksService(linkPersistenceAdapter, contentPersistenceAdapter);
 
     CollectionController collectionController = new CollectionController(
       createCollectionUseCase,

@@ -206,6 +206,23 @@ public class ArcadeLinkRepository {
     return findLinkById(id).orElseThrow(() -> new LinkNotFoundException(id));
   }
 
+  public List<Link> findLinksByIds(List<String> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return List.of();
+    }
+    try {
+      return database
+        .query("sql", "SELECT FROM Link WHERE id IN [" + String.join(",", ids.stream().map(id -> "'" + id + "'").toList()) + "]")
+        .stream()
+        .map(Result::getVertex)
+        .flatMap(Optional::stream)
+        .map(linkMapper::mapToDomain)
+        .toList();
+    } catch (ArcadeDBException e) {
+      throw new DatabaseException("Failed to find links by IDs", e);
+    }
+  }
+
   public LinkPage findLinksWithPagination(ListLinksQuery query) {
     // Use the userId from the query to filter user-specific links
     return findLinksWithPaginationForUser(query, query.userId());

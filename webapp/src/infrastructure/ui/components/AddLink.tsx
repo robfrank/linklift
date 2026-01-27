@@ -50,9 +50,6 @@ export const AddLink: React.FC<AddLinkProps> = ({ onSubmit, onCancel, loading })
       }
     }
 
-    if (!formData.title) newErrors.title = "Title is required";
-    if (!formData.description) newErrors.description = "Description is required";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

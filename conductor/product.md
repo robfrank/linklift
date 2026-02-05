@@ -18,6 +18,7 @@ LinkLift: A modern link management system built with Java and hexagonal architec
 
 - **Automatic Metadata Extraction:** Automatically pull titles, descriptions, and full content from URLs to power search and previews.
 - **AI-Powered Vector Search:** Semantic search capabilities that understand the context and meaning of saved links.
+- **Secure User Authentication:** JWT-based registration and login system ensuring private and secure access to personal link collections.
 - **Graph Visualization:** A visual and navigable graph to explore connections between links, topics, and collections.
 - **Seamless Capture:** Browser extensions or bookmarklets to make saving links frictionless.
 

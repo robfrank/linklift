@@ -15,7 +15,7 @@ This plan outlines the steps to implement user registration and login using hexa
   - [x] Implement Feature: `JJWTTokenProvider` using `java-jwt`
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Domain and Infrastructure Foundation' (Protocol in workflow.md)
 
-## Phase 2: Persistence and Application Services
+## Phase 2: Persistence and Application Services [checkpoint: a427973]
 
 - [x] Task: Implement ArcadeDB User Persistence
   - [x] Write Tests: `ArcadeDBUserRepository` integration tests with Testcontainers
@@ -26,7 +26,7 @@ This plan outlines the steps to implement user registration and login using hexa
 - [x] Task: Implement Login Use Case
   - [x] Write Tests: `LoginUserUseCase` unit tests
   - [x] Implement Feature: `LoginUserUseCase`
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Persistence and Application Services' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Persistence and Application Services' (Protocol in workflow.md)
 
 ## Phase 3: Web API and Security Integration
 

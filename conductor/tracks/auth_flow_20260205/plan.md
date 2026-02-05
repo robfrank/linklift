@@ -2,18 +2,18 @@
 
 This plan outlines the steps to implement user registration and login using hexagonal architecture.
 
-## Phase 1: Domain and Infrastructure Foundation
+## Phase 1: Domain and Infrastructure Foundation [checkpoint: 6ab6efd]
 
-- [~] Task: Define Domain Model and Ports
-  - [ ] Write Tests: Define `User` entity and `UserRepository` port interface tests
-  - [ ] Implement Feature: Create `User` entity and `UserRepository` port
+- [x] Task: Define Domain Model and Ports
+  - [x] Write Tests: Define `User` entity and `UserRepository` port interface tests
+  - [x] Implement Feature: Create `User` entity and `UserRepository` port
 - [x] Task: Implement Password Encoding
-  - [ ] Write Tests: `BCryptPasswordEncoder` unit tests
-  - [ ] Implement Feature: `BCryptPasswordEncoder` using BCrypt library
+  - [x] Write Tests: `BCryptPasswordEncoder` unit tests
+  - [x] Implement Feature: `BCryptPasswordEncoder` using BCrypt library
 - [x] Task: Implement Token Management
-  - [ ] Write Tests: `JJWTTokenProvider` unit tests
-  - [ ] Implement Feature: `JJWTTokenProvider` using `java-jwt`
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Domain and Infrastructure Foundation' (Protocol in workflow.md)
+  - [x] Write Tests: `JJWTTokenProvider` unit tests
+  - [x] Implement Feature: `JJWTTokenProvider` using `java-jwt`
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Domain and Infrastructure Foundation' (Protocol in workflow.md)
 
 ## Phase 2: Persistence and Application Services
 

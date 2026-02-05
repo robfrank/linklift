@@ -17,15 +17,15 @@ This plan outlines the steps to implement user registration and login using hexa
 
 ## Phase 2: Persistence and Application Services
 
-- [ ] Task: Implement ArcadeDB User Persistence
-  - [ ] Write Tests: `ArcadeDBUserRepository` integration tests with Testcontainers
-  - [ ] Implement Feature: `ArcadeDBUserRepository`
-- [ ] Task: Implement User Registration Use Case
-  - [ ] Write Tests: `RegisterUserUseCase` unit tests
-  - [ ] Implement Feature: `RegisterUserUseCase` with uniqueness check
-- [ ] Task: Implement Login Use Case
-  - [ ] Write Tests: `LoginUserUseCase` unit tests
-  - [ ] Implement Feature: `LoginUserUseCase`
+- [x] Task: Implement ArcadeDB User Persistence
+  - [x] Write Tests: `ArcadeDBUserRepository` integration tests with Testcontainers
+  - [x] Implement Feature: `ArcadeDBUserRepository`
+- [x] Task: Implement User Registration Use Case
+  - [x] Write Tests: `RegisterUserUseCase` unit tests
+  - [x] Implement Feature: `RegisterUserUseCase` with uniqueness check
+- [x] Task: Implement Login Use Case
+  - [x] Write Tests: `LoginUserUseCase` unit tests
+  - [x] Implement Feature: `LoginUserUseCase`
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Persistence and Application Services' (Protocol in workflow.md)
 
 ## Phase 3: Web API and Security Integration

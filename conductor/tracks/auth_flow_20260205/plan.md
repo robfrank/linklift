@@ -28,7 +28,7 @@ This plan outlines the steps to implement user registration and login using hexa
   - [x] Implement Feature: `LoginUserUseCase`
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Persistence and Application Services' (Protocol in workflow.md)
 
-## Phase 3: Web API and Security Integration
+## Phase 3: Web API and Security Integration [checkpoint: f13484c]
 
 - [x] Task: Implement Auth REST Endpoints
   - [x] Write Tests: `AuthController` integration tests using JavalinTest
@@ -36,17 +36,17 @@ This plan outlines the steps to implement user registration and login using hexa
 - [x] Task: Implement JWT Middleware/Filter
   - [x] Write Tests: Authentication middleware tests for protected routes
   - [x] Implement Feature: Javalin access manager or filter for JWT validation
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Web API and Security Integration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Web API and Security Integration' (Protocol in workflow.md)
 
-## Phase 4: Frontend Authentication UI
+## Phase 4: Frontend Authentication UI [checkpoint: f13484c]
 
-- [ ] Task: Create Auth State Management
-  - [ ] Write Tests: Zustand `useAuthStore` unit tests
-  - [ ] Implement Feature: `useAuthStore` for managing user state and tokens
-- [ ] Task: Build Registration Page
-  - [ ] Write Tests: `Register` component tests with React Testing Library
-  - [ ] Implement Feature: Registration form with validation
-- [ ] Task: Build Login Page
-  - [ ] Write Tests: `Login` component tests with React Testing Library
-  - [ ] Implement Feature: Login form and redirect logic
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Frontend Authentication UI' (Protocol in workflow.md)
+- [x] Task: Create Auth State Management
+  - [x] Write Tests: Zustand `useAuthStore` unit tests
+  - [x] Implement Feature: `useAuthStore` for managing user state and tokens
+- [x] Task: Build Registration Page
+  - [x] Write Tests: `Register` component tests with React Testing Library
+  - [x] Implement Feature: Registration form with validation
+- [x] Task: Build Login Page
+  - [x] Write Tests: `Login` component tests with React Testing Library
+  - [x] Implement Feature: Login form and redirect logic
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Frontend Authentication UI' (Protocol in workflow.md)

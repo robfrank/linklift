@@ -63,15 +63,15 @@ public class GlobalExceptionHandler {
   }
 
   private static void handleAuthenticationException(AuthenticationException exception, Context ctx) {
-    ctx.status(HttpStatus.UNAUTHORIZED);
-    ctx.json(
-      ErrorResponse.builder()
-        .status(HttpStatus.UNAUTHORIZED.getCode())
-        .errorCode(exception.getErrorCode())
-        .message(exception.getMessage())
-        .path(ctx.path())
-        .build()
-    );
+    HttpStatus status =
+      switch (exception.getErrorCode()) {
+        case INSUFFICIENT_PERMISSIONS -> HttpStatus.FORBIDDEN;
+        case UNAUTHORIZED, UNAUTHORIZED_ACCESS, TOKEN_EXPIRED, TOKEN_INVALID, TOKEN_REVOKED -> HttpStatus.UNAUTHORIZED;
+        default -> HttpStatus.UNAUTHORIZED;
+      };
+
+    ctx.status(status);
+    ctx.json(ErrorResponse.builder().status(status.getCode()).errorCode(exception.getErrorCode()).message(exception.getMessage()).path(ctx.path()).build());
   }
 
   private static void handleUserAlreadyExistsException(UserAlreadyExistsException exception, Context ctx) {

@@ -30,12 +30,12 @@ This plan outlines the steps to implement user registration and login using hexa
 
 ## Phase 3: Web API and Security Integration
 
-- [ ] Task: Implement Auth REST Endpoints
-  - [ ] Write Tests: `AuthController` integration tests using JavalinTest
-  - [ ] Implement Feature: `register` and `login` endpoints
-- [ ] Task: Implement JWT Middleware/Filter
-  - [ ] Write Tests: Authentication middleware tests for protected routes
-  - [ ] Implement Feature: Javalin access manager or filter for JWT validation
+- [x] Task: Implement Auth REST Endpoints
+  - [x] Write Tests: `AuthController` integration tests using JavalinTest
+  - [x] Implement Feature: `register` and `login` endpoints
+- [x] Task: Implement JWT Middleware/Filter
+  - [x] Write Tests: Authentication middleware tests for protected routes
+  - [x] Implement Feature: Javalin access manager or filter for JWT validation
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Web API and Security Integration' (Protocol in workflow.md)
 
 ## Phase 4: Frontend Authentication UI

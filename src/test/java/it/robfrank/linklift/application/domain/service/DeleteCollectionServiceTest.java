@@ -36,7 +36,7 @@ class DeleteCollectionServiceTest {
     String collectionId = "collection-123";
     String userId = "user-123";
 
-    Collection collection = new Collection(collectionId, "My Collection", "Description", userId, null);
+    Collection collection = new Collection(collectionId, "My Collection", "Description", userId, null, null);
     when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
 
     // Act
@@ -73,7 +73,7 @@ class DeleteCollectionServiceTest {
     String userId = "user-123";
     String otherUserId = "other-user-456";
 
-    Collection collection = new Collection(collectionId, "My Collection", "Description", otherUserId, null);
+    Collection collection = new Collection(collectionId, "My Collection", "Description", otherUserId, null, null);
     when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
 
     // Act & Assert

@@ -29,7 +29,8 @@ public class ArcadeCollectionRepository {
       vertex.getString("name"),
       vertex.getString("description"),
       vertex.getString("userId"),
-      vertex.getString("query")
+      vertex.getString("query"),
+      vertex.getString("summary")
     );
   }
 
@@ -44,13 +45,15 @@ public class ArcadeCollectionRepository {
           name = ?,
           description = ?,
           userId = ?,
-          query = ?
+          query = ?,
+          summary = ?
           """,
           collection.id(),
           collection.name(),
           collection.description(),
           collection.userId(),
-          collection.query()
+          collection.query(),
+          collection.summary()
         );
       });
       return collection;

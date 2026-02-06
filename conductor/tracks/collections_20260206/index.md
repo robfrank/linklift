@@ -1,4 +1,4 @@
-# Track auth_flow_20260205 Context
+# Track collections_20260206 Context
 
 - [Specification](./spec.md)
 - [Implementation Plan](./plan.md)

@@ -35,9 +35,9 @@ class ListCollectionsServiceTest {
     // Arrange
     String userId = "user-123";
     List<Collection> collections = Arrays.asList(
-      new Collection("col-1", "Collection 1", "Description 1", userId, null),
-      new Collection("col-2", "Collection 2", "Description 2", userId, null),
-      new Collection("col-3", "Collection 3", "Description 3", userId, null)
+      new Collection("col-1", "Collection 1", "Description 1", userId, null, null),
+      new Collection("col-2", "Collection 2", "Description 2", userId, null, null),
+      new Collection("col-3", "Collection 3", "Description 3", userId, null, null)
     );
 
     when(collectionRepository.findByUserId(userId)).thenReturn(collections);
@@ -76,8 +76,8 @@ class ListCollectionsServiceTest {
     // Arrange
     String userId = "user-123";
     List<Collection> userCollections = Arrays.asList(
-      new Collection("col-1", "Collection 1", "Description 1", userId, null),
-      new Collection("col-2", "Collection 2", "Description 2", userId, null)
+      new Collection("col-1", "Collection 1", "Description 1", userId, null, null),
+      new Collection("col-2", "Collection 2", "Description 2", userId, null, null)
     );
 
     when(collectionRepository.findByUserId(userId)).thenReturn(userCollections);

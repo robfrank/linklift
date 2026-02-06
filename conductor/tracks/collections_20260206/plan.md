@@ -2,7 +2,7 @@
 
 This plan outlines the steps to implement a tag-like collection system with AI-generated summaries and graph visualization.
 
-## Phase 1: Backend Domain and Ports
+## Phase 1: Backend Domain and Ports [checkpoint: c69819b]
 
 - [x] Task: Define Collection Domain Model and Ports
   - [x] Write Tests: `Collection` entity and `CollectionRepository` port tests

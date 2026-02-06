@@ -12,7 +12,7 @@ This plan outlines the steps to implement a tag-like collection system with AI-g
   - [x] Implement Feature: `CollectionSummaryService` port interface
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Backend Domain and Ports' (Protocol in workflow.md)
 
-## Phase 2: Persistence Adapter (ArcadeDB Graph)
+## Phase 2: Persistence Adapter (ArcadeDB Graph) [checkpoint: 1805404]
 
 - [x] Task: Implement ArcadeDB Collection Repository
   - [x] Write Tests: `ArcadeCollectionRepository` integration tests (Testcontainers)

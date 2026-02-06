@@ -24,4 +24,14 @@ public interface CollectionRepository {
   List<Link> getCollectionLinks(@NonNull String collectionId);
 
   void deleteCollection(@NonNull String collectionId);
+
+  /**
+   * Merges the source collection into the target collection.
+   * All links from the source collection will be moved to the target collection.
+   * The source collection will be deleted after the merge.
+   *
+   * @param sourceCollectionId the ID of the collection to merge from
+   * @param targetCollectionId the ID of the collection to merge into
+   */
+  void mergeCollections(@NonNull String sourceCollectionId, @NonNull String targetCollectionId);
 }

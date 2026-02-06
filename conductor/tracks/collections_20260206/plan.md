@@ -14,13 +14,13 @@ This plan outlines the steps to implement a tag-like collection system with AI-g
 
 ## Phase 2: Persistence Adapter (ArcadeDB Graph)
 
-- [ ] Task: Implement ArcadeDB Collection Repository
-  - [ ] Write Tests: `ArcadeCollectionRepository` integration tests (Testcontainers)
-  - [ ] Implement Feature: CRUD operations for Collection vertices and Link edges
-- [ ] Task: Implement Collection Merging Logic in Repository
-  - [ ] Write Tests: Integration tests for merging two collections
-  - [ ] Implement Feature: Atomic merge operation in ArcadeDB
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Persistence Adapter (ArcadeDB Graph)' (Protocol in workflow.md)
+- [x] Task: Implement ArcadeDB Collection Repository
+  - [x] Write Tests: `ArcadeCollectionRepository` integration tests (Testcontainers)
+  - [x] Implement Feature: CRUD operations for Collection vertices and Link edges
+- [x] Task: Implement Collection Merging Logic in Repository
+  - [x] Write Tests: Integration tests for merging two collections
+  - [x] Implement Feature: Atomic merge operation in ArcadeDB
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Persistence Adapter (ArcadeDB Graph)' (Protocol in workflow.md)
 
 ## Phase 3: Application Services and AI Integration
 

@@ -157,4 +157,28 @@ public class ArcadeCollectionRepository {
       throw new DatabaseException("Failed to delete collection: " + collectionId, e);
     }
   }
+
+  public void mergeCollections(String sourceCollectionId, String targetCollectionId) {
+    try {
+      database.transaction(() -> {
+        // 1. Create new edges for the target collection from the source collection's links
+        database.command(
+          "sql",
+          """
+          CREATE EDGE ContainsLink
+          FROM (SELECT FROM Collection WHERE id = ?)
+          TO (SELECT expand(out('ContainsLink')) FROM Collection WHERE id = ?)
+          SET addedAt = SYSDATE()
+          """,
+          targetCollectionId,
+          sourceCollectionId
+        );
+
+        // 2. Delete source collection (this will also delete the old edges)
+        database.command("sql", "DELETE FROM Collection WHERE id = ?", sourceCollectionId);
+      });
+    } catch (ArcadeDBException e) {
+      throw new DatabaseException("Failed to merge collection " + sourceCollectionId + " into " + targetCollectionId, e);
+    }
+  }
 }

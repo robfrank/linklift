@@ -24,12 +24,12 @@ This plan outlines the steps to implement a tag-like collection system with AI-g
 
 ## Phase 3: Application Services and AI Integration
 
-- [ ] Task: Implement Collection Management Service
-  - [ ] Write Tests: `CollectionService` unit tests (mocking repository)
-  - [ ] Implement Feature: Business logic for CRUD and merging
-- [ ] Task: Implement AI Summary Service Adapter
-  - [ ] Write Tests: `OllamaCollectionSummaryAdapter` integration tests (WireMock/Ollama)
-  - [ ] Implement Feature: Prompt engineering and Ollama integration for summaries
+- [x] Task: Implement Collection Management Service
+  - [x] Write Tests: `CollectionService` unit tests (mocking repository)
+  - [x] Implement Feature: Business logic for CRUD and merging
+- [x] Task: Implement AI Summary Service Adapter
+  - [x] Write Tests: `OllamaCollectionSummaryAdapter` integration tests (WireMock/Ollama)
+  - [x] Implement Feature: Prompt engineering and Ollama integration for summaries
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Application Services and AI Integration' (Protocol in workflow.md)
 
 ## Phase 4: Web API (REST Endpoints)

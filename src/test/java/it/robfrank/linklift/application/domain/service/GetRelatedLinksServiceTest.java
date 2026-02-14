@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.port.out.LoadContentPort;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,13 +24,12 @@ class GetRelatedLinksServiceTest {
   private LoadLinksPort loadLinksPort;
 
   @Mock
-  private it.robfrank.linklift.application.port.out.LoadContentPort loadContentPort;
+  private LoadContentPort loadContentPort;
 
   private GetRelatedLinksService getRelatedLinksService;
 
   @BeforeEach
   void setUp() {
-    MockitoAnnotations.openMocks(this);
     getRelatedLinksService = new GetRelatedLinksService(loadLinksPort, loadContentPort);
   }
 

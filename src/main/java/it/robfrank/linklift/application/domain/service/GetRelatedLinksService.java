@@ -1,10 +1,12 @@
 package it.robfrank.linklift.application.domain.service;
 
+import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.GetRelatedLinksUseCase;
 import it.robfrank.linklift.application.port.out.LoadContentPort;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
+import java.util.ArrayList;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 
@@ -31,7 +33,7 @@ public class GetRelatedLinksService implements GetRelatedLinksUseCase {
       var content = contentOpt.get();
       if (content.embedding() != null && content.embedding().length > 0) {
         float[] embedding = content.embedding();
-        var embeddingList = new java.util.ArrayList<Float>(embedding.length);
+        var embeddingList = new ArrayList<Float>(embedding.length);
         for (float f : embedding) {
           embeddingList.add(f);
         }
@@ -39,7 +41,7 @@ public class GetRelatedLinksService implements GetRelatedLinksUseCase {
         var similarContents = loadContentPort.findSimilar(embeddingList, MAX_SIMILAR_LINKS);
         var linkIds = similarContents
           .stream()
-          .map(it.robfrank.linklift.application.domain.model.Content::linkId)
+          .map(Content::linkId)
           .filter(id -> !id.equals(linkId))
           .distinct()
           .toList();

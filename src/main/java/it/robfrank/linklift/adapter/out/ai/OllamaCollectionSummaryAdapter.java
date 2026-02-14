@@ -1,9 +1,11 @@
 package it.robfrank.linklift.adapter.out.ai;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.port.out.CollectionSummaryService;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -58,10 +60,10 @@ public class OllamaCollectionSummaryAdapter implements CollectionSummaryService 
 
       var root = objectMapper.readTree(response.body());
       return root.get("response").asText();
-    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+    } catch (JsonProcessingException e) {
       logger.error("Error creating request for summary generation", e);
       return "Failed to generate summary due to a request error.";
-    } catch (java.io.IOException e) {
+    } catch (IOException e) {
       logger.error("Error communicating with Ollama for summary generation", e);
       return "Failed to generate summary due to a network error.";
     } catch (InterruptedException e) {

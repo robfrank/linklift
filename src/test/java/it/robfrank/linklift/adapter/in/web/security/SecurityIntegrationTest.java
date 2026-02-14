@@ -6,6 +6,8 @@ import static org.mockito.Mockito.*;
 import io.javalin.http.Context;
 import io.javalin.testtools.JavalinTest;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
+import it.robfrank.linklift.application.domain.exception.AuthenticationException;
+import it.robfrank.linklift.application.domain.exception.ErrorCode;
 import it.robfrank.linklift.application.domain.model.Role;
 import it.robfrank.linklift.application.domain.model.SecurityContext;
 import it.robfrank.linklift.application.domain.model.User;
@@ -57,7 +59,7 @@ class SecurityIntegrationTest {
     SecurityContext anonymousContext = SecurityContext.anonymous();
 
     when(authorizationService.createSecurityContext(any(), any(), any())).thenReturn(anonymousContext);
-    doThrow(new it.robfrank.linklift.application.domain.exception.AuthenticationException("Not authenticated"))
+    doThrow(new AuthenticationException("Not authenticated"))
       .when(authorizationService)
       .requireAuthentication(argThat(ctx -> !ctx.isAuthenticated()));
 
@@ -105,9 +107,9 @@ class SecurityIntegrationTest {
     when(authorizationService.createSecurityContext(any(), any(), any())).thenReturn(context);
 
     doThrow(
-      new it.robfrank.linklift.application.domain.exception.AuthenticationException(
+      new AuthenticationException(
         "Forbidden",
-        it.robfrank.linklift.application.domain.exception.ErrorCode.INSUFFICIENT_PERMISSIONS
+        ErrorCode.INSUFFICIENT_PERMISSIONS
       )
     )
       .when(authorizationService)

@@ -20,6 +20,7 @@ const useGraph = () => {
   }, []);
 
   const expandNode = useCallback(async (linkId) => {
+    setLoading(true);
     try {
       const relatedLinks = await getRelatedLinks(linkId);
 
@@ -59,6 +60,8 @@ const useGraph = () => {
     } catch (err) {
       console.error("Failed to expand node:", err);
       setError(err);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -67,7 +70,7 @@ const useGraph = () => {
     loading,
     error,
     fetchGraph,
-    fetchRelated
+    expandNode
   };
 };
 

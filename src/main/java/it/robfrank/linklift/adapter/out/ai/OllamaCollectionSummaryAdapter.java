@@ -58,9 +58,16 @@ public class OllamaCollectionSummaryAdapter implements CollectionSummaryService 
 
       var root = objectMapper.readTree(response.body());
       return root.get("response").asText();
-    } catch (Exception e) {
-      logger.error("Error generating collection summary", e);
-      return "Failed to generate summary.";
+    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+      logger.error("Error creating request for summary generation", e);
+      return "Failed to generate summary due to a request error.";
+    } catch (java.io.IOException e) {
+      logger.error("Error communicating with Ollama for summary generation", e);
+      return "Failed to generate summary due to a network error.";
+    } catch (InterruptedException e) {
+      logger.error("Error communicating with Ollama for summary generation", e);
+      Thread.currentThread().interrupt();
+      return "Failed to generate summary due to a network error.";
     }
   }
 

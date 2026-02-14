@@ -212,7 +212,7 @@ public class ArcadeLinkRepository {
     }
     try {
       return database
-        .query("sql", "SELECT FROM Link WHERE id IN [" + String.join(",", ids.stream().map(id -> "'" + id + "'").toList()) + "]")
+        .query("sql", "SELECT FROM Link WHERE id IN ?", ids)
         .stream()
         .map(Result::getVertex)
         .flatMap(Optional::stream)

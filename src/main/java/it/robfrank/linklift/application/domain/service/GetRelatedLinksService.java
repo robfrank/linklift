@@ -10,6 +10,8 @@ import org.jspecify.annotations.NonNull;
 
 public class GetRelatedLinksService implements GetRelatedLinksUseCase {
 
+  private static final int MAX_SIMILAR_LINKS = 10;
+
   private final LoadLinksPort loadLinksPort;
   private final LoadContentPort loadContentPort;
 
@@ -28,12 +30,13 @@ public class GetRelatedLinksService implements GetRelatedLinksUseCase {
     if (contentOpt.isPresent()) {
       var content = contentOpt.get();
       if (content.embedding() != null && content.embedding().length > 0) {
-        var embeddingList = new java.util.ArrayList<Float>();
-        for (float f : content.embedding()) {
+        float[] embedding = content.embedding();
+        var embeddingList = new java.util.ArrayList<Float>(embedding.length);
+        for (float f : embedding) {
           embeddingList.add(f);
         }
 
-        var similarContents = loadContentPort.findSimilar(embeddingList, 10);
+        var similarContents = loadContentPort.findSimilar(embeddingList, MAX_SIMILAR_LINKS);
         var linkIds = similarContents
           .stream()
           .map(it.robfrank.linklift.application.domain.model.Content::linkId)

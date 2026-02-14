@@ -33,7 +33,7 @@
         <jsoup.version>1.22.1</jsoup.version>
         <wiremock.version>3.13.2</wiremock.version>
         <jackson.version>2.21.0</jackson.version>
-        <logback-classic.version>1.5.25</logback-classic.version>
+        <logback-classic.version>1.5.29</logback-classic.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <micrometer-core.version>1.16.3</micrometer-core.version>
 

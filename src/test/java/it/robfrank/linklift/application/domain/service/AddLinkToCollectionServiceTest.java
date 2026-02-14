@@ -39,7 +39,7 @@ class AddLinkToCollectionServiceTest {
     String userId = "user-123";
     AddLinkToCollectionCommand command = new AddLinkToCollectionCommand(collectionId, linkId, userId);
 
-    Collection collection = new Collection(collectionId, "My Collection", "Description", userId, null);
+    Collection collection = new Collection(collectionId, "My Collection", "Description", userId, null, null);
     when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
 
     // Act
@@ -80,7 +80,7 @@ class AddLinkToCollectionServiceTest {
     String otherUserId = "other-user-456";
     AddLinkToCollectionCommand command = new AddLinkToCollectionCommand(collectionId, linkId, userId);
 
-    Collection collection = new Collection(collectionId, "My Collection", "Description", otherUserId, null);
+    Collection collection = new Collection(collectionId, "My Collection", "Description", otherUserId, null, null);
     when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
 
     // Act & Assert

@@ -26,7 +26,7 @@ public class CreateCollectionService implements CreateCollectionUseCase {
     ValidationUtils.requireNotEmpty(command.userId(), "userId");
 
     var id = UUID.randomUUID().toString();
-    var collection = new Collection(id, command.name(), command.description(), command.userId(), command.query());
+    var collection = new Collection(id, command.name(), command.description(), command.userId(), command.query(), null);
 
     logger.info("Creating collection: {}", collection);
     return collectionRepository.save(collection);

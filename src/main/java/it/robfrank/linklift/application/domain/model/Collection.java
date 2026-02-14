@@ -9,7 +9,8 @@ public record Collection(
   @JsonProperty("name") @NonNull String name,
   @JsonProperty("description") @Nullable String description,
   @JsonProperty("userId") @NonNull String userId,
-  @JsonProperty("query") @Nullable String query // For smart collections
+  @JsonProperty("query") @Nullable String query, // For smart collections
+  @JsonProperty("summary") @Nullable String summary // AI-generated summary
 ) {
   public boolean isSmart() {
     return query != null && !query.isBlank();

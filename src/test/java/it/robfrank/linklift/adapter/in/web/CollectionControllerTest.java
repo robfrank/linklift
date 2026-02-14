@@ -71,7 +71,7 @@ class CollectionControllerTest {
   @Test
   void createCollection_shouldReturn201_whenCollectionIsCreated() {
     // Given
-    Collection collection = new Collection("col-123", "My Collection", "Description", "user-123", null);
+    Collection collection = new Collection("col-123", "My Collection", "Description", "user-123", null, null);
     when(createCollectionUseCase.createCollection(any(CreateCollectionCommand.class))).thenReturn(collection);
 
     JavalinTest.test((app, client) -> {
@@ -128,8 +128,8 @@ class CollectionControllerTest {
   void listCollections_shouldReturn200_withCollectionsList() {
     // Given
     List<Collection> collections = Arrays.asList(
-      new Collection("col-1", "Collection 1", "Desc 1", "user-123", null),
-      new Collection("col-2", "Collection 2", "Desc 2", "user-123", null)
+      new Collection("col-1", "Collection 1", "Desc 1", "user-123", null, null),
+      new Collection("col-2", "Collection 2", "Desc 2", "user-123", null, null)
     );
     when(listCollectionsUseCase.listCollections(eq("user-123"))).thenReturn(collections);
 
@@ -173,7 +173,7 @@ class CollectionControllerTest {
   @Test
   void getCollection_shouldReturn200_withCollectionAndLinks() {
     // Given
-    Collection collection = new Collection("col-123", "My Collection", "Description", "user-123", null);
+    Collection collection = new Collection("col-123", "My Collection", "Description", "user-123", null, null);
     List<Link> links = Arrays.asList(
       new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html", List.of()),
       new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html", List.of())

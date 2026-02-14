@@ -118,7 +118,8 @@ public class ArcadeAuthTokenRepository {
         );
         int deleted = resultSet.stream().findFirst().get().getProperty("count");
       });
-      // Return approximate count since DELETE doesn't return affected rows in this context
+      // Return approximate count since DELETE doesn't return affected rows in this
+      // context
       return 1;
     } catch (ArcadeDBException e) {
       throw new DatabaseException("Failed to delete expired tokens", e);
@@ -217,7 +218,8 @@ public class ArcadeAuthTokenRepository {
       database.transaction(() -> {
         database.command("sql", "DELETE FROM AuthToken WHERE usedAt IS NOT NULL AND usedAt < ?", cutoffDate.truncatedTo(ChronoUnit.SECONDS).format(formatter));
       });
-      // Return approximate count since DELETE doesn't return affected rows in this context
+      // Return approximate count since DELETE doesn't return affected rows in this
+      // context
       return 1;
     } catch (ArcadeDBException e) {
       throw new DatabaseException("Failed to delete used tokens older than cutoff date: " + cutoffDate, e);

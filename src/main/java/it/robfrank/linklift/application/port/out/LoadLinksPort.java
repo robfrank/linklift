@@ -11,6 +11,8 @@ public interface LoadLinksPort {
 
   List<Link> getRelatedLinks(String linkId, String userId);
 
+  List<Link> findLinksByIds(List<String> ids);
+
   Link getLinkById(String id);
 
   GraphData getGraphData(String userId);

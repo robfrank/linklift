@@ -42,7 +42,7 @@ class GetCollectionServiceTest {
     String collectionId = "collection-123";
     String userId = "user-123";
 
-    Collection collection = new Collection(collectionId, "My Collection", "Description", userId, null);
+    Collection collection = new Collection(collectionId, "My Collection", "Description", userId, null, null);
     List<Link> links = Arrays.asList(
       new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html", List.of()),
       new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html", List.of())
@@ -70,7 +70,7 @@ class GetCollectionServiceTest {
     String collectionId = "collection-123";
     String userId = "user-123";
 
-    Collection collection = new Collection(collectionId, "Empty Collection", "Description", userId, null);
+    Collection collection = new Collection(collectionId, "Empty Collection", "Description", userId, null, null);
     List<Link> emptyLinks = List.of();
 
     when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
@@ -111,7 +111,7 @@ class GetCollectionServiceTest {
     String userId = "user-123";
     String otherUserId = "other-user-456";
 
-    Collection collection = new Collection(collectionId, "My Collection", "Description", otherUserId, null);
+    Collection collection = new Collection(collectionId, "My Collection", "Description", otherUserId, null, null);
     when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
 
     // Act & Assert

@@ -23,12 +23,15 @@ class GetRelatedLinksServiceTest {
   @Mock
   private LoadLinksPort loadLinksPort;
 
+  @Mock
+  private it.robfrank.linklift.application.port.out.LoadContentPort loadContentPort;
+
   private GetRelatedLinksService getRelatedLinksService;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    getRelatedLinksService = new GetRelatedLinksService(loadLinksPort);
+    getRelatedLinksService = new GetRelatedLinksService(loadLinksPort, loadContentPort);
   }
 
   @Test

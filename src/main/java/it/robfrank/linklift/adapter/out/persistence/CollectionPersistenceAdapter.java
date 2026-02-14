@@ -53,4 +53,9 @@ public class CollectionPersistenceAdapter implements CollectionRepository {
   public void deleteCollection(@NonNull String collectionId) {
     repository.deleteCollection(collectionId);
   }
+
+  @Override
+  public void mergeCollections(@NonNull String sourceCollectionId, @NonNull String targetCollectionId) {
+    repository.mergeCollections(sourceCollectionId, targetCollectionId);
+  }
 }

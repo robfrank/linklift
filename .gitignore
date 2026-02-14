@@ -404,11 +404,13 @@ cython_debug/
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+.idea/
+*.iml
+notes.txt
 
 log/
 
-./get-your-hands-dirty-on-clean-architecture.epub
+get-your-hands-dirty-on-clean-architecture.epub
 ### Maven template
 target/
 pom.xml.tag

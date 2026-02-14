@@ -83,7 +83,7 @@ class ArcadeCollectionRepositoryTest {
 
     List<Link> links = collectionRepository.getCollectionLinks(collection.id());
     assertThat(links).hasSize(1);
-    assertThat(links.get(0).id()).isEqualTo(link.id());
+    assertThat(links.getFirst().id()).isEqualTo(link.id());
   }
 
   @Test

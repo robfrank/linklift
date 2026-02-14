@@ -1,9 +1,9 @@
 package it.robfrank.linklift.application.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import it.robfrank.linklift.application.domain.exception.ErrorCode;
 import it.robfrank.linklift.application.domain.exception.LinkLiftException;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.port.in.MergeCollectionsCommand;

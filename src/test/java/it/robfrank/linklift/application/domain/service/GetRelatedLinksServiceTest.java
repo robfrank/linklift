@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.port.out.LoadContentPort;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -24,7 +25,7 @@ class GetRelatedLinksServiceTest {
   private LoadLinksPort loadLinksPort;
 
   @Mock
-  private it.robfrank.linklift.application.port.out.LoadContentPort loadContentPort;
+  private LoadContentPort loadContentPort;
 
   private GetRelatedLinksService getRelatedLinksService;
 

@@ -27,7 +27,7 @@
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <mockito-core.version>5.21.0</mockito-core.version>
         <json-unit-assertj.version>5.1.0</json-unit-assertj.version>
-        <jwt.version>4.5.0</jwt.version>
+        <jwt.version>4.5.1</jwt.version>
         <bcrypt.version>0.10.2</bcrypt.version>
         <jspecify.version>1.0.0</jspecify.version>
         <jsoup.version>1.22.1</jsoup.version>

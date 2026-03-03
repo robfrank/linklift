@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +37,6 @@ class NewLinkServiceTest {
 
   @BeforeEach
   void setUp() {
-    MockitoAnnotations.openMocks(this);
     eventPublisher = new SimpleEventPublisher();
     ((SimpleEventPublisher) eventPublisher).subscribe(LinkCreatedEvent.class, event ->
         downloadContentUseCase.downloadContentAsync(new DownloadContentCommand(event.getLink().id(), event.getLink().url()))

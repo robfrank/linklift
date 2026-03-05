@@ -62,7 +62,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Test Reporter
-        uses: dorny/test-reporter@b082adf0eced0765477756c2a610396589b8c637 # v2.5.0
+        uses: dorny/test-reporter@3d76b34a4535afbd0600d347b09a6ee5deb3ed7f # v2.6.0
         if: success() || failure()
         with:
           name: Test Report - ${{ matrix.os }}
@@ -87,7 +87,7 @@ jobs:
           severity-cutoff: critical
 
       - name: Upload SARIF Files
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
+        uses: github/codeql-action/upload-sarif@c793b717bc78562f491db7b0e93a3a178b099162 # v4.32.5
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
 

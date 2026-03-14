@@ -10,6 +10,7 @@ import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.CollectionWithLinks;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.out.CollectionRepository;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -44,8 +45,8 @@ class GetCollectionServiceTest {
 
     Collection collection = new Collection(collectionId, "My Collection", "Description", userId, null, null);
     List<Link> links = Arrays.asList(
-      new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html", List.of()),
-      new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html", List.of())
+      new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html", List.of(), ReadStatus.UNREAD, false, false),
+      new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html", List.of(), ReadStatus.UNREAD, false, false)
     );
 
     when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));

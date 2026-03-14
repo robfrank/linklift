@@ -9,6 +9,7 @@ import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
 import it.robfrank.linklift.adapter.out.persistence.LinkPersistenceAdapter;
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.in.DownloadContentCommand;
 import it.robfrank.linklift.application.port.in.DownloadContentUseCase;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
@@ -52,7 +53,18 @@ class NewLinkServiceTest {
     // Arrange
     NewLinkCommand command = new NewLinkCommand("https://example.com", "Example Title", "Example Description", "user-123");
 
-    Link expectedLink = new Link("test-id", "https://example.com", "Example Title", "Example Description", LocalDateTime.now(), "text/html", List.of());
+    Link expectedLink = new Link(
+      "test-id",
+      "https://example.com",
+      "Example Title",
+      "Example Description",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
 
     when(linkPersistenceAdapter.saveLinkForUser(any(Link.class), eq("user-123"))).thenReturn(expectedLink);
     // Act

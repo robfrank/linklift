@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.in.UpdateLinkCommand;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import it.robfrank.linklift.application.port.out.UpdateLinkPort;
@@ -41,7 +42,18 @@ class UpdateLinkServiceTest {
     // Arrange
     String linkId = "link-123";
     String userId = "user-123";
-    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html", List.of());
+    Link existingLink = new Link(
+      linkId,
+      "https://example.com",
+      "Old Title",
+      "Old Description",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, "New Title", "New Description", userId);
 
     when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);
@@ -69,7 +81,18 @@ class UpdateLinkServiceTest {
     // Arrange
     String linkId = "link-123";
     String userId = "user-123";
-    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html", List.of());
+    Link existingLink = new Link(
+      linkId,
+      "https://example.com",
+      "Old Title",
+      "Old Description",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, "New Title", null, userId);
 
     when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);
@@ -89,7 +112,18 @@ class UpdateLinkServiceTest {
     // Arrange
     String linkId = "link-123";
     String userId = "user-123";
-    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html", List.of());
+    Link existingLink = new Link(
+      linkId,
+      "https://example.com",
+      "Old Title",
+      "Old Description",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, null, "New Description", userId);
 
     when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);
@@ -109,7 +143,18 @@ class UpdateLinkServiceTest {
     // Arrange
     String linkId = "link-123";
     String userId = "user-123";
-    Link existingLink = new Link(linkId, "https://example.com", "Old Title", "Old Description", LocalDateTime.now(), "text/html", List.of());
+    Link existingLink = new Link(
+      linkId,
+      "https://example.com",
+      "Old Title",
+      "Old Description",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, "New Title", "New Description", userId);
 
     when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);

@@ -9,6 +9,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.out.SaveLinkPort;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,7 +53,18 @@ class LinkContentExtractorServiceTest {
   void shouldExtractContentAndUpdateLink() throws Exception {
     // Given
     String url = wireMock.baseUrl() + "/test.html";
-    Link originalLink = new Link("id-123", url, "Original Title", "Original Description", LocalDateTime.now(), "text/html", List.of());
+    Link originalLink = new Link(
+      "id-123",
+      url,
+      "Original Title",
+      "Original Description",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     LinkCreatedEvent event = new LinkCreatedEvent(originalLink, "user-1");
 
     String html =
@@ -95,7 +107,18 @@ class LinkContentExtractorServiceTest {
   void shouldHandleExtractionFailure() throws Exception {
     // Given
     String url = wireMock.baseUrl() + "/fail.html";
-    Link originalLink = new Link("id-123", url, "Original Title", "Original Description", LocalDateTime.now(), "text/html", List.of());
+    Link originalLink = new Link(
+      "id-123",
+      url,
+      "Original Title",
+      "Original Description",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     LinkCreatedEvent event = new LinkCreatedEvent(originalLink, "user-1");
 
     stubFor(get(urlEqualTo("/fail.html")).willReturn(aResponse().withStatus(500)));
@@ -121,7 +144,7 @@ class LinkContentExtractorServiceTest {
     // Given
     String url = wireMock.baseUrl() + "/fill.html";
     // Title and description are null/empty
-    Link originalLink = new Link("id-empty", url, null, "", LocalDateTime.now(), "text/html", List.of());
+    Link originalLink = new Link("id-empty", url, null, "", LocalDateTime.now(), "text/html", List.of(), ReadStatus.UNREAD, false, false);
     LinkCreatedEvent event = new LinkCreatedEvent(originalLink, "user-1");
 
     String html =

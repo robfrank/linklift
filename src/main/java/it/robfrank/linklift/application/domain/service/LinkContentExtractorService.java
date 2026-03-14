@@ -52,7 +52,10 @@ public class LinkContentExtractorService {
           descriptionToUse,
           originalLink.extractedAt(),
           originalLink.contentType(),
-          originalLink.extractedUrls()
+          originalLink.extractedUrls(),
+          originalLink.readStatus(),
+          originalLink.archived(),
+          originalLink.favorited()
         );
         saveLinkPort.save(updatedLink, event.getUserId());
         log.atInfo().addArgument(() -> originalLink.url()).log("Successfully extracted content and updated link for: {}");

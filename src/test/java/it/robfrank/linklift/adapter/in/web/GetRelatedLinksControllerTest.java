@@ -9,6 +9,7 @@ import io.javalin.testtools.JavalinTest;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.domain.model.SecurityContext;
 import it.robfrank.linklift.application.port.in.GetRelatedLinksUseCase;
 import java.time.LocalDateTime;
@@ -34,8 +35,8 @@ class GetRelatedLinksControllerTest {
   void getRelatedLinks_shouldReturn200_withRelatedLinks() {
     // Given
     List<Link> relatedLinks = Arrays.asList(
-      new Link("link-2", "https://example.com/2", "Related 1", "Desc 1", LocalDateTime.now(), "text/html", List.of()),
-      new Link("link-3", "https://example.com/3", "Related 2", "Desc 2", LocalDateTime.now(), "text/html", List.of())
+      new Link("link-2", "https://example.com/2", "Related 1", "Desc 1", LocalDateTime.now(), "text/html", List.of(), ReadStatus.UNREAD, false, false),
+      new Link("link-3", "https://example.com/3", "Related 2", "Desc 2", LocalDateTime.now(), "text/html", List.of(), ReadStatus.UNREAD, false, false)
     );
 
     when(getRelatedLinksUseCase.getRelatedLinks(eq("link-1"), eq("user-123"))).thenReturn(relatedLinks);

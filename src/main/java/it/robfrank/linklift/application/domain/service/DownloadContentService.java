@@ -145,7 +145,10 @@ public class DownloadContentService implements DownloadContentUseCase {
                 existingLink.description(),
                 existingLink.extractedAt(),
                 existingLink.contentType(),
-                extractedUrls
+                extractedUrls,
+                existingLink.readStatus(),
+                existingLink.archived(),
+                existingLink.favorited()
               );
               updateLinkPort.updateLink(updatedLink);
               saveLinkPort.syncLinkConnections(updatedLink);

@@ -16,6 +16,7 @@ import it.robfrank.linklift.application.domain.service.*;
 import it.robfrank.linklift.application.domain.service.CreateNoteService;
 import it.robfrank.linklift.application.domain.service.DeleteNoteService;
 import it.robfrank.linklift.application.domain.service.GetNotesForLinkService;
+import it.robfrank.linklift.application.domain.service.UpdateLinkStatusService;
 import it.robfrank.linklift.application.domain.service.UpdateNoteService;
 import it.robfrank.linklift.application.port.in.*;
 import it.robfrank.linklift.application.port.in.CreateNoteUseCase;
@@ -248,7 +249,8 @@ public class Application {
     // Initialize Link Management
     UpdateLinkUseCase updateLinkUseCase = new UpdateLinkService(linkPersistenceAdapter, linkPersistenceAdapter);
     DeleteLinkUseCase deleteLinkUseCase = new DeleteLinkService(linkPersistenceAdapter, linkPersistenceAdapter);
-    LinkController linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase);
+    UpdateLinkStatusUseCase updateLinkStatusUseCase = new UpdateLinkStatusService(linkPersistenceAdapter, linkPersistenceAdapter);
+    LinkController linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase, updateLinkStatusUseCase);
 
     // Build and start web application
     Javalin app = new WebBuilder()

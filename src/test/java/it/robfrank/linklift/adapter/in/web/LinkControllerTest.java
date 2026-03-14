@@ -10,9 +10,11 @@ import io.javalin.testtools.JavalinTest;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.domain.model.SecurityContext;
 import it.robfrank.linklift.application.port.in.DeleteLinkUseCase;
 import it.robfrank.linklift.application.port.in.UpdateLinkCommand;
+import it.robfrank.linklift.application.port.in.UpdateLinkStatusUseCase;
 import it.robfrank.linklift.application.port.in.UpdateLinkUseCase;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,19 +27,32 @@ class LinkControllerTest {
 
   private UpdateLinkUseCase updateLinkUseCase;
   private DeleteLinkUseCase deleteLinkUseCase;
+  private UpdateLinkStatusUseCase updateLinkStatusUseCase;
   private LinkController linkController;
 
   @BeforeEach
   void setUp() {
     updateLinkUseCase = Mockito.mock(UpdateLinkUseCase.class);
     deleteLinkUseCase = Mockito.mock(DeleteLinkUseCase.class);
-    linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase);
+    updateLinkStatusUseCase = Mockito.mock(UpdateLinkStatusUseCase.class);
+    linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase, updateLinkStatusUseCase);
   }
 
   @Test
   void updateLink_shouldReturn200_whenLinkIsUpdated() {
     // Given
-    Link updatedLink = new Link("link-123", "https://example.com", "Updated Title", "Updated Description", LocalDateTime.now(), "text/html", List.of());
+    Link updatedLink = new Link(
+      "link-123",
+      "https://example.com",
+      "Updated Title",
+      "Updated Description",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     when(updateLinkUseCase.updateLink(any(UpdateLinkCommand.class))).thenReturn(updatedLink);
 
     JavalinTest.test((app, client) -> {
@@ -106,7 +121,18 @@ class LinkControllerTest {
   @Test
   void updateLink_shouldUpdateOnlyTitle_whenDescriptionIsNull() {
     // Given
-    Link updatedLink = new Link("link-123", "https://example.com", "New Title", "Old Description", LocalDateTime.now(), "text/html", List.of());
+    Link updatedLink = new Link(
+      "link-123",
+      "https://example.com",
+      "New Title",
+      "Old Description",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     when(updateLinkUseCase.updateLink(any(UpdateLinkCommand.class))).thenReturn(updatedLink);
 
     JavalinTest.test((app, client) -> {

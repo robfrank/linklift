@@ -10,6 +10,7 @@ import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.in.GetGraphUseCase;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
 import it.robfrank.linklift.application.port.in.ListLinksUseCase;
@@ -36,7 +37,9 @@ class ListLinksControllerTest {
   @Test
   void listLinks_shouldReturn200_withDefaultParameters() {
     // Given
-    List<Link> links = List.of(new Link("1", "https://example.com", "Example", "Description", LocalDateTime.now(), "text/html", List.of()));
+    List<Link> links = List.of(
+      new Link("1", "https://example.com", "Example", "Description", LocalDateTime.now(), "text/html", List.of(), ReadStatus.UNREAD, false, false)
+    );
     LinkPage linkPage = new LinkPage(links, 0, 20, 1, 1, false, false);
 
     when(listLinksUseCase.listLinks(any(ListLinksQuery.class))).thenReturn(linkPage);

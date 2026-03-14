@@ -10,6 +10,7 @@ import it.robfrank.linklift.application.domain.event.LinksQueryEvent;
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
 import it.robfrank.linklift.application.port.out.DomainEventPublisher;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
@@ -42,8 +43,10 @@ class ListLinksServiceTest {
   @Test
   void listLinks_shouldReturnLinkPage_whenValidQuery() {
     // Given
-    ListLinksQuery query = new ListLinksQuery(0, 20, "extractedAt", "DESC", "user-123");
-    List<Link> links = List.of(new Link("1", "https://example.com", "Example", "Description", LocalDateTime.now(), "text/html", List.of()));
+    ListLinksQuery query = ListLinksQuery.forUser(0, 20, "extractedAt", "DESC", "user-123");
+    List<Link> links = List.of(
+      new Link("1", "https://example.com", "Example", "Description", LocalDateTime.now(), "text/html", List.of(), ReadStatus.UNREAD, false, false)
+    );
     LinkPage expectedPage = new LinkPage(links, 0, 20, 1, 1, false, false);
 
     when(loadLinksPort.loadLinks(query)).thenReturn(expectedPage);
@@ -59,7 +62,7 @@ class ListLinksServiceTest {
   @Test
   void listLinks_shouldPublishEvent_whenSuccessful() {
     // Given
-    ListLinksQuery query = new ListLinksQuery(0, 20, "extractedAt", "DESC", "user-123");
+    ListLinksQuery query = ListLinksQuery.forUser(0, 20, "extractedAt", "DESC", "user-123");
     LinkPage linkPage = new LinkPage(List.of(), 0, 20, 0, 0, false, false);
 
     when(loadLinksPort.loadLinks(query)).thenReturn(linkPage);
@@ -79,7 +82,7 @@ class ListLinksServiceTest {
   @Test
   void listLinks_shouldThrowValidationException_whenPageIsNegative() {
     // Given
-    ListLinksQuery query = new ListLinksQuery(-1, 20, "extractedAt", "DESC", "user-123");
+    ListLinksQuery query = ListLinksQuery.forUser(-1, 20, "extractedAt", "DESC", "user-123");
 
     // When & Then
     assertThatThrownBy(() -> listLinksService.listLinks(query))
@@ -95,8 +98,8 @@ class ListLinksServiceTest {
   @Test
   void listLinks_shouldThrowValidationException_whenSizeIsInvalid() {
     // Given
-    ListLinksQuery query1 = new ListLinksQuery(0, 0, "extractedAt", "DESC", "user-123");
-    ListLinksQuery query2 = new ListLinksQuery(0, 101, "extractedAt", "DESC", "user-123");
+    ListLinksQuery query1 = ListLinksQuery.forUser(0, 0, "extractedAt", "DESC", "user-123");
+    ListLinksQuery query2 = ListLinksQuery.forUser(0, 101, "extractedAt", "DESC", "user-123");
 
     // When & Then
     assertThatThrownBy(() -> listLinksService.listLinks(query1))
@@ -118,7 +121,7 @@ class ListLinksServiceTest {
   @Test
   void listLinks_shouldThrowValidationException_whenInvalidSortField() {
     // Given
-    ListLinksQuery query = new ListLinksQuery(0, 20, "invalidField", "DESC", "user-123");
+    ListLinksQuery query = ListLinksQuery.forUser(0, 20, "invalidField", "DESC", "user-123");
 
     // When & Then
     assertThatThrownBy(() -> listLinksService.listLinks(query))
@@ -133,7 +136,7 @@ class ListLinksServiceTest {
   @Test
   void listLinks_shouldThrowValidationException_whenInvalidSortDirection() {
     // Given
-    ListLinksQuery query = new ListLinksQuery(0, 20, "extractedAt", "INVALID", "user-123");
+    ListLinksQuery query = ListLinksQuery.forUser(0, 20, "extractedAt", "INVALID", "user-123");
 
     // When & Then
     assertThatThrownBy(() -> listLinksService.listLinks(query))
@@ -155,7 +158,7 @@ class ListLinksServiceTest {
 
     // When & Then
     for (String field : validFields) {
-      ListLinksQuery query = new ListLinksQuery(0, 20, field, "ASC", "user-123");
+      ListLinksQuery query = ListLinksQuery.forUser(0, 20, field, "ASC", "user-123");
       // Should not throw exception
       listLinksService.listLinks(query);
     }
@@ -173,7 +176,7 @@ class ListLinksServiceTest {
 
     // When & Then
     for (String direction : validDirections) {
-      ListLinksQuery query = new ListLinksQuery(0, 20, "extractedAt", direction, "user-123");
+      ListLinksQuery query = ListLinksQuery.forUser(0, 20, "extractedAt", direction, "user-123");
       // Should not throw exception
       listLinksService.listLinks(query);
     }

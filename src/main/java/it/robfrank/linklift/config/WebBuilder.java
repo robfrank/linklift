@@ -206,6 +206,7 @@ public class WebBuilder {
 
   public WebBuilder withLinkManagementController(LinkController linkController) {
     app.before("/api/v1/links/{id}", requireAuthentication);
+    app.before("/api/v1/links/{id}/status", requireAuthentication);
 
     // Method-specific permission checks
     app.before("/api/v1/links/{id}", ctx -> {
@@ -215,8 +216,14 @@ public class WebBuilder {
         default -> {}
       }
     });
+    app.before("/api/v1/links/{id}/status", ctx -> {
+      if (ctx.method() == io.javalin.http.HandlerType.PATCH) {
+        RequirePermission.any(authorizationService, Role.Permissions.UPDATE_OWN_LINKS).handle(ctx);
+      }
+    });
 
     app.patch("/api/v1/links/{id}", linkController::updateLink);
+    app.patch("/api/v1/links/{id}/status", linkController::updateLinkStatus);
     app.delete("/api/v1/links/{id}", linkController::deleteLink);
 
     return this;

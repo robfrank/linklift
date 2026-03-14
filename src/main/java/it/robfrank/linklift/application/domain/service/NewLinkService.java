@@ -5,6 +5,7 @@ import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.exception.LinkAlreadyExistsException;
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 import it.robfrank.linklift.application.port.out.DomainEventPublisher;
@@ -56,7 +57,10 @@ public class NewLinkService implements NewLinkUseCase {
       newLinkCommand.description(),
       LocalDateTime.now(),
       "text/html",
-      Collections.emptyList()
+      Collections.emptyList(),
+      ReadStatus.UNREAD,
+      false,
+      false
     );
 
     var savedLink = linkPersistenceAdapter.saveLinkForUser(link, newLinkCommand.userId());

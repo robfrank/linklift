@@ -27,8 +27,21 @@ import {
   DialogActions,
   Stack
 } from "@mui/material";
-import { OpenInNew, Sort, Article, PlaylistAdd, Edit, Delete } from "@mui/icons-material";
-import { Link } from "../../../domain/models/Link";
+import {
+  OpenInNew,
+  Sort,
+  Article,
+  PlaylistAdd,
+  Edit,
+  Delete,
+  Bookmark,
+  BookmarkBorder,
+  Archive,
+  Unarchive,
+  CheckCircle,
+  RadioButtonUnchecked
+} from "@mui/icons-material";
+import { Link, ReadStatus, UpdateLinkStatusDTO } from "../../../domain/models/Link";
 import { ContentViewerModal } from "./ContentViewer/ContentViewerModal";
 
 interface LinkListProps {
@@ -43,6 +56,7 @@ interface LinkListProps {
   onPageChange: (newPage: number) => void;
   onDelete: (id: string) => void;
   onAddToCollection: (linkId: string) => void;
+  onUpdateStatus?: (id: string, status: UpdateLinkStatusDTO) => void;
 }
 
 export const LinkList: React.FC<LinkListProps> = ({
@@ -55,7 +69,8 @@ export const LinkList: React.FC<LinkListProps> = ({
   totalElements,
   onPageChange,
   onDelete,
-  onAddToCollection
+  onAddToCollection,
+  onUpdateStatus
 }) => {
   const [deleteLinkDialogOpen, setDeleteLinkDialogOpen] = React.useState(false);
   const [linkToDelete, setLinkToDelete] = React.useState<Link | null>(null);
@@ -149,13 +164,24 @@ export const LinkList: React.FC<LinkListProps> = ({
                     <Card elevation={1} sx={{ transition: "elevation 0.2s", "&:hover": { elevation: 3 } }}>
                       <CardContent>
                         <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                          <Typography variant="h6" component="h3" sx={{ fontWeight: 500 }}>
-                            {link.title}
-                          </Typography>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Typography variant="h6" component="h3" sx={{ fontWeight: 500, opacity: link.archived ? 0.6 : 1 }}>
+                              {link.title}
+                            </Typography>
+                            {link.readStatus === "UNREAD" && (
+                              <Chip label="Unread" size="small" color="info" variant="filled" sx={{ height: 18, fontSize: "0.65rem" }} />
+                            )}
+                            {link.readStatus === "READING" && (
+                              <Chip label="Reading" size="small" color="warning" variant="filled" sx={{ height: 18, fontSize: "0.65rem" }} />
+                            )}
+                            {link.archived && (
+                              <Chip label="Archived" size="small" color="default" variant="outlined" sx={{ height: 18, fontSize: "0.65rem" }} />
+                            )}
+                          </Box>
                           <Chip label={formatUrl(link.url)} size="small" variant="outlined" color="primary" />
                         </Box>
 
-                        <Typography variant="body2" color="text.secondary" paragraph>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                           {link.description}
                         </Typography>
 
@@ -186,6 +212,33 @@ export const LinkList: React.FC<LinkListProps> = ({
                                 </IconButton>
                               </span>
                             </Tooltip>
+                            {onUpdateStatus && (
+                              <>
+                                <Tooltip title={link.favorited ? "Remove from favorites" : "Add to favorites"}>
+                                  <IconButton
+                                    size="small"
+                                    color={link.favorited ? "warning" : "default"}
+                                    onClick={() => onUpdateStatus(link.id, { favorited: !link.favorited })}
+                                  >
+                                    {link.favorited ? <Bookmark /> : <BookmarkBorder />}
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title={link.archived ? "Unarchive" : "Archive"}>
+                                  <IconButton size="small" color="default" onClick={() => onUpdateStatus(link.id, { archived: !link.archived })}>
+                                    {link.archived ? <Unarchive /> : <Archive />}
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title={link.readStatus === "READ" ? "Mark as unread" : "Mark as read"}>
+                                  <IconButton
+                                    size="small"
+                                    color={link.readStatus === "READ" ? "success" : "default"}
+                                    onClick={() => onUpdateStatus(link.id, { readStatus: link.readStatus === "READ" ? "UNREAD" : "READ" })}
+                                  >
+                                    {link.readStatus === "READ" ? <CheckCircle /> : <RadioButtonUnchecked />}
+                                  </IconButton>
+                                </Tooltip>
+                              </>
+                            )}
                             <Tooltip title="Edit">
                               <span>
                                 <IconButton size="small" color="primary" disabled>

@@ -4,6 +4,7 @@ import io.javalin.http.Context;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.model.GraphData;
 import it.robfrank.linklift.application.domain.model.LinkPage;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.in.GetGraphUseCase;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
 import it.robfrank.linklift.application.port.in.ListLinksUseCase;
@@ -28,8 +29,24 @@ public class ListLinksController {
     String sortBy = ctx.queryParam("sortBy");
     String sortDirection = ctx.queryParam("sortDirection");
 
-    // Create query with user context for authorization
-    ListLinksQuery query = ListLinksQuery.forUser(page, size, sortBy, sortDirection, currentUserId);
+    // Extract status filter parameters
+    String readStatusParam = ctx.queryParam("readStatus");
+    String archivedParam = ctx.queryParam("archived");
+    String favoritedParam = ctx.queryParam("favorited");
+
+    ReadStatus readStatus = null;
+    if (readStatusParam != null && !readStatusParam.isBlank()) {
+      try {
+        readStatus = ReadStatus.valueOf(readStatusParam.toUpperCase());
+      } catch (IllegalArgumentException ignored) {
+        // Invalid value - ignore filter
+      }
+    }
+    Boolean archived = archivedParam != null ? Boolean.parseBoolean(archivedParam) : null;
+    Boolean favorited = favoritedParam != null ? Boolean.parseBoolean(favoritedParam) : null;
+
+    // Create query with user context and optional filters
+    ListLinksQuery query = ListLinksQuery.forUserWithFilters(page, size, sortBy, sortDirection, currentUserId, readStatus, archived, favorited);
     LinkPage result = listLinksUseCase.listLinks(query);
 
     ctx.status(200).json(new LinkPageResponse(result, "Links retrieved successfully"));

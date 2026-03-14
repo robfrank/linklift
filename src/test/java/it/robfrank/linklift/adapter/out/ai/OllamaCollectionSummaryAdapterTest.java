@@ -8,6 +8,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import java.net.http.HttpClient;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,8 +34,30 @@ class OllamaCollectionSummaryAdapterTest {
   void generateCollectionSummary_shouldReturnSummary() {
     // Arrange
     Collection collection = new Collection("col-1", "Tech News", "Latest in tech", "user-1", null, null);
-    Link l1 = new Link("l1", "https://news.com/1", "Java 25 Released", "New features in Java 25", LocalDateTime.now(), "text/html", List.of());
-    Link l2 = new Link("l2", "https://news.com/2", "ArcadeDB 25.12", "New vector search capabilities", LocalDateTime.now(), "text/html", List.of());
+    Link l1 = new Link(
+      "l1",
+      "https://news.com/1",
+      "Java 25 Released",
+      "New features in Java 25",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
+    Link l2 = new Link(
+      "l2",
+      "https://news.com/2",
+      "ArcadeDB 25.12",
+      "New vector search capabilities",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
 
     String responseJson =
       """

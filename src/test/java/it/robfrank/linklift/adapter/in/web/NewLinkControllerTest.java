@@ -9,6 +9,7 @@ import io.javalin.testtools.JavalinTest;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.LinkAlreadyExistsException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 import java.time.LocalDateTime;
@@ -32,7 +33,7 @@ class NewLinkControllerTest {
   @Test
   void processLink_shouldReturn201_whenLinkIsValid() {
     when(newLinkUseCase.newLink(any(NewLinkCommand.class))).thenReturn(
-      new Link("123456", "http://www.google.com", "Google", "Search engine", LocalDateTime.now(), "text/html", List.of())
+      new Link("123456", "http://www.google.com", "Google", "Search engine", LocalDateTime.now(), "text/html", List.of(), ReadStatus.UNREAD, false, false)
     );
 
     JavalinTest.test((app, client) -> {

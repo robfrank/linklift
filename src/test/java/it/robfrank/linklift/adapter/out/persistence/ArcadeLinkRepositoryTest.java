@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -60,7 +61,10 @@ class ArcadeLinkRepositoryTest {
       "Test Description",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      List.of()
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
     );
 
     var savedLink = linkRepository.saveLink(testLink);
@@ -78,7 +82,10 @@ class ArcadeLinkRepositoryTest {
       "Test Description",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      List.of()
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
     );
 
     var savedLink = linkRepository.saveLink(testLink);
@@ -97,7 +104,10 @@ class ArcadeLinkRepositoryTest {
       "Test Description",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      List.of()
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
     );
 
     var savedLink = linkRepository.saveLink(testLink);

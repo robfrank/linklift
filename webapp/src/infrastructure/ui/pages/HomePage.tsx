@@ -26,6 +26,7 @@ const HomePage = () => {
     listLinksError,
     fetchLinks,
     deleteLink,
+    updateLinkStatus,
     page,
     size,
     totalPages,
@@ -114,10 +115,11 @@ const HomePage = () => {
               page={page}
               size={size}
               totalPages={totalPages}
-              totalElements={totalElements || 0} // Adding dummy or real values
+              totalElements={totalElements || 0}
               onPageChange={setPage}
               onDelete={deleteLink}
               onAddToCollection={handleAddToCollection}
+              onUpdateStatus={updateLinkStatus}
             />
           ))}
       </Box>

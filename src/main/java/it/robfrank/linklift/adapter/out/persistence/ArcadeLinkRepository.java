@@ -49,7 +49,10 @@ public class ArcadeLinkRepository {
           fullText = ?,
           summary = ?,
           imageUrl = ?,
-          extractedUrls = ?
+          extractedUrls = ?,
+          readStatus = ?,
+          archived = ?,
+          favorited = ?
           """,
           link.id(),
           link.url(),
@@ -60,7 +63,10 @@ public class ArcadeLinkRepository {
           null, // fullText
           null, // summary
           null, // imageUrl
-          link.extractedUrls()
+          link.extractedUrls(),
+          link.readStatus().name(),
+          link.archived(),
+          link.favorited()
         );
       });
       return link;
@@ -77,11 +83,17 @@ public class ArcadeLinkRepository {
           """
           UPDATE Link SET
           title = ?,
-          description = ?
+          description = ?,
+          readStatus = ?,
+          archived = ?,
+          favorited = ?
           WHERE id = ?
           """,
           link.title(),
           link.description(),
+          link.readStatus().name(),
+          link.archived(),
+          link.favorited(),
           link.id()
         );
       });
@@ -112,7 +124,10 @@ public class ArcadeLinkRepository {
           fullText = ?,
           summary = ?,
           imageUrl = ?,
-          extractedUrls = ?
+          extractedUrls = ?,
+          readStatus = ?,
+          archived = ?,
+          favorited = ?
           """,
           link.id(),
           link.url(),
@@ -123,7 +138,10 @@ public class ArcadeLinkRepository {
           null, // fullText
           null, // summary
           null, // imageUrl
-          link.extractedUrls()
+          link.extractedUrls(),
+          link.readStatus().name(),
+          link.archived(),
+          link.favorited()
         );
 
         // Then, create the OwnsLink relationship
@@ -224,14 +242,15 @@ public class ArcadeLinkRepository {
   }
 
   public LinkPage findLinksWithPagination(ListLinksQuery query) {
-    // Use the userId from the query to filter user-specific links
     return findLinksWithPaginationForUser(query, query.userId());
   }
 
   public LinkPage findLinksWithPaginationForUser(ListLinksQuery query, String userId) {
     try {
+      String filterClause = buildFilterClause(query);
+
       // First, get the total count using graph traversal
-      long totalCount = getTotalLinkCountForUser(userId);
+      long totalCount = getTotalLinkCountForUser(userId, filterClause);
 
       // Build the ORDER BY clause
       String orderClause = buildOrderClause(query.sortBy(), query.sortDirection());
@@ -242,9 +261,9 @@ public class ArcadeLinkRepository {
       // Query for the actual data using graph traversal
       List<Link> links;
       if (userId != null) {
-        // Use graph traversal to get user's links
-        String sql =
-          """
+        String sql;
+        if (filterClause.isEmpty()) {
+          sql = """
           SELECT expand(out('OwnsLink'))
           FROM User
           WHERE id = ?
@@ -252,10 +271,24 @@ public class ArcadeLinkRepository {
           SKIP %d
           LIMIT %d
           """.formatted(orderClause, offset, query.size());
+        } else {
+          sql = """
+          SELECT FROM (
+            SELECT expand(out('OwnsLink'))
+            FROM User
+            WHERE id = ?
+          )
+          WHERE %s
+          %s
+          SKIP %d
+          LIMIT %d
+          """.formatted(filterClause, orderClause, offset, query.size());
+        }
         links = database.query("sql", sql, userId).stream().map(Result::getVertex).flatMap(Optional::stream).map(linkMapper::mapToDomain).toList();
       } else {
         // Query all links (admin use case)
-        String sql = "SELECT FROM Link %s SKIP %d LIMIT %d".formatted(orderClause, offset, query.size());
+        String whereClause = filterClause.isEmpty() ? "" : "WHERE " + filterClause;
+        String sql = "SELECT FROM Link %s %s SKIP %d LIMIT %d".formatted(whereClause, orderClause, offset, query.size());
         links = database.query("sql", sql).stream().map(Result::getVertex).flatMap(Optional::stream).map(linkMapper::mapToDomain).toList();
       }
 
@@ -273,33 +306,59 @@ public class ArcadeLinkRepository {
     }
   }
 
-  private long getTotalLinkCount() {
-    return getTotalLinkCountForUser(null);
+  private String buildFilterClause(ListLinksQuery query) {
+    StringBuilder filter = new StringBuilder();
+    if (query.readStatus() != null) {
+      filter.append("readStatus = '").append(query.readStatus().name()).append("'");
+    }
+    if (query.archived() != null) {
+      if (!filter.isEmpty()) filter.append(" AND ");
+      filter.append("archived = ").append(query.archived());
+    }
+    if (query.favorited() != null) {
+      if (!filter.isEmpty()) filter.append(" AND ");
+      filter.append("favorited = ").append(query.favorited());
+    }
+    return filter.toString();
   }
 
-  private long getTotalLinkCountForUser(String userId) {
+  private long getTotalLinkCount() {
+    return getTotalLinkCountForUser(null, "");
+  }
+
+  private long getTotalLinkCountForUser(String userId, String filterClause) {
     try {
       if (userId != null) {
-        // Use graph traversal to count user's links
-        return database
-          .query(
-            "sql",
-            """
-            SELECT count(out('OwnsLink')) as count
-            FROM User
-            WHERE id = ?
-            """,
-            userId
-          )
-          .stream()
-          .findFirst()
-          .map(result -> result.getProperty("count"))
-          .map(count -> ((Number) count).longValue())
-          .orElse(0L);
+        if (filterClause.isEmpty()) {
+          return database
+            .query(
+              "sql",
+              """
+              SELECT count(out('OwnsLink')) as count
+              FROM User
+              WHERE id = ?
+              """,
+              userId
+            )
+            .stream()
+            .findFirst()
+            .map(result -> result.getProperty("count"))
+            .map(count -> ((Number) count).longValue())
+            .orElse(0L);
+        } else {
+          return database
+            .query("sql", "SELECT count(*) as count FROM (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?) WHERE " + filterClause, userId)
+            .stream()
+            .findFirst()
+            .map(result -> result.getProperty("count"))
+            .map(count -> ((Number) count).longValue())
+            .orElse(0L);
+        }
       } else {
         // Count all links (admin use case)
+        String whereClause = filterClause.isEmpty() ? "" : "WHERE " + filterClause;
         return database
-          .query("sql", "SELECT count(*) as count FROM Link")
+          .query("sql", "SELECT count(*) as count FROM Link " + whereClause)
           .stream()
           .findFirst()
           .map(result -> result.getProperty("count"))

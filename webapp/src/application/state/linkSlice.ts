@@ -1,6 +1,6 @@
 import { StateCreator } from "zustand";
 import { container } from "../di-container";
-import { CreateLinkDTO, Link } from "../../domain/models/Link";
+import { CreateLinkDTO, Link, UpdateLinkStatusDTO } from "../../domain/models/Link";
 import { PageRequest } from "../../domain/models/Page";
 
 export interface LinkSlice {
@@ -30,6 +30,12 @@ export interface LinkSlice {
   deleteLinkError: string | null;
   deleteLink: (id: string) => Promise<void>;
   resetDeleteLinkError: () => void;
+
+  // Update Link Status State
+  isUpdatingLinkStatus: boolean;
+  updateLinkStatusError: string | null;
+  updateLinkStatus: (id: string, status: UpdateLinkStatusDTO) => Promise<void>;
+  resetUpdateLinkStatusError: () => void;
 }
 
 export const createLinkSlice: StateCreator<LinkSlice> = (set, get) => ({
@@ -126,5 +132,32 @@ export const createLinkSlice: StateCreator<LinkSlice> = (set, get) => ({
       throw error;
     }
   },
-  resetDeleteLinkError: () => set({ deleteLinkError: null })
+  resetDeleteLinkError: () => set({ deleteLinkError: null }),
+
+  // Update Link Status Implementation
+  isUpdatingLinkStatus: false,
+  updateLinkStatusError: null,
+  updateLinkStatus: async (id, status) => {
+    set({ isUpdatingLinkStatus: true, updateLinkStatusError: null });
+    try {
+      const useCase = container.resolveUpdateLinkStatusUseCase();
+      const updatedLink = await useCase.execute(id, status);
+      set((state) => ({
+        isUpdatingLinkStatus: false,
+        links: state.links.map((l) => (l.id === id ? updatedLink : l))
+      }));
+    } catch (error: any) {
+      let message = "Failed to update link status";
+      if (error.response?.status === 404) {
+        message = "Link not found";
+      } else if (error.response?.status && error.response.status >= 500) {
+        message = "Server error. Please try again later.";
+      } else if (error.request) {
+        message = "Unable to connect to server. Please check your connection.";
+      }
+      set({ isUpdatingLinkStatus: false, updateLinkStatusError: message });
+      throw error;
+    }
+  },
+  resetUpdateLinkStatusError: () => set({ updateLinkStatusError: null })
 });

@@ -14,6 +14,7 @@ import it.robfrank.linklift.application.domain.exception.LinkLiftException;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.CollectionWithLinks;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.domain.model.SecurityContext;
 import it.robfrank.linklift.application.port.in.*;
 import java.time.LocalDateTime;
@@ -175,8 +176,8 @@ class CollectionControllerTest {
     // Given
     Collection collection = new Collection("col-123", "My Collection", "Description", "user-123", null, null);
     List<Link> links = Arrays.asList(
-      new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html", List.of()),
-      new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html", List.of())
+      new Link("link-1", "https://example.com/1", "Title 1", "Desc 1", LocalDateTime.now(), "text/html", List.of(), ReadStatus.UNREAD, false, false),
+      new Link("link-2", "https://example.com/2", "Title 2", "Desc 2", LocalDateTime.now(), "text/html", List.of(), ReadStatus.UNREAD, false, false)
     );
     CollectionWithLinks collectionWithLinks = new CollectionWithLinks(collection, links);
 

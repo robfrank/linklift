@@ -43,6 +43,7 @@ import {
 } from "@mui/icons-material";
 import { Link, ReadStatus, UpdateLinkStatusDTO } from "../../../domain/models/Link";
 import { ContentViewerModal } from "./ContentViewer/ContentViewerModal";
+import { LinkTagManager } from "./Tags/LinkTagManager";
 
 interface LinkListProps {
   links: Link[];
@@ -181,9 +182,13 @@ export const LinkList: React.FC<LinkListProps> = ({
                           <Chip label={formatUrl(link.url)} size="small" variant="outlined" color="primary" />
                         </Box>
 
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                           {link.description}
                         </Typography>
+
+                        <Box sx={{ mb: 1 }}>
+                          <LinkTagManager linkId={link.id} compact={true} />
+                        </Box>
 
                         <Box display="flex" justifyContent="space-between" alignItems="center">
                           <Typography variant="caption" color="text.secondary">

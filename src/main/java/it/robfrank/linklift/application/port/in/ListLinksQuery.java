@@ -10,7 +10,8 @@ public record ListLinksQuery(
   String userId,
   ReadStatus readStatus,
   Boolean archived,
-  Boolean favorited
+  Boolean favorited,
+  String tagId
 ) {
   public ListLinksQuery {
     // Apply defaults if not provided (but don't fix invalid values)
@@ -22,14 +23,14 @@ public record ListLinksQuery(
   public static ListLinksQuery of(Integer page, Integer size, String sortBy, String sortDirection) {
     int safePage = page != null ? page : 0;
     int safeSize = size != null ? size : 20;
-    return new ListLinksQuery(safePage, safeSize, sortBy, sortDirection, null, null, null, null);
+    return new ListLinksQuery(safePage, safeSize, sortBy, sortDirection, null, null, null, null, null);
   }
 
   // Factory method for creation with user context
   public static ListLinksQuery forUser(Integer page, Integer size, String sortBy, String sortDirection, String userId) {
     int safePage = page != null ? page : 0;
     int safeSize = size != null ? size : 20;
-    return new ListLinksQuery(safePage, safeSize, sortBy, sortDirection, userId, null, null, null);
+    return new ListLinksQuery(safePage, safeSize, sortBy, sortDirection, userId, null, null, null, null);
   }
 
   // Factory method for creation with user context and status filters
@@ -45,6 +46,23 @@ public record ListLinksQuery(
   ) {
     int safePage = page != null ? page : 0;
     int safeSize = size != null ? size : 20;
-    return new ListLinksQuery(safePage, safeSize, sortBy, sortDirection, userId, readStatus, archived, favorited);
+    return new ListLinksQuery(safePage, safeSize, sortBy, sortDirection, userId, readStatus, archived, favorited, null);
+  }
+
+  // Factory method for creation with user context, status filters, and tag filter
+  public static ListLinksQuery forUserWithFiltersAndTag(
+    Integer page,
+    Integer size,
+    String sortBy,
+    String sortDirection,
+    String userId,
+    ReadStatus readStatus,
+    Boolean archived,
+    Boolean favorited,
+    String tagId
+  ) {
+    int safePage = page != null ? page : 0;
+    int safeSize = size != null ? size : 20;
+    return new ListLinksQuery(safePage, safeSize, sortBy, sortDirection, userId, readStatus, archived, favorited, tagId);
   }
 }

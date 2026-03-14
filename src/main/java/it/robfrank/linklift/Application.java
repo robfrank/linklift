@@ -13,16 +13,7 @@ import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
 import it.robfrank.linklift.adapter.out.security.JwtTokenAdapter;
 import it.robfrank.linklift.application.domain.event.*;
 import it.robfrank.linklift.application.domain.service.*;
-import it.robfrank.linklift.application.domain.service.CreateNoteService;
-import it.robfrank.linklift.application.domain.service.DeleteNoteService;
-import it.robfrank.linklift.application.domain.service.GetNotesForLinkService;
-import it.robfrank.linklift.application.domain.service.UpdateLinkStatusService;
-import it.robfrank.linklift.application.domain.service.UpdateNoteService;
 import it.robfrank.linklift.application.port.in.*;
-import it.robfrank.linklift.application.port.in.CreateNoteUseCase;
-import it.robfrank.linklift.application.port.in.DeleteNoteUseCase;
-import it.robfrank.linklift.application.port.in.GetNotesForLinkUseCase;
-import it.robfrank.linklift.application.port.in.UpdateNoteUseCase;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import it.robfrank.linklift.config.SecureConfiguration;
 import it.robfrank.linklift.config.WebBuilder;
@@ -252,6 +243,26 @@ public class Application {
     UpdateLinkStatusUseCase updateLinkStatusUseCase = new UpdateLinkStatusService(linkPersistenceAdapter, linkPersistenceAdapter);
     LinkController linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase, updateLinkStatusUseCase);
 
+    // Initialize Tags components
+    ArcadeTagRepository arcadeTagRepository = new ArcadeTagRepository(database);
+    TagPersistenceAdapter tagPersistenceAdapter = new TagPersistenceAdapter(arcadeTagRepository);
+    CreateTagUseCase createTagUseCase = new CreateTagService(tagPersistenceAdapter);
+    DeleteTagUseCase deleteTagUseCase = new DeleteTagService(tagPersistenceAdapter);
+    ListTagsUseCase listTagsUseCase = new ListTagsService(tagPersistenceAdapter);
+    GetTagsForLinkUseCase getTagsForLinkUseCase = new GetTagsForLinkService(tagPersistenceAdapter);
+    AddTagToLinkUseCase addTagToLinkUseCase = new AddTagToLinkService(tagPersistenceAdapter);
+    RemoveTagFromLinkUseCase removeTagFromLinkUseCase = new RemoveTagFromLinkService(tagPersistenceAdapter);
+    SuggestTagsUseCase suggestTagsUseCase = new SuggestTagsService(tagPersistenceAdapter, contentPersistenceAdapter);
+    TagController tagController = new TagController(
+      createTagUseCase,
+      deleteTagUseCase,
+      listTagsUseCase,
+      getTagsForLinkUseCase,
+      addTagToLinkUseCase,
+      removeTagFromLinkUseCase,
+      suggestTagsUseCase
+    );
+
     // Build and start web application
     Javalin app = new WebBuilder()
       .withAuthorizationService(authorizationService)
@@ -266,6 +277,7 @@ public class Application {
       .withGetRelatedLinksController(getRelatedLinksController)
       .withLinkManagementController(linkController)
       .withNoteController(noteController)
+      .withTagController(tagController)
       .build();
 
     app.start(port);

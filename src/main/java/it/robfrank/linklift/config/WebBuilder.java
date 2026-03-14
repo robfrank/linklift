@@ -204,6 +204,25 @@ public class WebBuilder {
     return this;
   }
 
+  public WebBuilder withTagController(TagController tagController) {
+    app.before("/api/v1/tags", requireAuthentication);
+    app.before("/api/v1/tags/{tagId}", requireAuthentication);
+    app.before("/api/v1/links/{linkId}/tags", requireAuthentication);
+    app.before("/api/v1/links/{linkId}/tags/{tagId}", requireAuthentication);
+    app.before("/api/v1/links/{linkId}/tags/suggest", requireAuthentication);
+
+    app.get("/api/v1/tags", tagController::listTags);
+    app.post("/api/v1/tags", tagController::createTag);
+    app.delete("/api/v1/tags/{tagId}", tagController::deleteTag);
+
+    app.get("/api/v1/links/{linkId}/tags", tagController::getTagsForLink);
+    app.post("/api/v1/links/{linkId}/tags", tagController::addTagToLink);
+    app.delete("/api/v1/links/{linkId}/tags/{tagId}", tagController::removeTagFromLink);
+    app.get("/api/v1/links/{linkId}/tags/suggest", tagController::suggestTags);
+
+    return this;
+  }
+
   public WebBuilder withLinkManagementController(LinkController linkController) {
     app.before("/api/v1/links/{id}", requireAuthentication);
     app.before("/api/v1/links/{id}/status", requireAuthentication);

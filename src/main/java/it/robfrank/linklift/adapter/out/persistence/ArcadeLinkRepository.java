@@ -248,9 +248,10 @@ public class ArcadeLinkRepository {
   public LinkPage findLinksWithPaginationForUser(ListLinksQuery query, String userId) {
     try {
       String filterClause = buildFilterClause(query);
+      boolean filterByTag = query.tagId() != null && !query.tagId().isBlank();
 
       // First, get the total count using graph traversal
-      long totalCount = getTotalLinkCountForUser(userId, filterClause);
+      long totalCount = filterByTag ? getTotalLinkCountForUserAndTag(userId, query.tagId(), filterClause) : getTotalLinkCountForUser(userId, filterClause);
 
       // Build the ORDER BY clause
       String orderClause = buildOrderClause(query.sortBy(), query.sortDirection());
@@ -262,7 +263,41 @@ public class ArcadeLinkRepository {
       List<Link> links;
       if (userId != null) {
         String sql;
-        if (filterClause.isEmpty()) {
+        if (filterByTag) {
+          // Filter by tag using HasTag edge traversal
+          if (filterClause.isEmpty()) {
+            sql = """
+            SELECT FROM (
+              SELECT expand(out('OwnsLink'))
+              FROM User
+              WHERE id = ?
+            )
+            WHERE out('HasTag').id CONTAINS ?
+            %s
+            SKIP %d
+            LIMIT %d
+            """.formatted(orderClause, offset, query.size());
+          } else {
+            sql = """
+            SELECT FROM (
+              SELECT expand(out('OwnsLink'))
+              FROM User
+              WHERE id = ?
+            )
+            WHERE out('HasTag').id CONTAINS ? AND %s
+            %s
+            SKIP %d
+            LIMIT %d
+            """.formatted(filterClause, orderClause, offset, query.size());
+          }
+          links = database
+            .query("sql", sql, userId, query.tagId())
+            .stream()
+            .map(Result::getVertex)
+            .flatMap(Optional::stream)
+            .map(linkMapper::mapToDomain)
+            .toList();
+        } else if (filterClause.isEmpty()) {
           sql = """
           SELECT expand(out('OwnsLink'))
           FROM User
@@ -271,6 +306,7 @@ public class ArcadeLinkRepository {
           SKIP %d
           LIMIT %d
           """.formatted(orderClause, offset, query.size());
+          links = database.query("sql", sql, userId).stream().map(Result::getVertex).flatMap(Optional::stream).map(linkMapper::mapToDomain).toList();
         } else {
           sql = """
           SELECT FROM (
@@ -283,8 +319,8 @@ public class ArcadeLinkRepository {
           SKIP %d
           LIMIT %d
           """.formatted(filterClause, orderClause, offset, query.size());
+          links = database.query("sql", sql, userId).stream().map(Result::getVertex).flatMap(Optional::stream).map(linkMapper::mapToDomain).toList();
         }
-        links = database.query("sql", sql, userId).stream().map(Result::getVertex).flatMap(Optional::stream).map(linkMapper::mapToDomain).toList();
       } else {
         // Query all links (admin use case)
         String whereClause = filterClause.isEmpty() ? "" : "WHERE " + filterClause;
@@ -322,8 +358,38 @@ public class ArcadeLinkRepository {
     return filter.toString();
   }
 
-  private long getTotalLinkCount() {
-    return getTotalLinkCountForUser(null, "");
+  private long getTotalLinkCountForUserAndTag(String userId, String tagId, String filterClause) {
+    try {
+      if (filterClause.isEmpty()) {
+        return database
+          .query(
+            "sql",
+            "SELECT count(*) as count FROM (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?) WHERE out('HasTag').id CONTAINS ?",
+            userId,
+            tagId
+          )
+          .stream()
+          .findFirst()
+          .map(result -> result.getProperty("count"))
+          .map(count -> ((Number) count).longValue())
+          .orElse(0L);
+      } else {
+        return database
+          .query(
+            "sql",
+            "SELECT count(*) as count FROM (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?) WHERE out('HasTag').id CONTAINS ? AND " + filterClause,
+            userId,
+            tagId
+          )
+          .stream()
+          .findFirst()
+          .map(result -> result.getProperty("count"))
+          .map(count -> ((Number) count).longValue())
+          .orElse(0L);
+      }
+    } catch (ArcadeDBException e) {
+      throw new DatabaseException("Failed to count links for tag: " + tagId, e);
+    }
   }
 
   private long getTotalLinkCountForUser(String userId, String filterClause) {

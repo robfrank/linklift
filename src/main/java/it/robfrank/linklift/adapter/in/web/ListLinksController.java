@@ -33,6 +33,7 @@ public class ListLinksController {
     String readStatusParam = ctx.queryParam("readStatus");
     String archivedParam = ctx.queryParam("archived");
     String favoritedParam = ctx.queryParam("favorited");
+    String tagId = ctx.queryParam("tagId");
 
     ReadStatus readStatus = null;
     if (readStatusParam != null && !readStatusParam.isBlank()) {
@@ -46,7 +47,7 @@ public class ListLinksController {
     Boolean favorited = favoritedParam != null ? Boolean.parseBoolean(favoritedParam) : null;
 
     // Create query with user context and optional filters
-    ListLinksQuery query = ListLinksQuery.forUserWithFilters(page, size, sortBy, sortDirection, currentUserId, readStatus, archived, favorited);
+    ListLinksQuery query = ListLinksQuery.forUserWithFiltersAndTag(page, size, sortBy, sortDirection, currentUserId, readStatus, archived, favorited, tagId);
     LinkPage result = listLinksUseCase.listLinks(query);
 
     ctx.status(200).json(new LinkPageResponse(result, "Links retrieved successfully"));

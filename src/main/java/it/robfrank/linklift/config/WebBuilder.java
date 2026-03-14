@@ -192,6 +192,18 @@ public class WebBuilder {
     return this;
   }
 
+  public WebBuilder withNoteController(NoteController noteController) {
+    app.before("/api/v1/links/{linkId}/notes", requireAuthentication);
+    app.before("/api/v1/links/{linkId}/notes/{noteId}", requireAuthentication);
+
+    app.get("/api/v1/links/{linkId}/notes", noteController::getNotes);
+    app.post("/api/v1/links/{linkId}/notes", noteController::createNote);
+    app.patch("/api/v1/links/{linkId}/notes/{noteId}", noteController::updateNote);
+    app.delete("/api/v1/links/{linkId}/notes/{noteId}", noteController::deleteNote);
+
+    return this;
+  }
+
   public WebBuilder withLinkManagementController(LinkController linkController) {
     app.before("/api/v1/links/{id}", requireAuthentication);
 

@@ -40,6 +40,9 @@ public enum ErrorCode {
   COLLECTION_NOT_FOUND(2400, "Collection not found"),
   COLLECTION_ALREADY_EXISTS(2401, "Collection already exists"),
 
+  // Domain-specific errors - Notes
+  NOTE_NOT_FOUND(2600, "Note not found"),
+
   // Authorization errors
   UNAUTHORIZED(2500, "Unauthorized access to resource"),
 

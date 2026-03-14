@@ -19,6 +19,7 @@ public class GlobalExceptionHandler {
    */
   public static void configure(Javalin app) {
     app.exception(LinkNotFoundException.class, GlobalExceptionHandler::handleLinkNotFoundException);
+    app.exception(NoteNotFoundException.class, GlobalExceptionHandler::handleNoteNotFoundException);
     app.exception(LinkAlreadyExistsException.class, GlobalExceptionHandler::handleLinkAlreadyExistsException);
     app.exception(ContentNotFoundException.class, GlobalExceptionHandler::handleContentNotFoundException);
     app.exception(ContentDownloadException.class, GlobalExceptionHandler::handleContentDownloadException);
@@ -31,6 +32,18 @@ public class GlobalExceptionHandler {
   }
 
   private static void handleLinkNotFoundException(LinkNotFoundException exception, Context ctx) {
+    ctx.status(HttpStatus.NOT_FOUND);
+    ctx.json(
+      ErrorResponse.builder()
+        .status(HttpStatus.NOT_FOUND.getCode())
+        .errorCode(exception.getErrorCode())
+        .message(exception.getMessage())
+        .path(ctx.path())
+        .build()
+    );
+  }
+
+  private static void handleNoteNotFoundException(NoteNotFoundException exception, Context ctx) {
     ctx.status(HttpStatus.NOT_FOUND);
     ctx.json(
       ErrorResponse.builder()
@@ -126,7 +139,7 @@ public class GlobalExceptionHandler {
   private static void handleLinkLiftException(LinkLiftException exception, Context ctx) {
     HttpStatus status =
       switch (exception.getErrorCode()) {
-        case COLLECTION_NOT_FOUND, LINK_NOT_FOUND, CONTENT_NOT_FOUND, USER_NOT_FOUND -> HttpStatus.NOT_FOUND;
+        case COLLECTION_NOT_FOUND, LINK_NOT_FOUND, CONTENT_NOT_FOUND, USER_NOT_FOUND, NOTE_NOT_FOUND -> HttpStatus.NOT_FOUND;
         case UNAUTHORIZED, UNAUTHORIZED_ACCESS -> HttpStatus.UNAUTHORIZED;
         case INSUFFICIENT_PERMISSIONS -> HttpStatus.FORBIDDEN;
         default -> HttpStatus.INTERNAL_SERVER_ERROR;

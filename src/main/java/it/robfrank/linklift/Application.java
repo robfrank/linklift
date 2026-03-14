@@ -13,7 +13,15 @@ import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
 import it.robfrank.linklift.adapter.out.security.JwtTokenAdapter;
 import it.robfrank.linklift.application.domain.event.*;
 import it.robfrank.linklift.application.domain.service.*;
+import it.robfrank.linklift.application.domain.service.CreateNoteService;
+import it.robfrank.linklift.application.domain.service.DeleteNoteService;
+import it.robfrank.linklift.application.domain.service.GetNotesForLinkService;
+import it.robfrank.linklift.application.domain.service.UpdateNoteService;
 import it.robfrank.linklift.application.port.in.*;
+import it.robfrank.linklift.application.port.in.CreateNoteUseCase;
+import it.robfrank.linklift.application.port.in.DeleteNoteUseCase;
+import it.robfrank.linklift.application.port.in.GetNotesForLinkUseCase;
+import it.robfrank.linklift.application.port.in.UpdateNoteUseCase;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import it.robfrank.linklift.config.SecureConfiguration;
 import it.robfrank.linklift.config.WebBuilder;
@@ -194,6 +202,15 @@ public class Application {
     ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
     GetGraphUseCase getGraphUseCase = new GetGraphService(linkPersistenceAdapter);
 
+    // Initialize Notes components
+    ArcadeNoteRepository arcadeNoteRepository = new ArcadeNoteRepository(database);
+    NotePersistenceAdapter notePersistenceAdapter = new NotePersistenceAdapter(arcadeNoteRepository);
+    CreateNoteUseCase createNoteUseCase = new CreateNoteService(notePersistenceAdapter);
+    UpdateNoteUseCase updateNoteUseCase = new UpdateNoteService(notePersistenceAdapter);
+    DeleteNoteUseCase deleteNoteUseCase = new DeleteNoteService(notePersistenceAdapter);
+    GetNotesForLinkUseCase getNotesForLinkUseCase = new GetNotesForLinkService(notePersistenceAdapter);
+    NoteController noteController = new NoteController(createNoteUseCase, updateNoteUseCase, deleteNoteUseCase, getNotesForLinkUseCase);
+
     // Initialize Collection and Related Links components
     ArcadeCollectionRepository collectionRepository = new ArcadeCollectionRepository(database);
     CollectionPersistenceAdapter collectionPersistenceAdapter = new CollectionPersistenceAdapter(collectionRepository);
@@ -246,6 +263,7 @@ public class Application {
       .withCollectionController(collectionController)
       .withGetRelatedLinksController(getRelatedLinksController)
       .withLinkManagementController(linkController)
+      .withNoteController(noteController)
       .build();
 
     app.start(port);

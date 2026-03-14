@@ -4,6 +4,7 @@ import com.arcadedb.remote.RemoteDatabase;
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.*;
 import it.robfrank.linklift.adapter.out.ai.OllamaEmbeddingAdapter;
+import it.robfrank.linklift.adapter.out.ai.OllamaQuestionAnswerAdapter;
 import it.robfrank.linklift.adapter.out.content.SimpleTextSummarizer;
 import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
 import it.robfrank.linklift.adapter.out.http.HttpContentDownloader;
@@ -243,6 +244,20 @@ public class Application {
     UpdateLinkStatusUseCase updateLinkStatusUseCase = new UpdateLinkStatusService(linkPersistenceAdapter, linkPersistenceAdapter);
     LinkController linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase, updateLinkStatusUseCase);
 
+    // Initialize Ask/QA components
+    OllamaQuestionAnswerAdapter questionAnswerAdapter = new OllamaQuestionAnswerAdapter(
+      httpClient,
+      SecureConfiguration.getOllamaUrl(),
+      SecureConfiguration.getOllamaModel()
+    );
+    AskQuestionUseCase askQuestionUseCase = new AskQuestionService(
+      embeddingGenerator,
+      contentPersistenceAdapter,
+      linkPersistenceAdapter,
+      questionAnswerAdapter
+    );
+    AskController askController = new AskController(askQuestionUseCase);
+
     // Initialize Tags components
     ArcadeTagRepository arcadeTagRepository = new ArcadeTagRepository(database);
     TagPersistenceAdapter tagPersistenceAdapter = new TagPersistenceAdapter(arcadeTagRepository);
@@ -278,6 +293,7 @@ public class Application {
       .withLinkManagementController(linkController)
       .withNoteController(noteController)
       .withTagController(tagController)
+      .withAskController(askController)
       .build();
 
     app.start(port);

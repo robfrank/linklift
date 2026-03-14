@@ -17,6 +17,7 @@ import CollectionDetail from "./components/Collections/CollectionDetail";
 import SearchPage from "./infrastructure/ui/pages/SearchPage";
 import AdminPage from "./infrastructure/ui/pages/AdminPage";
 import GraphPage from "./infrastructure/ui/pages/GraphPage";
+import { AskPage } from "./infrastructure/ui/pages/AskPage";
 
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -60,6 +61,7 @@ function App() {
                   <Route path="/collections/:id" element={<CollectionDetail />} />
                   <Route path="/search" element={<SearchPage />} />
                   <Route path="/graph" element={<GraphPage />} />
+                  <Route path="/ask" element={<AskPage />} />
                   <Route path="/admin" element={<AdminPage />} />
                 </Route>
 

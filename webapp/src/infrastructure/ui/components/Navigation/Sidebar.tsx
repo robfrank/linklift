@@ -15,7 +15,7 @@ import {
   Select,
   MenuItem
 } from "@mui/material";
-import { Home as HomeIcon, Folder as FolderIcon, Add as AddIcon, Label as LabelIcon } from "@mui/icons-material";
+import { Home as HomeIcon, Folder as FolderIcon, Add as AddIcon, Label as LabelIcon, AutoAwesome as AskIcon } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useCollections } from "../../hooks/useCollections";
 import { useLinks } from "../../hooks/useLinks";
@@ -98,6 +98,14 @@ export const Sidebar = () => {
                 <HomeIcon />
               </ListItemIcon>
               <ListItemText primary="All Links" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => handleNavigation("/ask")} selected={location.pathname === "/ask"}>
+              <ListItemIcon>
+                <AskIcon />
+              </ListItemIcon>
+              <ListItemText primary="Ask AI" />
             </ListItemButton>
           </ListItem>
         </List>

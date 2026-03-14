@@ -204,6 +204,13 @@ public class WebBuilder {
     return this;
   }
 
+  public WebBuilder withAskController(AskController askController) {
+    app.before("/api/v1/ask", requireAuthentication);
+    app.before("/api/v1/ask", RequirePermission.any(authorizationService, Role.Permissions.READ_OWN_LINKS));
+    app.post("/api/v1/ask", askController::ask);
+    return this;
+  }
+
   public WebBuilder withTagController(TagController tagController) {
     app.before("/api/v1/tags", requireAuthentication);
     app.before("/api/v1/tags/{tagId}", requireAuthentication);

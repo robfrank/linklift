@@ -2,6 +2,7 @@ package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.model.QuestionAnswer;
 import it.robfrank.linklift.application.port.in.AskQuestionCommand;
 import it.robfrank.linklift.application.port.in.AskQuestionUseCase;
@@ -23,7 +24,7 @@ public class AskController {
       return;
     }
 
-    String userId = ctx.attribute("userId");
+    String userId = SecurityContext.getCurrentUserId(ctx);
     if (userId == null) {
       ctx.status(HttpStatus.UNAUTHORIZED);
       return;

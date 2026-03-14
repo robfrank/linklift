@@ -18,7 +18,7 @@ export const createQASlice: StateCreator<QASlice> = (set) => ({
   ask: async (question: string) => {
     set({ isAsking: true, askError: null });
     try {
-      const response = await api.post<QuestionAnswer>("/api/v1/ask", { question });
+      const response = await api.post<QuestionAnswer>("/ask", { question });
       const entry: ConversationEntry = {
         id: crypto.randomUUID(),
         question: response.data.question,

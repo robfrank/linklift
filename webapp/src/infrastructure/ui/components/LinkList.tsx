@@ -24,7 +24,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Stack
 } from "@mui/material";
 import { OpenInNew, Sort, Article, PlaylistAdd, Edit, Delete } from "@mui/icons-material";
 import { Link } from "../../../domain/models/Link";
@@ -38,13 +39,8 @@ interface LinkListProps {
   size: number;
   totalPages: number;
   totalElements: number;
-  sortBy: string;
-  sortDirection: "ASC" | "DESC";
 
   onPageChange: (newPage: number) => void;
-  onPageSizeChange: (newSize: number) => void;
-  onSortChange: (sortBy: string) => void;
-  onSortDirectionToggle: () => void;
   onDelete: (id: string) => void;
   onAddToCollection: (linkId: string) => void;
 }
@@ -57,12 +53,7 @@ export const LinkList: React.FC<LinkListProps> = ({
   size,
   totalPages,
   totalElements,
-  sortBy,
-  sortDirection,
   onPageChange,
-  onPageSizeChange,
-  onSortChange,
-  onSortDirectionToggle,
   onDelete,
   onAddToCollection
 }) => {
@@ -132,33 +123,7 @@ export const LinkList: React.FC<LinkListProps> = ({
             </Typography>
           </Box>
 
-          {/* Controls */}
-          <Box display="flex" gap={2} mb={3} flexWrap="wrap">
-            <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>Sort by</InputLabel>
-              <Select value={sortBy} label="Sort by" onChange={(e) => onSortChange(e.target.value)}>
-                <MenuItem value="extractedAt">Date Added</MenuItem>
-                <MenuItem value="title">Title</MenuItem>
-                <MenuItem value="url">URL</MenuItem>
-              </Select>
-            </FormControl>
-
-            <Tooltip title={`Sort ${sortDirection === "ASC" ? "Ascending" : "Descending"}`}>
-              <IconButton onClick={onSortDirectionToggle} size="small">
-                <Sort sx={{ transform: sortDirection === "ASC" ? "rotate(180deg)" : "none" }} />
-              </IconButton>
-            </Tooltip>
-
-            <FormControl size="small" sx={{ minWidth: 100 }}>
-              <InputLabel>Per page</InputLabel>
-              <Select value={size} label="Per page" onChange={(e) => onPageSizeChange(Number(e.target.value))}>
-                <MenuItem value={5}>5</MenuItem>
-                <MenuItem value={10}>10</MenuItem>
-                <MenuItem value={20}>20</MenuItem>
-                <MenuItem value={50}>50</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
+          {/* Controls removed - moved to sidebar */}
 
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
@@ -178,9 +143,9 @@ export const LinkList: React.FC<LinkListProps> = ({
             </Paper>
           ) : (
             <>
-              <Grid container spacing={2}>
+              <Stack spacing={2}>
                 {links.map((link) => (
-                  <Grid item xs={12} key={link.id}>
+                  <Box key={link.id}>
                     <Card elevation={1} sx={{ transition: "elevation 0.2s", "&:hover": { elevation: 3 } }}>
                       <CardContent>
                         <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
@@ -237,9 +202,9 @@ export const LinkList: React.FC<LinkListProps> = ({
                         </Box>
                       </CardContent>
                     </Card>
-                  </Grid>
+                  </Box>
                 ))}
-              </Grid>
+              </Stack>
 
               {/* Pagination */}
               {totalPages > 1 && (

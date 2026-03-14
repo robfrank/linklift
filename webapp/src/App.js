@@ -1,11 +1,11 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 
 import { AuthProvider } from "./contexts/AuthContext";
 import { SnackbarProvider } from "./contexts/SnackbarContext";
-import Header from "./components/Header";
+import { MainLayout } from "./infrastructure/ui/layouts/MainLayout";
 import Home from "./infrastructure/ui/pages/HomePage";
 import AddLink from "./infrastructure/ui/pages/AddLinkPage";
 import Login from "./components/Login";
@@ -38,70 +38,30 @@ function App() {
         <ThemeProvider theme={theme}>
           <SnackbarProvider>
             <CssBaseline />
-            <Header />
             <main>
               <Routes>
                 {/* Public routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
 
-                {/* Protected routes */}
+                {/* Protected routes wrapped in MainLayout */}
                 <Route
-                  path="/"
                   element={
                     <ProtectedRoute>
-                      <Home />
+                      <MainLayout>
+                        <Outlet />
+                      </MainLayout>
                     </ProtectedRoute>
                   }
-                />
-                <Route
-                  path="/add"
-                  element={
-                    <ProtectedRoute>
-                      <AddLink />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/collections"
-                  element={
-                    <ProtectedRoute>
-                      <CollectionList />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/collections/:id"
-                  element={
-                    <ProtectedRoute>
-                      <CollectionDetail />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/search"
-                  element={
-                    <ProtectedRoute>
-                      <SearchPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/graph"
-                  element={
-                    <ProtectedRoute>
-                      <GraphPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute>
-                      <AdminPage />
-                    </ProtectedRoute>
-                  }
-                />
+                >
+                  <Route path="/" element={<Home />} />
+                  <Route path="/add" element={<AddLink />} />
+                  <Route path="/collections" element={<CollectionList />} />
+                  <Route path="/collections/:id" element={<CollectionDetail />} />
+                  <Route path="/search" element={<SearchPage />} />
+                  <Route path="/graph" element={<GraphPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
+                </Route>
 
                 {/* Redirect root to login if not authenticated, otherwise to home */}
                 <Route path="*" element={<NotFound />} />

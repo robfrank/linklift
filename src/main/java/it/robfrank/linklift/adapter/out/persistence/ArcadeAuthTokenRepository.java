@@ -206,7 +206,7 @@ public class ArcadeAuthTokenRepository {
 
   public List<AuthToken> findAllByUserId(String userId) {
     try {
-      var result = database.query("sql", "SELECT FROM AuthToken WHERE userId = ? ORDER BY createdAt DESC", userId);
+      var result = database.query("sql", "SELECT FROM AuthToken WHERE userId = ?", userId);
       return result.stream().map(r -> r.toElement().asVertex()).map(authTokenMapper::toDomainModel).toList();
     } catch (ArcadeDBException e) {
       throw new DatabaseException("Failed to find all auth tokens by user ID: " + userId, e);

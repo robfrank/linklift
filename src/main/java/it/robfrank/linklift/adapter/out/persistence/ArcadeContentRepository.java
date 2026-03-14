@@ -122,21 +122,15 @@ public class ArcadeContentRepository {
 
   public @NonNull List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
     try {
-      // Use vectorNeighbors and handle the result set which contains {distance,
-      // vertex}
+      // Use vectorNeighbors (alias for vector.neighbors) - returns results with flattened doc properties
       var resultSet = database.query("sql", "SELECT expand(vectorNeighbors('Content[embedding]', ?, ?))", queryVector, limit);
       List<Content> results = new ArrayList<>();
       while (resultSet.hasNext()) {
         var result = resultSet.next();
-        Object vertexVal = result.getProperty("vertex");
-        if (vertexVal instanceof Map map) {
-          // In the remote driver, nested vertices in projections might be returned as
-          // Maps
-          @SuppressWarnings("unchecked")
-          Map<String, Object> vertexMap = (Map<String, Object>) vertexVal;
-          results.add(mapper.mapFromMap(vertexMap));
-        } else if (result.isVertex()) {
-          results.add(mapper.mapToDomain(result.toElement().asVertex()));
+        try {
+          results.add(mapper.mapFromMap(result.toMap()));
+        } catch (Exception ignored) {
+          // Skip results that can't be mapped (e.g. placeholder zero-vector entries)
         }
       }
       return results;

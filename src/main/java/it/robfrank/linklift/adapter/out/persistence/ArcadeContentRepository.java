@@ -2,20 +2,16 @@ package it.robfrank.linklift.adapter.out.persistence;
 
 import com.arcadedb.graph.MutableVertex;
 import com.arcadedb.query.sql.executor.Result;
-import com.arcadedb.query.sql.executor.ResultSet;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
 import it.robfrank.linklift.application.domain.model.Content;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 
 public class ArcadeContentRepository {
-
-  private static final String CONTENT_TYPE = "Content";
 
   private final RemoteDatabase database;
   private final ContentMapper mapper;

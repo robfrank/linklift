@@ -2,7 +2,6 @@ package it.robfrank.linklift.application.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import it.robfrank.linklift.application.domain.model.ReadStatus;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;

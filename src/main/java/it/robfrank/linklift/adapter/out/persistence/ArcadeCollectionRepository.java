@@ -9,12 +9,9 @@ import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.Link;
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ArcadeCollectionRepository {
 
-  private static final Logger logger = LoggerFactory.getLogger(ArcadeCollectionRepository.class);
   private final RemoteDatabase database;
   private final LinkMapper linkMapper;
 

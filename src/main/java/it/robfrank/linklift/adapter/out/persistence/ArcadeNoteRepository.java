@@ -12,12 +12,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ArcadeNoteRepository implements NoteRepository {
 
-  private static final Logger logger = LoggerFactory.getLogger(ArcadeNoteRepository.class);
   private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   private final RemoteDatabase database;

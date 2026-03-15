@@ -87,7 +87,7 @@ public class AuthenticationService implements AuthenticateUserUseCase, RefreshTo
   @Override
   public AuthenticateUserUseCase.@NonNull AuthenticationResult refreshToken(@NonNull RefreshTokenCommand command) {
     // Validate refresh token JWT
-    var tokenClaims = jwtTokenPort.validateToken(command.refreshToken()).orElseThrow(AuthenticationException::tokenInvalid);
+    jwtTokenPort.validateToken(command.refreshToken()).orElseThrow(AuthenticationException::tokenInvalid);
 
     // Find stored refresh token
     var storedToken = authTokenPort.findByToken(command.refreshToken()).orElseThrow(AuthenticationException::tokenInvalid);

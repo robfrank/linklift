@@ -1,6 +1,7 @@
 package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
+import it.robfrank.linklift.adapter.in.web.error.ErrorResponse;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.model.GraphData;
 import it.robfrank.linklift.application.domain.model.LinkPage;
@@ -55,6 +56,12 @@ public class ListLinksController {
 
   public void getGraph(Context ctx) {
     String currentUserId = SecurityContext.getCurrentUserId(ctx);
+
+    if (currentUserId == null) {
+      ctx.status(401).json(ErrorResponse.builder().status(401).message("Unauthorized").build());
+      return;
+    }
+
     GraphData graphData = getGraphUseCase.getGraphData(currentUserId);
     ctx.status(200).json(new GraphResponse(graphData, "Graph data retrieved successfully"));
   }

@@ -8,9 +8,11 @@ import static org.mockito.Mockito.when;
 import io.javalin.testtools.JavalinTest;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.ValidationException;
+import it.robfrank.linklift.application.domain.model.GraphData;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.domain.model.ReadStatus;
+import it.robfrank.linklift.application.domain.model.SecurityContext;
 import it.robfrank.linklift.application.port.in.GetGraphUseCase;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
 import it.robfrank.linklift.application.port.in.ListLinksUseCase;
@@ -158,5 +160,73 @@ class ListLinksControllerTest {
 
     // Then
     assertThat(controller).isNotNull();
+  }
+
+  @Test
+  void getGraph_shouldReturn200_withNodesAndEdges() {
+    // Given
+    GraphData graphData = new GraphData(
+      List.of(new GraphData.LinkNode("node-1", "Example", "https://example.com"), new GraphData.LinkNode("node-2", "Related", "https://related.com")),
+      List.of(new GraphData.LinkEdge("node-1", "node-2"))
+    );
+    when(getGraphUseCase.getGraphData("user-123")).thenReturn(graphData);
+
+    JavalinTest.test((app, client) -> {
+      GlobalExceptionHandler.configure(app);
+      app.before(ctx -> {
+        var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
+        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
+      });
+      app.get("/graph", listLinksController::getGraph);
+
+      Response response = client.get("/graph");
+
+      assertThat(response.code()).isEqualTo(200);
+      String responseBody = response.body().string();
+      assertThatJson(responseBody).and(
+        json -> json.node("message").isEqualTo("Graph data retrieved successfully"),
+        json -> json.node("data.nodes").isArray().hasSize(2),
+        json -> json.node("data.edges").isArray().hasSize(1),
+        json -> json.node("data.nodes[0].id").isEqualTo("node-1"),
+        json -> json.node("data.edges[0].source").isEqualTo("node-1"),
+        json -> json.node("data.edges[0].target").isEqualTo("node-2")
+      );
+    });
+  }
+
+  @Test
+  void getGraph_shouldReturn401_whenUserNotAuthenticated() {
+    JavalinTest.test((app, client) -> {
+      GlobalExceptionHandler.configure(app);
+      app.get("/graph", listLinksController::getGraph);
+
+      Response response = client.get("/graph");
+
+      assertThat(response.code()).isEqualTo(401);
+      String responseBody = response.body().string();
+      assertThatJson(responseBody).node("message").isEqualTo("Unauthorized");
+    });
+  }
+
+  @Test
+  void getGraph_shouldReturn200_withEmptyGraph_whenNoLinks() {
+    // Given
+    GraphData emptyGraph = new GraphData(List.of(), List.of());
+    when(getGraphUseCase.getGraphData("user-123")).thenReturn(emptyGraph);
+
+    JavalinTest.test((app, client) -> {
+      GlobalExceptionHandler.configure(app);
+      app.before(ctx -> {
+        var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
+        it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
+      });
+      app.get("/graph", listLinksController::getGraph);
+
+      Response response = client.get("/graph");
+
+      assertThat(response.code()).isEqualTo(200);
+      String responseBody = response.body().string();
+      assertThatJson(responseBody).and(json -> json.node("data.nodes").isArray().isEmpty(), json -> json.node("data.edges").isArray().isEmpty());
+    });
   }
 }

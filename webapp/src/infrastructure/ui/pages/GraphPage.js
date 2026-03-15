@@ -16,13 +16,13 @@ const GraphPage = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 4, height: "80vh" }}>
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4, height: "80vh", display: "flex", flexDirection: "column" }}>
       <Box mb={2}>
         <Typography variant="h4" component="h1" gutterBottom>
           Link Graph
         </Typography>
       </Box>
-      <Box flex={1} height="100%">
+      <Box flex={1} minHeight={0}>
         <GraphView graphData={graphData} loading={loading} onNodeClick={handleNodeClick} />
       </Box>
     </Container>

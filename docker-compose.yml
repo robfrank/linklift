@@ -50,7 +50,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.local
-    image: linklift:local
+    #    image: linklift:local
     container_name: linklift
     environment:
       - LINKLIFT_JWT_SECRET=whatthefuckisajwtsecretandwhyishouldsetit

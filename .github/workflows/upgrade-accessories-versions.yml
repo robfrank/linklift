@@ -26,13 +26,13 @@ jobs:
           GITHUB_TOKEN: "${{ env.GITHUB_TOKEN }}"
 
       - name: Update Kamal accessories
-        uses: robfrank/kamal-accessories-updater@e567349279c21bcf02f2467ed3b2d8b5555a1436 # v26.1.0
+        uses: robfrank/kamal-accessories-updater@d86845f3db1fe913bedd2ce9a9bc32bb157cd1a0 # v26.4.0
         with:
           config-dir: ./config
           mode: update-all
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: update/accessories

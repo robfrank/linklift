@@ -22,7 +22,7 @@
         <slf4j-api.version>2.0.17</slf4j-api.version>
         <javalin.version>7.2.0</javalin.version>
         <arcadedb.version>26.4.2</arcadedb.version>
-        <testcontainers.version>2.0.4</testcontainers.version>
+        <testcontainers.version>2.0.5</testcontainers.version>
         <awaitility.version>4.3.0</awaitility.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <mockito-core.version>5.23.0</mockito-core.version>

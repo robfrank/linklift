@@ -19,7 +19,7 @@ services:
       start_period: 10s
 
   ollama:
-    image: ollama/ollama:0.22.0@sha256:05ab093b257a54318fba39293f1640d53b507d1edec8fa6ca2d3e1817c02e53b
+    image: ollama/ollama:0.24.0@sha256:a6149234667efc71d37766d61c1a16f24c33e4cd7a0bf4125c44a7e47e2419c4
     container_name: ollama
     ports:
       - "11434:11434"
@@ -34,7 +34,7 @@ services:
     restart: unless-stopped
 
   ollama-init:
-    image: ollama/ollama:0.22.0@sha256:05ab093b257a54318fba39293f1640d53b507d1edec8fa6ca2d3e1817c02e53b
+    image: ollama/ollama:0.24.0@sha256:a6149234667efc71d37766d61c1a16f24c33e4cd7a0bf4125c44a7e47e2419c4
     container_name: ollama-init
     environment:
       - OLLAMA_HOST=http://ollama:11434

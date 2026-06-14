@@ -38,7 +38,7 @@ ssh:
 
 accessories:
   arcadedb:
-    image: arcadedata/arcadedb-headless:26.3.2@sha256:1ed09d45241f9d0a470ab1418796501862258f4cc3d8cf8453059ad607283e0c
+    image: arcadedata/arcadedb-headless:26.6.1@sha256:eb123a8763158971e0d7bdb19cd323c1f137fd2a80ec743d48b0d133af177cc6
     host: <%= ENV["HOST_IP"] %>
     volumes:
       - /home/player/linklift/config:/home/arcadedb/config
@@ -49,7 +49,7 @@ accessories:
         JAVA_OPTS: "-Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin"
 
   ollama:
-    image: ollama/ollama:0.18.2@sha256:1550310a86dbfd206a0319b3e1580e4a8edb0000963ca7550af1b7ed57e4c87f
+    image: ollama/ollama:0.30.8@sha256:836a5dc3595fb7cb70d16ffbea9631af882b1bbf8ad278570e5f263e8e600f76
     host: <%= ENV["HOST_IP"] %>
     port: 11434
     volumes:

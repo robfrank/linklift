@@ -6,6 +6,7 @@ import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
 import com.arcadedb.remote.RemoteSchema;
 import com.arcadedb.schema.Type;
+import com.github.dockerjava.api.command.CreateContainerCmd;
 import java.time.Duration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ class DatabaseInitializerTest {
       -Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin
       """
     )
-    .withCreateContainerCmdModifier(cmd -> ((com.github.dockerjava.api.command.CreateContainerCmd) cmd).withUser("root"))
+    .withCreateContainerCmdModifier(cmd -> ((CreateContainerCmd) cmd).withUser("root"))
     .waitingFor(Wait.forHttp("/api/v1/ready").forPort(2480).forStatusCode(204));
 
   @Test

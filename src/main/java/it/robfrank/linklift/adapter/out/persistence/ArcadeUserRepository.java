@@ -1,8 +1,6 @@
 package it.robfrank.linklift.adapter.out.persistence;
 
 import com.arcadedb.exception.ArcadeDBException;
-import com.arcadedb.query.sql.executor.Result;
-import com.arcadedb.query.sql.executor.ResultSet;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
 import it.robfrank.linklift.application.domain.model.User;

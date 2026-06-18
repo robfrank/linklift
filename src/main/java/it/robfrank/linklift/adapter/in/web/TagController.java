@@ -4,15 +4,7 @@ import io.javalin.http.Context;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.model.Tag;
-import it.robfrank.linklift.application.port.in.AddTagToLinkCommand;
-import it.robfrank.linklift.application.port.in.AddTagToLinkUseCase;
-import it.robfrank.linklift.application.port.in.CreateTagCommand;
-import it.robfrank.linklift.application.port.in.CreateTagUseCase;
-import it.robfrank.linklift.application.port.in.DeleteTagUseCase;
-import it.robfrank.linklift.application.port.in.GetTagsForLinkUseCase;
-import it.robfrank.linklift.application.port.in.ListTagsUseCase;
-import it.robfrank.linklift.application.port.in.RemoveTagFromLinkUseCase;
-import it.robfrank.linklift.application.port.in.SuggestTagsUseCase;
+import it.robfrank.linklift.application.port.in.*;
 import java.util.List;
 import java.util.Objects;
 

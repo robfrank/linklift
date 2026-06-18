@@ -1,6 +1,7 @@
 package it.robfrank.linklift.adapter.out.persistence;
 
 import com.arcadedb.exception.ArcadeDBException;
+import com.arcadedb.graph.Vertex;
 import com.arcadedb.query.sql.executor.Result;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
@@ -113,7 +114,7 @@ public class ArcadeNoteRepository implements NoteRepository {
     }
   }
 
-  private Note toNote(com.arcadedb.graph.Vertex vertex) {
+  private Note toNote(Vertex vertex) {
     LocalDateTime createdAt = vertex.getLocalDateTime("createdAt");
     if (createdAt == null) {
       logger.warn("Note {} is missing createdAt; substituting current time (possible data corruption)", vertex.getString("id"));

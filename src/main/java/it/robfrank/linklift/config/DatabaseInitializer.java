@@ -12,7 +12,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public class DatabaseInitializer {
     try {
       URI uri = DatabaseInitializer.class.getResource("/schema").toURI();
       if (uri.getScheme().equals("jar")) {
-        FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
+        FileSystem fileSystem = FileSystems.newFileSystem(uri, Map.<String, Object>of());
         applySchemaScripts(db, fileSystem.getPath("/schema"));
       } else {
         applySchemaScripts(db, Path.of(uri));

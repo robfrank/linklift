@@ -12,9 +12,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArcadeNoteRepository implements NoteRepository {
 
+  private static final Logger logger = LoggerFactory.getLogger(ArcadeNoteRepository.class);
   private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   private final RemoteDatabase database;
@@ -112,14 +115,11 @@ public class ArcadeNoteRepository implements NoteRepository {
 
   private Note toNote(com.arcadedb.graph.Vertex vertex) {
     LocalDateTime createdAt = vertex.getLocalDateTime("createdAt");
+    if (createdAt == null) {
+      logger.warn("Note {} is missing createdAt; substituting current time (possible data corruption)", vertex.getString("id"));
+      createdAt = LocalDateTime.now();
+    }
     LocalDateTime updatedAt = vertex.getLocalDateTime("updatedAt");
-    return new Note(
-      vertex.getString("id"),
-      vertex.getString("linkId"),
-      vertex.getString("userId"),
-      vertex.getString("content"),
-      createdAt != null ? createdAt : LocalDateTime.now(),
-      updatedAt
-    );
+    return new Note(vertex.getString("id"), vertex.getString("linkId"), vertex.getString("userId"), vertex.getString("content"), createdAt, updatedAt);
   }
 }

@@ -34,11 +34,7 @@ public class NoteController {
 
   public void getNotes(Context ctx) {
     String linkId = Objects.requireNonNull(ctx.pathParam("linkId"));
-    String userId = SecurityContext.getCurrentUserId(ctx);
-
-    if (userId == null) {
-      throw AuthenticationException.unauthorizedAccess();
-    }
+    String userId = requireUserId(ctx);
 
     List<Note> notes = getNotesForLinkUseCase.getNotesForLink(linkId, userId);
     ctx.json(notes);
@@ -46,11 +42,7 @@ public class NoteController {
 
   public void createNote(Context ctx) {
     String linkId = Objects.requireNonNull(ctx.pathParam("linkId"));
-    String userId = SecurityContext.getCurrentUserId(ctx);
-
-    if (userId == null) {
-      throw AuthenticationException.unauthorizedAccess();
-    }
+    String userId = requireUserId(ctx);
 
     CreateNoteRequest request = ctx.bodyAsClass(CreateNoteRequest.class);
     CreateNoteCommand command = new CreateNoteCommand(linkId, userId, request.content());
@@ -61,11 +53,7 @@ public class NoteController {
 
   public void updateNote(Context ctx) {
     String noteId = Objects.requireNonNull(ctx.pathParam("noteId"));
-    String userId = SecurityContext.getCurrentUserId(ctx);
-
-    if (userId == null) {
-      throw AuthenticationException.unauthorizedAccess();
-    }
+    String userId = requireUserId(ctx);
 
     UpdateNoteRequest request = ctx.bodyAsClass(UpdateNoteRequest.class);
     UpdateNoteCommand command = new UpdateNoteCommand(noteId, userId, request.content());
@@ -76,14 +64,18 @@ public class NoteController {
 
   public void deleteNote(Context ctx) {
     String noteId = Objects.requireNonNull(ctx.pathParam("noteId"));
-    String userId = SecurityContext.getCurrentUserId(ctx);
-
-    if (userId == null) {
-      throw AuthenticationException.unauthorizedAccess();
-    }
+    String userId = requireUserId(ctx);
 
     deleteNoteUseCase.deleteNote(noteId, userId);
     ctx.status(204);
+  }
+
+  private String requireUserId(Context ctx) {
+    String userId = SecurityContext.getCurrentUserId(ctx);
+    if (userId == null) {
+      throw AuthenticationException.unauthorizedAccess();
+    }
+    return userId;
   }
 
   public record CreateNoteRequest(String content) {}

@@ -13,6 +13,7 @@ import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import it.robfrank.linklift.application.port.out.UpdateLinkPort;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,8 +57,7 @@ class UpdateLinkServiceTest {
     );
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, "New Title", "New Description", userId);
 
-    when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);
-    when(loadLinksPort.userOwnsLink(userId, linkId)).thenReturn(true);
+    when(loadLinksPort.findLinkByIdAndUserId(linkId, userId)).thenReturn(Optional.of(existingLink));
     when(updateLinkPort.updateLink(any(Link.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
@@ -71,8 +71,7 @@ class UpdateLinkServiceTest {
     assertThat(result.id()).isEqualTo(existingLink.id());
 
     // Verify interactions
-    verify(loadLinksPort, times(1)).getLinkById(linkId);
-    verify(loadLinksPort, times(1)).userOwnsLink(userId, linkId);
+    verify(loadLinksPort, times(1)).findLinkByIdAndUserId(linkId, userId);
     verify(updateLinkPort, times(1)).updateLink(any(Link.class));
   }
 
@@ -95,8 +94,7 @@ class UpdateLinkServiceTest {
     );
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, "New Title", null, userId);
 
-    when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);
-    when(loadLinksPort.userOwnsLink(userId, linkId)).thenReturn(true);
+    when(loadLinksPort.findLinkByIdAndUserId(linkId, userId)).thenReturn(Optional.of(existingLink));
     when(updateLinkPort.updateLink(any(Link.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
@@ -126,8 +124,7 @@ class UpdateLinkServiceTest {
     );
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, null, "New Description", userId);
 
-    when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);
-    when(loadLinksPort.userOwnsLink(userId, linkId)).thenReturn(true);
+    when(loadLinksPort.findLinkByIdAndUserId(linkId, userId)).thenReturn(Optional.of(existingLink));
     when(updateLinkPort.updateLink(any(Link.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
@@ -143,22 +140,10 @@ class UpdateLinkServiceTest {
     // Arrange
     String linkId = "link-123";
     String userId = "user-123";
-    Link existingLink = new Link(
-      linkId,
-      "https://example.com",
-      "Old Title",
-      "Old Description",
-      LocalDateTime.now(),
-      "text/html",
-      List.of(),
-      ReadStatus.UNREAD,
-      false,
-      false
-    );
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, "New Title", "New Description", userId);
 
-    when(loadLinksPort.getLinkById(linkId)).thenReturn(existingLink);
-    when(loadLinksPort.userOwnsLink(userId, linkId)).thenReturn(false);
+    // Link exists but is not owned by the user -> scoped load returns empty.
+    when(loadLinksPort.findLinkByIdAndUserId(linkId, userId)).thenReturn(Optional.empty());
 
     // Act & Assert
     assertThatThrownBy(() -> updateLinkService.updateLink(command))
@@ -175,12 +160,11 @@ class UpdateLinkServiceTest {
     String userId = "user-123";
     UpdateLinkCommand command = new UpdateLinkCommand(linkId, "New Title", "New Description", userId);
 
-    when(loadLinksPort.getLinkById(linkId)).thenThrow(new LinkNotFoundException("Link not found"));
+    when(loadLinksPort.findLinkByIdAndUserId(linkId, userId)).thenReturn(Optional.empty());
 
     // Act & Assert
     assertThatThrownBy(() -> updateLinkService.updateLink(command)).isInstanceOf(LinkNotFoundException.class).hasMessageContaining("Link not found");
 
-    verify(loadLinksPort, never()).userOwnsLink(any(), any());
     verify(updateLinkPort, never()).updateLink(any(Link.class));
   }
 }

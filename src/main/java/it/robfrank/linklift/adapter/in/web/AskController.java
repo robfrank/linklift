@@ -1,9 +1,9 @@
 package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
-import io.javalin.http.HttpStatus;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
+import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.QuestionAnswer;
 import it.robfrank.linklift.application.port.in.AskQuestionCommand;
 import it.robfrank.linklift.application.port.in.AskQuestionUseCase;
@@ -20,9 +20,8 @@ public class AskController {
   public void ask(@NonNull Context ctx) {
     var body = ctx.bodyAsClass(AskRequest.class);
     if (body == null || body.question() == null || body.question().isBlank()) {
-      ctx.status(HttpStatus.BAD_REQUEST);
-      ctx.result("Question cannot be empty");
-      return;
+      // Structured JSON error via GlobalExceptionHandler, consistent with the other controllers.
+      throw new ValidationException("Question cannot be empty").addFieldError("question", "cannot be empty");
     }
 
     String userId = SecurityContext.getCurrentUserId(ctx);

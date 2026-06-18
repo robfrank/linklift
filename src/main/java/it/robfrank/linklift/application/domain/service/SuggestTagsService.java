@@ -65,7 +65,9 @@ public class SuggestTagsService implements SuggestTagsUseCase {
 
       return suggestions;
     } catch (Exception e) {
-      logger.warn("Failed to suggest tags for link {}, returning empty list", linkId, e);
+      // Best-effort feature: never fail the request, but log at ERROR so unexpected failures
+      // (DB errors, NPEs in new code) are visible rather than silently swallowed.
+      logger.error("Failed to suggest tags for link {}, returning empty list", linkId, e);
       return List.of();
     }
   }

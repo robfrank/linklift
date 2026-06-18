@@ -13,6 +13,7 @@ import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import it.robfrank.linklift.application.port.out.UpdateLinkPort;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -42,8 +43,7 @@ class UpdateLinkStatusServiceTest {
     updateLinkPort = Mockito.mock(UpdateLinkPort.class);
     service = new UpdateLinkStatusService(loadLinksPort, updateLinkPort);
 
-    when(loadLinksPort.getLinkById("link-123")).thenReturn(EXISTING_LINK);
-    when(loadLinksPort.userOwnsLink("user-1", "link-123")).thenReturn(true);
+    when(loadLinksPort.findLinkByIdAndUserId("link-123", "user-1")).thenReturn(Optional.of(EXISTING_LINK));
     when(updateLinkPort.updateLink(any())).thenAnswer(inv -> inv.getArgument(0));
   }
 
@@ -102,7 +102,7 @@ class UpdateLinkStatusServiceTest {
       true,
       true
     );
-    when(loadLinksPort.getLinkById("link-123")).thenReturn(linkWithStatus);
+    when(loadLinksPort.findLinkByIdAndUserId("link-123", "user-1")).thenReturn(Optional.of(linkWithStatus));
 
     UpdateLinkStatusCommand command = new UpdateLinkStatusCommand("link-123", null, null, null, "user-1");
     Link result = service.updateLinkStatus(command);
@@ -114,7 +114,7 @@ class UpdateLinkStatusServiceTest {
 
   @Test
   void shouldThrowWhenLinkNotFound() {
-    when(loadLinksPort.getLinkById("nonexistent")).thenThrow(new LinkNotFoundException("nonexistent"));
+    when(loadLinksPort.findLinkByIdAndUserId("nonexistent", "user-1")).thenReturn(Optional.empty());
 
     UpdateLinkStatusCommand command = new UpdateLinkStatusCommand("nonexistent", ReadStatus.READ, null, null, "user-1");
 
@@ -123,7 +123,7 @@ class UpdateLinkStatusServiceTest {
 
   @Test
   void shouldThrowWhenUserDoesNotOwnLink() {
-    when(loadLinksPort.userOwnsLink("other-user", "link-123")).thenReturn(false);
+    when(loadLinksPort.findLinkByIdAndUserId("link-123", "other-user")).thenReturn(Optional.empty());
 
     UpdateLinkStatusCommand command = new UpdateLinkStatusCommand("link-123", ReadStatus.READ, null, null, "other-user");
 

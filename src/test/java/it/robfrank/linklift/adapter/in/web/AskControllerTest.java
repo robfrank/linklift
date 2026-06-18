@@ -6,8 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import io.javalin.http.Context;
-import io.javalin.http.HttpStatus;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
+import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.AnswerSource;
 import it.robfrank.linklift.application.domain.model.QuestionAnswer;
 import it.robfrank.linklift.application.port.in.AskQuestionCommand;
@@ -84,14 +84,9 @@ class AskControllerTest {
   void ask_shouldReturn400_whenQuestionIsEmpty() {
     // Arrange
     when(context.bodyAsClass(AskController.AskRequest.class)).thenReturn(new AskController.AskRequest(""));
-    when(context.status(HttpStatus.BAD_REQUEST)).thenReturn(context);
 
-    // Act
-    askController.ask(context);
-
-    // Assert
-    verify(context).status(HttpStatus.BAD_REQUEST);
-    verify(context).result("Question cannot be empty");
+    // Act + Assert - blank question throws ValidationException, mapped to a 400 JSON body by GlobalExceptionHandler
+    assertThatThrownBy(() -> askController.ask(context)).isInstanceOf(ValidationException.class);
     verify(askQuestionUseCase, never()).ask(any());
   }
 
@@ -99,13 +94,9 @@ class AskControllerTest {
   void ask_shouldReturn400_whenQuestionIsNull() {
     // Arrange
     when(context.bodyAsClass(AskController.AskRequest.class)).thenReturn(new AskController.AskRequest(null));
-    when(context.status(HttpStatus.BAD_REQUEST)).thenReturn(context);
 
-    // Act
-    askController.ask(context);
-
-    // Assert
-    verify(context).status(HttpStatus.BAD_REQUEST);
+    // Act + Assert
+    assertThatThrownBy(() -> askController.ask(context)).isInstanceOf(ValidationException.class);
     verify(askQuestionUseCase, never()).ask(any());
   }
 }

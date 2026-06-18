@@ -52,6 +52,11 @@ public class LinkPersistenceAdapter implements SaveLinkPort, LoadLinksPort, Upda
   }
 
   @Override
+  public Optional<Link> findLinkByIdAndUserId(String id, String userId) {
+    return linkRepository.findLinkByIdAndUserId(id, userId);
+  }
+
+  @Override
   public LinkPage loadLinks(ListLinksQuery query) {
     return linkRepository.findLinksWithPagination(query);
   }

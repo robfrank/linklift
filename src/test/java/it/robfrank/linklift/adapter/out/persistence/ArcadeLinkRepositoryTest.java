@@ -154,4 +154,27 @@ class ArcadeLinkRepositoryTest {
     assertThat(page.content()).extracting(Link::id).containsExactly(readLink.id());
     assertThat(page.totalElements()).isEqualTo(1);
   }
+
+  @Test
+  void findLinkByIdAndUserId_returnsLinkOnlyForOwner() {
+    String owner = UUID.randomUUID().toString();
+    String other = UUID.randomUUID().toString();
+    for (String u : List.of(owner, other)) {
+      database.command(
+        "sql",
+        "INSERT INTO User SET id = ?, username = ?, email = ?, passwordHash = 'h', salt = 's', createdAt = sysdate(), isActive = true",
+        u,
+        "u-" + u,
+        u + "@test.local"
+      );
+    }
+
+    LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+    Link link = new Link(UUID.randomUUID().toString(), "https://owned.example", "Owned", "d", now, "text/html", List.of(), ReadStatus.UNREAD, false, false);
+    linkRepository.saveLinkForUser(link, owner);
+
+    assertThat(linkRepository.findLinkByIdAndUserId(link.id(), owner)).map(Link::id).contains(link.id());
+    assertThat(linkRepository.findLinkByIdAndUserId(link.id(), other)).isEmpty();
+    assertThat(linkRepository.findLinkByIdAndUserId("does-not-exist", owner)).isEmpty();
+  }
 }

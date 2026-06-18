@@ -224,6 +224,19 @@ public class ArcadeLinkRepository {
     return findLinkById(id).orElseThrow(() -> new LinkNotFoundException(id));
   }
 
+  public Optional<Link> findLinkByIdAndUserId(String id, String userId) {
+    try {
+      return database
+        .query("sql", "SELECT FROM (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?) WHERE id = ?", userId, id)
+        .stream()
+        .findFirst()
+        .flatMap(Result::getVertex)
+        .map(linkMapper::mapToDomain);
+    } catch (ArcadeDBException e) {
+      throw new DatabaseException("Failed to find link by ID and user: " + id, e);
+    }
+  }
+
   public List<Link> findLinksByIds(List<String> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();

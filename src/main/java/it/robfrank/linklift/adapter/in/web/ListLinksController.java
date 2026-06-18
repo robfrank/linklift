@@ -2,8 +2,8 @@ package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
-import it.robfrank.linklift.adapter.in.web.error.ErrorResponse;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
+import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.model.GraphData;
 import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.domain.model.ReadStatus;
@@ -62,8 +62,8 @@ public class ListLinksController {
     String currentUserId = SecurityContext.getCurrentUserId(ctx);
 
     if (currentUserId == null) {
-      ctx.status(401).json(ErrorResponse.builder().status(401).message("Unauthorized").build());
-      return;
+      // Consistent with the other endpoints: let GlobalExceptionHandler produce the 401 response.
+      throw AuthenticationException.unauthorizedAccess();
     }
 
     GraphData graphData = getGraphUseCase.getGraphData(currentUserId);

@@ -265,8 +265,8 @@ public class Application {
     DeleteTagUseCase deleteTagUseCase = new DeleteTagService(tagPersistenceAdapter);
     ListTagsUseCase listTagsUseCase = new ListTagsService(tagPersistenceAdapter);
     GetTagsForLinkUseCase getTagsForLinkUseCase = new GetTagsForLinkService(tagPersistenceAdapter);
-    AddTagToLinkUseCase addTagToLinkUseCase = new AddTagToLinkService(tagPersistenceAdapter);
-    RemoveTagFromLinkUseCase removeTagFromLinkUseCase = new RemoveTagFromLinkService(tagPersistenceAdapter);
+    AddTagToLinkUseCase addTagToLinkUseCase = new AddTagToLinkService(tagPersistenceAdapter, linkPersistenceAdapter);
+    RemoveTagFromLinkUseCase removeTagFromLinkUseCase = new RemoveTagFromLinkService(tagPersistenceAdapter, linkPersistenceAdapter);
     SuggestTagsUseCase suggestTagsUseCase = new SuggestTagsService(tagPersistenceAdapter, contentPersistenceAdapter);
     TagController tagController = new TagController(
       createTagUseCase,

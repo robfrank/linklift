@@ -217,7 +217,7 @@ class ListLinksControllerTest {
 
       assertThat(response.code()).isEqualTo(401);
       String responseBody = response.body().string();
-      assertThatJson(responseBody).node("message").isEqualTo("Unauthorized");
+      assertThatJson(responseBody).node("message").isEqualTo("Unauthorized access");
     });
   }
 

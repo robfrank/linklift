@@ -54,7 +54,7 @@ class AskQuestionServiceTest {
     when(embeddingGenerator.generateEmbedding("What is Java?")).thenReturn(FAKE_VECTOR);
 
     Content content = new Content("c1", "link1", null, "Java is a programming language.", 30, LocalDateTime.now(), "text/plain", DownloadStatus.COMPLETED);
-    when(loadContentPort.findSimilar(FAKE_VECTOR, 5)).thenReturn(List.of(content));
+    when(loadContentPort.findSimilar(FAKE_VECTOR, 5, "user1")).thenReturn(List.of(content));
 
     Link link = new Link(
       "link1",
@@ -68,7 +68,7 @@ class AskQuestionServiceTest {
       false,
       false
     );
-    when(loadLinksPort.getLinkById("link1")).thenReturn(link);
+    when(loadLinksPort.findLinksByIds(List.of("link1"))).thenReturn(List.of(link));
 
     when(questionAnswerPort.generateAnswer(eq("What is Java?"), anyString())).thenReturn("Java is a general-purpose programming language.");
 
@@ -85,7 +85,7 @@ class AskQuestionServiceTest {
   @Test
   void ask_returnsEmptyResponseWhenNoContent() {
     when(embeddingGenerator.generateEmbedding("unknown topic")).thenReturn(FAKE_VECTOR);
-    when(loadContentPort.findSimilar(FAKE_VECTOR, 5)).thenReturn(List.of());
+    when(loadContentPort.findSimilar(FAKE_VECTOR, 5, "user1")).thenReturn(List.of());
 
     QuestionAnswer result = service.ask(new AskQuestionCommand("unknown topic", "user1"));
 
@@ -104,7 +104,7 @@ class AskQuestionServiceTest {
     when(embeddingGenerator.generateEmbedding("test")).thenReturn(FAKE_VECTOR);
 
     Content content = new Content("c1", "link1", null, "Some content here.", 20, LocalDateTime.now(), "text/plain", DownloadStatus.COMPLETED);
-    when(loadContentPort.findSimilar(FAKE_VECTOR, 5)).thenReturn(List.of(content));
+    when(loadContentPort.findSimilar(FAKE_VECTOR, 5, "user1")).thenReturn(List.of(content));
 
     Link linkWithNullTitle = new Link(
       "link1",
@@ -118,7 +118,7 @@ class AskQuestionServiceTest {
       false,
       false
     );
-    when(loadLinksPort.getLinkById("link1")).thenReturn(linkWithNullTitle);
+    when(loadLinksPort.findLinksByIds(List.of("link1"))).thenReturn(List.of(linkWithNullTitle));
     when(questionAnswerPort.generateAnswer(anyString(), anyString())).thenReturn("answer");
 
     QuestionAnswer result = service.ask(new AskQuestionCommand("test", "user1"));
@@ -131,8 +131,9 @@ class AskQuestionServiceTest {
     when(embeddingGenerator.generateEmbedding("test")).thenReturn(FAKE_VECTOR);
 
     Content content = new Content("c1", "link1", null, "Content.", 10, LocalDateTime.now(), "text/plain", DownloadStatus.COMPLETED);
-    when(loadContentPort.findSimilar(FAKE_VECTOR, 5)).thenReturn(List.of(content));
-    when(loadLinksPort.getLinkById("link1")).thenThrow(new RuntimeException("link not found"));
+    when(loadContentPort.findSimilar(FAKE_VECTOR, 5, "user1")).thenReturn(List.of(content));
+    // Link not returned by the batch lookup -> its source is skipped.
+    when(loadLinksPort.findLinksByIds(List.of("link1"))).thenReturn(List.of());
     when(questionAnswerPort.generateAnswer(anyString(), anyString())).thenReturn("answer");
 
     QuestionAnswer result = service.ask(new AskQuestionCommand("test", "user1"));

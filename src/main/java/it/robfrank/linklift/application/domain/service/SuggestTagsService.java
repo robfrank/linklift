@@ -6,8 +6,11 @@ import it.robfrank.linklift.application.port.in.SuggestTagsUseCase;
 import it.robfrank.linklift.application.port.out.LoadContentPort;
 import it.robfrank.linklift.application.port.out.TagRepository;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,16 +46,18 @@ public class SuggestTagsService implements SuggestTagsUseCase {
       float[] rawEmbedding = contentOpt.get().embedding();
       List<Float> embedding = new ArrayList<>(rawEmbedding.length);
       for (float v : rawEmbedding) embedding.add(v);
-      var similarContents = loadContentPort.findSimilar(embedding, MAX_SIMILAR_LINKS + 1);
+      var similarContents = loadContentPort.findSimilar(embedding, MAX_SIMILAR_LINKS + 1, userId);
 
-      List<String> currentLinkTagIds = tagRepository.findTagsForLink(linkId).stream().map(Tag::id).toList();
+      Set<String> excludedTagIds = tagRepository.findTagsForLink(linkId).stream().map(Tag::id).collect(Collectors.toSet());
 
       List<Tag> suggestions = new ArrayList<>();
+      Set<String> addedTagIds = new HashSet<>();
       for (var similar : similarContents) {
         if (similar.linkId().equals(linkId)) continue;
         List<Tag> tagsForSimilar = tagRepository.findTagsForLink(similar.linkId());
         for (Tag tag : tagsForSimilar) {
-          if (tag.userId().equals(userId) && !currentLinkTagIds.contains(tag.id()) && !suggestions.contains(tag)) {
+          // O(1) membership checks: skip the current link's tags and any already-suggested tag.
+          if (tag.userId().equals(userId) && !excludedTagIds.contains(tag.id()) && addedTagIds.add(tag.id())) {
             suggestions.add(tag);
           }
           if (suggestions.size() >= MAX_SUGGESTIONS) break;

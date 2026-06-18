@@ -6,5 +6,5 @@ import org.jspecify.annotations.NonNull;
 
 @FunctionalInterface
 public interface GetTagsForLinkUseCase {
-  List<Tag> getTagsForLink(@NonNull String linkId);
+  List<Tag> getTagsForLink(@NonNull String linkId, @NonNull String userId);
 }

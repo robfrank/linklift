@@ -15,7 +15,8 @@ public class GetTagsForLinkService implements GetTagsForLinkUseCase {
   }
 
   @Override
-  public List<Tag> getTagsForLink(@NonNull String linkId) {
-    return tagRepository.findTagsForLink(linkId);
+  public List<Tag> getTagsForLink(@NonNull String linkId, @NonNull String userId) {
+    // Scope to the requesting user's own tags so one user can't enumerate another's tags on a link.
+    return tagRepository.findTagsForLink(linkId).stream().filter(tag -> userId.equals(tag.userId())).toList();
   }
 }

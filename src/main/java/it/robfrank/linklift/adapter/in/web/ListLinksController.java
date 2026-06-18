@@ -1,6 +1,7 @@
 package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 import it.robfrank.linklift.adapter.in.web.error.ErrorResponse;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.model.GraphData;
@@ -40,8 +41,11 @@ public class ListLinksController {
     if (readStatusParam != null && !readStatusParam.isBlank()) {
       try {
         readStatus = ReadStatus.valueOf(readStatusParam.toUpperCase());
-      } catch (IllegalArgumentException ignored) {
-        // Invalid value - ignore filter
+      } catch (IllegalArgumentException e) {
+        // Reject an invalid filter value, consistent with PATCH /links/:id/status.
+        ctx.status(HttpStatus.BAD_REQUEST);
+        ctx.result("Invalid read status: " + readStatusParam);
+        return;
       }
     }
     Boolean archived = archivedParam != null ? Boolean.parseBoolean(archivedParam) : null;

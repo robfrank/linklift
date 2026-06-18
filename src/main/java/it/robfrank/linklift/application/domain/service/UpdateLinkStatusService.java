@@ -24,11 +24,12 @@ public class UpdateLinkStatusService implements UpdateLinkStatusUseCase {
     ValidationUtils.requireNotEmpty(command.id(), "id");
     ValidationUtils.requireNotEmpty(command.userId(), "userId");
 
-    Link existingLink = loadLinksPort.getLinkById(command.id());
-
+    // Check ownership first so we don't load a link the caller doesn't own.
     if (!loadLinksPort.userOwnsLink(command.userId(), command.id())) {
       throw new LinkNotFoundException("Link not found or not owned by user");
     }
+
+    Link existingLink = loadLinksPort.getLinkById(command.id());
 
     Link updatedLink = new Link(
       existingLink.id(),

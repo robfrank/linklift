@@ -13,6 +13,9 @@ import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import it.robfrank.linklift.application.port.out.QuestionAnswerPort;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +51,7 @@ public class AskQuestionService implements AskQuestionUseCase {
     ValidationUtils.requireMaxLength(command.question(), MAX_QUESTION_LENGTH, "question");
 
     List<Float> questionVector = embeddingGenerator.generateEmbedding(command.question());
-    List<Content> similarContent = loadContentPort.findSimilar(questionVector, TOP_K);
+    List<Content> similarContent = loadContentPort.findSimilar(questionVector, TOP_K, command.userId());
 
     if (similarContent.isEmpty()) {
       return new QuestionAnswer(command.question(), "I could not find any relevant content in your saved links to answer this question.", List.of());
@@ -57,23 +60,28 @@ public class AskQuestionService implements AskQuestionUseCase {
     StringBuilder contextBuilder = new StringBuilder();
     List<AnswerSource> sources = new ArrayList<>();
 
+    // Batch-load the links for all similar content in a single query instead of one per item.
+    List<String> linkIds = similarContent.stream().map(Content::linkId).distinct().toList();
+    Map<String, Link> linksById = loadLinksPort.findLinksByIds(linkIds).stream().collect(Collectors.toMap(Link::id, Function.identity(), (a, b) -> a));
+
     for (Content content : similarContent) {
-      try {
-        Link link = loadLinksPort.getLinkById(content.linkId());
-        String text = content.textContent() != null ? content.textContent() : "";
-        String excerpt = text.length() > EXCERPT_LENGTH ? text.substring(0, EXCERPT_LENGTH) + "..." : text;
-
-        String title = link.title() != null ? link.title() : link.url();
-        contextBuilder.append("Source: ").append(title).append("\n");
-        contextBuilder.append("URL: ").append(link.url()).append("\n");
-        if (!text.isEmpty()) {
-          contextBuilder.append("Content: ").append(excerpt).append("\n\n");
-        }
-
-        sources.add(new AnswerSource(link.id(), title, link.url(), excerpt.isEmpty() ? null : excerpt));
-      } catch (Exception e) {
-        logger.warn("Could not load link for content {}: {}", content.linkId(), e.getMessage());
+      Link link = linksById.get(content.linkId());
+      if (link == null) {
+        logger.warn("Could not load link for content {}", content.linkId());
+        continue;
       }
+
+      String text = content.textContent() != null ? content.textContent() : "";
+      String excerpt = text.length() > EXCERPT_LENGTH ? text.substring(0, EXCERPT_LENGTH) + "..." : text;
+
+      String title = link.title() != null ? link.title() : link.url();
+      contextBuilder.append("Source: ").append(title).append("\n");
+      contextBuilder.append("URL: ").append(link.url()).append("\n");
+      if (!text.isEmpty()) {
+        contextBuilder.append("Content: ").append(excerpt).append("\n\n");
+      }
+
+      sources.add(new AnswerSource(link.id(), title, link.url(), excerpt.isEmpty() ? null : excerpt));
     }
 
     String answer = questionAnswerPort.generateAnswer(command.question(), contextBuilder.toString());

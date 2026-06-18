@@ -78,7 +78,7 @@ class SuggestTagsServiceTest {
     Tag suggestible = tag("tB", "suggest-me", "user-1");
     Tag anotherUsersTag = tag("tC", "theirs", "other-user");
     when(tagRepository.findTagsForLink("link-1")).thenReturn(List.of(alreadyOnLink));
-    when(tagRepository.findTagsForLink("link-2")).thenReturn(List.of(alreadyOnLink, suggestible, anotherUsersTag));
+    when(tagRepository.findTagsForLinks(List.of("link-2"))).thenReturn(List.of(alreadyOnLink, suggestible, anotherUsersTag));
 
     List<Tag> result = service.suggestTags("link-1", "user-1");
 

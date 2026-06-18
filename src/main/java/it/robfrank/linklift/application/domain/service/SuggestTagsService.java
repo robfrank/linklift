@@ -50,17 +50,15 @@ public class SuggestTagsService implements SuggestTagsUseCase {
 
       Set<String> excludedTagIds = tagRepository.findTagsForLink(linkId).stream().map(Tag::id).collect(Collectors.toSet());
 
+      // Batch-load tags for all similar links in one query instead of one query per link.
+      List<String> similarLinkIds = similarContents.stream().map(Content::linkId).filter(id -> !id.equals(linkId)).distinct().toList();
+
       List<Tag> suggestions = new ArrayList<>();
       Set<String> addedTagIds = new HashSet<>();
-      for (var similar : similarContents) {
-        if (similar.linkId().equals(linkId)) continue;
-        List<Tag> tagsForSimilar = tagRepository.findTagsForLink(similar.linkId());
-        for (Tag tag : tagsForSimilar) {
-          // O(1) membership checks: skip the current link's tags and any already-suggested tag.
-          if (tag.userId().equals(userId) && !excludedTagIds.contains(tag.id()) && addedTagIds.add(tag.id())) {
-            suggestions.add(tag);
-          }
-          if (suggestions.size() >= MAX_SUGGESTIONS) break;
+      for (Tag tag : tagRepository.findTagsForLinks(similarLinkIds)) {
+        // O(1) membership checks: skip the current link's tags and any already-suggested tag.
+        if (tag.userId().equals(userId) && !excludedTagIds.contains(tag.id()) && addedTagIds.add(tag.id())) {
+          suggestions.add(tag);
         }
         if (suggestions.size() >= MAX_SUGGESTIONS) break;
       }

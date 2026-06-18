@@ -45,6 +45,16 @@ public class TagPersistenceAdapter implements TagRepository {
   }
 
   @Override
+  public List<Tag> findTagsForLink(@NonNull String linkId, @NonNull String userId) {
+    return tagRepository.findTagsForLink(linkId, userId);
+  }
+
+  @Override
+  public List<Tag> findTagsForLinks(@NonNull List<String> linkIds) {
+    return tagRepository.findTagsForLinks(linkIds);
+  }
+
+  @Override
   public void addTagToLink(@NonNull String linkId, @NonNull String tagId) {
     tagRepository.addTagToLink(linkId, tagId);
   }

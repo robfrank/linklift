@@ -140,11 +140,16 @@ public class ArcadeContentRepository {
 
       // The query vector must be inlined as a literal: ArcadeDB 26.6.x fails index resolution
       // ("No vector index found ...") when the vector is passed as a bound parameter. Inlining is safe
-      // here because the values are floats (no SQL-injection surface).
+      // because the values are finite floats (no SQL-injection surface); the guard below enforces that
+      // invariant so a future change widening the input type can't make this injectable.
       StringBuilder vectorLiteral = new StringBuilder("[");
       for (int i = 0; i < queryVector.size(); i++) {
+        Float v = queryVector.get(i);
+        if (v == null || !Float.isFinite(v)) {
+          throw new IllegalArgumentException("Query vector contains a non-finite value");
+        }
         if (i > 0) vectorLiteral.append(',');
-        vectorLiteral.append(queryVector.get(i).floatValue());
+        vectorLiteral.append(v.floatValue());
       }
       vectorLiteral.append(']');
       var resultSet = database.query("sql", "SELECT expand(vectorNeighbors('Content[embedding]', " + vectorLiteral + ", " + fetch + "))");

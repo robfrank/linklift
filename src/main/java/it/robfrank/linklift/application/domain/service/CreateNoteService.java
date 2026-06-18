@@ -1,9 +1,11 @@
 package it.robfrank.linklift.application.domain.service;
 
+import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Note;
 import it.robfrank.linklift.application.domain.validation.ValidationUtils;
 import it.robfrank.linklift.application.port.in.CreateNoteCommand;
 import it.robfrank.linklift.application.port.in.CreateNoteUseCase;
+import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import it.robfrank.linklift.application.port.out.NoteRepository;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -15,9 +17,11 @@ public class CreateNoteService implements CreateNoteUseCase {
   static final int MAX_NOTE_CONTENT_LENGTH = 10_000;
 
   private final NoteRepository noteRepository;
+  private final LoadLinksPort loadLinksPort;
 
-  public CreateNoteService(NoteRepository noteRepository) {
+  public CreateNoteService(NoteRepository noteRepository, LoadLinksPort loadLinksPort) {
     this.noteRepository = noteRepository;
+    this.loadLinksPort = loadLinksPort;
   }
 
   @Override
@@ -26,6 +30,11 @@ public class CreateNoteService implements CreateNoteUseCase {
     ValidationUtils.requireNotEmpty(command.userId(), "userId");
     ValidationUtils.requireNotEmpty(command.content(), "content");
     ValidationUtils.requireMaxLength(command.content(), MAX_NOTE_CONTENT_LENGTH, "content");
+
+    // Only allow annotating a link the caller owns.
+    if (!loadLinksPort.userOwnsLink(command.userId(), command.linkId())) {
+      throw new LinkNotFoundException("Link not found or not owned by user");
+    }
 
     Note note = new Note(
       UUID.randomUUID().toString(),

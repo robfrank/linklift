@@ -247,11 +247,11 @@ public class ArcadeLinkRepository {
 
   public LinkPage findLinksWithPaginationForUser(ListLinksQuery query, String userId) {
     try {
-      String filterClause = buildFilterClause(query);
+      FilterClause filter = buildFilterClause(query);
       boolean filterByTag = query.tagId() != null && !query.tagId().isBlank();
 
       // First, get the total count using graph traversal
-      long totalCount = filterByTag ? getTotalLinkCountForUserAndTag(userId, query.tagId(), filterClause) : getTotalLinkCountForUser(userId, filterClause);
+      long totalCount = filterByTag ? getTotalLinkCountForUserAndTag(userId, query.tagId(), filter) : getTotalLinkCountForUser(userId, filter);
 
       // Build the ORDER BY clause
       String orderClause = buildOrderClause(query.sortBy(), query.sortDirection());
@@ -263,9 +263,12 @@ public class ArcadeLinkRepository {
       List<Link> links;
       if (userId != null) {
         String sql;
+        List<Object> params = new ArrayList<>();
+        params.add(userId);
         if (filterByTag) {
+          params.add(query.tagId());
           // Filter by tag using HasTag edge traversal
-          if (filterClause.isEmpty()) {
+          if (filter.isEmpty()) {
             sql = """
             SELECT FROM (
               SELECT expand(out('OwnsLink'))
@@ -288,16 +291,10 @@ public class ArcadeLinkRepository {
             %s
             SKIP %d
             LIMIT %d
-            """.formatted(filterClause, orderClause, offset, query.size());
+            """.formatted(filter.sql(), orderClause, offset, query.size());
+            params.addAll(filter.params());
           }
-          links = database
-            .query("sql", sql, userId, query.tagId())
-            .stream()
-            .map(Result::getVertex)
-            .flatMap(Optional::stream)
-            .map(linkMapper::mapToDomain)
-            .toList();
-        } else if (filterClause.isEmpty()) {
+        } else if (filter.isEmpty()) {
           sql = """
           SELECT expand(out('OwnsLink'))
           FROM User
@@ -306,7 +303,6 @@ public class ArcadeLinkRepository {
           SKIP %d
           LIMIT %d
           """.formatted(orderClause, offset, query.size());
-          links = database.query("sql", sql, userId).stream().map(Result::getVertex).flatMap(Optional::stream).map(linkMapper::mapToDomain).toList();
         } else {
           sql = """
           SELECT FROM (
@@ -318,14 +314,21 @@ public class ArcadeLinkRepository {
           %s
           SKIP %d
           LIMIT %d
-          """.formatted(filterClause, orderClause, offset, query.size());
-          links = database.query("sql", sql, userId).stream().map(Result::getVertex).flatMap(Optional::stream).map(linkMapper::mapToDomain).toList();
+          """.formatted(filter.sql(), orderClause, offset, query.size());
+          params.addAll(filter.params());
         }
+        links = database.query("sql", sql, params.toArray()).stream().map(Result::getVertex).flatMap(Optional::stream).map(linkMapper::mapToDomain).toList();
       } else {
         // Query all links (admin use case)
-        String whereClause = filterClause.isEmpty() ? "" : "WHERE " + filterClause;
+        String whereClause = filter.isEmpty() ? "" : "WHERE " + filter.sql();
         String sql = "SELECT FROM Link %s %s SKIP %d LIMIT %d".formatted(whereClause, orderClause, offset, query.size());
-        links = database.query("sql", sql).stream().map(Result::getVertex).flatMap(Optional::stream).map(linkMapper::mapToDomain).toList();
+        links = database
+          .query("sql", sql, filter.params().toArray())
+          .stream()
+          .map(Result::getVertex)
+          .flatMap(Optional::stream)
+          .map(linkMapper::mapToDomain)
+          .toList();
       }
 
       return new LinkPage(
@@ -342,25 +345,36 @@ public class ArcadeLinkRepository {
     }
   }
 
-  private String buildFilterClause(ListLinksQuery query) {
+  /** A WHERE fragment with bound parameters, so filter values are never inlined into SQL. */
+  private record FilterClause(String sql, List<Object> params) {
+    boolean isEmpty() {
+      return sql.isEmpty();
+    }
+  }
+
+  private FilterClause buildFilterClause(ListLinksQuery query) {
     StringBuilder filter = new StringBuilder();
+    List<Object> params = new ArrayList<>();
     if (query.readStatus() != null) {
-      filter.append("readStatus = '").append(query.readStatus().name()).append("'");
+      filter.append("readStatus = ?");
+      params.add(query.readStatus().name());
     }
     if (query.archived() != null) {
       if (!filter.isEmpty()) filter.append(" AND ");
-      filter.append("archived = ").append(query.archived());
+      filter.append("archived = ?");
+      params.add(query.archived());
     }
     if (query.favorited() != null) {
       if (!filter.isEmpty()) filter.append(" AND ");
-      filter.append("favorited = ").append(query.favorited());
+      filter.append("favorited = ?");
+      params.add(query.favorited());
     }
-    return filter.toString();
+    return new FilterClause(filter.toString(), params);
   }
 
-  private long getTotalLinkCountForUserAndTag(String userId, String tagId, String filterClause) {
+  private long getTotalLinkCountForUserAndTag(String userId, String tagId, FilterClause filter) {
     try {
-      if (filterClause.isEmpty()) {
+      if (filter.isEmpty()) {
         return database
           .query(
             "sql",
@@ -374,12 +388,15 @@ public class ArcadeLinkRepository {
           .map(count -> ((Number) count).longValue())
           .orElse(0L);
       } else {
+        List<Object> params = new ArrayList<>();
+        params.add(userId);
+        params.add(tagId);
+        params.addAll(filter.params());
         return database
           .query(
             "sql",
-            "SELECT count(*) as count FROM (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?) WHERE out('HasTag').id CONTAINS ? AND " + filterClause,
-            userId,
-            tagId
+            "SELECT count(*) as count FROM (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?) WHERE out('HasTag').id CONTAINS ? AND " + filter.sql(),
+            params.toArray()
           )
           .stream()
           .findFirst()
@@ -392,10 +409,10 @@ public class ArcadeLinkRepository {
     }
   }
 
-  private long getTotalLinkCountForUser(String userId, String filterClause) {
+  private long getTotalLinkCountForUser(String userId, FilterClause filter) {
     try {
       if (userId != null) {
-        if (filterClause.isEmpty()) {
+        if (filter.isEmpty()) {
           return database
             .query(
               "sql",
@@ -412,8 +429,11 @@ public class ArcadeLinkRepository {
             .map(count -> ((Number) count).longValue())
             .orElse(0L);
         } else {
+          List<Object> params = new ArrayList<>();
+          params.add(userId);
+          params.addAll(filter.params());
           return database
-            .query("sql", "SELECT count(*) as count FROM (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?) WHERE " + filterClause, userId)
+            .query("sql", "SELECT count(*) as count FROM (SELECT expand(out('OwnsLink')) FROM User WHERE id = ?) WHERE " + filter.sql(), params.toArray())
             .stream()
             .findFirst()
             .map(result -> result.getProperty("count"))
@@ -422,9 +442,9 @@ public class ArcadeLinkRepository {
         }
       } else {
         // Count all links (admin use case)
-        String whereClause = filterClause.isEmpty() ? "" : "WHERE " + filterClause;
+        String whereClause = filter.isEmpty() ? "" : "WHERE " + filter.sql();
         return database
-          .query("sql", "SELECT count(*) as count FROM Link " + whereClause)
+          .query("sql", "SELECT count(*) as count FROM Link " + whereClause, filter.params().toArray())
           .stream()
           .findFirst()
           .map(result -> result.getProperty("count"))

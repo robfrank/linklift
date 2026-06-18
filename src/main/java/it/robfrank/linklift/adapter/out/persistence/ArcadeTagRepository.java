@@ -124,6 +124,57 @@ public class ArcadeTagRepository implements TagRepository {
   }
 
   @Override
+  public List<Tag> findTagsForLink(@NonNull String linkId, @NonNull String userId) {
+    try {
+      return database
+        .query(
+          "sql",
+          """
+          SELECT FROM (SELECT expand(out('HasTag')) FROM Link WHERE id = ?)
+          WHERE userId = ?
+          ORDER BY name ASC
+          """,
+          linkId,
+          userId
+        )
+        .stream()
+        .map(Result::getVertex)
+        .flatMap(Optional::stream)
+        .map(this::toTag)
+        .toList();
+    } catch (ArcadeDBException e) {
+      throw new DatabaseException("Failed to find tags for link: " + linkId, e);
+    }
+  }
+
+  @Override
+  public List<Tag> findTagsForLinks(@NonNull List<String> linkIds) {
+    if (linkIds.isEmpty()) {
+      return List.of();
+    }
+    try {
+      return database
+        .query(
+          "sql",
+          """
+          SELECT expand(out('HasTag'))
+          FROM Link
+          WHERE id IN ?
+          ORDER BY name ASC
+          """,
+          linkIds
+        )
+        .stream()
+        .map(Result::getVertex)
+        .flatMap(Optional::stream)
+        .map(this::toTag)
+        .toList();
+    } catch (ArcadeDBException e) {
+      throw new DatabaseException("Failed to find tags for links", e);
+    }
+  }
+
+  @Override
   public void addTagToLink(@NonNull String linkId, @NonNull String tagId) {
     try {
       database.transaction(() -> {

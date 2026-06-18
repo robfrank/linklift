@@ -33,22 +33,6 @@ public record ListLinksQuery(
     return new ListLinksQuery(safePage, safeSize, sortBy, sortDirection, userId, null, null, null, null);
   }
 
-  // Factory method for creation with user context and status filters
-  public static ListLinksQuery forUserWithFilters(
-    Integer page,
-    Integer size,
-    String sortBy,
-    String sortDirection,
-    String userId,
-    ReadStatus readStatus,
-    Boolean archived,
-    Boolean favorited
-  ) {
-    int safePage = page != null ? page : 0;
-    int safeSize = size != null ? size : 20;
-    return new ListLinksQuery(safePage, safeSize, sortBy, sortDirection, userId, readStatus, archived, favorited, null);
-  }
-
   // Factory method for creation with user context, status filters, and tag filter
   public static ListLinksQuery forUserWithFiltersAndTag(
     Integer page,

@@ -18,6 +18,12 @@ public interface TagRepository {
 
   List<Tag> findTagsForLink(@NonNull String linkId);
 
+  /** Tags on a link that belong to the given user (filtered in the query, not in memory). */
+  List<Tag> findTagsForLink(@NonNull String linkId, @NonNull String userId);
+
+  /** All tags attached to any of the given links, in a single query (avoids N+1). */
+  List<Tag> findTagsForLinks(@NonNull List<String> linkIds);
+
   void addTagToLink(@NonNull String linkId, @NonNull String tagId);
 
   void removeTagFromLink(@NonNull String linkId, @NonNull String tagId);

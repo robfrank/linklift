@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.LinkPage;
 import it.robfrank.linklift.application.domain.model.ReadStatus;
+import it.robfrank.linklift.application.port.in.ListLinksQuery;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -116,5 +118,40 @@ class ArcadeLinkRepositoryTest {
 
     assertThat(foundLink).isPresent();
     assertThat(foundLink.get()).isEqualTo(testLink);
+  }
+
+  @Test
+  void findLinksWithPaginationForUser_appliesParameterizedStatusFilter() {
+    String userId = UUID.randomUUID().toString();
+    database.command(
+      "sql",
+      "INSERT INTO User SET id = ?, username = ?, email = ?, passwordHash = 'h', salt = 's', createdAt = sysdate(), isActive = true",
+      userId,
+      "u-" + userId,
+      userId + "@test.local"
+    );
+
+    LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+    Link readLink = new Link(UUID.randomUUID().toString(), "https://read.example", "Read", "d", now, "text/html", List.of(), ReadStatus.READ, false, false);
+    Link unreadLink = new Link(
+      UUID.randomUUID().toString(),
+      "https://unread.example",
+      "Unread",
+      "d",
+      now,
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
+    linkRepository.saveLinkForUser(readLink, userId);
+    linkRepository.saveLinkForUser(unreadLink, userId);
+
+    ListLinksQuery query = ListLinksQuery.forUserWithFiltersAndTag(0, 20, "extractedAt", "DESC", userId, ReadStatus.READ, null, null, null);
+    LinkPage page = linkRepository.findLinksWithPaginationForUser(query, userId);
+
+    assertThat(page.content()).extracting(Link::id).containsExactly(readLink.id());
+    assertThat(page.totalElements()).isEqualTo(1);
   }
 }

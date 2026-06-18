@@ -198,7 +198,7 @@ public class Application {
     // Initialize Notes components
     ArcadeNoteRepository arcadeNoteRepository = new ArcadeNoteRepository(database);
     NotePersistenceAdapter notePersistenceAdapter = new NotePersistenceAdapter(arcadeNoteRepository);
-    CreateNoteUseCase createNoteUseCase = new CreateNoteService(notePersistenceAdapter);
+    CreateNoteUseCase createNoteUseCase = new CreateNoteService(notePersistenceAdapter, linkPersistenceAdapter);
     UpdateNoteUseCase updateNoteUseCase = new UpdateNoteService(notePersistenceAdapter);
     DeleteNoteUseCase deleteNoteUseCase = new DeleteNoteService(notePersistenceAdapter);
     GetNotesForLinkUseCase getNotesForLinkUseCase = new GetNotesForLinkService(notePersistenceAdapter);

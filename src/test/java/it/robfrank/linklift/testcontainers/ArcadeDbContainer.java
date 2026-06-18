@@ -25,6 +25,11 @@ public class ArcadeDbContainer extends GenericContainer<ArcadeDbContainer> {
     super(IMAGE);
     withExposedPorts(ARCADE_PORT);
     withEnv("JAVA_OPTS", "-Darcadedb.server.rootPassword=" + ROOT_PASSWORD);
+    // The image declares /home/arcadedb/{databases,config,log,...} as VOLUMEs and runs as the
+    // non-root "arcadedb" user. On some Docker engines the anonymous volumes Docker creates for
+    // those paths are not writable by that user, so the server fails at startup/database creation
+    // with "Cannot create directory './databases/...'". Running as root keeps every volume writable.
+    withCreateContainerCmdModifier(cmd -> cmd.withUser("root"));
     waitingFor(Wait.forHttp("/api/v1/ready").forPort(2480).forStatusCode(204));
   }
 

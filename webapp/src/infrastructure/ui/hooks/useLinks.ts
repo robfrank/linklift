@@ -26,7 +26,12 @@ export const useLinks = () => {
       isDeletingLink: state.isDeletingLink,
       deleteLinkError: state.deleteLinkError,
       deleteLink: state.deleteLink,
-      resetDeleteLinkError: state.resetDeleteLinkError
+      resetDeleteLinkError: state.resetDeleteLinkError,
+
+      isUpdatingLinkStatus: state.isUpdatingLinkStatus,
+      updateLinkStatusError: state.updateLinkStatusError,
+      updateLinkStatus: state.updateLinkStatus,
+      resetUpdateLinkStatusError: state.resetUpdateLinkStatusError
     }))
   );
 };

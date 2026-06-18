@@ -1,8 +1,8 @@
 package it.robfrank.linklift.adapter.in.web.error;
 
-import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import io.javalin.router.JavalinDefaultRoutingApi;
 import it.robfrank.linklift.application.domain.exception.*;
 
 /**
@@ -13,24 +13,41 @@ import it.robfrank.linklift.application.domain.exception.*;
 public class GlobalExceptionHandler {
 
   /**
-   * Register all exception handlers with the Javalin app.
+   * Register all exception handlers with the Javalin router.
    *
-   * @param app The Javalin application instance
+   * <p>In Javalin 7 routing (including exception handlers) is configured via
+   * {@code config.routes} at app-creation time, so this accepts the routing API
+   * exposed by {@code JavalinConfig.routes}.
+   *
+   * @param router The Javalin routing API (typically {@code config.routes})
    */
-  public static void configure(Javalin app) {
-    app.exception(LinkNotFoundException.class, GlobalExceptionHandler::handleLinkNotFoundException);
-    app.exception(LinkAlreadyExistsException.class, GlobalExceptionHandler::handleLinkAlreadyExistsException);
-    app.exception(ContentNotFoundException.class, GlobalExceptionHandler::handleContentNotFoundException);
-    app.exception(ContentDownloadException.class, GlobalExceptionHandler::handleContentDownloadException);
-    app.exception(ValidationException.class, GlobalExceptionHandler::handleValidationException);
-    app.exception(AuthenticationException.class, GlobalExceptionHandler::handleAuthenticationException);
-    app.exception(UserAlreadyExistsException.class, GlobalExceptionHandler::handleUserAlreadyExistsException);
-    app.exception(DatabaseException.class, GlobalExceptionHandler::handleDatabaseException);
-    app.exception(LinkLiftException.class, GlobalExceptionHandler::handleLinkLiftException);
-    app.exception(Exception.class, GlobalExceptionHandler::handleGenericException);
+  public static void configure(JavalinDefaultRoutingApi router) {
+    router.exception(LinkNotFoundException.class, GlobalExceptionHandler::handleLinkNotFoundException);
+    router.exception(NoteNotFoundException.class, GlobalExceptionHandler::handleNoteNotFoundException);
+    router.exception(LinkAlreadyExistsException.class, GlobalExceptionHandler::handleLinkAlreadyExistsException);
+    router.exception(ContentNotFoundException.class, GlobalExceptionHandler::handleContentNotFoundException);
+    router.exception(ContentDownloadException.class, GlobalExceptionHandler::handleContentDownloadException);
+    router.exception(ValidationException.class, GlobalExceptionHandler::handleValidationException);
+    router.exception(AuthenticationException.class, GlobalExceptionHandler::handleAuthenticationException);
+    router.exception(UserAlreadyExistsException.class, GlobalExceptionHandler::handleUserAlreadyExistsException);
+    router.exception(DatabaseException.class, GlobalExceptionHandler::handleDatabaseException);
+    router.exception(LinkLiftException.class, GlobalExceptionHandler::handleLinkLiftException);
+    router.exception(Exception.class, GlobalExceptionHandler::handleGenericException);
   }
 
   private static void handleLinkNotFoundException(LinkNotFoundException exception, Context ctx) {
+    ctx.status(HttpStatus.NOT_FOUND);
+    ctx.json(
+      ErrorResponse.builder()
+        .status(HttpStatus.NOT_FOUND.getCode())
+        .errorCode(exception.getErrorCode())
+        .message(exception.getMessage())
+        .path(ctx.path())
+        .build()
+    );
+  }
+
+  private static void handleNoteNotFoundException(NoteNotFoundException exception, Context ctx) {
     ctx.status(HttpStatus.NOT_FOUND);
     ctx.json(
       ErrorResponse.builder()
@@ -126,7 +143,7 @@ public class GlobalExceptionHandler {
   private static void handleLinkLiftException(LinkLiftException exception, Context ctx) {
     HttpStatus status =
       switch (exception.getErrorCode()) {
-        case COLLECTION_NOT_FOUND, LINK_NOT_FOUND, CONTENT_NOT_FOUND, USER_NOT_FOUND -> HttpStatus.NOT_FOUND;
+        case COLLECTION_NOT_FOUND, LINK_NOT_FOUND, CONTENT_NOT_FOUND, USER_NOT_FOUND, NOTE_NOT_FOUND, TAG_NOT_FOUND -> HttpStatus.NOT_FOUND;
         case UNAUTHORIZED, UNAUTHORIZED_ACCESS -> HttpStatus.UNAUTHORIZED;
         case INSUFFICIENT_PERMISSIONS -> HttpStatus.FORBIDDEN;
         default -> HttpStatus.INTERNAL_SERVER_ERROR;

@@ -243,7 +243,6 @@ class BackfillEmbeddingsServiceTest extends ArcadeDbTestBase {
           assertThat(updated2.embedding()).hasSize(384);
         }
       });
-    // @ts-ignore
   }
 
   @Test

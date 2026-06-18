@@ -6,5 +6,5 @@ import org.jspecify.annotations.NonNull;
 
 public interface SearchContentUseCase {
   @NonNull
-  List<Content> search(@NonNull String query, int limit);
+  List<Content> search(@NonNull String query, int limit, @NonNull String userId);
 }

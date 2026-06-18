@@ -38,13 +38,8 @@ public class GetRelatedLinksService implements GetRelatedLinksUseCase {
           embeddingList.add(f);
         }
 
-        var similarContents = loadContentPort.findSimilar(embeddingList, MAX_SIMILAR_LINKS);
-        var linkIds = similarContents
-          .stream()
-          .map(Content::linkId)
-          .filter(id -> !id.equals(linkId))
-          .distinct()
-          .toList();
+        var similarContents = loadContentPort.findSimilar(embeddingList, MAX_SIMILAR_LINKS, userId);
+        var linkIds = similarContents.stream().map(Content::linkId).filter(id -> !id.equals(linkId)).distinct().toList();
 
         if (!linkIds.isEmpty()) {
           return loadLinksPort.findLinksByIds(linkIds);

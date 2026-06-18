@@ -12,8 +12,12 @@ public interface LoadContentPort {
   @NonNull
   Optional<Content> findContentById(@NonNull String contentId);
 
+  /**
+   * Finds content most similar to the query vector, restricted to links owned by the
+   * given user. Cross-user content is never returned.
+   */
   @NonNull
-  List<Content> findSimilar(@NonNull List<Float> queryVector, int limit);
+  List<Content> findSimilar(@NonNull List<Float> queryVector, int limit, @NonNull String userId);
 
   @NonNull
   List<Content> findContentsWithoutEmbeddings(int limit);

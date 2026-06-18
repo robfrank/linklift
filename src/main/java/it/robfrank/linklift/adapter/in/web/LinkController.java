@@ -1,11 +1,15 @@
 package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.in.DeleteLinkUseCase;
 import it.robfrank.linklift.application.port.in.UpdateLinkCommand;
+import it.robfrank.linklift.application.port.in.UpdateLinkStatusCommand;
+import it.robfrank.linklift.application.port.in.UpdateLinkStatusUseCase;
 import it.robfrank.linklift.application.port.in.UpdateLinkUseCase;
 import java.util.Objects;
 
@@ -13,10 +17,12 @@ public class LinkController {
 
   private final UpdateLinkUseCase updateLinkUseCase;
   private final DeleteLinkUseCase deleteLinkUseCase;
+  private final UpdateLinkStatusUseCase updateLinkStatusUseCase;
 
-  public LinkController(UpdateLinkUseCase updateLinkUseCase, DeleteLinkUseCase deleteLinkUseCase) {
+  public LinkController(UpdateLinkUseCase updateLinkUseCase, DeleteLinkUseCase deleteLinkUseCase, UpdateLinkStatusUseCase updateLinkStatusUseCase) {
     this.updateLinkUseCase = updateLinkUseCase;
     this.deleteLinkUseCase = deleteLinkUseCase;
+    this.updateLinkStatusUseCase = updateLinkStatusUseCase;
   }
 
   public void updateLink(Context ctx) {
@@ -36,6 +42,34 @@ public class LinkController {
     ctx.json(new UpdateLinkResponse(updatedLink));
   }
 
+  public void updateLinkStatus(Context ctx) {
+    String id = Objects.requireNonNull(ctx.pathParam("id"));
+    String currentUserId = SecurityContext.getCurrentUserId(ctx);
+
+    if (currentUserId == null) {
+      throw AuthenticationException.unauthorizedAccess();
+    }
+
+    UpdateLinkStatusRequest request = ctx.bodyAsClass(UpdateLinkStatusRequest.class);
+
+    ReadStatus readStatus = null;
+    if (request.readStatus() != null) {
+      try {
+        readStatus = ReadStatus.valueOf(request.readStatus().toUpperCase());
+      } catch (IllegalArgumentException e) {
+        ctx.status(HttpStatus.BAD_REQUEST);
+        ctx.result("Invalid read status: " + request.readStatus());
+        return;
+      }
+    }
+
+    UpdateLinkStatusCommand command = new UpdateLinkStatusCommand(id, readStatus, request.archived(), request.favorited(), currentUserId);
+
+    Link updatedLink = updateLinkStatusUseCase.updateLinkStatus(command);
+
+    ctx.json(new UpdateLinkResponse(updatedLink));
+  }
+
   public void deleteLink(Context ctx) {
     String id = Objects.requireNonNull(ctx.pathParam("id"));
     String currentUserId = SecurityContext.getCurrentUserId(ctx);
@@ -50,6 +84,8 @@ public class LinkController {
   }
 
   public record UpdateLinkRequest(String title, String description) {}
+
+  public record UpdateLinkStatusRequest(String readStatus, Boolean archived, Boolean favorited) {}
 
   public record UpdateLinkResponse(Link data) {}
 }

@@ -6,6 +6,7 @@ import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -36,6 +37,7 @@ class ArcadeCollectionRepositoryTest {
       -Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin
       """
     )
+    .withCreateContainerCmdModifier(cmd -> ((com.github.dockerjava.api.command.CreateContainerCmd) cmd).withUser("root"))
     .waitingFor(Wait.forHttp("/api/v1/ready").forPort(2480).forStatusCode(204));
 
   private RemoteDatabase database;
@@ -76,7 +78,18 @@ class ArcadeCollectionRepositoryTest {
     Collection collection = new Collection(UUID.randomUUID().toString(), "Test Collection", "Description", "user-1", null, null);
     collectionRepository.save(collection);
 
-    Link link = new Link(UUID.randomUUID().toString(), "https://example.com", "Title", "Desc", LocalDateTime.now(), "text/html", List.of());
+    Link link = new Link(
+      UUID.randomUUID().toString(),
+      "https://example.com",
+      "Title",
+      "Desc",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     linkRepository.saveLink(link);
 
     collectionRepository.addLinkToCollection(collection.id(), link.id());
@@ -91,7 +104,18 @@ class ArcadeCollectionRepositoryTest {
     Collection collection = new Collection(UUID.randomUUID().toString(), "Test Collection", "Description", "user-1", null, null);
     collectionRepository.save(collection);
 
-    Link link = new Link(UUID.randomUUID().toString(), "https://example.com", "Title", "Desc", LocalDateTime.now(), "text/html", List.of());
+    Link link = new Link(
+      UUID.randomUUID().toString(),
+      "https://example.com",
+      "Title",
+      "Desc",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     linkRepository.saveLink(link);
 
     collectionRepository.addLinkToCollection(collection.id(), link.id());
@@ -121,8 +145,30 @@ class ArcadeCollectionRepositoryTest {
     collectionRepository.save(source);
     collectionRepository.save(target);
 
-    Link l1 = new Link(UUID.randomUUID().toString(), "https://l1.com", "L1", "D1", LocalDateTime.now(), "text/html", List.of());
-    Link l2 = new Link(UUID.randomUUID().toString(), "https://l2.com", "L2", "D2", LocalDateTime.now(), "text/html", List.of());
+    Link l1 = new Link(
+      UUID.randomUUID().toString(),
+      "https://l1.com",
+      "L1",
+      "D1",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
+    Link l2 = new Link(
+      UUID.randomUUID().toString(),
+      "https://l2.com",
+      "L2",
+      "D2",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     linkRepository.saveLink(l1);
     linkRepository.saveLink(l2);
 

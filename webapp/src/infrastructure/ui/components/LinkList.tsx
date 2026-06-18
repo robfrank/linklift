@@ -24,11 +24,26 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Stack
 } from "@mui/material";
-import { OpenInNew, Sort, Article, PlaylistAdd, Edit, Delete } from "@mui/icons-material";
-import { Link } from "../../../domain/models/Link";
+import {
+  OpenInNew,
+  Sort,
+  Article,
+  PlaylistAdd,
+  Edit,
+  Delete,
+  Bookmark,
+  BookmarkBorder,
+  Archive,
+  Unarchive,
+  CheckCircle,
+  RadioButtonUnchecked
+} from "@mui/icons-material";
+import { Link, ReadStatus, UpdateLinkStatusDTO } from "../../../domain/models/Link";
 import { ContentViewerModal } from "./ContentViewer/ContentViewerModal";
+import { LinkTagManager } from "./Tags/LinkTagManager";
 
 interface LinkListProps {
   links: Link[];
@@ -38,15 +53,11 @@ interface LinkListProps {
   size: number;
   totalPages: number;
   totalElements: number;
-  sortBy: string;
-  sortDirection: "ASC" | "DESC";
 
   onPageChange: (newPage: number) => void;
-  onPageSizeChange: (newSize: number) => void;
-  onSortChange: (sortBy: string) => void;
-  onSortDirectionToggle: () => void;
   onDelete: (id: string) => void;
   onAddToCollection: (linkId: string) => void;
+  onUpdateStatus?: (id: string, status: UpdateLinkStatusDTO) => void;
 }
 
 export const LinkList: React.FC<LinkListProps> = ({
@@ -57,14 +68,10 @@ export const LinkList: React.FC<LinkListProps> = ({
   size,
   totalPages,
   totalElements,
-  sortBy,
-  sortDirection,
   onPageChange,
-  onPageSizeChange,
-  onSortChange,
-  onSortDirectionToggle,
   onDelete,
-  onAddToCollection
+  onAddToCollection,
+  onUpdateStatus
 }) => {
   const [deleteLinkDialogOpen, setDeleteLinkDialogOpen] = React.useState(false);
   const [linkToDelete, setLinkToDelete] = React.useState<Link | null>(null);
@@ -132,33 +139,7 @@ export const LinkList: React.FC<LinkListProps> = ({
             </Typography>
           </Box>
 
-          {/* Controls */}
-          <Box display="flex" gap={2} mb={3} flexWrap="wrap">
-            <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>Sort by</InputLabel>
-              <Select value={sortBy} label="Sort by" onChange={(e) => onSortChange(e.target.value)}>
-                <MenuItem value="extractedAt">Date Added</MenuItem>
-                <MenuItem value="title">Title</MenuItem>
-                <MenuItem value="url">URL</MenuItem>
-              </Select>
-            </FormControl>
-
-            <Tooltip title={`Sort ${sortDirection === "ASC" ? "Ascending" : "Descending"}`}>
-              <IconButton onClick={onSortDirectionToggle} size="small">
-                <Sort sx={{ transform: sortDirection === "ASC" ? "rotate(180deg)" : "none" }} />
-              </IconButton>
-            </Tooltip>
-
-            <FormControl size="small" sx={{ minWidth: 100 }}>
-              <InputLabel>Per page</InputLabel>
-              <Select value={size} label="Per page" onChange={(e) => onPageSizeChange(Number(e.target.value))}>
-                <MenuItem value={5}>5</MenuItem>
-                <MenuItem value={10}>10</MenuItem>
-                <MenuItem value={20}>20</MenuItem>
-                <MenuItem value={50}>50</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
+          {/* Controls removed - moved to sidebar */}
 
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
@@ -178,21 +159,36 @@ export const LinkList: React.FC<LinkListProps> = ({
             </Paper>
           ) : (
             <>
-              <Grid container spacing={2}>
+              <Stack spacing={2}>
                 {links.map((link) => (
-                  <Grid item xs={12} key={link.id}>
+                  <Box key={link.id}>
                     <Card elevation={1} sx={{ transition: "elevation 0.2s", "&:hover": { elevation: 3 } }}>
                       <CardContent>
                         <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                          <Typography variant="h6" component="h3" sx={{ fontWeight: 500 }}>
-                            {link.title}
-                          </Typography>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Typography variant="h6" component="h3" sx={{ fontWeight: 500, opacity: link.archived ? 0.6 : 1 }}>
+                              {link.title}
+                            </Typography>
+                            {link.readStatus === "UNREAD" && (
+                              <Chip label="Unread" size="small" color="info" variant="filled" sx={{ height: 18, fontSize: "0.65rem" }} />
+                            )}
+                            {link.readStatus === "READING" && (
+                              <Chip label="Reading" size="small" color="warning" variant="filled" sx={{ height: 18, fontSize: "0.65rem" }} />
+                            )}
+                            {link.archived && (
+                              <Chip label="Archived" size="small" color="default" variant="outlined" sx={{ height: 18, fontSize: "0.65rem" }} />
+                            )}
+                          </Box>
                           <Chip label={formatUrl(link.url)} size="small" variant="outlined" color="primary" />
                         </Box>
 
-                        <Typography variant="body2" color="text.secondary" paragraph>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                           {link.description}
                         </Typography>
+
+                        <Box sx={{ mb: 1 }}>
+                          <LinkTagManager linkId={link.id} compact={true} />
+                        </Box>
 
                         <Box display="flex" justifyContent="space-between" alignItems="center">
                           <Typography variant="caption" color="text.secondary">
@@ -221,6 +217,33 @@ export const LinkList: React.FC<LinkListProps> = ({
                                 </IconButton>
                               </span>
                             </Tooltip>
+                            {onUpdateStatus && (
+                              <>
+                                <Tooltip title={link.favorited ? "Remove from favorites" : "Add to favorites"}>
+                                  <IconButton
+                                    size="small"
+                                    color={link.favorited ? "warning" : "default"}
+                                    onClick={() => onUpdateStatus(link.id, { favorited: !link.favorited })}
+                                  >
+                                    {link.favorited ? <Bookmark /> : <BookmarkBorder />}
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title={link.archived ? "Unarchive" : "Archive"}>
+                                  <IconButton size="small" color="default" onClick={() => onUpdateStatus(link.id, { archived: !link.archived })}>
+                                    {link.archived ? <Unarchive /> : <Archive />}
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title={link.readStatus === "READ" ? "Mark as unread" : "Mark as read"}>
+                                  <IconButton
+                                    size="small"
+                                    color={link.readStatus === "READ" ? "success" : "default"}
+                                    onClick={() => onUpdateStatus(link.id, { readStatus: link.readStatus === "READ" ? "UNREAD" : "READ" })}
+                                  >
+                                    {link.readStatus === "READ" ? <CheckCircle /> : <RadioButtonUnchecked />}
+                                  </IconButton>
+                                </Tooltip>
+                              </>
+                            )}
                             <Tooltip title="Edit">
                               <span>
                                 <IconButton size="small" color="primary" disabled>
@@ -237,9 +260,9 @@ export const LinkList: React.FC<LinkListProps> = ({
                         </Box>
                       </CardContent>
                     </Card>
-                  </Grid>
+                  </Box>
                 ))}
-              </Grid>
+              </Stack>
 
               {/* Pagination */}
               {totalPages > 1 && (

@@ -1,7 +1,5 @@
 package it.robfrank.linklift.application.domain.service;
 
-// test comment
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -18,6 +16,7 @@ import org.junit.jupiter.api.Test;
 class SearchContentServiceTest extends ArcadeDbTestBase {
 
   private static final LocalDateTime FIXED_TEST_TIME = LocalDateTime.of(2024, 1, 1, 12, 0);
+  private static final String TEST_USER_ID = "search-test-user";
 
   private FakeEmbeddingGenerator embeddingGenerator;
   private SearchContentService searchContentService;
@@ -37,6 +36,26 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
     return array;
   }
 
+  private Content withEmbedding(Content content, String query) {
+    return new Content(
+      content.id(),
+      content.linkId(),
+      content.htmlContent(),
+      content.textContent(),
+      content.contentLength(),
+      content.downloadedAt(),
+      content.mimeType(),
+      content.status(),
+      content.summary(),
+      content.heroImageUrl(),
+      content.extractedTitle(),
+      content.extractedDescription(),
+      content.author(),
+      content.publishedDate(),
+      toFloatArray(embeddingGenerator.generateEmbedding(query))
+    );
+  }
+
   @BeforeEach
   void setUp() {
     embeddingGenerator = new FakeEmbeddingGenerator();
@@ -44,6 +63,22 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
   }
 
   // ==================== Happy Path Tests ====================
+
+  @Test
+  void search_shouldNotReturnContentOwnedByAnotherUser() {
+    // Given - content owned by the searching user and equally-matching content owned by someone else
+    repository.saveContent(withEmbedding(createTestContent("id-mine", "link-mine"), "shared query"));
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-mine");
+
+    repository.saveContent(withEmbedding(createTestContent("id-theirs", "link-theirs"), "shared query"));
+    giveUserOwnershipOfLink("other-user", "link-theirs");
+
+    // When - the first user searches
+    List<Content> results = searchContentService.search("shared query", 10, TEST_USER_ID);
+
+    // Then - only the user's own content is returned, never the other user's
+    assertThat(results).extracting(Content::linkId).containsExactly("link-mine");
+  }
 
   @Test
   void search_shouldReturnResults_whenValidQueryProvided() {
@@ -66,11 +101,12 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       content.publishedDate(),
       toFloatArray(embeddingGenerator.generateEmbedding("test query"))
     );
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-1");
     repository.saveContent(content);
 
     // When - search is performed
     String query = "test query";
-    List<Content> results = searchContentService.search(query, 10);
+    List<Content> results = searchContentService.search(query, 10, TEST_USER_ID);
 
     // Then - matching content should be returned
     assertThat(results).isNotEmpty();
@@ -98,10 +134,11 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       differentContent.publishedDate(),
       toFloatArray(embeddingGenerator.generateEmbedding("completely different content"))
     );
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-2");
     repository.saveContent(differentContent);
 
     // When - search with unrelated query is performed
-    List<Content> results = searchContentService.search("no matching content", 10);
+    List<Content> results = searchContentService.search("no matching content", 10, TEST_USER_ID);
 
     // Then - no results should be returned (orthogonal embeddings)
     assertThat(results).isNotNull();
@@ -128,11 +165,12 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
         null,
         toFloatArray(embeddingGenerator.generateEmbedding("test query"))
       );
+      giveUserOwnershipOfLink(TEST_USER_ID, "link-" + i);
       repository.saveContent(content);
     }
 
     // When - search with limit of 5 is performed
-    List<Content> results = searchContentService.search("test query", 5);
+    List<Content> results = searchContentService.search("test query", 5, TEST_USER_ID);
 
     // Then - at most 5 results should be returned
     assertThat(results).hasSizeLessThanOrEqualTo(5);
@@ -193,12 +231,15 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       toFloatArray(embeddingGenerator.generateEmbedding("multi result query"))
     );
 
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-1");
     repository.saveContent(result1);
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-2");
     repository.saveContent(result2);
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-3");
     repository.saveContent(result3);
 
     // When - search is performed
-    List<Content> results = searchContentService.search("multi result query", 20);
+    List<Content> results = searchContentService.search("multi result query", 20, TEST_USER_ID);
 
     // Then - multiple matching results should be returned
     assertThat(results).hasSizeGreaterThanOrEqualTo(3);
@@ -209,19 +250,19 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
   @Test
   void search_shouldThrowValidationException_whenQueryIsNull() {
     // When & Then - null query should throw validation exception
-    assertThatThrownBy(() -> searchContentService.search(null, 10)).isInstanceOf(ValidationException.class);
+    assertThatThrownBy(() -> searchContentService.search(null, 10, TEST_USER_ID)).isInstanceOf(ValidationException.class);
   }
 
   @Test
   void search_shouldThrowValidationException_whenQueryIsEmpty() {
     // When & Then - empty query should throw validation exception
-    assertThatThrownBy(() -> searchContentService.search("", 10)).isInstanceOf(ValidationException.class);
+    assertThatThrownBy(() -> searchContentService.search("", 10, TEST_USER_ID)).isInstanceOf(ValidationException.class);
   }
 
   @Test
   void search_shouldThrowValidationException_whenQueryIsBlank() {
     // When & Then - blank query should throw validation exception
-    assertThatThrownBy(() -> searchContentService.search("   ", 10)).isInstanceOf(ValidationException.class);
+    assertThatThrownBy(() -> searchContentService.search("   ", 10, TEST_USER_ID)).isInstanceOf(ValidationException.class);
   }
 
   // ==================== Error Handling Tests ====================
@@ -232,7 +273,7 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
     embeddingGenerator.throwOnNextCall(new RuntimeException("Ollama service unavailable"));
 
     // When & Then - error should be propagated
-    assertThatThrownBy(() -> searchContentService.search("test", 10)).isInstanceOf(RuntimeException.class);
+    assertThatThrownBy(() -> searchContentService.search("test", 10, TEST_USER_ID)).isInstanceOf(RuntimeException.class);
   }
 
   @Test
@@ -255,10 +296,11 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       toFloatArray(embeddingGenerator.generateEmbedding("recovery test"))
     );
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-1");
     repository.saveContent(content);
 
     // When - search is performed (no error this time)
-    List<Content> results = searchContentService.search("recovery test", 10);
+    List<Content> results = searchContentService.search("recovery test", 10, TEST_USER_ID);
 
     // Then - results should be returned
     assertThat(results).isNotEmpty();
@@ -286,10 +328,11 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       toFloatArray(embeddingGenerator.generateEmbedding("test"))
     );
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-1");
     repository.saveContent(content);
 
     // When - search with zero limit is performed
-    List<Content> results = searchContentService.search("test", 0);
+    List<Content> results = searchContentService.search("test", 0, TEST_USER_ID);
 
     // Then - no results should be returned (limit is 0)
     assertThat(results).isEmpty();
@@ -315,10 +358,11 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       toFloatArray(embeddingGenerator.generateEmbedding("test"))
     );
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-1");
     repository.saveContent(content);
 
     // When - search with negative limit is performed
-    List<Content> results = searchContentService.search("test", -1);
+    List<Content> results = searchContentService.search("test", -1, TEST_USER_ID);
 
     // Then - behavior depends on implementation (should be empty as per
     // SearchContentService improvement)
@@ -345,10 +389,11 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       toFloatArray(embeddingGenerator.generateEmbedding("test"))
     );
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-1");
     repository.saveContent(content);
 
     // When - search with very large limit is performed
-    List<Content> results = searchContentService.search("test", Integer.MAX_VALUE);
+    List<Content> results = searchContentService.search("test", Integer.MAX_VALUE, TEST_USER_ID);
 
     // Then - results should be returned (limit doesn't prevent matches)
     assertThat(results).isNotEmpty();
@@ -375,10 +420,11 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       toFloatArray(embeddingGenerator.generateEmbedding(query))
     );
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-1");
     repository.saveContent(result);
 
     // When - search with special characters is performed
-    List<Content> results = searchContentService.search(query, 10);
+    List<Content> results = searchContentService.search(query, 10, TEST_USER_ID);
 
     // Then - results should be returned
     assertThat(results).isNotEmpty();
@@ -406,10 +452,11 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       toFloatArray(embeddingGenerator.generateEmbedding(query))
     );
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-1");
     repository.saveContent(result);
 
     // When - search with very long query is performed
-    List<Content> results = searchContentService.search(query, 10);
+    List<Content> results = searchContentService.search(query, 10, TEST_USER_ID);
 
     // Then - results should be returned (long queries are supported)
     assertThat(results).isNotEmpty();
@@ -437,10 +484,11 @@ class SearchContentServiceTest extends ArcadeDbTestBase {
       null,
       toFloatArray(embeddingGenerator.generateEmbedding(query))
     );
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-1");
     repository.saveContent(result);
 
     // When - search with unicode characters is performed
-    List<Content> results = searchContentService.search(query, 10);
+    List<Content> results = searchContentService.search(query, 10, TEST_USER_ID);
 
     // Then - results should be returned
     assertThat(results).isNotEmpty();

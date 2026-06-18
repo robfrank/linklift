@@ -19,8 +19,9 @@ public class SearchContentService implements SearchContentUseCase {
   }
 
   @Override
-  public @NonNull List<Content> search(@NonNull String query, int limit) {
+  public @NonNull List<Content> search(@NonNull String query, int limit, @NonNull String userId) {
     ValidationUtils.requireNotEmpty(query, "query");
+    ValidationUtils.requireNotEmpty(userId, "userId");
 
     if (limit <= 0) {
       return List.of();
@@ -32,6 +33,6 @@ public class SearchContentService implements SearchContentUseCase {
     int effectiveLimit = Math.min(limit, 1000);
 
     List<Float> queryVector = embeddingGenerator.generateEmbedding(query);
-    return loadContentPort.findSimilar(queryVector, effectiveLimit);
+    return loadContentPort.findSimilar(queryVector, effectiveLimit, userId);
   }
 }

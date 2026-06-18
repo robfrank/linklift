@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.domain.model.User;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import java.time.Duration;
@@ -43,6 +44,7 @@ class GraphOperationsTest {
       -Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin
       """
     )
+    .withCreateContainerCmdModifier(cmd -> ((com.github.dockerjava.api.command.CreateContainerCmd) cmd).withUser("root"))
     .waitingFor(Wait.forHttp("/api/v1/ready").forPort(2480).forStatusCode(204));
 
   private RemoteDatabase database;
@@ -92,7 +94,10 @@ class GraphOperationsTest {
       "Testing graph relationships",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      List.of()
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
     );
 
     // When: Save the link with user relationship using graph approach
@@ -138,7 +143,10 @@ class GraphOperationsTest {
         "First link",
         LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
         "text/html",
-        List.of()
+        List.of(),
+        ReadStatus.UNREAD,
+        false,
+        false
       ),
       new Link(
         UUID.randomUUID().toString(),
@@ -147,7 +155,10 @@ class GraphOperationsTest {
         "Second link",
         LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
         "text/html",
-        List.of()
+        List.of(),
+        ReadStatus.UNREAD,
+        false,
+        false
       ),
       new Link(
         UUID.randomUUID().toString(),
@@ -156,7 +167,10 @@ class GraphOperationsTest {
         "Third link",
         LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
         "text/html",
-        List.of()
+        List.of(),
+        ReadStatus.UNREAD,
+        false,
+        false
       )
     );
 
@@ -217,7 +231,10 @@ class GraphOperationsTest {
       "Testing ownership transfer",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      List.of()
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
     );
     linkRepository.saveLinkForUser(testLink, user1Id);
 
@@ -261,7 +278,10 @@ class GraphOperationsTest {
       "Testing deletion",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      List.of()
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
     );
     linkRepository.saveLinkForUser(testLink, userId);
 
@@ -308,7 +328,10 @@ class GraphOperationsTest {
       "The referenced link",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      List.of()
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
     );
     linkRepository.saveLinkForUser(targetLink, userId);
 
@@ -319,7 +342,10 @@ class GraphOperationsTest {
       "The referencing link",
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
-      List.of(targetUrl) // Contains URL of target link
+      List.of(targetUrl), // Contains URL of target link
+      ReadStatus.UNREAD,
+      false,
+      false
     );
     linkRepository.saveLinkForUser(sourceLink, userId);
 

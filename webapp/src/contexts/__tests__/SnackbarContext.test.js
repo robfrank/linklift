@@ -23,6 +23,9 @@ describe("SnackbarContext", () => {
 
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("Test Message");
-    expect(alert).toHaveClass("MuiAlert-filledSuccess");
+    // MUI 9 splits the filled-severity class into separate variant + color classes
+    // (the combined `MuiAlert-filledSuccess` was removed).
+    expect(alert).toHaveClass("MuiAlert-filled");
+    expect(alert).toHaveClass("MuiAlert-colorSuccess");
   });
 });

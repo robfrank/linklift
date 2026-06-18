@@ -4,6 +4,7 @@ import com.arcadedb.remote.RemoteDatabase;
 import io.javalin.Javalin;
 import it.robfrank.linklift.adapter.in.web.*;
 import it.robfrank.linklift.adapter.out.ai.OllamaEmbeddingAdapter;
+import it.robfrank.linklift.adapter.out.ai.OllamaQuestionAnswerAdapter;
 import it.robfrank.linklift.adapter.out.content.SimpleTextSummarizer;
 import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
 import it.robfrank.linklift.adapter.out.http.HttpContentDownloader;
@@ -194,6 +195,15 @@ public class Application {
     ListLinksUseCase listLinksUseCase = new ListLinksService(linkPersistenceAdapter, eventPublisher);
     GetGraphUseCase getGraphUseCase = new GetGraphService(linkPersistenceAdapter);
 
+    // Initialize Notes components
+    ArcadeNoteRepository arcadeNoteRepository = new ArcadeNoteRepository(database);
+    NotePersistenceAdapter notePersistenceAdapter = new NotePersistenceAdapter(arcadeNoteRepository);
+    CreateNoteUseCase createNoteUseCase = new CreateNoteService(notePersistenceAdapter, linkPersistenceAdapter);
+    UpdateNoteUseCase updateNoteUseCase = new UpdateNoteService(notePersistenceAdapter);
+    DeleteNoteUseCase deleteNoteUseCase = new DeleteNoteService(notePersistenceAdapter);
+    GetNotesForLinkUseCase getNotesForLinkUseCase = new GetNotesForLinkService(notePersistenceAdapter);
+    NoteController noteController = new NoteController(createNoteUseCase, updateNoteUseCase, deleteNoteUseCase, getNotesForLinkUseCase);
+
     // Initialize Collection and Related Links components
     ArcadeCollectionRepository collectionRepository = new ArcadeCollectionRepository(database);
     CollectionPersistenceAdapter collectionPersistenceAdapter = new CollectionPersistenceAdapter(collectionRepository);
@@ -231,7 +241,42 @@ public class Application {
     // Initialize Link Management
     UpdateLinkUseCase updateLinkUseCase = new UpdateLinkService(linkPersistenceAdapter, linkPersistenceAdapter);
     DeleteLinkUseCase deleteLinkUseCase = new DeleteLinkService(linkPersistenceAdapter, linkPersistenceAdapter);
-    LinkController linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase);
+    UpdateLinkStatusUseCase updateLinkStatusUseCase = new UpdateLinkStatusService(linkPersistenceAdapter, linkPersistenceAdapter);
+    LinkController linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase, updateLinkStatusUseCase);
+
+    // Initialize Ask/QA components
+    OllamaQuestionAnswerAdapter questionAnswerAdapter = new OllamaQuestionAnswerAdapter(
+      httpClient,
+      SecureConfiguration.getOllamaUrl(),
+      SecureConfiguration.getOllamaModel()
+    );
+    AskQuestionUseCase askQuestionUseCase = new AskQuestionService(
+      embeddingGenerator,
+      contentPersistenceAdapter,
+      linkPersistenceAdapter,
+      questionAnswerAdapter
+    );
+    AskController askController = new AskController(askQuestionUseCase);
+
+    // Initialize Tags components
+    ArcadeTagRepository arcadeTagRepository = new ArcadeTagRepository(database);
+    TagPersistenceAdapter tagPersistenceAdapter = new TagPersistenceAdapter(arcadeTagRepository);
+    CreateTagUseCase createTagUseCase = new CreateTagService(tagPersistenceAdapter);
+    DeleteTagUseCase deleteTagUseCase = new DeleteTagService(tagPersistenceAdapter);
+    ListTagsUseCase listTagsUseCase = new ListTagsService(tagPersistenceAdapter);
+    GetTagsForLinkUseCase getTagsForLinkUseCase = new GetTagsForLinkService(tagPersistenceAdapter);
+    AddTagToLinkUseCase addTagToLinkUseCase = new AddTagToLinkService(tagPersistenceAdapter, linkPersistenceAdapter);
+    RemoveTagFromLinkUseCase removeTagFromLinkUseCase = new RemoveTagFromLinkService(tagPersistenceAdapter, linkPersistenceAdapter);
+    SuggestTagsUseCase suggestTagsUseCase = new SuggestTagsService(tagPersistenceAdapter, contentPersistenceAdapter);
+    TagController tagController = new TagController(
+      createTagUseCase,
+      deleteTagUseCase,
+      listTagsUseCase,
+      getTagsForLinkUseCase,
+      addTagToLinkUseCase,
+      removeTagFromLinkUseCase,
+      suggestTagsUseCase
+    );
 
     // Build and start web application
     Javalin app = new WebBuilder()
@@ -246,6 +291,9 @@ public class Application {
       .withCollectionController(collectionController)
       .withGetRelatedLinksController(getRelatedLinksController)
       .withLinkManagementController(linkController)
+      .withNoteController(noteController)
+      .withTagController(tagController)
+      .withAskController(askController)
       .build();
 
     app.start(port);

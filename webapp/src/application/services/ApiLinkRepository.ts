@@ -1,6 +1,6 @@
 import api from "../../infrastructure/api/axios-instance";
 import { ILinkRepository } from "../../domain/ports/ILinkRepository";
-import { CreateLinkDTO, Link } from "../../domain/models/Link";
+import { CreateLinkDTO, Link, UpdateLinkStatusDTO } from "../../domain/models/Link";
 import { Page, PageRequest } from "../../domain/models/Page";
 
 export class ApiLinkRepository implements ILinkRepository {
@@ -25,5 +25,10 @@ export class ApiLinkRepository implements ILinkRepository {
 
   async delete(id: string): Promise<void> {
     await api.delete(`/links/${id}`);
+  }
+
+  async updateStatus(id: string, status: UpdateLinkStatusDTO): Promise<Link> {
+    const response = await api.patch(`/links/${id}/status`, status);
+    return response.data.data;
   }
 }

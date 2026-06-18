@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import it.robfrank.linklift.application.domain.event.DomainEvent;
 import it.robfrank.linklift.application.domain.event.LinkCreatedEvent;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,7 +28,7 @@ class SimpleEventPublisherTest {
     AtomicBoolean linkCreatedHandlerCalled = new AtomicBoolean(false);
     AtomicBoolean genericEventHandlerCalled = new AtomicBoolean(false);
 
-    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", List.of());
+    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", List.of(), ReadStatus.UNREAD, false, false);
     LinkCreatedEvent event = new LinkCreatedEvent(link, "user1");
 
     // Subscribe to specific event type
@@ -69,7 +70,7 @@ class SimpleEventPublisherTest {
     }
 
     TestEvent testEvent = new TestEvent("test");
-    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", List.of());
+    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", List.of(), ReadStatus.UNREAD, false, false);
     LinkCreatedEvent linkEvent = new LinkCreatedEvent(link, "user1");
 
     // Subscribe only to LinkCreatedEvent
@@ -95,7 +96,7 @@ class SimpleEventPublisherTest {
     // Arrange
     AtomicInteger handlerCallCount = new AtomicInteger(0);
 
-    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", List.of());
+    Link link = new Link("id", "url", "title", "description", LocalDateTime.now(), "contentType", List.of(), ReadStatus.UNREAD, false, false);
     LinkCreatedEvent event = new LinkCreatedEvent(link, "user1");
 
     eventPublisher.subscribe(LinkCreatedEvent.class, e -> {

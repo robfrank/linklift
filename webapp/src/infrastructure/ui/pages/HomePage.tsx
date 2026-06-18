@@ -1,53 +1,81 @@
-import React, { useEffect } from "react";
-import { Container, Typography, Box, Button, Paper, CircularProgress } from "@mui/material";
-import { Add as AddIcon } from "@mui/icons-material";
-import { Link as RouterLink } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Container, Box, Tab, Tabs, Typography, CircularProgress, Paper, Fab } from "@mui/material";
+import { Add as AddIcon, ViewList, Hub } from "@mui/icons-material";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { useLinks } from "../hooks/useLinks";
+import { useSearch } from "../hooks/useSearch";
 import { LinkList } from "../components/LinkList";
-
+import { ContentList } from "../components/Content/ContentList";
+import GraphView from "../../../components/Graph/GraphView";
+import useGraph from "../../../hooks/useGraph";
+import { ContentViewerModal } from "../components/ContentViewer/ContentViewerModal"; // Ensure import
 import { AddToCollectionDialog } from "../components/AddToCollectionDialog";
 
 const HomePage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const viewParam = queryParams.get("view") || "list";
+  const collectionParam = queryParams.get("collection");
+
+  const [tabValue, setTabValue] = useState(viewParam === "graph" ? 1 : 0);
+
   const {
     links,
     isLoadingLinks,
     listLinksError,
+    fetchLinks,
+    deleteLink,
+    updateLinkStatus,
     page,
     size,
     totalPages,
     totalElements,
-    sortBy,
-    sortDirection,
-    fetchLinks,
     setPage,
     setPageSize,
     setSort,
-    deleteLink
+    sortBy,
+    sortDirection
   } = useLinks();
+  const { searchResults, isSearching, performSearch } = useSearch();
+  const { graphData, fetchGraph, loading: graphLoading } = useGraph();
 
-  const [addToCollectionDialogOpen, setAddToCollectionDialogOpen] = React.useState(false);
-  const [linkToAddToCollection, setLinkToAddToCollection] = React.useState<string | null>(null);
+  const [selectedContent, setSelectedContent] = useState<{ linkId: string; title: string } | null>(null);
 
+  // Sync tab with URL
   useEffect(() => {
-    fetchLinks({ page, size, sortBy, sortDirection });
-  }, [page, size, sortBy, sortDirection, fetchLinks]);
+    setTabValue(viewParam === "graph" ? 1 : 0);
+  }, [viewParam]);
 
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+    const newView = newValue === 1 ? "graph" : "list";
+    const newSearch = new URLSearchParams(location.search);
+    newSearch.set("view", newView);
+    navigate({ search: newSearch.toString() });
   };
 
-  const handlePageSizeChange = (newSize: number) => {
-    setPageSize(newSize);
-  };
+  // Auto-fetch data
+  useEffect(() => {
+    // Fetch only the active tab's data; switching tabs re-runs this via viewParam.
+    if (viewParam === "graph") {
+      fetchGraph();
+    } else {
+      fetchLinks({ page, size });
+    }
+  }, [viewParam, fetchLinks, fetchGraph, page, size]);
 
-  const handleSortChange = (newSortBy: string) => {
-    if (sortBy === newSortBy) return;
-    setSort(newSortBy, sortDirection);
-  };
+  // Handle search being active
+  const isSearchActive = searchResults.length > 0 || isSearching;
 
-  const handleSortDirectionToggle = () => {
-    const newDirection = sortDirection === "ASC" ? "DESC" : "ASC";
-    setSort(sortBy, newDirection);
+  // Highlight IDs for graph
+  const highlightIds = isSearchActive ? searchResults.map((r) => r.data.linkId) : [];
+
+  const [addToCollectionDialogOpen, setAddToCollectionDialogOpen] = useState(false);
+  const [linkToAddToCollection, setLinkToAddToCollection] = useState<string | null>(null);
+
+  const handleViewContent = (linkId: string, title: string) => {
+    setSelectedContent({ linkId, title });
   };
 
   const handleAddToCollection = (linkId: string) => {
@@ -55,64 +83,58 @@ const HomePage = () => {
     setAddToCollectionDialogOpen(true);
   };
 
-  if (isLoadingLinks && links.length === 0) {
-    return (
-      <Container maxWidth="lg">
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-          <CircularProgress size={60} />
-        </Box>
-      </Container>
-    );
-  }
-
-  // Show Welcome standard empty state if no links and no error (and not filtering - wait, if we are filtering this might be wrong, but for now we only have list)
-  // We should only show Welcome if we are on page 0 and totalElements is 0.
-  if (totalElements === 0 && !listLinksError && !isLoadingLinks) {
-    return (
-      <Container maxWidth="md">
-        <Box my={8} textAlign="center">
-          <Paper elevation={3} sx={{ p: 6 }}>
-            <Typography variant="h3" component="h1" gutterBottom color="primary">
-              Welcome to LinkLift
-            </Typography>
-            <Typography variant="h5" paragraph color="text.secondary">
-              A simple and efficient way to manage your favorite links
-            </Typography>
-            <Typography variant="body1" paragraph color="text.secondary">
-              Get started by adding your first link to your collection.
-            </Typography>
-            <Box mt={4}>
-              <Button component={RouterLink} to="/add" variant="contained" size="large" startIcon={<AddIcon />} sx={{ px: 4, py: 1.5 }}>
-                Add New Link
-              </Button>
-            </Box>
-          </Paper>
-        </Box>
-      </Container>
-    );
-  }
-
   return (
-    <>
-      <LinkList
-        links={links}
-        isLoading={isLoadingLinks}
-        error={listLinksError}
-        page={page}
-        size={size}
-        totalPages={totalPages}
-        totalElements={totalElements}
-        sortBy={sortBy}
-        sortDirection={sortDirection}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        onSortChange={handleSortChange}
-        onSortDirectionToggle={handleSortDirectionToggle}
-        onDelete={deleteLink}
-        onAddToCollection={handleAddToCollection}
-      />
+    <Container maxWidth="xl">
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Tabs value={tabValue} onChange={handleTabChange} aria-label="view tabs">
+          <Tab icon={<ViewList />} iconPosition="start" label="List" />
+          <Tab icon={<Hub />} iconPosition="start" label="Graph" />
+        </Tabs>
+
+        <Fab color="primary" aria-label="add" size="small" component={RouterLink} to="/add">
+          <AddIcon />
+        </Fab>
+      </Box>
+
+      <Box role="tabpanel" hidden={tabValue !== 0}>
+        {tabValue === 0 &&
+          (isSearchActive ? (
+            <ContentList results={searchResults} onViewContent={handleViewContent} />
+          ) : (
+            <LinkList
+              links={links}
+              isLoading={isLoadingLinks}
+              error={listLinksError}
+              page={page}
+              size={size}
+              totalPages={totalPages}
+              totalElements={totalElements || 0}
+              onPageChange={setPage}
+              onDelete={deleteLink}
+              onAddToCollection={handleAddToCollection}
+              onUpdateStatus={updateLinkStatus}
+            />
+          ))}
+      </Box>
+
+      <Box role="tabpanel" hidden={tabValue !== 1} sx={{ height: "calc(100vh - 200px)" }}>
+        {tabValue === 1 && (
+          <GraphView
+            graphData={graphData}
+            loading={graphLoading}
+            highlightIds={highlightIds}
+            onNodeClick={(node: any) => {
+              // Expand or view details?
+              console.log("Clicked node", node);
+            }}
+          />
+        )}
+      </Box>
+
+      {selectedContent && <ContentViewerModal linkId={selectedContent.linkId} linkTitle={selectedContent.title} onClose={() => setSelectedContent(null)} />}
+
       <AddToCollectionDialog open={addToCollectionDialogOpen} onClose={() => setAddToCollectionDialogOpen(false)} linkId={linkToAddToCollection} />
-    </>
+    </Container>
   );
 };
 

@@ -3,8 +3,9 @@ package it.robfrank.linklift.adapter.in.web.security;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import io.javalin.http.Context;
+import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.exception.ErrorCode;
@@ -14,7 +15,6 @@ import it.robfrank.linklift.application.domain.model.User;
 import it.robfrank.linklift.application.domain.service.AuthorizationService;
 import java.time.LocalDateTime;
 import java.util.List;
-import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,12 +41,14 @@ class SecurityIntegrationTest {
     // requireAuthentication.handle will call authorizationService.requireAuthentication
     // which shouldn't throw anything for authenticated context
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      app.before(jwtAuthenticationHandler);
-      app.before("/protected", requireAuthentication);
-      app.get("/protected", ctx -> ctx.result("success"));
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.before(jwtAuthenticationHandler);
+      cfg.routes.before("/protected", requireAuthentication);
+      cfg.routes.get("/protected", ctx -> ctx.result("success"));
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/protected", builder -> builder.header("Authorization", "Bearer valid-token"));
 
       assertThat(response.code()).isEqualTo(200);
@@ -59,16 +61,16 @@ class SecurityIntegrationTest {
     SecurityContext anonymousContext = SecurityContext.anonymous();
 
     when(authorizationService.createSecurityContext(any(), any(), any())).thenReturn(anonymousContext);
-    doThrow(new AuthenticationException("Not authenticated"))
-      .when(authorizationService)
-      .requireAuthentication(argThat(ctx -> !ctx.isAuthenticated()));
+    doThrow(new AuthenticationException("Not authenticated")).when(authorizationService).requireAuthentication(argThat(ctx -> !ctx.isAuthenticated()));
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      app.before(jwtAuthenticationHandler);
-      app.before("/protected", requireAuthentication);
-      app.get("/protected", ctx -> ctx.result("success"));
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.before(jwtAuthenticationHandler);
+      cfg.routes.before("/protected", requireAuthentication);
+      cfg.routes.get("/protected", ctx -> ctx.result("success"));
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/protected");
 
       assertThat(response.code()).isEqualTo(401);
@@ -85,12 +87,14 @@ class SecurityIntegrationTest {
 
     RequirePermission requirePermission = RequirePermission.any(authorizationService, Role.Permissions.CREATE_LINK);
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      app.before(jwtAuthenticationHandler);
-      app.before("/guarded", requirePermission);
-      app.get("/guarded", ctx -> ctx.result("granted"));
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.before(jwtAuthenticationHandler);
+      cfg.routes.before("/guarded", requirePermission);
+      cfg.routes.get("/guarded", ctx -> ctx.result("granted"));
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/guarded", builder -> builder.header("Authorization", "Bearer valid-token"));
 
       assertThat(response.code()).isEqualTo(200);
@@ -106,23 +110,20 @@ class SecurityIntegrationTest {
 
     when(authorizationService.createSecurityContext(any(), any(), any())).thenReturn(context);
 
-    doThrow(
-      new AuthenticationException(
-        "Forbidden",
-        ErrorCode.INSUFFICIENT_PERMISSIONS
-      )
-    )
+    doThrow(new AuthenticationException("Forbidden", ErrorCode.INSUFFICIENT_PERMISSIONS))
       .when(authorizationService)
       .requireAnyPermission(any(), eq(Role.Permissions.ADMIN_ACCESS));
 
     RequirePermission requirePermission = RequirePermission.any(authorizationService, Role.Permissions.ADMIN_ACCESS);
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      app.before(jwtAuthenticationHandler);
-      app.before("/admin", requirePermission);
-      app.get("/admin", ctx -> ctx.result("secret"));
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.before(jwtAuthenticationHandler);
+      cfg.routes.before("/admin", requirePermission);
+      cfg.routes.get("/admin", ctx -> ctx.result("secret"));
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/admin", builder -> builder.header("Authorization", "Bearer valid-token"));
 
       assertThat(response.code()).isEqualTo(403);

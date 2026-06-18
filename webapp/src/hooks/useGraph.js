@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { getGraphData, getRelatedLinks } from "../services/GraphService";
 
 const useGraph = () => {
-  const [graphData, setGraphData] = useState({ nodes: [], edges: [] });
+  const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 

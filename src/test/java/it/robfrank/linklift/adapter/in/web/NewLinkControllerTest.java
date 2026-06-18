@@ -5,15 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.LinkAlreadyExistsException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.in.NewLinkCommand;
 import it.robfrank.linklift.application.port.in.NewLinkUseCase;
 import java.time.LocalDateTime;
 import java.util.List;
-import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -32,14 +34,16 @@ class NewLinkControllerTest {
   @Test
   void processLink_shouldReturn201_whenLinkIsValid() {
     when(newLinkUseCase.newLink(any(NewLinkCommand.class))).thenReturn(
-      new Link("123456", "http://www.google.com", "Google", "Search engine", LocalDateTime.now(), "text/html", List.of())
+      new Link("123456", "http://www.google.com", "Google", "Search engine", LocalDateTime.now(), "text/html", List.of(), ReadStatus.UNREAD, false, false)
     );
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.put("/link", newLinkController::processLink);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.put("/link", newLinkController::processLink);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.put(
         "/link",
         """
@@ -59,11 +63,13 @@ class NewLinkControllerTest {
 
   @Test
   void processLink_shouldReturn400_whenLinkIsInvalid() {
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.put("/link", newLinkController::processLink);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.put("/link", newLinkController::processLink);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.put(
         "/link",
         """
@@ -81,11 +87,13 @@ class NewLinkControllerTest {
   void processLink_shouldReturn409_whenLinkAlreadyExists() {
     when(newLinkUseCase.newLink(any(NewLinkCommand.class))).thenThrow(new LinkAlreadyExistsException("http://www.google.com"));
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.put("/link", newLinkController::processLink);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.put("/link", newLinkController::processLink);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.put(
         "/link",
         """

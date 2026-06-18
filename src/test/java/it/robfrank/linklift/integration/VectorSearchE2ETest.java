@@ -49,6 +49,7 @@ class VectorSearchE2ETest {
   private static final Logger logger = LoggerFactory.getLogger(VectorSearchE2ETest.class);
   private static final LocalDateTime FIXED_TEST_TIME = LocalDateTime.of(2024, 1, 1, 12, 0);
   private static final String OLLAMA_MODEL = "all-minilm:l6-v2";
+  private static final String TEST_USER_ID = "search-test-user";
 
   @Container
   private static final ArcadeDbContainer arcadeDb = new ArcadeDbContainer();
@@ -145,8 +146,11 @@ class VectorSearchE2ETest {
       "Italian pasta recipes are delicious and easy to make. " + "Fresh tomatoes and basil create amazing flavors in traditional dishes."
     );
 
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-ai-1");
     repository.saveContent(aiContent1);
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-ai-2");
     repository.saveContent(aiContent2);
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-cooking-1");
     repository.saveContent(cookingContent);
 
     // When - backfill generates REAL embeddings
@@ -167,7 +171,7 @@ class VectorSearchE2ETest {
       });
 
     // And - search for AI-related content using REAL semantic similarity
-    List<Content> results = searchService.search("artificial intelligence and AI", 10);
+    List<Content> results = searchService.search("artificial intelligence and AI", 10, TEST_USER_ID);
 
     // Then - should return AI content, not cooking content
     assertThat(results).isNotEmpty();
@@ -197,6 +201,7 @@ class VectorSearchE2ETest {
     // Given - content exists
     Content content = createTestContent("test-1", "link-test-1", "This is a test content for validating embedding dimensions from real Ollama model.");
 
+    giveUserOwnershipOfLink(TEST_USER_ID, "link-test-1");
     repository.saveContent(content);
 
     // When - backfill generates REAL embeddings
@@ -224,6 +229,33 @@ class VectorSearchE2ETest {
     }
 
     logger.info("Successfully validated embedding dimensions: {} dimensions", embedding.length);
+  }
+
+  /**
+   * Creates (idempotently) a User and a Link, and an {@code OwnsLink} edge from the user to the
+   * link, so that ownership-scoped vector search can find content under that link.
+   * Mirrors the production {@code OwnsLink} direction (User -&gt; Link).
+   */
+  private void giveUserOwnershipOfLink(String userId, String linkId) {
+    database.transaction(() -> {
+      boolean userExists = database.query("sql", "SELECT FROM User WHERE id = ?", userId).stream().findFirst().isPresent();
+      if (!userExists) {
+        database.command(
+          "sql",
+          "INSERT INTO User SET id = ?, username = ?, email = ?, passwordHash = 'test-hash', salt = 'test-salt', createdAt = sysdate(), isActive = true",
+          userId,
+          "user-" + userId,
+          userId + "@test.local"
+        );
+      }
+      database.command("sql", "INSERT INTO Link SET id = ?, url = ?", linkId, "https://test.local/" + linkId);
+      database.command(
+        "sql",
+        "CREATE EDGE OwnsLink FROM (SELECT FROM User WHERE id = ?) TO (SELECT FROM Link WHERE id = ?) SET createdAt = sysdate(), accessLevel = 'OWNER'",
+        userId,
+        linkId
+      );
+    });
   }
 
   private static Content createTestContent(String id, String linkId, String textContent) {

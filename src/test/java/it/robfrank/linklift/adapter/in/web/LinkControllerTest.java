@@ -6,17 +6,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.domain.model.SecurityContext;
 import it.robfrank.linklift.application.port.in.DeleteLinkUseCase;
 import it.robfrank.linklift.application.port.in.UpdateLinkCommand;
+import it.robfrank.linklift.application.port.in.UpdateLinkStatusUseCase;
 import it.robfrank.linklift.application.port.in.UpdateLinkUseCase;
 import java.time.LocalDateTime;
 import java.util.List;
-import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,32 +28,47 @@ class LinkControllerTest {
 
   private UpdateLinkUseCase updateLinkUseCase;
   private DeleteLinkUseCase deleteLinkUseCase;
+  private UpdateLinkStatusUseCase updateLinkStatusUseCase;
   private LinkController linkController;
 
   @BeforeEach
   void setUp() {
     updateLinkUseCase = Mockito.mock(UpdateLinkUseCase.class);
     deleteLinkUseCase = Mockito.mock(DeleteLinkUseCase.class);
-    linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase);
+    updateLinkStatusUseCase = Mockito.mock(UpdateLinkStatusUseCase.class);
+    linkController = new LinkController(updateLinkUseCase, deleteLinkUseCase, updateLinkStatusUseCase);
   }
 
   @Test
   void updateLink_shouldReturn200_whenLinkIsUpdated() {
     // Given
-    Link updatedLink = new Link("link-123", "https://example.com", "Updated Title", "Updated Description", LocalDateTime.now(), "text/html", List.of());
+    Link updatedLink = new Link(
+      "link-123",
+      "https://example.com",
+      "Updated Title",
+      "Updated Description",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     when(updateLinkUseCase.updateLink(any(UpdateLinkCommand.class))).thenReturn(updatedLink);
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
+      GlobalExceptionHandler.configure(cfg.routes);
 
       // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
+      cfg.routes.before(ctx -> {
         var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
-      app.patch("/links/{id}", linkController::updateLink);
+      cfg.routes.patch("/links/{id}", linkController::updateLink);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.patch(
         "/links/link-123",
         """
@@ -78,15 +96,17 @@ class LinkControllerTest {
     // Given
     when(updateLinkUseCase.updateLink(any(UpdateLinkCommand.class))).thenThrow(new LinkNotFoundException("Link not found"));
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
       // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
+      cfg.routes.before(ctx -> {
         var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
-      app.patch("/links/{id}", linkController::updateLink);
+      cfg.routes.patch("/links/{id}", linkController::updateLink);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.patch(
         "/links/non-existent-link",
         """
@@ -106,18 +126,31 @@ class LinkControllerTest {
   @Test
   void updateLink_shouldUpdateOnlyTitle_whenDescriptionIsNull() {
     // Given
-    Link updatedLink = new Link("link-123", "https://example.com", "New Title", "Old Description", LocalDateTime.now(), "text/html", List.of());
+    Link updatedLink = new Link(
+      "link-123",
+      "https://example.com",
+      "New Title",
+      "Old Description",
+      LocalDateTime.now(),
+      "text/html",
+      List.of(),
+      ReadStatus.UNREAD,
+      false,
+      false
+    );
     when(updateLinkUseCase.updateLink(any(UpdateLinkCommand.class))).thenReturn(updatedLink);
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
       // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
+      cfg.routes.before(ctx -> {
         var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
-      app.patch("/links/{id}", linkController::updateLink);
+      cfg.routes.patch("/links/{id}", linkController::updateLink);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.patch(
         "/links/link-123",
         """
@@ -133,15 +166,17 @@ class LinkControllerTest {
 
   @Test
   void deleteLink_shouldReturn204_whenLinkIsDeleted() {
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
       // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
+      cfg.routes.before(ctx -> {
         var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
-      app.delete("/links/{id}", linkController::deleteLink);
+      cfg.routes.delete("/links/{id}", linkController::deleteLink);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.delete("/links/link-123");
 
       assertThat(response.code()).isEqualTo(204);
@@ -154,15 +189,17 @@ class LinkControllerTest {
     // Given
     doThrow(new LinkNotFoundException("Link not found or not owned by user")).when(deleteLinkUseCase).deleteLink(any(), any());
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
       // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
+      cfg.routes.before(ctx -> {
         var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
-      app.delete("/links/{id}", linkController::deleteLink);
+      cfg.routes.delete("/links/{id}", linkController::deleteLink);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.delete("/links/non-existent-link");
 
       assertThat(response.code()).isEqualTo(404);
@@ -173,11 +210,13 @@ class LinkControllerTest {
 
   @Test
   void deleteLink_shouldReturn401_whenUserNotAuthenticated() {
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
       // Don't set userId attribute to simulate unauthenticated request
-      app.delete("/links/{id}", linkController::deleteLink);
+      cfg.routes.delete("/links/{id}", linkController::deleteLink);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.delete("/links/link-123");
 
       assertThat(response.code()).isEqualTo(401);

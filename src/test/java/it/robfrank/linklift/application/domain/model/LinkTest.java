@@ -20,7 +20,7 @@ class LinkTest {
     String contentType = "text/html";
 
     // Act
-    Link link = new Link(id, url, title, description, extractedAt, contentType, List.of());
+    Link link = new Link(id, url, title, description, extractedAt, contentType, List.of(), ReadStatus.UNREAD, false, false);
 
     // Assert
     assertThat(link.id()).isEqualTo(id);
@@ -37,7 +37,7 @@ class LinkTest {
     LocalDateTime before = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
     // Act
-    Link link = new Link("id", "url", "title", "description", null, "contentType", List.of());
+    Link link = new Link("id", "url", "title", "description", null, "contentType", List.of(), ReadStatus.UNREAD, false, false);
 
     LocalDateTime after = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
@@ -52,8 +52,8 @@ class LinkTest {
   void equals_shouldReturnTrue_whenLinksHaveSameData() {
     // Arrange
     LocalDateTime timestamp = LocalDateTime.now();
-    Link link1 = new Link("id", "url", "title", "description", timestamp, "contentType", List.of());
-    Link link2 = new Link("id", "url", "title", "description", timestamp, "contentType", List.of());
+    Link link1 = new Link("id", "url", "title", "description", timestamp, "contentType", List.of(), ReadStatus.UNREAD, false, false);
+    Link link2 = new Link("id", "url", "title", "description", timestamp, "contentType", List.of(), ReadStatus.UNREAD, false, false);
 
     // Assert
     assertThat(link1).isEqualTo(link2);

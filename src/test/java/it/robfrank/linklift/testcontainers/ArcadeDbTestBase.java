@@ -65,4 +65,31 @@ public abstract class ArcadeDbTestBase {
       database.close();
     }
   }
+
+  /**
+   * Creates (idempotently) a User and a Link, and an {@code OwnsLink} edge from the user to the
+   * link, so that ownership-scoped queries (e.g. vector search) can find content under that link.
+   * Mirrors the production {@code OwnsLink} direction (User -&gt; Link).
+   */
+  protected void giveUserOwnershipOfLink(String userId, String linkId) {
+    database.transaction(() -> {
+      boolean userExists = database.query("sql", "SELECT FROM User WHERE id = ?", userId).stream().findFirst().isPresent();
+      if (!userExists) {
+        database.command(
+          "sql",
+          "INSERT INTO User SET id = ?, username = ?, email = ?, passwordHash = 'test-hash', salt = 'test-salt', createdAt = sysdate(), isActive = true",
+          userId,
+          "user-" + userId,
+          userId + "@test.local"
+        );
+      }
+      database.command("sql", "INSERT INTO Link SET id = ?, url = ?", linkId, "https://test.local/" + linkId);
+      database.command(
+        "sql",
+        "CREATE EDGE OwnsLink FROM (SELECT FROM User WHERE id = ?) TO (SELECT FROM Link WHERE id = ?) SET createdAt = sysdate(), accessLevel = 'OWNER'",
+        userId,
+        linkId
+      );
+    });
+  }
 }

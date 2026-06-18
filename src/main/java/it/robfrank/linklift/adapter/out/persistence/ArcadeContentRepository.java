@@ -2,20 +2,25 @@ package it.robfrank.linklift.adapter.out.persistence;
 
 import com.arcadedb.graph.MutableVertex;
 import com.arcadedb.query.sql.executor.Result;
-import com.arcadedb.query.sql.executor.ResultSet;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
 import it.robfrank.linklift.application.domain.model.Content;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArcadeContentRepository {
 
-  private static final String CONTENT_TYPE = "Content";
+  private static final Logger logger = LoggerFactory.getLogger(ArcadeContentRepository.class);
+
+  private static final int VECTOR_OVERFETCH_FACTOR = 5;
+  private static final int VECTOR_OVERFETCH_MAX = 1000;
 
   private final RemoteDatabase database;
   private final ContentMapper mapper;
@@ -120,29 +125,63 @@ public class ArcadeContentRepository {
     }
   }
 
-  public @NonNull List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
+  public @NonNull List<Content> findSimilar(@NonNull List<Float> queryVector, int limit, @NonNull String userId) {
     try {
-      // Use vectorNeighbors and handle the result set which contains {distance,
-      // vertex}
-      var resultSet = database.query("sql", "SELECT expand(vectorNeighbors('Content[embedding]', ?, ?))", queryVector, limit);
+      // Restrict results to links the user owns. ArcadeDB 26.6.x cannot apply a WHERE filter to a
+      // vectorNeighbors() result (wrapping it in a subquery breaks index resolution), so we over-fetch
+      // and filter by ownership here. Security holds regardless of the fetch size; a larger fetch only
+      // improves completeness (more owned candidates considered).
+      Set<String> ownedLinkIds = findOwnedLinkIds(userId);
+      if (ownedLinkIds.isEmpty()) {
+        return List.of();
+      }
+
+      int fetch = Math.min(Math.max(limit, 1) * VECTOR_OVERFETCH_FACTOR, VECTOR_OVERFETCH_MAX);
+
+      // The query vector must be inlined as a literal: ArcadeDB 26.6.x fails index resolution
+      // ("No vector index found ...") when the vector is passed as a bound parameter. Inlining is safe
+      // because the values are finite floats (no SQL-injection surface); the guard below enforces that
+      // invariant so a future change widening the input type can't make this injectable.
+      StringBuilder vectorLiteral = new StringBuilder("[");
+      for (int i = 0; i < queryVector.size(); i++) {
+        Float v = queryVector.get(i);
+        if (v == null || !Float.isFinite(v)) {
+          throw new IllegalArgumentException("Query vector contains a non-finite value");
+        }
+        if (i > 0) vectorLiteral.append(',');
+        vectorLiteral.append(v.floatValue());
+      }
+      vectorLiteral.append(']');
+      var resultSet = database.query("sql", "SELECT expand(vectorNeighbors('Content[embedding]', " + vectorLiteral + ", " + fetch + "))");
       List<Content> results = new ArrayList<>();
-      while (resultSet.hasNext()) {
+      while (resultSet.hasNext() && results.size() < limit) {
         var result = resultSet.next();
-        Object vertexVal = result.getProperty("vertex");
-        if (vertexVal instanceof Map map) {
-          // In the remote driver, nested vertices in projections might be returned as
-          // Maps
-          @SuppressWarnings("unchecked")
-          Map<String, Object> vertexMap = (Map<String, Object>) vertexVal;
-          results.add(mapper.mapFromMap(vertexMap));
-        } else if (result.isVertex()) {
-          results.add(mapper.mapToDomain(result.toElement().asVertex()));
+        try {
+          Content content = mapper.mapFromMap(result.toMap());
+          if (ownedLinkIds.contains(content.linkId())) {
+            results.add(content);
+          }
+        } catch (Exception e) {
+          // Skip results that can't be mapped (e.g. placeholder zero-vector entries)
+          logger.debug("Skipping vector search result that could not be mapped to Content: {}", e.getMessage());
         }
       }
       return results;
     } catch (Exception e) {
       throw new DatabaseException("Failed to find similar content: " + e.getMessage(), e);
     }
+  }
+
+  private Set<String> findOwnedLinkIds(String userId) {
+    Set<String> ids = new HashSet<>();
+    var rs = database.query("sql", "SELECT expand(out('OwnsLink').id) FROM User WHERE id = ?", userId);
+    while (rs.hasNext()) {
+      Object value = rs.next().getProperty("value");
+      if (value != null) {
+        ids.add(value.toString());
+      }
+    }
+    return ids;
   }
 
   public @NonNull List<Content> findContentsWithoutEmbeddings(int limit) {

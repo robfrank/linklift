@@ -492,7 +492,13 @@
         </dependency>
         <dependency>
             <groupId>org.wiremock</groupId>
-            <artifactId>wiremock</artifactId>
+            <!--
+              Use the shaded standalone artifact: WireMock 3.x is built on Jetty 11,
+              which collides with the Jetty 12 that Javalin 7 requires. The standalone
+              jar relocates its bundled Jetty so it no longer leaks onto the test
+              classpath and overrides Javalin's server.
+            -->
+            <artifactId>wiremock-standalone</artifactId>
             <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>

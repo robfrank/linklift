@@ -16,16 +16,21 @@ jest.mock("../contexts/AuthContext", () => ({
 describe("App Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Default to empty links for most tests
-    // ApiLinkRepository calls api.get('/links') and returns response.data.data
-    api.get = jest.fn().mockResolvedValue({
-      data: {
-        data: {
-          content: [],
-          totalElements: 0,
-          totalPages: 0
-        }
+    // Differentiate responses by URL: links endpoint returns paginated data,
+    // collections endpoint returns an array.
+    api.get = jest.fn().mockImplementation((url) => {
+      if (url.includes("/collections")) {
+        return Promise.resolve({ data: { data: [] } });
       }
+      return Promise.resolve({
+        data: {
+          data: {
+            content: [],
+            totalElements: 0,
+            totalPages: 0
+          }
+        }
+      });
     });
 
     api.post = jest.fn();
@@ -52,10 +57,8 @@ describe("App Component", () => {
     renderApp(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText("Welcome to LinkLift")).toBeInTheDocument();
+      expect(screen.getByText("My Links")).toBeInTheDocument();
     });
-
-    expect(screen.getByText(/simple and efficient/i)).toBeInTheDocument();
   });
 
   test("renders add link page on /add route", () => {

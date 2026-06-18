@@ -51,8 +51,8 @@ public class ContentPersistenceAdapter implements SaveContentPort, LoadContentPo
 
   @Override
   @NonNull
-  public List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
-    return repository.findSimilar(queryVector, limit);
+  public List<Content> findSimilar(@NonNull List<Float> queryVector, int limit, @NonNull String userId) {
+    return repository.findSimilar(queryVector, limit, userId);
   }
 
   @Override

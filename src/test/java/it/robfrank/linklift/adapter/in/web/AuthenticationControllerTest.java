@@ -6,7 +6,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
+import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.exception.UserAlreadyExistsException;
@@ -15,7 +17,6 @@ import it.robfrank.linklift.application.domain.model.User;
 import it.robfrank.linklift.application.domain.service.AuthenticationService;
 import it.robfrank.linklift.application.port.in.*;
 import java.time.LocalDateTime;
-import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -54,11 +55,13 @@ class AuthenticationControllerTest {
 
     when(createUserUseCase.createUser(any(CreateUserCommand.class))).thenReturn(createdUser);
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.post("/api/v1/auth/register", authenticationController::register);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.post("/api/v1/auth/register", authenticationController::register);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/register",
         """
@@ -91,11 +94,13 @@ class AuthenticationControllerTest {
     // Arrange
     when(createUserUseCase.createUser(any(CreateUserCommand.class))).thenThrow(new UserAlreadyExistsException("testuser"));
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.post("/api/v1/auth/register", authenticationController::register);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.post("/api/v1/auth/register", authenticationController::register);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/register",
         """
@@ -121,11 +126,13 @@ class AuthenticationControllerTest {
     // Arrange
     when(createUserUseCase.createUser(any(CreateUserCommand.class))).thenThrow(new ValidationException("Username too short"));
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.post("/api/v1/auth/register", authenticationController::register);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.post("/api/v1/auth/register", authenticationController::register);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/register",
         """
@@ -163,11 +170,13 @@ class AuthenticationControllerTest {
 
     when(authenticateUserUseCase.authenticate(any(AuthenticateUserCommand.class))).thenReturn(authResult);
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.post("/api/v1/auth/login", authenticationController::login);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.post("/api/v1/auth/login", authenticationController::login);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/login",
         """
@@ -214,11 +223,13 @@ class AuthenticationControllerTest {
 
     when(authenticateUserUseCase.authenticate(any(AuthenticateUserCommand.class))).thenReturn(authResult);
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.post("/api/v1/auth/login", authenticationController::login);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.post("/api/v1/auth/login", authenticationController::login);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/login",
         """
@@ -254,11 +265,13 @@ class AuthenticationControllerTest {
 
     when(authenticateUserUseCase.authenticate(any(AuthenticateUserCommand.class))).thenReturn(authResult);
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.post("/api/v1/auth/login", authenticationController::login);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.post("/api/v1/auth/login", authenticationController::login);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/login",
         """
@@ -282,11 +295,13 @@ class AuthenticationControllerTest {
     // Arrange
     when(authenticateUserUseCase.authenticate(any(AuthenticateUserCommand.class))).thenThrow(AuthenticationException.invalidCredentials());
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.post("/api/v1/auth/login", authenticationController::login);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.post("/api/v1/auth/login", authenticationController::login);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/login",
         """
@@ -325,11 +340,13 @@ class AuthenticationControllerTest {
 
     when(refreshTokenUseCase.refreshToken(any(RefreshTokenCommand.class))).thenReturn(authResult);
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.post("/api/v1/auth/refresh", authenticationController::refreshToken);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.post("/api/v1/auth/refresh", authenticationController::refreshToken);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/refresh",
         """
@@ -362,11 +379,13 @@ class AuthenticationControllerTest {
     // Arrange
     when(refreshTokenUseCase.refreshToken(any(RefreshTokenCommand.class))).thenThrow(AuthenticationException.tokenInvalid());
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.post("/api/v1/auth/refresh", authenticationController::refreshToken);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.post("/api/v1/auth/refresh", authenticationController::refreshToken);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/refresh",
         """
@@ -388,11 +407,13 @@ class AuthenticationControllerTest {
 
   @Test
   void logout_shouldReturnSuccessMessage() {
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.post("/api/v1/auth/logout", authenticationController::logout);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.post("/api/v1/auth/logout", authenticationController::logout);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post("/api/v1/auth/logout", "");
 
       assertThat(response.code()).isEqualTo(200);
@@ -421,11 +442,13 @@ class AuthenticationControllerTest {
 
     when(authenticateUserUseCase.authenticate(any(AuthenticateUserCommand.class))).thenReturn(authResult);
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.post("/api/v1/auth/login", authenticationController::login);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.post("/api/v1/auth/login", authenticationController::login);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/login",
         """

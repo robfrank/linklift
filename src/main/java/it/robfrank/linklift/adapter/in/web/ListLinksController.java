@@ -1,9 +1,12 @@
 package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
+import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.model.GraphData;
 import it.robfrank.linklift.application.domain.model.LinkPage;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.port.in.GetGraphUseCase;
 import it.robfrank.linklift.application.port.in.ListLinksQuery;
 import it.robfrank.linklift.application.port.in.ListLinksUseCase;
@@ -23,13 +26,33 @@ public class ListLinksController {
     String currentUserId = SecurityContext.getCurrentUserId(ctx);
 
     // Extract query parameters
-    Integer page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(null);
-    Integer size = ctx.queryParamAsClass("size", Integer.class).getOrDefault(null);
+    Integer page = ctx.queryParamAsClass("page", Integer.class).getOrNull();
+    Integer size = ctx.queryParamAsClass("size", Integer.class).getOrNull();
     String sortBy = ctx.queryParam("sortBy");
     String sortDirection = ctx.queryParam("sortDirection");
 
-    // Create query with user context for authorization
-    ListLinksQuery query = ListLinksQuery.forUser(page, size, sortBy, sortDirection, currentUserId);
+    // Extract status filter parameters
+    String readStatusParam = ctx.queryParam("readStatus");
+    String archivedParam = ctx.queryParam("archived");
+    String favoritedParam = ctx.queryParam("favorited");
+    String tagId = ctx.queryParam("tagId");
+
+    ReadStatus readStatus = null;
+    if (readStatusParam != null && !readStatusParam.isBlank()) {
+      try {
+        readStatus = ReadStatus.valueOf(readStatusParam.toUpperCase());
+      } catch (IllegalArgumentException e) {
+        // Reject an invalid filter value, consistent with PATCH /links/:id/status.
+        ctx.status(HttpStatus.BAD_REQUEST);
+        ctx.result("Invalid read status: " + readStatusParam);
+        return;
+      }
+    }
+    Boolean archived = archivedParam != null ? Boolean.parseBoolean(archivedParam) : null;
+    Boolean favorited = favoritedParam != null ? Boolean.parseBoolean(favoritedParam) : null;
+
+    // Create query with user context and optional filters
+    ListLinksQuery query = ListLinksQuery.forUserWithFiltersAndTag(page, size, sortBy, sortDirection, currentUserId, readStatus, archived, favorited, tagId);
     LinkPage result = listLinksUseCase.listLinks(query);
 
     ctx.status(200).json(new LinkPageResponse(result, "Links retrieved successfully"));
@@ -37,6 +60,12 @@ public class ListLinksController {
 
   public void getGraph(Context ctx) {
     String currentUserId = SecurityContext.getCurrentUserId(ctx);
+
+    if (currentUserId == null) {
+      // Consistent with the other endpoints: let GlobalExceptionHandler produce the 401 response.
+      throw AuthenticationException.unauthorizedAccess();
+    }
+
     GraphData graphData = getGraphUseCase.getGraphData(currentUserId);
     ctx.status(200).json(new GraphResponse(graphData, "Graph data retrieved successfully"));
   }

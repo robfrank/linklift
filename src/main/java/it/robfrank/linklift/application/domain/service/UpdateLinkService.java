@@ -24,13 +24,10 @@ public class UpdateLinkService implements UpdateLinkUseCase {
     ValidationUtils.requireNotEmpty(command.id(), "id");
     ValidationUtils.requireNotEmpty(command.userId(), "userId");
 
-    // Check existence
-    Link existingLink = loadLinksPort.getLinkById(command.id());
-
-    // Check ownership
-    if (!loadLinksPort.userOwnsLink(command.userId(), command.id())) {
-      throw new LinkNotFoundException("Link not found or not owned by user");
-    }
+    // Single query that combines existence + ownership.
+    Link existingLink = loadLinksPort
+      .findLinkByIdAndUserId(command.id(), command.userId())
+      .orElseThrow(() -> new LinkNotFoundException("Link not found or not owned by user"));
 
     // Update fields
     String newTitle = command.title() != null ? command.title() : existingLink.title();
@@ -43,7 +40,10 @@ public class UpdateLinkService implements UpdateLinkUseCase {
       newDescription,
       existingLink.extractedAt(),
       existingLink.contentType(),
-      existingLink.extractedUrls()
+      existingLink.extractedUrls(),
+      existingLink.readStatus(),
+      existingLink.archived(),
+      existingLink.favorited()
     );
 
     return updateLinkPort.updateLink(updatedLink);

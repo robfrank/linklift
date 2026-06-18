@@ -143,7 +143,7 @@ public class GlobalExceptionHandler {
   private static void handleLinkLiftException(LinkLiftException exception, Context ctx) {
     HttpStatus status =
       switch (exception.getErrorCode()) {
-        case COLLECTION_NOT_FOUND, LINK_NOT_FOUND, CONTENT_NOT_FOUND, USER_NOT_FOUND, NOTE_NOT_FOUND -> HttpStatus.NOT_FOUND;
+        case COLLECTION_NOT_FOUND, LINK_NOT_FOUND, CONTENT_NOT_FOUND, USER_NOT_FOUND, NOTE_NOT_FOUND, TAG_NOT_FOUND -> HttpStatus.NOT_FOUND;
         case UNAUTHORIZED, UNAUTHORIZED_ACCESS -> HttpStatus.UNAUTHORIZED;
         case INSUFFICIENT_PERMISSIONS -> HttpStatus.FORBIDDEN;
         default -> HttpStatus.INTERNAL_SERVER_ERROR;

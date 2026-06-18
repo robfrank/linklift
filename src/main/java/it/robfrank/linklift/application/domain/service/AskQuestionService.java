@@ -22,6 +22,7 @@ public class AskQuestionService implements AskQuestionUseCase {
   private static final Logger logger = LoggerFactory.getLogger(AskQuestionService.class);
   private static final int TOP_K = 5;
   private static final int EXCERPT_LENGTH = 300;
+  private static final int MAX_QUESTION_LENGTH = 2000;
 
   private final EmbeddingGenerator embeddingGenerator;
   private final LoadContentPort loadContentPort;
@@ -44,6 +45,7 @@ public class AskQuestionService implements AskQuestionUseCase {
   @NonNull
   public QuestionAnswer ask(@NonNull AskQuestionCommand command) {
     ValidationUtils.requireNotEmpty(command.question(), "question");
+    ValidationUtils.requireMaxLength(command.question(), MAX_QUESTION_LENGTH, "question");
 
     List<Float> questionVector = embeddingGenerator.generateEmbedding(command.question());
     List<Content> similarContent = loadContentPort.findSimilar(questionVector, TOP_K);

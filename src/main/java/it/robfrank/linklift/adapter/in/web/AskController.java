@@ -3,6 +3,7 @@ package it.robfrank.linklift.adapter.in.web;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
+import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.model.QuestionAnswer;
 import it.robfrank.linklift.application.port.in.AskQuestionCommand;
 import it.robfrank.linklift.application.port.in.AskQuestionUseCase;
@@ -26,8 +27,8 @@ public class AskController {
 
     String userId = SecurityContext.getCurrentUserId(ctx);
     if (userId == null) {
-      ctx.status(HttpStatus.UNAUTHORIZED);
-      return;
+      // Consistent with the other controllers: let GlobalExceptionHandler map this to 401.
+      throw AuthenticationException.unauthorizedAccess();
     }
 
     QuestionAnswer result = askQuestionUseCase.ask(new AskQuestionCommand(body.question(), userId));

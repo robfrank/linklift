@@ -6,7 +6,7 @@ import { useLinks } from "../hooks/useLinks";
 import { useSearch } from "../hooks/useSearch";
 import { LinkList } from "../components/LinkList";
 import { ContentList } from "../components/Content/ContentList";
-import GraphView from "../../../components/Graph/GraphView"; // Check path
+import GraphView from "../../../components/Graph/GraphView";
 import useGraph from "../../../hooks/useGraph";
 import { ContentViewerModal } from "../components/ContentViewer/ContentViewerModal"; // Ensure import
 import { AddToCollectionDialog } from "../components/AddToCollectionDialog";
@@ -57,18 +57,11 @@ const HomePage = () => {
 
   // Auto-fetch data
   useEffect(() => {
+    // Fetch only the active tab's data; switching tabs re-runs this via viewParam.
     if (viewParam === "graph") {
-      fetchGraph(); // Fetch graph data if on graph tab
+      fetchGraph();
     } else {
-      // Fetch links if on list tab (and not searching? LinkList handles its own fetching usually?
-      // implementation of useLinks calls fetchLinks internally?
-      // In original HomePage, fetchLinks was called in useEffect.)
       fetchLinks({ page, size });
-    }
-    // Also always fetch graph if we want to support instant switching?
-    // Maybe lazy load?
-    if (viewParam === "list") {
-      // We might want to prefetch graph? No, let's load on demand.
     }
   }, [viewParam, fetchLinks, fetchGraph, page, size]);
 

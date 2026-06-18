@@ -18,6 +18,9 @@ import { Send, DeleteSweep, AutoAwesome, OpenInNew } from "@mui/icons-material";
 import { useAppStore } from "../../../application/state/store";
 import { ConversationEntry } from "../../../domain/models/QA";
 
+// Only allow http(s) source links so a stored `javascript:`/`data:` URL can't execute when clicked.
+const isHttpUrl = (url: string): boolean => /^https?:\/\//i.test(url);
+
 const ConversationEntryCard: React.FC<{ entry: ConversationEntry }> = ({ entry }) => (
   <Box>
     {/* Question */}
@@ -68,7 +71,7 @@ const ConversationEntryCard: React.FC<{ entry: ConversationEntry }> = ({ entry }
               {entry.sources.map((source) => (
                 <Box key={source.linkId} display="flex" alignItems="center" gap={0.5}>
                   <MuiLink
-                    href={source.url}
+                    href={isHttpUrl(source.url) ? source.url : undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     variant="caption"
@@ -87,7 +90,7 @@ const ConversationEntryCard: React.FC<{ entry: ConversationEntry }> = ({ entry }
     </Box>
 
     <Typography variant="caption" color="text.disabled" display="block" textAlign="center" mb={2}>
-      {entry.timestamp.toLocaleTimeString()}
+      {new Date(entry.timestamp).toLocaleTimeString()}
     </Typography>
   </Box>
 );

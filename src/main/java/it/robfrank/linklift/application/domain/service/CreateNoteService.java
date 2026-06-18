@@ -12,6 +12,8 @@ import org.jspecify.annotations.NonNull;
 
 public class CreateNoteService implements CreateNoteUseCase {
 
+  static final int MAX_NOTE_CONTENT_LENGTH = 10_000;
+
   private final NoteRepository noteRepository;
 
   public CreateNoteService(NoteRepository noteRepository) {
@@ -23,6 +25,7 @@ public class CreateNoteService implements CreateNoteUseCase {
     ValidationUtils.requireNotEmpty(command.linkId(), "linkId");
     ValidationUtils.requireNotEmpty(command.userId(), "userId");
     ValidationUtils.requireNotEmpty(command.content(), "content");
+    ValidationUtils.requireMaxLength(command.content(), MAX_NOTE_CONTENT_LENGTH, "content");
 
     Note note = new Note(
       UUID.randomUUID().toString(),

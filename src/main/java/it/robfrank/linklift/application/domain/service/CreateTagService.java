@@ -12,6 +12,8 @@ import org.jspecify.annotations.NonNull;
 
 public class CreateTagService implements CreateTagUseCase {
 
+  private static final int MAX_TAG_NAME_LENGTH = 100;
+
   private final TagRepository tagRepository;
 
   public CreateTagService(TagRepository tagRepository) {
@@ -21,6 +23,7 @@ public class CreateTagService implements CreateTagUseCase {
   @Override
   public Tag createTag(@NonNull CreateTagCommand command) {
     ValidationUtils.requireNotEmpty(command.name(), "name");
+    ValidationUtils.requireMaxLength(command.name(), MAX_TAG_NAME_LENGTH, "name");
     ValidationUtils.requireNotEmpty(command.userId(), "userId");
 
     String normalizedName = command.name().toLowerCase().strip();

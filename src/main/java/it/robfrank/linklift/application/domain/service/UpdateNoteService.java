@@ -23,6 +23,7 @@ public class UpdateNoteService implements UpdateNoteUseCase {
     ValidationUtils.requireNotEmpty(command.noteId(), "noteId");
     ValidationUtils.requireNotEmpty(command.userId(), "userId");
     ValidationUtils.requireNotEmpty(command.content(), "content");
+    ValidationUtils.requireMaxLength(command.content(), CreateNoteService.MAX_NOTE_CONTENT_LENGTH, "content");
 
     Note existing = noteRepository.findById(command.noteId()).orElseThrow(() -> new NoteNotFoundException(command.noteId()));
 

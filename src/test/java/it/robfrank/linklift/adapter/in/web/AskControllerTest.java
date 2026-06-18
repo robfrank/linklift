@@ -1,11 +1,13 @@
 package it.robfrank.linklift.adapter.in.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.model.AnswerSource;
 import it.robfrank.linklift.application.domain.model.QuestionAnswer;
 import it.robfrank.linklift.application.port.in.AskQuestionCommand;
@@ -72,13 +74,9 @@ class AskControllerTest {
   void ask_shouldReturn401_whenNotAuthenticated() {
     // Arrange - no security context set, so SecurityContext.getCurrentUserId returns null
     when(context.bodyAsClass(AskController.AskRequest.class)).thenReturn(new AskController.AskRequest("What is Java?"));
-    when(context.status(HttpStatus.UNAUTHORIZED)).thenReturn(context);
 
-    // Act
-    askController.ask(context);
-
-    // Assert
-    verify(context).status(HttpStatus.UNAUTHORIZED);
+    // Act + Assert - unauthenticated requests throw, which GlobalExceptionHandler maps to 401
+    assertThatThrownBy(() -> askController.ask(context)).isInstanceOf(AuthenticationException.class);
     verify(askQuestionUseCase, never()).ask(any());
   }
 

@@ -19,4 +19,13 @@ public class ValidationUtils {
       throw new ValidationException(fieldName + " cannot be null").addFieldError(fieldName, "cannot be null");
     }
   }
+
+  public static void requireMaxLength(String value, int maxLength, String fieldName) {
+    if (value != null && value.length() > maxLength) {
+      throw new ValidationException(fieldName + " must not exceed " + maxLength + " characters").addFieldError(
+        fieldName,
+        "must not exceed " + maxLength + " characters"
+      );
+    }
+  }
 }

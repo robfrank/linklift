@@ -71,6 +71,7 @@ public class TagController {
   /** GET /api/v1/links/:linkId/tags - get tags for a specific link */
   public void getTagsForLink(Context ctx) {
     String linkId = Objects.requireNonNull(ctx.pathParam("linkId"));
+    requireUserId(ctx);
     List<Tag> tags = getTagsForLinkUseCase.getTagsForLink(linkId);
     ctx.json(tags);
   }

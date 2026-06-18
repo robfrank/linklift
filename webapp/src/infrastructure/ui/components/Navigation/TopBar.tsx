@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, InputBase, Box, IconButton, Badge, Menu, MenuItem } from "@mui/material";
-import { Search as SearchIcon, AccountCircle, Notifications, Menu as MenuIcon } from "@mui/icons-material";
+import { AppBar, Toolbar, Typography, InputBase, Box, IconButton, Menu, MenuItem } from "@mui/material";
+import { Search as SearchIcon, AccountCircle, Menu as MenuIcon } from "@mui/icons-material";
 import { styled, alpha } from "@mui/material/styles";
 import { useSearch } from "../../hooks/useSearch";
 import { useNavigate } from "react-router-dom";
@@ -101,11 +101,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
         </Search>
 
         <Box sx={{ display: { xs: "none", md: "flex" } }}>
-          <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-            <Badge badgeContent={4} color="error">
-              <Notifications />
-            </Badge>
-          </IconButton>
+          {/* Notifications intentionally omitted until the feature exists (no hardcoded badge). */}
           <IconButton size="large" edge="end" aria-label="account of current user" aria-haspopup="true" color="inherit">
             <AccountCircle />
           </IconButton>

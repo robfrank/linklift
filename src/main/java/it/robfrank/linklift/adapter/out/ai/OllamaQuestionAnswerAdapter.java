@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import org.jspecify.annotations.NonNull;
@@ -17,7 +18,12 @@ import org.slf4j.LoggerFactory;
 public class OllamaQuestionAnswerAdapter implements QuestionAnswerPort {
 
   private static final Logger logger = LoggerFactory.getLogger(OllamaQuestionAnswerAdapter.class);
+  // Character budget for the prompt context (not tokens): ~4 chars/token, so this is
+  // roughly 1000 tokens — intentionally conservative to keep latency and memory bounded.
   private static final int MAX_CONTEXT_CHARS = 4000;
+  // Bounds the per-request wait so a stalled Ollama instance can't hold the calling
+  // thread indefinitely. Generous because answer generation can legitimately be slow.
+  private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(60);
 
   private final HttpClient httpClient;
   private final String ollamaUrl;
@@ -49,6 +55,7 @@ public class OllamaQuestionAnswerAdapter implements QuestionAnswerPort {
       HttpRequest request = HttpRequest.newBuilder()
         .uri(URI.create(ollamaUrl + "/api/generate"))
         .header("Content-Type", "application/json")
+        .timeout(REQUEST_TIMEOUT)
         .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
         .build();
 

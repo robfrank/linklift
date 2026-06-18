@@ -61,20 +61,26 @@ public class ContentMapper {
     String author = (String) map.get("author");
     LocalDateTime publishedDate = parseDateTime(map.get("publishedDate"));
 
-    List<?> embeddingList = (List<?>) map.get("embedding");
-
+    // The embedding may arrive as a List (vertex.toMap()) or a raw float[]
+    // (the vectorNeighbors projection returns it as a primitive array).
+    Object embeddingObj = map.get("embedding");
     float[] embedding = null;
-    if (embeddingList != null && !embeddingList.isEmpty()) {
+    if (embeddingObj instanceof float[] arr && arr.length > 0) {
+      embedding = arr.clone();
+    } else if (embeddingObj instanceof List<?> embeddingList && !embeddingList.isEmpty()) {
       embedding = new float[embeddingList.size()];
-      boolean allZeros = true;
       for (int i = 0; i < embeddingList.size(); i++) {
-        Object val = embeddingList.get(i);
-        if (val instanceof Number n) {
-          float f = n.floatValue();
-          embedding[i] = f;
-          if (f != 0.0f) {
-            allZeros = false;
-          }
+        if (embeddingList.get(i) instanceof Number n) {
+          embedding[i] = n.floatValue();
+        }
+      }
+    }
+    if (embedding != null) {
+      boolean allZeros = true;
+      for (float f : embedding) {
+        if (f != 0.0f) {
+          allZeros = false;
+          break;
         }
       }
       if (allZeros) {
@@ -107,6 +113,12 @@ public class ContentMapper {
     }
     if (obj instanceof LocalDateTime ldt) {
       return ldt;
+    }
+    // The vectorNeighbors projection returns DATETIME values as java.util.Date
+    // rather than LocalDateTime; convert using the system zone (ArcadeDB DATETIME
+    // carries no zone, so this preserves the stored wall-clock value).
+    if (obj instanceof java.util.Date date) {
+      return date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
     }
     if (obj instanceof String s) {
       try {

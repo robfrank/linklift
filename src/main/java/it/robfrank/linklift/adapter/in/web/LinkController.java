@@ -1,6 +1,7 @@
 package it.robfrank.linklift.adapter.in.web;
 
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.model.Link;
@@ -53,7 +54,13 @@ public class LinkController {
 
     ReadStatus readStatus = null;
     if (request.readStatus() != null) {
-      readStatus = ReadStatus.valueOf(request.readStatus().toUpperCase());
+      try {
+        readStatus = ReadStatus.valueOf(request.readStatus().toUpperCase());
+      } catch (IllegalArgumentException e) {
+        ctx.status(HttpStatus.BAD_REQUEST);
+        ctx.result("Invalid read status: " + request.readStatus());
+        return;
+      }
     }
 
     UpdateLinkStatusCommand command = new UpdateLinkStatusCommand(id, readStatus, request.archived(), request.favorited(), currentUserId);

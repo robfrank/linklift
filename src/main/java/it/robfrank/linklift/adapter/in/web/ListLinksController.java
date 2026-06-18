@@ -25,8 +25,8 @@ public class ListLinksController {
     String currentUserId = SecurityContext.getCurrentUserId(ctx);
 
     // Extract query parameters
-    Integer page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(null);
-    Integer size = ctx.queryParamAsClass("size", Integer.class).getOrDefault(null);
+    Integer page = ctx.queryParamAsClass("page", Integer.class).getOrNull();
+    Integer size = ctx.queryParamAsClass("size", Integer.class).getOrNull();
     String sortBy = ctx.queryParam("sortBy");
     String sortDirection = ctx.queryParam("sortDirection");
 

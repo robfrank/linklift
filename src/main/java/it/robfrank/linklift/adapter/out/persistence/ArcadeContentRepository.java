@@ -118,8 +118,17 @@ public class ArcadeContentRepository {
 
   public @NonNull List<Content> findSimilar(@NonNull List<Float> queryVector, int limit) {
     try {
-      // Use vectorNeighbors (alias for vector.neighbors) - returns results with flattened doc properties
-      var resultSet = database.query("sql", "SELECT expand(vectorNeighbors('Content[embedding]', ?, ?))", queryVector, limit);
+      // Use vectorNeighbors (alias for vector.neighbors) - returns results with flattened doc properties.
+      // The query vector must be inlined as a literal: ArcadeDB 26.6.x fails index resolution
+      // ("No vector index found ...") when the vector is passed as a bound parameter. Inlining is safe
+      // here because the values are floats (no SQL-injection surface).
+      StringBuilder vectorLiteral = new StringBuilder("[");
+      for (int i = 0; i < queryVector.size(); i++) {
+        if (i > 0) vectorLiteral.append(',');
+        vectorLiteral.append(queryVector.get(i).floatValue());
+      }
+      vectorLiteral.append(']');
+      var resultSet = database.query("sql", "SELECT expand(vectorNeighbors('Content[embedding]', " + vectorLiteral + ", " + limit + "))");
       List<Content> results = new ArrayList<>();
       while (resultSet.hasNext()) {
         var result = resultSet.next();

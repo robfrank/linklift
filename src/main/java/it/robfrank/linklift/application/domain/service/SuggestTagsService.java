@@ -1,5 +1,6 @@
 package it.robfrank.linklift.application.domain.service;
 
+import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.Tag;
 import it.robfrank.linklift.application.port.in.SuggestTagsUseCase;
 import it.robfrank.linklift.application.port.out.LoadContentPort;
@@ -33,7 +34,7 @@ public class SuggestTagsService implements SuggestTagsUseCase {
   @Override
   public List<Tag> suggestTags(@NonNull String linkId, @NonNull String userId) {
     try {
-      Optional<it.robfrank.linklift.application.domain.model.Content> contentOpt = loadContentPort.findContentByLinkId(linkId);
+      Optional<Content> contentOpt = loadContentPort.findContentByLinkId(linkId);
       if (contentOpt.isEmpty() || contentOpt.get().embedding() == null || contentOpt.get().embedding().length == 0) {
         // No embedding available - fall back to returning user's existing tags
         return tagRepository.findByUserId(userId).stream().limit(MAX_SUGGESTIONS).toList();

@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.domain.model.Link;
@@ -15,7 +17,6 @@ import it.robfrank.linklift.application.port.in.GetRelatedLinksUseCase;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,15 +42,17 @@ class GetRelatedLinksControllerTest {
 
     when(getRelatedLinksUseCase.getRelatedLinks(eq("link-1"), eq("user-123"))).thenReturn(relatedLinks);
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
       // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
+      cfg.routes.before(ctx -> {
         var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
-      app.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
+      cfg.routes.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/links/link-1/related");
 
       assertThat(response.code()).isEqualTo(200);
@@ -68,15 +71,17 @@ class GetRelatedLinksControllerTest {
     // Given
     when(getRelatedLinksUseCase.getRelatedLinks(eq("link-1"), eq("user-123"))).thenReturn(List.of());
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
       // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
+      cfg.routes.before(ctx -> {
         var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
-      app.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
+      cfg.routes.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/links/link-1/related");
 
       assertThat(response.code()).isEqualTo(200);
@@ -88,11 +93,13 @@ class GetRelatedLinksControllerTest {
 
   @Test
   void getRelatedLinks_shouldReturn401_whenUserNotAuthenticated() {
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
       // Don't set userId attribute
-      app.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
+      cfg.routes.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/links/link-1/related");
 
       assertThat(response.code()).isEqualTo(401);
@@ -106,15 +113,17 @@ class GetRelatedLinksControllerTest {
     // Given
     when(getRelatedLinksUseCase.getRelatedLinks(eq("non-existent"), eq("user-123"))).thenThrow(new LinkNotFoundException("Link not found"));
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
       // Simulate authentication by setting SecurityContext
-      app.before(ctx -> {
+      cfg.routes.before(ctx -> {
         var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
-      app.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
+      cfg.routes.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/links/non-existent/related");
 
       assertThat(response.code()).isEqualTo(404);

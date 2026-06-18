@@ -60,7 +60,12 @@ public class OllamaQuestionAnswerAdapter implements QuestionAnswerPort {
       }
 
       var root = objectMapper.readTree(response.body());
-      return root.get("response").asText();
+      var responseNode = root.get("response");
+      if (responseNode == null) {
+        logger.error("Ollama response did not contain 'response' field: {}", response.body());
+        return "I was unable to generate an answer at this time.";
+      }
+      return responseNode.asText();
     } catch (JsonProcessingException e) {
       logger.error("Error creating request for question answering", e);
       return "I was unable to generate an answer due to a request error.";

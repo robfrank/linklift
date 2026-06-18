@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.GraphData;
@@ -18,7 +20,6 @@ import it.robfrank.linklift.application.port.in.ListLinksQuery;
 import it.robfrank.linklift.application.port.in.ListLinksUseCase;
 import java.time.LocalDateTime;
 import java.util.List;
-import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -46,11 +47,13 @@ class ListLinksControllerTest {
 
     when(listLinksUseCase.listLinks(any(ListLinksQuery.class))).thenReturn(linkPage);
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.get("/links", listLinksController::listLinks);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.get("/links", listLinksController::listLinks);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/links");
 
       assertThat(response.code()).isEqualTo(200);
@@ -77,11 +80,13 @@ class ListLinksControllerTest {
 
     when(listLinksUseCase.listLinks(any(ListLinksQuery.class))).thenReturn(linkPage);
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.get("/links", listLinksController::listLinks);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.get("/links", listLinksController::listLinks);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/links?page=1&size=10&sortBy=title&sortDirection=ASC");
 
       assertThat(response.code()).isEqualTo(200);
@@ -107,11 +112,13 @@ class ListLinksControllerTest {
 
     when(listLinksUseCase.listLinks(any(ListLinksQuery.class))).thenThrow(validationEx);
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.get("/links", listLinksController::listLinks);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.get("/links", listLinksController::listLinks);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/links?page=-1");
 
       assertThat(response.code()).isEqualTo(400);
@@ -134,11 +141,13 @@ class ListLinksControllerTest {
 
     when(listLinksUseCase.listLinks(any(ListLinksQuery.class))).thenReturn(emptyPage);
 
-    JavalinTest.test((app, client) -> {
+    Javalin app = Javalin.create(cfg -> {
       // Configure exception handlers
-      GlobalExceptionHandler.configure(app);
-      app.get("/links", listLinksController::listLinks);
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.get("/links", listLinksController::listLinks);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/links");
 
       assertThat(response.code()).isEqualTo(200);
@@ -171,14 +180,16 @@ class ListLinksControllerTest {
     );
     when(getGraphUseCase.getGraphData("user-123")).thenReturn(graphData);
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      app.before(ctx -> {
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.before(ctx -> {
         var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
-      app.get("/graph", listLinksController::getGraph);
+      cfg.routes.get("/graph", listLinksController::getGraph);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/graph");
 
       assertThat(response.code()).isEqualTo(200);
@@ -196,10 +207,12 @@ class ListLinksControllerTest {
 
   @Test
   void getGraph_shouldReturn401_whenUserNotAuthenticated() {
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      app.get("/graph", listLinksController::getGraph);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.get("/graph", listLinksController::getGraph);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/graph");
 
       assertThat(response.code()).isEqualTo(401);
@@ -214,14 +227,16 @@ class ListLinksControllerTest {
     GraphData emptyGraph = new GraphData(List.of(), List.of());
     when(getGraphUseCase.getGraphData("user-123")).thenReturn(emptyGraph);
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      app.before(ctx -> {
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.before(ctx -> {
         var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
         it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
       });
-      app.get("/graph", listLinksController::getGraph);
+      cfg.routes.get("/graph", listLinksController::getGraph);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/graph");
 
       assertThat(response.code()).isEqualTo(200);

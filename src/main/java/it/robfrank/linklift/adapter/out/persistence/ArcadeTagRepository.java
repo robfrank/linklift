@@ -53,7 +53,7 @@ public class ArcadeTagRepository implements TagRepository {
     try {
       database.transaction(() -> {
         // Remove HasTag edges first, then delete the tag
-        database.command("sql", "DELETE FROM HasTag WHERE @in in (SELECT FROM Tag WHERE id = ?)", tagId);
+        database.command("sql", "DELETE FROM HasTag WHERE @in.id = ?", tagId);
         database.command("sql", "DELETE FROM Tag WHERE id = ?", tagId);
       });
     } catch (ArcadeDBException e) {
@@ -128,12 +128,7 @@ public class ArcadeTagRepository implements TagRepository {
     try {
       database.transaction(() -> {
         // Check if edge already exists
-        var existing = database.query(
-          "sql",
-          "SELECT count(*) as count FROM HasTag WHERE @out in (SELECT FROM Link WHERE id = ?) AND @in in (SELECT FROM Tag WHERE id = ?)",
-          linkId,
-          tagId
-        );
+        var existing = database.query("sql", "SELECT count(*) as count FROM HasTag WHERE @out.id = ? AND @in.id = ?", linkId, tagId);
         long count = existing.stream().findFirst().map(r -> r.<Number>getProperty("count")).map(Number::longValue).orElse(0L);
 
         if (count == 0) {
@@ -158,7 +153,7 @@ public class ArcadeTagRepository implements TagRepository {
   public void removeTagFromLink(@NonNull String linkId, @NonNull String tagId) {
     try {
       database.transaction(() -> {
-        database.command("sql", "DELETE FROM HasTag WHERE @out in (SELECT FROM Link WHERE id = ?) AND @in in (SELECT FROM Tag WHERE id = ?)", linkId, tagId);
+        database.command("sql", "DELETE FROM HasTag WHERE @out.id = ? AND @in.id = ?", linkId, tagId);
       });
     } catch (ArcadeDBException e) {
       throw new DatabaseException("Failed to remove tag " + tagId + " from link " + linkId, e);
@@ -188,7 +183,7 @@ public class ArcadeTagRepository implements TagRepository {
   }
 
   private Tag toTag(com.arcadedb.graph.Vertex vertex) {
-    LocalDateTime createdAt = vertex.get("createdAt") instanceof LocalDateTime ldt ? ldt : LocalDateTime.now();
-    return new Tag(vertex.getString("id"), vertex.getString("name"), vertex.getString("userId"), createdAt);
+    LocalDateTime createdAt = vertex.getLocalDateTime("createdAt");
+    return new Tag(vertex.getString("id"), vertex.getString("name"), vertex.getString("userId"), createdAt != null ? createdAt : LocalDateTime.now());
   }
 }

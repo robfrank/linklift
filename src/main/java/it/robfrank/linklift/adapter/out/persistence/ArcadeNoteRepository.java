@@ -111,8 +111,15 @@ public class ArcadeNoteRepository implements NoteRepository {
   }
 
   private Note toNote(com.arcadedb.graph.Vertex vertex) {
-    LocalDateTime createdAt = vertex.get("createdAt") instanceof LocalDateTime ldt ? ldt : LocalDateTime.now();
-    LocalDateTime updatedAt = vertex.get("updatedAt") instanceof LocalDateTime ldt ? ldt : null;
-    return new Note(vertex.getString("id"), vertex.getString("linkId"), vertex.getString("userId"), vertex.getString("content"), createdAt, updatedAt);
+    LocalDateTime createdAt = vertex.getLocalDateTime("createdAt");
+    LocalDateTime updatedAt = vertex.getLocalDateTime("updatedAt");
+    return new Note(
+      vertex.getString("id"),
+      vertex.getString("linkId"),
+      vertex.getString("userId"),
+      vertex.getString("content"),
+      createdAt != null ? createdAt : LocalDateTime.now(),
+      updatedAt
+    );
   }
 }

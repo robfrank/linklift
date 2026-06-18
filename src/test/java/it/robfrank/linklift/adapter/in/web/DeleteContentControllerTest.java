@@ -5,12 +5,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
+import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
 import it.robfrank.linklift.application.port.in.DeleteContentCommand;
 import it.robfrank.linklift.application.port.in.DeleteContentUseCase;
-import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,10 +30,12 @@ class DeleteContentControllerTest {
 
   @Test
   void deleteContent_shouldReturn204_whenContentIsDeleted() {
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      app.delete("/content/{linkId}", deleteContentController::deleteContent);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.delete("/content/{linkId}", deleteContentController::deleteContent);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.delete("/content/link-123");
 
       assertThat(response.code()).isEqualTo(204);
@@ -45,10 +48,12 @@ class DeleteContentControllerTest {
     // Given
     doThrow(new LinkNotFoundException("Link not found")).when(deleteContentUseCase).deleteContent(any(DeleteContentCommand.class));
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      app.delete("/content/{linkId}", deleteContentController::deleteContent);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.delete("/content/{linkId}", deleteContentController::deleteContent);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.delete("/content/non-existent-link");
 
       assertThat(response.code()).isEqualTo(404);
@@ -57,10 +62,12 @@ class DeleteContentControllerTest {
 
   @Test
   void deleteContent_shouldCallUseCaseWithCorrectLinkId() {
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      app.delete("/content/{linkId}", deleteContentController::deleteContent);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      cfg.routes.delete("/content/{linkId}", deleteContentController::deleteContent);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       client.delete("/content/specific-link-id");
 
       var commandCaptor = ArgumentCaptor.forClass(DeleteContentCommand.class);

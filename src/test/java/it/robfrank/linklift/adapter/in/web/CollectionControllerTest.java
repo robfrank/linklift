@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.ErrorCode;
 import it.robfrank.linklift.application.domain.exception.LinkLiftException;
@@ -20,7 +21,6 @@ import it.robfrank.linklift.application.port.in.*;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -59,11 +59,11 @@ class CollectionControllerTest {
    * Sets up a SecurityContext with the given userId in the Javalin app's before
    * filter.
    *
-   * @param app    the Javalin test app
+   * @param routes the Javalin routing config
    * @param userId the user ID to authenticate as
    */
-  private void setupAuthentication(Javalin app, String userId) {
-    app.before(ctx -> {
+  private void setupAuthentication(io.javalin.router.JavalinDefaultRoutingApi routes, String userId) {
+    routes.before(ctx -> {
       var securityContext = new SecurityContext(userId, "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
       it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);
     });
@@ -75,11 +75,13 @@ class CollectionControllerTest {
     Collection collection = new Collection("col-123", "My Collection", "Description", "user-123", null, null);
     when(createCollectionUseCase.createCollection(any(CreateCollectionCommand.class))).thenReturn(collection);
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      setupAuthentication(app, "user-123");
-      app.post("/collections", collectionController::createCollection);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      setupAuthentication(cfg.routes, "user-123");
+      cfg.routes.post("/collections", collectionController::createCollection);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/collections",
         """
@@ -104,11 +106,13 @@ class CollectionControllerTest {
 
   @Test
   void createCollection_shouldReturn401_whenUserNotAuthenticated() {
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
       // Don't set userId attribute
-      app.post("/collections", collectionController::createCollection);
+      cfg.routes.post("/collections", collectionController::createCollection);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/collections",
         """
@@ -134,11 +138,13 @@ class CollectionControllerTest {
     );
     when(listCollectionsUseCase.listCollections(eq("user-123"))).thenReturn(collections);
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      setupAuthentication(app, "user-123");
-      app.get("/collections", collectionController::listCollections);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      setupAuthentication(cfg.routes, "user-123");
+      cfg.routes.get("/collections", collectionController::listCollections);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/collections");
 
       assertThat(response.code()).isEqualTo(200);
@@ -157,11 +163,13 @@ class CollectionControllerTest {
     // Given
     when(listCollectionsUseCase.listCollections(eq("user-123"))).thenReturn(List.of());
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      setupAuthentication(app, "user-123");
-      app.get("/collections", collectionController::listCollections);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      setupAuthentication(cfg.routes, "user-123");
+      cfg.routes.get("/collections", collectionController::listCollections);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/collections");
 
       assertThat(response.code()).isEqualTo(200);
@@ -183,11 +191,13 @@ class CollectionControllerTest {
 
     when(getCollectionUseCase.getCollection(eq("col-123"), eq("user-123"))).thenReturn(collectionWithLinks);
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      setupAuthentication(app, "user-123");
-      app.get("/collections/{id}", collectionController::getCollection);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      setupAuthentication(cfg.routes, "user-123");
+      cfg.routes.get("/collections/{id}", collectionController::getCollection);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/collections/col-123");
 
       assertThat(response.code()).isEqualTo(200);
@@ -206,11 +216,13 @@ class CollectionControllerTest {
     // Given
     when(getCollectionUseCase.getCollection(any(), any())).thenThrow(new LinkLiftException("Collection not found", ErrorCode.COLLECTION_NOT_FOUND));
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      setupAuthentication(app, "user-123");
-      app.get("/collections/{id}", collectionController::getCollection);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      setupAuthentication(cfg.routes, "user-123");
+      cfg.routes.get("/collections/{id}", collectionController::getCollection);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.get("/collections/non-existent");
 
       assertThat(response.code()).isEqualTo(404);
@@ -221,11 +233,13 @@ class CollectionControllerTest {
 
   @Test
   void addLinkToCollection_shouldReturn204_whenLinkIsAdded() {
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      setupAuthentication(app, "user-123");
-      app.post("/collections/{id}/links", collectionController::addLinkToCollection);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      setupAuthentication(cfg.routes, "user-123");
+      cfg.routes.post("/collections/{id}/links", collectionController::addLinkToCollection);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/collections/col-123/links",
         """
@@ -245,11 +259,13 @@ class CollectionControllerTest {
     // Given
     doThrow(new LinkLiftException("Collection not found", ErrorCode.COLLECTION_NOT_FOUND)).when(addLinkToCollectionUseCase).addLinkToCollection(any());
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      setupAuthentication(app, "user-123");
-      app.post("/collections/{id}/links", collectionController::addLinkToCollection);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      setupAuthentication(cfg.routes, "user-123");
+      cfg.routes.post("/collections/{id}/links", collectionController::addLinkToCollection);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.post(
         "/collections/non-existent/links",
         """
@@ -265,11 +281,13 @@ class CollectionControllerTest {
 
   @Test
   void removeLinkFromCollection_shouldReturn204_whenLinkIsRemoved() {
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      setupAuthentication(app, "user-123");
-      app.delete("/collections/{id}/links/{linkId}", collectionController::removeLinkFromCollection);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      setupAuthentication(cfg.routes, "user-123");
+      cfg.routes.delete("/collections/{id}/links/{linkId}", collectionController::removeLinkFromCollection);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.delete("/collections/col-123/links/link-456");
 
       assertThat(response.code()).isEqualTo(204);
@@ -279,11 +297,13 @@ class CollectionControllerTest {
 
   @Test
   void deleteCollection_shouldReturn204_whenCollectionIsDeleted() {
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      setupAuthentication(app, "user-123");
-      app.delete("/collections/{id}", collectionController::deleteCollection);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      setupAuthentication(cfg.routes, "user-123");
+      cfg.routes.delete("/collections/{id}", collectionController::deleteCollection);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.delete("/collections/col-123");
 
       assertThat(response.code()).isEqualTo(204);
@@ -296,11 +316,13 @@ class CollectionControllerTest {
     // Given
     doThrow(new LinkLiftException("Collection not found", ErrorCode.COLLECTION_NOT_FOUND)).when(deleteCollectionUseCase).deleteCollection(any(), any());
 
-    JavalinTest.test((app, client) -> {
-      GlobalExceptionHandler.configure(app);
-      setupAuthentication(app, "user-123");
-      app.delete("/collections/{id}", collectionController::deleteCollection);
+    Javalin app = Javalin.create(cfg -> {
+      GlobalExceptionHandler.configure(cfg.routes);
+      setupAuthentication(cfg.routes, "user-123");
+      cfg.routes.delete("/collections/{id}", collectionController::deleteCollection);
+    });
 
+    JavalinTest.test(app, (server, client) -> {
       Response response = client.delete("/collections/non-existent");
 
       assertThat(response.code()).isEqualTo(404);

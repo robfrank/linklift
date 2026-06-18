@@ -482,8 +482,8 @@ public class ArcadeLinkRepository {
         )
         .stream()
         .findFirst()
-        .map(result -> result.<Integer>getProperty("count"))
-        .map(count -> count > 0)
+        .map(result -> result.getProperty("count"))
+        .map(count -> ((Number) count).longValue() > 0)
         .orElse(false);
     } catch (ArcadeDBException e) {
       throw new DatabaseException("Failed to check link ownership", e);

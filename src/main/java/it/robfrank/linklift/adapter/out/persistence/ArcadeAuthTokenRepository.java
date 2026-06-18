@@ -1,7 +1,6 @@
 package it.robfrank.linklift.adapter.out.persistence;
 
 import com.arcadedb.exception.ArcadeDBException;
-import com.arcadedb.query.sql.executor.ResultSet;
 import com.arcadedb.remote.RemoteDatabase;
 import it.robfrank.linklift.application.domain.exception.DatabaseException;
 import it.robfrank.linklift.application.domain.model.AuthToken;
@@ -111,12 +110,7 @@ public class ArcadeAuthTokenRepository {
   public int deleteExpiredTokens() {
     try {
       database.transaction(() -> {
-        ResultSet resultSet = database.command(
-          "sql",
-          "DELETE FROM AuthToken WHERE expiresAt < ? ",
-          LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString()
-        );
-        int deleted = resultSet.stream().findFirst().get().getProperty("count");
+        database.command("sql", "DELETE FROM AuthToken WHERE expiresAt < ? ", LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
       });
       // Return approximate count since DELETE doesn't return affected rows in this
       // context

@@ -44,6 +44,7 @@ class GraphOperationsTest {
       -Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin
       """
     )
+    .withCreateContainerCmdModifier(cmd -> ((com.github.dockerjava.api.command.CreateContainerCmd) cmd).withUser("root"))
     .waitingFor(Wait.forHttp("/api/v1/ready").forPort(2480).forStatusCode(204));
 
   private RemoteDatabase database;

@@ -18,7 +18,7 @@ public class AskController {
 
   public void ask(@NonNull Context ctx) {
     var body = ctx.bodyAsClass(AskRequest.class);
-    if (body.question() == null || body.question().isBlank()) {
+    if (body == null || body.question() == null || body.question().isBlank()) {
       ctx.status(HttpStatus.BAD_REQUEST);
       ctx.result("Question cannot be empty");
       return;

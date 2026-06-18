@@ -163,7 +163,7 @@ public class ArcadeContentRepository {
           }
         } catch (Exception e) {
           // Skip results that can't be mapped (e.g. placeholder zero-vector entries)
-          logger.debug("Skipping vector search result that could not be mapped to Content: {}", e.getMessage());
+          logger.error("Skipping vector search result that could not be mapped to Content: {}", e.getMessage(), e);
         }
       }
       return results;

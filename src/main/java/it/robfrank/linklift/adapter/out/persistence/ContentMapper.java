@@ -5,8 +5,10 @@ import com.arcadedb.graph.Vertex;
 import it.robfrank.linklift.application.domain.model.Content;
 import it.robfrank.linklift.application.domain.model.DownloadStatus;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.NonNull;
@@ -117,8 +119,8 @@ public class ContentMapper {
     // The vectorNeighbors projection returns DATETIME values as java.util.Date
     // rather than LocalDateTime; convert using the system zone (ArcadeDB DATETIME
     // carries no zone, so this preserves the stored wall-clock value).
-    if (obj instanceof java.util.Date date) {
-      return date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+    if (obj instanceof Date date) {
+      return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
     if (obj instanceof String s) {
       try {

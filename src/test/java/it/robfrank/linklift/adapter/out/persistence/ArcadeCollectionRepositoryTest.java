@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
+import com.github.dockerjava.api.command.CreateContainerCmd;
 import it.robfrank.linklift.application.domain.model.Collection;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.ReadStatus;
@@ -37,7 +38,7 @@ class ArcadeCollectionRepositoryTest {
       -Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin
       """
     )
-    .withCreateContainerCmdModifier(cmd -> ((com.github.dockerjava.api.command.CreateContainerCmd) cmd).withUser("root"))
+    .withCreateContainerCmdModifier(cmd -> ((CreateContainerCmd) cmd).withUser("root"))
     .waitingFor(Wait.forHttp("/api/v1/ready").forPort(2480).forStatusCode(204));
 
   private RemoteDatabase database;

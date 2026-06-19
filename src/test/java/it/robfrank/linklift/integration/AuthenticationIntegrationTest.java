@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
+import com.github.dockerjava.api.command.CreateContainerCmd;
 import it.robfrank.linklift.adapter.out.event.SimpleEventPublisher;
 import it.robfrank.linklift.adapter.out.persistence.*;
 import it.robfrank.linklift.adapter.out.security.BCryptPasswordSecurityAdapter;
@@ -44,7 +45,7 @@ class AuthenticationIntegrationTest {
       -Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin
       """
     )
-    .withCreateContainerCmdModifier(cmd -> ((com.github.dockerjava.api.command.CreateContainerCmd) cmd).withUser("root"))
+    .withCreateContainerCmdModifier(cmd -> ((CreateContainerCmd) cmd).withUser("root"))
     .waitingFor(Wait.forHttp("/api/v1/ready").forPort(2480).forStatusCode(204));
 
   // Test-specific JWT secret (256-bit minimum for security)

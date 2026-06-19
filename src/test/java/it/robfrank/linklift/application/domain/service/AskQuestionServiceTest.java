@@ -2,7 +2,6 @@ package it.robfrank.linklift.application.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import it.robfrank.linklift.application.domain.exception.ValidationException;
@@ -17,7 +16,6 @@ import it.robfrank.linklift.application.port.out.LoadContentPort;
 import it.robfrank.linklift.application.port.out.LoadLinksPort;
 import it.robfrank.linklift.application.port.out.QuestionAnswerPort;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,7 +61,7 @@ class AskQuestionServiceTest {
       null,
       LocalDateTime.now(),
       null,
-      Collections.emptyList(),
+      List.of(),
       ReadStatus.UNREAD,
       false,
       false
@@ -77,9 +75,9 @@ class AskQuestionServiceTest {
     assertThat(result.question()).isEqualTo("What is Java?");
     assertThat(result.answer()).isEqualTo("Java is a general-purpose programming language.");
     assertThat(result.sources()).hasSize(1);
-    assertThat(result.sources().get(0).linkId()).isEqualTo("link1");
-    assertThat(result.sources().get(0).title()).isEqualTo("Java Guide");
-    assertThat(result.sources().get(0).url()).isEqualTo("https://example.com");
+    assertThat(result.sources().getFirst().linkId()).isEqualTo("link1");
+    assertThat(result.sources().getFirst().title()).isEqualTo("Java Guide");
+    assertThat(result.sources().getFirst().url()).isEqualTo("https://example.com");
   }
 
   @Test
@@ -113,7 +111,7 @@ class AskQuestionServiceTest {
       null,
       LocalDateTime.now(),
       null,
-      Collections.emptyList(),
+      List.of(),
       ReadStatus.UNREAD,
       false,
       false
@@ -123,7 +121,7 @@ class AskQuestionServiceTest {
 
     QuestionAnswer result = service.ask(new AskQuestionCommand("test", "user1"));
 
-    assertThat(result.sources().get(0).title()).isEqualTo("https://example.com");
+    assertThat(result.sources().getFirst().title()).isEqualTo("https://example.com");
   }
 
   @Test

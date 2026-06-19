@@ -10,6 +10,7 @@ import it.robfrank.linklift.application.domain.exception.AuthenticationException
 import it.robfrank.linklift.application.domain.exception.ValidationException;
 import it.robfrank.linklift.application.domain.model.AnswerSource;
 import it.robfrank.linklift.application.domain.model.QuestionAnswer;
+import it.robfrank.linklift.application.domain.model.SecurityContext;
 import it.robfrank.linklift.application.port.in.AskQuestionCommand;
 import it.robfrank.linklift.application.port.in.AskQuestionUseCase;
 import java.util.List;
@@ -39,7 +40,7 @@ class AskControllerTest {
   @Test
   void ask_shouldReturnAnswer_whenAuthenticated() {
     // Arrange
-    var securityContext = new it.robfrank.linklift.application.domain.model.SecurityContext(
+    var securityContext = new SecurityContext(
       "user-123",
       "testuser",
       "test@example.com",

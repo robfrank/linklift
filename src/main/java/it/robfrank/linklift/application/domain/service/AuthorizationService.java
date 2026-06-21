@@ -2,7 +2,6 @@ package it.robfrank.linklift.application.domain.service;
 
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.model.SecurityContext;
-import it.robfrank.linklift.application.domain.model.User;
 import it.robfrank.linklift.application.port.out.JwtTokenPort;
 import it.robfrank.linklift.application.port.out.LoadUserPort;
 import it.robfrank.linklift.application.port.out.LoadUserRolesPort;

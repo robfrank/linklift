@@ -3,7 +3,6 @@ package it.robfrank.linklift.application.domain.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -22,7 +21,7 @@ public record Link(
 ) {
   public Link {
     extractedAt = extractedAt == null ? LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS) : extractedAt;
-    extractedUrls = extractedUrls == null ? Collections.emptyList() : List.copyOf(extractedUrls);
+    extractedUrls = extractedUrls == null ? List.of() : List.copyOf(extractedUrls);
     readStatus = readStatus == null ? ReadStatus.UNREAD : readStatus;
   }
 }

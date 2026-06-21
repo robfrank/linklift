@@ -13,7 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ public class NewLinkService implements NewLinkUseCase {
       newLinkCommand.description(),
       LocalDateTime.now(),
       "text/html",
-      Collections.emptyList(),
+      List.of(),
       ReadStatus.UNREAD,
       false,
       false

@@ -6,11 +6,7 @@ import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.model.Link;
 import it.robfrank.linklift.application.domain.model.ReadStatus;
-import it.robfrank.linklift.application.port.in.DeleteLinkUseCase;
-import it.robfrank.linklift.application.port.in.UpdateLinkCommand;
-import it.robfrank.linklift.application.port.in.UpdateLinkStatusCommand;
-import it.robfrank.linklift.application.port.in.UpdateLinkStatusUseCase;
-import it.robfrank.linklift.application.port.in.UpdateLinkUseCase;
+import it.robfrank.linklift.application.port.in.*;
 import java.util.Objects;
 
 public class LinkController {

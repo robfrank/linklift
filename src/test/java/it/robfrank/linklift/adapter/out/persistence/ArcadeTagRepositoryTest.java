@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
+import com.github.dockerjava.api.command.CreateContainerCmd;
+import it.robfrank.linklift.application.domain.model.Link;
+import it.robfrank.linklift.application.domain.model.ReadStatus;
 import it.robfrank.linklift.application.domain.model.Tag;
 import it.robfrank.linklift.config.DatabaseInitializer;
 import java.time.Duration;
@@ -37,7 +40,7 @@ class ArcadeTagRepositoryTest {
       -Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin
       """
     )
-    .withCreateContainerCmdModifier(cmd -> ((com.github.dockerjava.api.command.CreateContainerCmd) cmd).withUser("root"))
+    .withCreateContainerCmdModifier(cmd -> ((CreateContainerCmd) cmd).withUser("root"))
     .waitingFor(Wait.forHttp("/api/v1/ready").forPort(2480).forStatusCode(204));
 
   private RemoteDatabase database;
@@ -63,8 +66,8 @@ class ArcadeTagRepositoryTest {
     return new Tag(UUID.randomUUID().toString(), name, userId, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
   }
 
-  private it.robfrank.linklift.application.domain.model.Link makeLink() {
-    return new it.robfrank.linklift.application.domain.model.Link(
+  private Link makeLink() {
+    return new Link(
       UUID.randomUUID().toString(),
       "https://example.com/" + UUID.randomUUID(),
       "Test Link",
@@ -72,7 +75,7 @@ class ArcadeTagRepositoryTest {
       LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
       "text/html",
       List.of(),
-      it.robfrank.linklift.application.domain.model.ReadStatus.UNREAD,
+      ReadStatus.UNREAD,
       false,
       false
     );
@@ -141,7 +144,7 @@ class ArcadeTagRepositoryTest {
     tagRepository.addTagToLink(link.id(), tag.id());
     List<Tag> linkTags = tagRepository.findTagsForLink(link.id());
     assertThat(linkTags).hasSize(1);
-    assertThat(linkTags.get(0).name()).isEqualTo("interesting");
+    assertThat(linkTags.getFirst().name()).isEqualTo("interesting");
 
     tagRepository.removeTagFromLink(link.id(), tag.id());
     assertThat(tagRepository.findTagsForLink(link.id())).isEmpty();

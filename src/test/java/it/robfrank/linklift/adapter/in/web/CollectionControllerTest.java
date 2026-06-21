@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import io.javalin.Javalin;
+import io.javalin.router.JavalinDefaultRoutingApi;
 import io.javalin.testtools.JavalinTest;
 import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
@@ -62,7 +63,7 @@ class CollectionControllerTest {
    * @param routes the Javalin routing config
    * @param userId the user ID to authenticate as
    */
-  private void setupAuthentication(io.javalin.router.JavalinDefaultRoutingApi routes, String userId) {
+  private void setupAuthentication(JavalinDefaultRoutingApi routes, String userId) {
     routes.before(ctx -> {
       var securityContext = new SecurityContext(userId, "testuser", "test@example.com", List.of(), true, LocalDateTime.now(), "127.0.0.1", "test-agent");
       it.robfrank.linklift.adapter.in.web.security.SecurityContext.setSecurityContext(ctx, securityContext);

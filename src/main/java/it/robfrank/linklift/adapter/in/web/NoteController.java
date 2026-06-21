@@ -4,12 +4,7 @@ import io.javalin.http.Context;
 import it.robfrank.linklift.adapter.in.web.security.SecurityContext;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.model.Note;
-import it.robfrank.linklift.application.port.in.CreateNoteCommand;
-import it.robfrank.linklift.application.port.in.CreateNoteUseCase;
-import it.robfrank.linklift.application.port.in.DeleteNoteUseCase;
-import it.robfrank.linklift.application.port.in.GetNotesForLinkUseCase;
-import it.robfrank.linklift.application.port.in.UpdateNoteCommand;
-import it.robfrank.linklift.application.port.in.UpdateNoteUseCase;
+import it.robfrank.linklift.application.port.in.*;
 import java.util.List;
 import java.util.Objects;
 

@@ -29,7 +29,7 @@
         <json-unit-assertj.version>6.0.1</json-unit-assertj.version>
         <jwt.version>4.6.0</jwt.version>
         <bcrypt.version>0.10.2</bcrypt.version>
-        <jspecify.version>1.0.0</jspecify.version>
+        <jspecify.version>1.0.1</jspecify.version>
         <jsoup.version>1.23.1</jsoup.version>
         <wiremock.version>3.13.2</wiremock.version>
         <jackson.version>2.22.1</jackson.version>

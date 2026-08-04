@@ -30,7 +30,7 @@
         <jwt.version>4.6.0</jwt.version>
         <bcrypt.version>0.10.2</bcrypt.version>
         <jspecify.version>1.0.0</jspecify.version>
-        <jsoup.version>1.22.2</jsoup.version>
+        <jsoup.version>1.23.1</jsoup.version>
         <wiremock.version>3.13.2</wiremock.version>
         <jackson.version>2.22.1</jackson.version>
         <logback-classic.version>1.6.1</logback-classic.version>

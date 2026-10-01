@@ -24,7 +24,7 @@
         <arcadedb.version>26.9.1</arcadedb.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <commons-lang3.version>3.20.0</commons-lang3.version>
+        <commons-lang3.version>3.21.0</commons-lang3.version>
         <mockito-core.version>5.23.0</mockito-core.version>
         <json-unit-assertj.version>6.2.0</json-unit-assertj.version>
         <jwt.version>4.6.0</jwt.version>

@@ -27,3 +27,4 @@ Backend build green again: Testcontainers tests use the full ArcadeDB image at t
 - 2026-11-14 · author — all work sits in round 00: its acceptance (every java-developer gate green) is the delta's outcome, so no feature round follows.
 - 2026-11-14 · author — supersedes the round-00 entry above: the acceptance is every java-developer gate green except lint, which the owner runs.
 - 2026-11-14 · gate — review: 2 round(s), lane light — blockers in round(s) 1 — 1 finding(s) were damage from a fix pass.
+- 2026-11-14 · gate — review: 2 round(s), lane light — blockers in round(s) 1.

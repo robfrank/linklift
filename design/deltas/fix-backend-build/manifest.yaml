@@ -2,6 +2,24 @@ id: fix-backend-build
 title: Fix the red backend build (prettier, Testcontainers image, graph 401 test)
 priority: high
 maturity: applying
+applying:
+  date: '2026-11-14'
+  rounds: 2
+  closed_at: '2026-11-14T22:45:55Z'
+  apply_review_path: full
+  review_record:
+    findings:
+      R1-1: 1794695937
+      R1-2: 1794695937
+      R1-3: 1794695937
+      R1-4: 1794695937
+      R1-6: 1794695937
+    intent_findings: []
+    intent:
+      top: 997610f1f53c3226
+      amendments: 1
+      amendments_sha: f03ac55c4af937e1
+  sha: 7b0f97cf521c7ae4
 review:
   rounds: 2
   lane: light

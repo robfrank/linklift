@@ -4,9 +4,9 @@ Test-side and formatting changes only; no file under `src/main` changes.
 
 ## Test container image {#test-container-image}
 
-The test sources name the ArcadeDB image as a string literal in each container declaration. Four of them name an image other than the one NF-008 requires (three the headless image, one the `latest` tag)
-<!-- verify: grep -rl -e arcadedb-headless -e arcadedata/arcadedb:latest src/test/java | wc -l == 4 -->
-<!-- blind spot: only string literals in src/test/java; an image assembled from parts or read from a resource file is not matched. -->
+The test sources name the ArcadeDB image as a string literal in each container declaration. At the delta's baseline revision, four of them name an image other than the one NF-008 requires (three the headless image, one the `latest` tag)
+<!-- verify: git grep -l -e arcadedb-headless -e arcadedata/arcadedb:latest c0f2fcedba2103e638239ebfd61ce2a7765fb8d3 -- src/test/java | wc -l == 4 -->
+<!-- blind spot: only string literals in src/test/java at that revision; an image assembled from parts or read from a resource file is not matched. -->
 : `src/test/java/it/robfrank/linklift/testcontainers/ArcadeDbContainer.java` (the shared container behind `ArcadeDbTestBase`), `src/test/java/it/robfrank/linklift/config/DatabaseInitializerTest.java`, `src/test/java/it/robfrank/linklift/integration/AuthenticationIntegrationTest.java` and `src/test/java/it/robfrank/linklift/adapter/out/persistence/ArcadeAuthTokenRepositoryTest.java`. Each literal becomes `"arcadedata/arcadedb:" + Constants.getRawVersion()`, the form the other persistence tests already use, so the tag follows the ArcadeDB dependency in `pom.xml` (NF-008). No separate image property is introduced and the library version is not pinned. `ArcadeDbContainer` keeps its environment, user override and readiness wait.
 
 ## Loopback test apps {#loopback-test-apps}
@@ -14,12 +14,14 @@ The test sources name the ArcadeDB image as a string literal in each container d
 A new test helper `LoopbackJavalin` (package `it.robfrank.linklift.adapter.in.web`, under `src/test/java`) is the single place JavalinTest-based tests start an app. `LoopbackJavalin.test(app, testCase)` sets `app.unsafe.jetty.host` to the loopback address of NF-008 and then calls `JavalinTest.test(app, testCase)`. Javalin creates its Jetty server lazily on `start`, and JavalinTest starts the app with `app.start(0)`, so the host is in force when the connector binds; JavalinTest's own client already sends to the loopback origin
 (`HttpClient.origin` is `http://127.0.0.1:<port>` in javalin-testtools 7.2.4, read from its sources jar) <!-- external-ref -->.
 
-Every `JavalinTest.test(` call in the test sources is replaced by `LoopbackJavalin.test(` with the same arguments: 50 calls
-<!-- verify: grep -rn 'JavalinTest.test(' src/test/java | wc -l == 50 -->
+Every `JavalinTest.test(` call in the test sources is replaced by `LoopbackJavalin.test(` with the same arguments, and each caller drops its then-unused `import io.javalin.testtools.JavalinTest;`. At the delta's baseline revision there are 50 calls
+<!-- verify: git grep -n 'JavalinTest.test(' c0f2fcedba2103e638239ebfd61ce2a7765fb8d3 -- src/test/java | wc -l == 50 -->
 in 9 test classes
-<!-- verify: grep -rl 'JavalinTest' src/test/java | wc -l == 9 -->
+<!-- verify: git grep -l 'JavalinTest' c0f2fcedba2103e638239ebfd61ce2a7765fb8d3 -- src/test/java | wc -l == 9 -->
 <!-- blind spot: matches the literal call text only; a static import of JavalinTest.test would be missed (none exists: grep -rn 'import static io.javalin' src/test/java returns nothing). -->
-, including `ObservabilityTest`, whose app comes from `WebBuilder.build()`; the helper sets the host on the built app, so `WebBuilder` is not in the file plan. After the change the only `JavalinTest.test(` call is the one inside `LoopbackJavalin`.
+, including `ObservabilityTest`, whose app comes from `WebBuilder.build()`; the helper sets the host on the built app, so `WebBuilder` is not in the file plan. After the change the only `JavalinTest.test(` text and the only `JavalinTest` import are in `LoopbackJavalin`, whose comments do not contain the call text. The controller-test line of `CLAUDE.md` § Testing Conventions becomes "Use `LoopbackJavalin.test`, which wraps `JavalinTest`, for REST endpoint testing".
+
+The cause of the full-suite 404 has not been diagnosed: binding to loopback is a hypothesis, which `T-graph-401-full-suite` tests by repeated full runs.
 
 ## Java formatting {#java-formatting}
 

@@ -1,8 +1,156 @@
 id: fix-backend-build
 title: Fix the red backend build (prettier, Testcontainers image, graph 401 test)
-priority: medium
-maturity: draft
-baseline: c0f2fcedba2103e638239ebfd61ce2a7765fb8d3
+priority: high
+maturity: golden
+review:
+  rounds: 2
+  lane: light
+  verdict: golden-ready
+  date: '2026-11-14'
+  timing:
+    total_elapsed_s: 955.4
+    total_tokens: 15247839
+    rounds:
+    - n: 1
+      kind: round-1
+      elapsed_s: 196.1
+      tokens: null
+      tokens_source: transcript
+      subagent_tokens:
+        cache_creation: 237077
+        cache_read: 1895777
+        dispatches: 3
+        duration_ms: 0
+        input: 46
+        labels:
+        - Fix round-1 findings fix-webapp-tests
+        - Gap review round 1 fix-backend-build
+        - Gap review round 1 fix-webapp-tests
+        measured: 3
+        messages: 23
+        models:
+        - claude-opus-5-5
+        - claude-sonnet-5-5
+        output: 24688
+        tool_uses: 0
+        total: 2157588
+        unpriceable: {}
+      main_tokens:
+        cache_creation: 45006
+        cache_read: 4619673
+        input: 34
+        messages: 15
+        models:
+        - claude-opus-5-5
+        output: 20459
+        total: 4685172
+      findings: 8
+      blockers: 4
+      introduced_by_fix: 0
+      subagents: []
+    - n: 2
+      kind: fix-verification
+      elapsed_s: 60.4
+      tokens: null
+      tokens_source: transcript
+      subagent_tokens:
+        input: 62
+        output: 25687
+        cache_creation: 164866
+        cache_read: 2134224
+        messages: 31
+        models:
+        - claude-opus-5-5
+        - claude-sonnet-5-5
+        dispatches: 2
+        measured: 2
+        duration_ms: 0
+        tool_uses: 0
+        labels:
+        - Fix round-1 findings fix-backend-build
+        - Fix-verification round 2 fix-backend-build
+        unpriceable: {}
+        total: 2324839
+      main_tokens:
+        input: 38
+        output: 17924
+        cache_creation: 45470
+        cache_read: 6016808
+        messages: 17
+        models:
+        - claude-opus-5-5
+        total: 6080240
+      findings: 2
+      blockers: 0
+      introduced_by_fix: 1
+      subagents: []
+  promotion_declined:
+    findings:
+    - R1-1
+    - R1-2
+    - R1-3
+    - R1-4
+    reason: 'Stay light (Recommended): the four blockers are wording and evidence fixes in a test-and-formatting
+      delta'
+  resolutions:
+    R1-1:
+      outcome: fixed
+      reason: Supersedes line for trunk implementation.md#testing Persistence row (image arcadedata/arcadedb
+        at the library version, NF-008) added under the delta's Module & File Layout. The suggested doc:implementation#testing
+        modify was tried and refused by lint [fold-compose] (the fold appends implementation.md and never
+        replaces sections; lint prescribes a Supersedes baseline line instead), so it was reverted from
+        the manifest.
+      round: 1
+    R1-2:
+      outcome: fixed
+      reason: 'Hypothesis route (removes nothing, adds no row): spec#loopback-test-apps now says the 404
+        cause is undiagnosed and the loopback bind is a hypothesis; NF-008 drops the causal ''so'' and
+        states the graph 401 test passes in the full suite as alone; T-graph-401-full-suite runs three
+        consecutive full ./mvnw test runs (new numeric bound, asked for by the finding''s ''several full
+        runs'').'
+      round: 1
+    R1-3:
+      outcome: fixed
+      reason: 'Anchor route (removes nothing): the three verify markers (4 image literals, 50 calls, 9
+        classes) now read the delta''s baseline revision c0f2fce via git grep and say ''at the delta''s
+        baseline revision'', so they stay true after apply; spec states LoopbackJavalin''s comments do
+        not contain the call text.'
+      round: 1
+    R1-4:
+      outcome: fixed
+      reason: Spec states each caller drops its unused 'import io.javalin.testtools.JavalinTest;'; the
+        9 caller rows of Module & File Layout say so; T-loopback-callers also greps that import (exactly
+        one match, LoopbackJavalin.java; red if a caller keeps the import); Gates note says the owner-run
+        lint's unused-import case is covered by T-loopback-callers.
+      round: 1
+    R1-5:
+      outcome: fixed
+      reason: ROUND-00 Goal and Delta acceptance now read 'every gate except lint, which the owner runs';
+        Gates note says lint is the one gate not required green; summary.md Notes gets an appended entry
+        superseding the 'every gate green' note (Notes are append-only per lint).
+      round: 1
+    R1-6:
+      outcome: fixed
+      reason: manifest priority medium -> high, matching the intent.
+      round: 1
+    R1-7:
+      outcome: fixed
+      reason: 'Route: plan the CLAUDE.md edit (removes nothing). spec#loopback-test-apps gives the new
+        CLAUDE.md Testing Conventions controller-test line (use LoopbackJavalin.test, which wraps JavalinTest)
+        and Module & File Layout gains a CLAUDE.md row; CLAUDE.md itself is not edited now (apply edits
+        it). The Resolved Document Set is generated and unchanged.'
+      round: 1
+    R1-8:
+      outcome: fixed
+      reason: 'Gates note: if test fails only on VectorSearchE2ETest''s Ollama pull, rerun once at the
+        java-developer rule''s test_cap_escalated (900 s, read in .agents/rules/java-developer.md); a
+        still-failing pull is recorded as the intent''s out-of-scope Ollama issue. T-full-suite points
+        to it. NF-008 left as is (its edit is R1-2''s).'
+      round: 1
+  dev_rules_sha:
+    java-developer.md: 271befd6eb77e080
+  sha: 954ee2261b9e9d09
+baseline: 8f2dbc105416ec5044a259ba8cfe516ab2233fd6
 lane: light
 footprint:
   assumes:

@@ -25,3 +25,5 @@ Backend build green again: Testcontainers tests use the full ArcadeDB image at t
 - 2026-11-14 · author — NF-FBB-001's CI enforcement is already wired (pre-commit prettier hook in both workflows' `check` job); no workflow file changes.
 - 2026-11-14 · author — the "passes" outcome is carried in NF-008 rather than a new requirement, since the intent's footprint lists only NF-008 and NF-FBB-001.
 - 2026-11-14 · author — all work sits in round 00: its acceptance (every java-developer gate green) is the delta's outcome, so no feature round follows.
+- 2026-11-14 · author — supersedes the round-00 entry above: the acceptance is every java-developer gate green except lint, which the owner runs.
+- 2026-11-14 · gate — review: 2 round(s), lane light — blockers in round(s) 1 — 1 finding(s) were damage from a fix pass.

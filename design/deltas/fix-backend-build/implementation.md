@@ -22,29 +22,30 @@
 |------|----------------|---------------|--------------|
 | `src/test/java/it/robfrank/linklift/adapter/in/web/LoopbackJavalin.java` <!-- planned-artifact --> | Bind a JavalinTest app to loopback, then run it (spec `#loopback-test-apps`) | `test(Javalin, TestCase)` | JavalinTest-based tests |
 | `src/test/java/it/robfrank/linklift/adapter/in/web/LoopbackJavalinTest.java` <!-- planned-artifact --> | Tests the helper (row `T-loopback-helper`) | — | Surefire |
-| `src/test/java/it/robfrank/linklift/adapter/in/web/AuthenticationControllerTest.java` | Call `LoopbackJavalin.test` | — | Surefire |
-| `src/test/java/it/robfrank/linklift/adapter/in/web/CollectionControllerTest.java` | Call `LoopbackJavalin.test` | — | Surefire |
-| `src/test/java/it/robfrank/linklift/adapter/in/web/DeleteContentControllerTest.java` | Call `LoopbackJavalin.test` | — | Surefire |
-| `src/test/java/it/robfrank/linklift/adapter/in/web/GetRelatedLinksControllerTest.java` | Call `LoopbackJavalin.test` | — | Surefire |
-| `src/test/java/it/robfrank/linklift/adapter/in/web/LinkControllerTest.java` | Call `LoopbackJavalin.test` | — | Surefire |
-| `src/test/java/it/robfrank/linklift/adapter/in/web/ListLinksControllerTest.java` | Call `LoopbackJavalin.test` | — | Surefire |
-| `src/test/java/it/robfrank/linklift/adapter/in/web/NewLinkControllerTest.java` | Call `LoopbackJavalin.test` | — | Surefire |
-| `src/test/java/it/robfrank/linklift/adapter/in/web/ObservabilityTest.java` | Call `LoopbackJavalin.test` | — | Surefire |
-| `src/test/java/it/robfrank/linklift/adapter/in/web/security/SecurityIntegrationTest.java` | Call `LoopbackJavalin.test` | — | Surefire |
+| `src/test/java/it/robfrank/linklift/adapter/in/web/AuthenticationControllerTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
+| `src/test/java/it/robfrank/linklift/adapter/in/web/CollectionControllerTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
+| `src/test/java/it/robfrank/linklift/adapter/in/web/DeleteContentControllerTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
+| `src/test/java/it/robfrank/linklift/adapter/in/web/GetRelatedLinksControllerTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
+| `src/test/java/it/robfrank/linklift/adapter/in/web/LinkControllerTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
+| `src/test/java/it/robfrank/linklift/adapter/in/web/ListLinksControllerTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
+| `src/test/java/it/robfrank/linklift/adapter/in/web/NewLinkControllerTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
+| `src/test/java/it/robfrank/linklift/adapter/in/web/ObservabilityTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
+| `src/test/java/it/robfrank/linklift/adapter/in/web/security/SecurityIntegrationTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
 | `src/test/java/it/robfrank/linklift/testcontainers/ArcadeDbContainer.java` | Full ArcadeDB image (spec `#test-container-image`) | — | `ArcadeDbTestBase` |
 | `src/test/java/it/robfrank/linklift/config/DatabaseInitializerTest.java` | Full ArcadeDB image | — | Surefire |
 | `src/test/java/it/robfrank/linklift/integration/AuthenticationIntegrationTest.java` | Full ArcadeDB image | — | Surefire |
 | `src/test/java/it/robfrank/linklift/adapter/out/persistence/ArcadeAuthTokenRepositoryTest.java` | Full ArcadeDB image at the library version | — | Surefire |
+| `CLAUDE.md` | Controller-test line names `LoopbackJavalin.test` (spec `#loopback-test-apps`) | — | — |
 | `src/test/java/it/robfrank/linklift/adapter/in/web/AskControllerTest.java` | prettier layout (spec `#java-formatting`) | — | Surefire |
 | `src/test/java/it/robfrank/linklift/application/domain/service/AskQuestionServiceTest.java` | prettier layout | — | Surefire |
 
-No file under `src/main` is in the plan.
+No file under `src/main` is in the plan. Supersedes baseline "image `arcadedata/arcadedb-headless` at the client library's version" (`implementation.md#testing`, Persistence row): the image is `arcadedata/arcadedb` at the client library's version (NF-008).
 
 ## Implementation Rounds
 
 | Round ID  | File | Summary | Goal | Requirement IDs | Depends on |
 |-----------|------|---------|------|-----------------|------------|
-| `ROUND-00` | `phases/round-00-toolchain.md` | `summaries/round-00-toolchain-summary.md` | Every java-developer gate green: prettier layout for the Ask tests, the full image, loopback test apps | `NF-008`, `NF-FBB-001` | none |
+| `ROUND-00` | `phases/round-00-toolchain.md` | `summaries/round-00-toolchain-summary.md` | Every java-developer gate except lint, which the owner runs, green: prettier layout for the Ask tests, the full image, loopback test apps | `NF-008`, `NF-FBB-001` | none |
 
 ## Testing Plan
 
@@ -56,8 +57,8 @@ Behavioral, per the java-developer rule. This table is the only place the delta'
 | `T-image-sources` | `NF-008` | `grep -rnE 'arcadedb-headless\|arcadedata/arcadedb:latest' src/test/java` | no match |
 | `T-image-full` | `NF-008` | `grep -rn 'arcadedata/arcadedb:" + Constants.getRawVersion()' src/test/java` | one match in each of `ArcadeDbContainer`, `DatabaseInitializerTest`, `AuthenticationIntegrationTest`, `ArcadeAuthTokenRepositoryTest` |
 | `T-loopback-helper` | `NF-008` | `LoopbackJavalinTest`: run an app with one `GET /ping` route through `LoopbackJavalin.test` | inside the test case the Jetty `ServerConnector` host is `127.0.0.1` and `client.get("/ping")` answers 200 with body `pong` |
-| `T-loopback-callers` | `NF-008` | `grep -rn 'JavalinTest.test(' src/test/java` | exactly one match, in `src/test/java/it/robfrank/linklift/adapter/in/web/LoopbackJavalin.java` <!-- planned-artifact --> |
-| `T-graph-401-full-suite` | `NF-008`, `RQ-026` | `ListLinksControllerTest.getGraph_shouldReturn401_whenUserNotAuthenticated` inside the full `./mvnw test` run | passes (401, message `Unauthorized access`) |
-| `T-full-suite` | `NF-008` | java-developer `test` gate with Docker running | exit 0; Surefire reports 0 failures and 0 errors |
+| `T-loopback-callers` | `NF-008` | `grep -rn 'JavalinTest.test(' src/test/java`; `grep -rl 'import io.javalin.testtools.JavalinTest;' src/test/java` | each: exactly one match, in `src/test/java/it/robfrank/linklift/adapter/in/web/LoopbackJavalin.java` <!-- planned-artifact --> |
+| `T-graph-401-full-suite` | `NF-008`, `RQ-026` | `ListLinksControllerTest.getGraph_shouldReturn401_whenUserNotAuthenticated` in each of three consecutive full `./mvnw test` runs | passes (401, message `Unauthorized access`) |
+| `T-full-suite` | `NF-008` | java-developer `test` gate with Docker running (an Ollama-pull failure: round 00 § Gates) | exit 0; Surefire reports 0 failures and 0 errors |
 
-Delta acceptance: every row of the round 00 gate table reads green, and CI's `check` and `build` jobs pass on the merge commit.
+Delta acceptance: every row of the round 00 gate table except lint, which the owner runs, reads green, and CI's `check` and `build` jobs pass on the merge commit.

@@ -25,4 +25,4 @@ Every row of `implementation.md` § Testing Plan.
 | test-baseline | `timeout 300s ./mvnw -q test -Djacoco.skip=true` | green |
 | test | `timeout 300s ./mvnw -q test jacoco:report` | green |
 
-The lint row follows `design/rule-overrides.yaml` (owner-run, approved by the user for this delta).
+The lint row follows `design/rule-overrides.yaml` (owner-run, approved by the user for this delta); it is the one gate not required green at apply, so the unused `JavalinTest` imports it would flag are checked by `T-loopback-callers`. If `test` fails only because `VectorSearchE2ETest`'s Ollama image or model pull runs past the cap or cannot reach the network, it is rerun once at the rule's `test_cap_escalated` (900 s); a pull that still fails is recorded in the round summary as the intent's out-of-scope Ollama pull, not as a failure of this delta.

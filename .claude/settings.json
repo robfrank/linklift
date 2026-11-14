@@ -1,0 +1,45 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'export PA_CONFIRM_ROOT_TURN=1; if [ \"${PA_HARNESS:-}\" = \"opencode\" ] || { [ -z \"${CLAUDECODE:-}\" ] && [ -n \"${OPENCODE:-}${OPENCODE_PID:-}\" ]; }; then pref=\"$HOME/.config/opencode/skill $HOME/.config/opencode/skills .opencode/skill\"; elif [ \"${PA_HARNESS:-}\" = \"claude\" ] || [ -n \"${CLAUDECODE:-}\" ]; then pref=\"$HOME/.claude/skills .claude/skills\"; else pref=\"\"; fi; for r in \"${PA_SKILL_DIR:+$PA_SKILL_DIR/..}\" $pref \"$HOME/.claude/skills\" \"$HOME/.agents/skills\" \"$HOME/.config/opencode/skill\" \"$HOME/.config/opencode/skills\" \"$HOME/.codex/skills\" \".claude/skills\" \".opencode/skill\" \".agents/skills\"; do f=\"$r/product-architect/scripts/hooks/pa-prompt-check.sh\"; [ -f \"$f\" ] && exec sh \"$f\"; done; exit 0'"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'if [ \"${PA_HARNESS:-}\" = \"opencode\" ] || { [ -z \"${CLAUDECODE:-}\" ] && [ -n \"${OPENCODE:-}${OPENCODE_PID:-}\" ]; }; then pref=\"$HOME/.config/opencode/skill $HOME/.config/opencode/skills .opencode/skill\"; elif [ \"${PA_HARNESS:-}\" = \"claude\" ] || [ -n \"${CLAUDECODE:-}\" ]; then pref=\"$HOME/.claude/skills .claude/skills\"; else pref=\"\"; fi; for r in \"${PA_SKILL_DIR:+$PA_SKILL_DIR/..}\" $pref \"$HOME/.claude/skills\" \"$HOME/.agents/skills\" \"$HOME/.config/opencode/skill\" \"$HOME/.config/opencode/skills\" \"$HOME/.codex/skills\" \".claude/skills\" \".opencode/skill\" \".agents/skills\"; do f=\"$r/product-architect/scripts/hooks/pa-session-start.sh\"; [ -f \"$f\" ] && exec sh \"$f\"; done; exit 0'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'if [ \"${PA_HARNESS:-}\" = \"opencode\" ] || { [ -z \"${CLAUDECODE:-}\" ] && [ -n \"${OPENCODE:-}${OPENCODE_PID:-}\" ]; }; then pref=\"$HOME/.config/opencode/skill $HOME/.config/opencode/skills .opencode/skill\"; elif [ \"${PA_HARNESS:-}\" = \"claude\" ] || [ -n \"${CLAUDECODE:-}\" ]; then pref=\"$HOME/.claude/skills .claude/skills\"; else pref=\"\"; fi; for r in \"${PA_SKILL_DIR:+$PA_SKILL_DIR/..}\" $pref \"$HOME/.claude/skills\" \"$HOME/.agents/skills\" \"$HOME/.config/opencode/skill\" \"$HOME/.config/opencode/skills\" \"$HOME/.codex/skills\" \".claude/skills\" \".opencode/skill\" \".agents/skills\"; do f=\"$r/product-architect/scripts/hooks/pa-apply-guard.sh\"; [ -f \"$f\" ] && exec sh \"$f\"; done; exit 0'"
+          }
+        ],
+        "matcher": "Bash|Edit|Write|NotebookEdit|Glob|Grep"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'if [ \"${PA_HARNESS:-}\" = \"opencode\" ] || { [ -z \"${CLAUDECODE:-}\" ] && [ -n \"${OPENCODE:-}${OPENCODE_PID:-}\" ]; }; then pref=\"$HOME/.config/opencode/skill $HOME/.config/opencode/skills .opencode/skill\"; elif [ \"${PA_HARNESS:-}\" = \"claude\" ] || [ -n \"${CLAUDECODE:-}\" ]; then pref=\"$HOME/.claude/skills .claude/skills\"; else pref=\"\"; fi; for r in \"${PA_SKILL_DIR:+$PA_SKILL_DIR/..}\" $pref \"$HOME/.claude/skills\" \"$HOME/.agents/skills\" \"$HOME/.config/opencode/skill\" \"$HOME/.config/opencode/skills\" \"$HOME/.codex/skills\" \".claude/skills\" \".opencode/skill\" \".agents/skills\"; do f=\"$r/product-architect/scripts/hooks/pa-manual-change.sh\"; [ -f \"$f\" ] && exec sh \"$f\"; done; exit 0'"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,23 +1,25 @@
 id: fix-webapp-tests
 title: Fix webapp Jest suites broken by Babel 8 (ESM-only presets)
 priority: medium
-maturity: intent
+maturity: draft
 baseline: c0f2fcedba2103e638239ebfd61ce2a7765fb8d3
 lane: light
 footprint:
   assumes:
-    - NF-103
-    - NF-104
+  - NF-103
+  - NF-104
   changes:
-    - id: NF-107
-      op: modify
-    - id: NF-108
-      op: modify
+  - id: NF-107
+    op: modify
+  - id: NF-108
+    op: modify
+  - id: NF-FWT-001
+    op: add
 dev_rules:
-  - typescript-developer
+- typescript-developer
 project_standards:
-  - CLAUDE.md
-  - webapp/CLAUDE.md
+- CLAUDE.md
+- webapp/CLAUDE.md
 pins:
   harness: claude
   intent: v1
@@ -30,3 +32,10 @@ pins:
   probe_kits: v1
   premises: v2
 premises: required
+authoring:
+  mode: fresh
+  question_rounds: 3
+  dispatch:
+    verified: true
+    model: claude-opus-5-5
+    label: Author fix-webapp-tests delta design

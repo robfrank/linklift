@@ -1,0 +1,22 @@
+id: fix-backend-build
+title: Fix the red backend build (prettier, Testcontainers image, graph 401 test)
+priority: medium
+maturity: intent
+baseline: 87bcb091919465cda79261d42ac62fe8bb5208c4
+footprint:
+  assumes: []
+  changes: []
+dev_rules: []
+project_standards: []
+pins:
+  harness: claude
+  intent: v1
+  size_guard: v2
+  single_source: v1
+  headroom: v1
+  touched: v1
+  authoring: v1
+  author_dispatch: v1
+  probe_kits: v1
+  premises: v2
+premises: required

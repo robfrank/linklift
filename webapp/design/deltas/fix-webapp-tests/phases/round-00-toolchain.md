@@ -25,7 +25,7 @@ Every gate of `typescript-developer` runs the command `webapp/design/rule-overri
 | dep-sync | `npm ci` | override: use |
 | lint | `npx --yes prettier@3.3.3 --check --no-config --print-width 160 --trailing-comma none src` | override: use |
 | format-check | `npx --yes prettier@3.3.3 --check --no-config --print-width 160 --trailing-comma none src` | override: use |
-| type-check | `bunx tsc --noEmit` | override: owner |
+| type-check | `npx tsc` | override: owner |
 | test-baseline | `npm test` | override: use |
 | test | `npm run test:coverage` | override: use |
 

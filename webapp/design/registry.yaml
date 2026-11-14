@@ -3,8 +3,8 @@ deltas:
 - id: fix-webapp-tests
   title: Fix webapp Jest suites broken by Babel 8 (ESM-only presets)
   priority: medium
-  maturity: draft
-  baseline: c0f2fcedba2103e638239ebfd61ce2a7765fb8d3
+  maturity: golden
+  baseline: 8f2dbc105416ec5044a259ba8cfe516ab2233fd6
   flag: clean
   intersecting:
     assumes: []

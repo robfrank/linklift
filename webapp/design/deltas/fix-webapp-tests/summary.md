@@ -19,3 +19,5 @@ Webapp tests run again on Babel 8: Jest loads the project's own `babel-jest`, `r
 - 2026-11-14 · author — `ES2022` and `bundler` chosen for **NF-FWT-001**: they match the `typescript-developer` rule's tsconfig snippet; with them `npx tsc` reports 52 errors in 14 source files and none against the config, matching amendment 3.
 - 2026-11-14 · author — the whole change is the round-00 toolchain round (required because `typescript-developer` is new to this design root); every gate runs its approved override, type-check as owner.
 - 2026-11-14 · author — baseline `implementation.md` (Testing section) still says CI runs on Node 18 next to **NF-108**; the fold should carry the Node 24 wording.
+- 2026-11-14 · fixer — the same file's `webapp/README.md` documentation-conflict row also says "CI: Node 18"; the fold carries Node 24 there too.
+- 2026-11-14 · gate — review: 1 round(s), lane light — no blockers.

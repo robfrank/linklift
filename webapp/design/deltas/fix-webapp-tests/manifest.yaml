@@ -1,8 +1,90 @@
 id: fix-webapp-tests
 title: Fix webapp Jest suites broken by Babel 8 (ESM-only presets)
 priority: medium
-maturity: draft
-baseline: c0f2fcedba2103e638239ebfd61ce2a7765fb8d3
+maturity: golden
+review:
+  rounds: 1
+  lane: light
+  verdict: golden-ready
+  date: '2026-11-14'
+  timing:
+    total_elapsed_s: 532.4
+    total_tokens: 1645668
+    rounds:
+    - n: 1
+      kind: round-1
+      elapsed_s: 74.1
+      tokens: null
+      tokens_source: transcript
+      subagent_tokens:
+        cache_creation: 73839
+        cache_read: 328306
+        dispatches: 1
+        duration_ms: 0
+        input: 10
+        labels:
+        - Gap review round 1 fix-webapp-tests
+        measured: 1
+        messages: 5
+        models:
+        - claude-sonnet-5-5
+        output: 4860
+        tool_uses: 0
+        total: 407015
+        unpriceable: {}
+      main_tokens:
+        cache_creation: 7940
+        cache_read: 1225368
+        input: 10
+        messages: 4
+        models:
+        - claude-opus-5-5
+        output: 5335
+        total: 1238653
+      findings: 6
+      blockers: 0
+      introduced_by_fix: 0
+      subagents: []
+  resolutions:
+    R1-1:
+      outcome: fixed
+      reason: type-check gate row Command is now `npx tsc` (owner-run from webapp/), matching the Testing
+        Plan and NF-FWT-001; no other bunx spelling in the delta
+      round: 1
+    R1-2:
+      outcome: fixed
+      reason: 'T-build-output assertion now says how to compare: git diff of webapp/package-lock.json
+        against the baseline commit changes only the node_modules/react-dom entry (lock-diff route; removes
+        nothing, no trunk rebuild needed)'
+      round: 1
+    R1-3:
+      outcome: fixed
+      reason: 'package-lock row names `npm update react-dom --package-lock-only --ignore-scripts` from
+        webapp/ (verified on a scratch copy: changes only the react-dom entry to 19.3.1 incl. integrity
+        and peer range, package.json untouched) and says package.json is not edited because ^19.1.0 allows
+        it'
+      round: 1
+    R1-4:
+      outcome: fixed
+      reason: 'fold-note route (removes nothing): appended a dated summary Notes entry saying the baseline
+        implementation.md README-conflict row''s ''CI: Node 18'' also gets Node 24 at fold; the existing
+        Testing-section note is unchanged (Notes are append-only)'
+      round: 1
+    R1-5:
+      outcome: fixed
+      reason: 'filled the NF-103, NF-104, NF-108 rows with ''not-affected: webpack and Jest never read
+        tsconfig.json; Babel does no type check'' (verified: no tsconfig/tsc reference in jest.config.js,
+        webpack.config.js, Dockerfile, package.json, webapp-ci.yml)'
+      round: 1
+    R1-6:
+      outcome: fixed
+      reason: NF-107 now says Node 24 means 24.11 or later (Babel 8's engine floor, verified from @babel/core
+        8.0.7 engines); T-jest-all-suites-local cites the Node 24 NF-107 names instead of restating it
+      round: 1
+  dev_rules_sha:
+    typescript-developer.md: 13326e86dcd019c7
+  sha: 7feeb8cba1693b17
+baseline: 8f2dbc105416ec5044a259ba8cfe516ab2233fd6
 lane: light
 footprint:
   assumes:

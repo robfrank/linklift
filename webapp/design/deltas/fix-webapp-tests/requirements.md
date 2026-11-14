@@ -8,7 +8,7 @@
 
 ## Modified (overrides baseline)
 
-- **NF-107** `npm test` runs Jest in a jsdom environment, transforming sources with the project's own `babel-jest` and `@babel/core` 8 through the presets in `webapp/.babelrc`, mapping CSS imports to `identity-obj-proxy` and replacing `react-force-graph-2d` with a stub; `webapp/package-lock.json` resolves `react` and `react-dom` to the same version, `19.3.1`, and all 8 suites (34 cases) run and pass on Node 24 and on Node 26.
+- **NF-107** `npm test` runs Jest in a jsdom environment, transforming sources with the project's own `babel-jest` and `@babel/core` 8 through the presets in `webapp/.babelrc`, mapping CSS imports to `identity-obj-proxy` and replacing `react-force-graph-2d` with a stub; `webapp/package-lock.json` resolves `react` and `react-dom` to the same version, `19.3.1`, and all 8 suites (34 cases) run and pass on Node 24 (24.11 or later, Babel 8's engine floor) and on Node 26.
   - **Tags**: `test`
   - **Falsifier**: aligning only `react-dom` leaves Jest on its nested Babel 7 core, so the suite importing a TypeScript enum still fails; ruled out by test rows `T-jest-transform-path` and `T-jest-all-suites-local`.
 

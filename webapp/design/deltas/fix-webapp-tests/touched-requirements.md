@@ -2,6 +2,6 @@
 | Planned file | Trunk requirement | Disposition |
 |---|---|---|
 | webapp/tsconfig.json | NF-102 | not-affected: webpack-dev-server compiles through `babel-loader` and `webapp/.babelrc`; `webapp/webpack.config.js` never references `tsconfig.json`, so port, fallback and proxy are untouched |
-| webapp/tsconfig.json | NF-103 |  |
-| webapp/tsconfig.json | NF-104 |  |
-| webapp/tsconfig.json | NF-108 |  |
+| webapp/tsconfig.json | NF-103 | not-affected: webpack and Jest never read `tsconfig.json`; Babel does no type check |
+| webapp/tsconfig.json | NF-104 | not-affected: webpack and Jest never read `tsconfig.json`; Babel does no type check |
+| webapp/tsconfig.json | NF-108 | not-affected: webpack and Jest never read `tsconfig.json`; Babel does no type check |

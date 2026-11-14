@@ -20,7 +20,7 @@
 | File | Responsibility | Key Functions | Entry Points |
 |------|----------------|---------------|--------------|
 | `webapp/jest.config.js` | The `transform` entry names `require.resolve("babel-jest")`, so Jest loads the project's top-level `babel-jest` and with it the top-level `@babel/core` 8 instead of the copy nested under `jest-config` (**NF-107**) | — | `npm test`, `npm run test:coverage` |
-| `webapp/package-lock.json` | `node_modules/react-dom` entry (version, resolved, integrity, `react` peer range) aligned with `react` (**NF-107**); `webapp/package.json` ranges stay as they are | — | `npm ci` |
+| `webapp/package-lock.json` | `node_modules/react-dom` aligned with `react` (**NF-107**) by `npm update react-dom --package-lock-only --ignore-scripts` from `webapp/`; `webapp/package.json` is not edited, its `^19.1.0` range already allows it | — | `npm ci` |
 | `webapp/tsconfig.json` | The two compiler options **NF-FWT-001** names | — | `npx tsc` |
 | `.github/workflows/webapp-ci.yml` | `actions/setup-node` `node-version` for the `Webapp CI` job (**NF-108**) | — | `Webapp CI` workflow |
 
@@ -40,10 +40,10 @@ Behavioral, per the Developer Rule's testing-plan convention. This table is the 
 |------|-----------------|------|-----------|
 | `T-lock-react-versions` | `NF-107` | Read `packages["node_modules/react"].version` and `packages["node_modules/react-dom"].version` from `webapp/package-lock.json` | Both equal the version **NF-107** names; no nested `node_modules/*/node_modules/react-dom` entry exists |
 | `T-jest-transform-path` | `NF-107` | `cd webapp && npx jest --showConfig` | The `transform` path is `webapp/node_modules/babel-jest/build/index.js`, not one under `node_modules/jest-config/` |
-| `T-jest-all-suites-local` | `NF-107` | `cd webapp && npm ci && npx jest --clearCache && npm test` on Node 26, then the same Jest run under Node 24 | Each run reports the suite and case counts **NF-107** names, all passed, none failed |
+| `T-jest-all-suites-local` | `NF-107` | `cd webapp && npm ci && npx jest --clearCache && npm test` on Node 26, then the same Jest run under the Node 24 **NF-107** names | Each run reports the suite and case counts **NF-107** names, all passed, none failed |
 | `T-tsconfig-options` | `NF-FWT-001` | Read `webapp/tsconfig.json`, then `cd webapp && npx tsc` | The two options hold the values **NF-FWT-001** names, every other option keeps its trunk value, and no reported error names `webapp/tsconfig.json` |
 | `T-ci-node-24` | `NF-108` | Read the `node-version` input of `actions/setup-node` in `.github/workflows/webapp-ci.yml` | It is the Node major **NF-108** names |
 | `T-ci-green` | `NF-107`, `NF-108` | The `Webapp CI` run on the delta's pull request | `Install dependencies`, `Run tests` and `Build project` steps all succeed, and the `Run tests` log shows the counts **NF-107** names |
-| `T-build-output` | `NF-103` | `cd webapp && npm run build` | `dist/bundle.js` and `dist/index.html` are produced; the bundle differs from trunk only by the `react-dom` alignment |
+| `T-build-output` | `NF-103` | `cd webapp && npm run build` | `dist/bundle.js` and `dist/index.html` are produced; `git diff` of `webapp/package-lock.json` against the baseline commit changes only the `node_modules/react-dom` entry |
 
 Delta-specific acceptance: `T-ci-green` on the pull request is the proof of done; deploy follows the existing procedure (see [operational-guides/build-and-deploy.md](../../operational-guides/build-and-deploy.md)).

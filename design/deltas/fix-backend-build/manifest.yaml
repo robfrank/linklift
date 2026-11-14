@@ -1,7 +1,7 @@
 id: fix-backend-build
 title: Fix the red backend build (prettier, Testcontainers image, graph 401 test)
 priority: high
-maturity: golden
+maturity: applying
 review:
   rounds: 2
   lane: light
@@ -187,3 +187,9 @@ authoring:
     verified: true
     model: claude-opus-5-5
     label: Author fix-backend-build delta design
+effort:
+  started: 2026-11-14T22:34:57+00:00
+  pre_impl: c7ca9edd99df887706fee6a9889c15dbe15eabd7
+  session: c454b9e2-5728-45f2-838d-1cd8871bfa04
+branch: feature/fix-backend-build
+apply_authorization: grant 25bf14 (1/2)

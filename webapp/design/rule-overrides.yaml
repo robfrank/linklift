@@ -33,3 +33,10 @@
   approved_by: user
   approved_at: 2026-11-14
   delta: fix-webapp-tests
+- rule: typescript-developer
+  gate: type-check
+  runs: owner
+  reason: "ok, I can run it"
+  approved_by: user
+  approved_at: 2026-11-14
+  delta: fix-webapp-tests

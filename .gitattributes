@@ -1,0 +1,3 @@
+**/registry.yaml merge=pa-registry
+**/lint-ack.yaml merge=pa-list
+**/rule-overrides.yaml merge=pa-list

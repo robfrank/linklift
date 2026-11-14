@@ -128,6 +128,10 @@ docker-compose -f docker-compose-backend.yml up -d  # Backend only
 | `LINKLIFT_OLLAMA_DIMENSIONS` | Vector dimensions        | `384`                    |
 | `linklift.arcadedb.host`     | ArcadeDB host (JVM prop) | `localhost`              |
 
+## Design Deltas
+
+Design lives in `design/` (backend) and `webapp/design/` (frontend), maintained with the product-architect skill. Commits here carry `Delta-Id: <slug>` and `Delta-Phase: <event>` git trailers naming the design delta they serve. `Delta-Phase` is the lifecycle event at commit time, NOT the delta's current maturity — that lives in `design/registry.yaml` (and `webapp/design/registry.yaml`). Read history by delta with `delta-log.py <repo> --delta <slug>`.
+
 ## Code Style
 
 - Domain entities are Java `record` types (immutable).

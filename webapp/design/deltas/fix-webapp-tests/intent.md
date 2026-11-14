@@ -33,3 +33,4 @@ Priority high: a red trunk build that blocks every webapp PR. Light lane.
 None.
 
 ## Amendments
+- 2026-11-14 · user — The main cause is a react/react-dom mismatch in package-lock.json (react 19.3.1, react-dom 19.3.0): bump react-dom to 19.3.1. The 'build output unchanged' and 'no change to application behaviour' constraints are relaxed for this one alignment only; lowering react to 19.3.0 rejected.

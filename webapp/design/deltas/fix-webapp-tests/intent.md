@@ -1,5 +1,5 @@
 # Fix webapp Jest suites broken by Babel 8 (ESM-only presets)
-<!-- intent: draft -->
+<!-- intent: confirmed 2026-11-14 sha256:8e627334e0a8db0a -->
 
 ## Problem
 The webapp build on trunk is red. In Webapp CI every Jest suite fails before running a test: the `@babel/*` packages were bumped to 8, whose presets are ESM-only, and jest-config's nested `@babel/core` loads them synchronously (`[BABEL]: You appear to be using a native ECMAScript module preset`). CI also pins Node 18, which Babel 8 does not support (it needs Node `^22.18` or `>=24.11`).

@@ -1,5 +1,5 @@
 # Fix the red backend build (prettier, Testcontainers image, graph 401 test)
-<!-- intent: draft -->
+<!-- intent: confirmed 2026-11-14 sha256:997610f1f53c3226 -->
 
 ## Problem
 The backend build on trunk is red. CI's `check` job and the CleanCode workflow fail because prettier (prettier-java, print width 160) reformats Java test files committed unformatted (`AskControllerTest`, `AskQuestionServiceTest`), so CI's Maven build never runs. Locally `./mvnw test` runs 476 tests with 1 failure and 6 errors: every Testcontainers class fails because the image tag follows the ArcadeDB library version and `arcadedata/arcadedb-headless:26.11.1` is not published; and `ListLinksControllerTest.getGraph_shouldReturn401_whenUserNotAuthenticated` gets 404 instead of 401 in the full suite while passing on its own.

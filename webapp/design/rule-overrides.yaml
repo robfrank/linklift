@@ -1,0 +1,35 @@
+- rule: typescript-developer
+  gate: dep-sync
+  use: "npm ci"
+  reason: "proceed (user approved the listed gate replacements in chat)"
+  approved_by: user
+  approved_at: 2026-11-14
+  delta: fix-webapp-tests
+- rule: typescript-developer
+  gate: test-baseline
+  use: "npm test"
+  reason: "proceed (user approved the listed gate replacements in chat)"
+  approved_by: user
+  approved_at: 2026-11-14
+  delta: fix-webapp-tests
+- rule: typescript-developer
+  gate: test
+  use: "npm run test:coverage"
+  reason: "proceed (user approved the listed gate replacements in chat)"
+  approved_by: user
+  approved_at: 2026-11-14
+  delta: fix-webapp-tests
+- rule: typescript-developer
+  gate: lint
+  use: "npx --yes prettier@3.3.3 --check --no-config --print-width 160 --trailing-comma none src"
+  reason: "proceed (user approved the listed gate replacements in chat)"
+  approved_by: user
+  approved_at: 2026-11-14
+  delta: fix-webapp-tests
+- rule: typescript-developer
+  gate: format-check
+  use: "npx --yes prettier@3.3.3 --check --no-config --print-width 160 --trailing-comma none src"
+  reason: "proceed (user approved the listed gate replacements in chat)"
+  approved_by: user
+  approved_at: 2026-11-14
+  delta: fix-webapp-tests

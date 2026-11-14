@@ -2,7 +2,7 @@ id: fix-webapp-tests
 title: Fix webapp Jest suites broken by Babel 8 (ESM-only presets)
 priority: medium
 maturity: intent
-baseline: 7b0d310d4f831e500337247dfca9d3cdce11cc08
+baseline: c0f2fcedba2103e638239ebfd61ce2a7765fb8d3
 lane: light
 footprint:
   assumes:

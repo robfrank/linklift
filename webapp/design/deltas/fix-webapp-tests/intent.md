@@ -34,3 +34,4 @@ None.
 
 ## Amendments
 - 2026-11-14 · user — The main cause is a react/react-dom mismatch in package-lock.json (react 19.3.1, react-dom 19.3.0): bump react-dom to 19.3.1. The 'build output unchanged' and 'no change to application behaviour' constraints are relaxed for this one alignment only; lowering react to 19.3.0 rejected.
+- 2026-11-14 · user — Fix tsconfig here: update target and moduleResolution in webapp/tsconfig.json so 'tsc --noEmit' passes under TypeScript 7 (adds a type-check requirement to the footprint); deferring it to another delta rejected. Rule gates dep-sync, test-baseline, test, lint and format-check run the overrides in webapp/design/rule-overrides.yaml.

@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import io.javalin.Javalin;
-import io.javalin.testtools.JavalinTest;
 import io.javalin.testtools.Response;
+import it.robfrank.linklift.adapter.in.web.LoopbackJavalin;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
 import it.robfrank.linklift.application.domain.exception.ErrorCode;
@@ -48,7 +48,7 @@ class SecurityIntegrationTest {
       cfg.routes.get("/protected", ctx -> ctx.result("success"));
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/protected", builder -> builder.header("Authorization", "Bearer valid-token"));
 
       assertThat(response.code()).isEqualTo(200);
@@ -70,7 +70,7 @@ class SecurityIntegrationTest {
       cfg.routes.get("/protected", ctx -> ctx.result("success"));
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/protected");
 
       assertThat(response.code()).isEqualTo(401);
@@ -94,7 +94,7 @@ class SecurityIntegrationTest {
       cfg.routes.get("/guarded", ctx -> ctx.result("granted"));
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/guarded", builder -> builder.header("Authorization", "Bearer valid-token"));
 
       assertThat(response.code()).isEqualTo(200);
@@ -123,7 +123,7 @@ class SecurityIntegrationTest {
       cfg.routes.get("/admin", ctx -> ctx.result("secret"));
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/admin", builder -> builder.header("Authorization", "Bearer valid-token"));
 
       assertThat(response.code()).isEqualTo(403);

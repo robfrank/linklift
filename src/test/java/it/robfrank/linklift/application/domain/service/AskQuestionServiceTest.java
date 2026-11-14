@@ -54,18 +54,7 @@ class AskQuestionServiceTest {
     Content content = new Content("c1", "link1", null, "Java is a programming language.", 30, LocalDateTime.now(), "text/plain", DownloadStatus.COMPLETED);
     when(loadContentPort.findSimilar(FAKE_VECTOR, 5, "user1")).thenReturn(List.of(content));
 
-    Link link = new Link(
-      "link1",
-      "https://example.com",
-      "Java Guide",
-      null,
-      LocalDateTime.now(),
-      null,
-      List.of(),
-      ReadStatus.UNREAD,
-      false,
-      false
-    );
+    Link link = new Link("link1", "https://example.com", "Java Guide", null, LocalDateTime.now(), null, List.of(), ReadStatus.UNREAD, false, false);
     when(loadLinksPort.findLinksByIds(List.of("link1"))).thenReturn(List.of(link));
 
     when(questionAnswerPort.generateAnswer(eq("What is Java?"), anyString())).thenReturn("Java is a general-purpose programming language.");
@@ -104,18 +93,7 @@ class AskQuestionServiceTest {
     Content content = new Content("c1", "link1", null, "Some content here.", 20, LocalDateTime.now(), "text/plain", DownloadStatus.COMPLETED);
     when(loadContentPort.findSimilar(FAKE_VECTOR, 5, "user1")).thenReturn(List.of(content));
 
-    Link linkWithNullTitle = new Link(
-      "link1",
-      "https://example.com",
-      null,
-      null,
-      LocalDateTime.now(),
-      null,
-      List.of(),
-      ReadStatus.UNREAD,
-      false,
-      false
-    );
+    Link linkWithNullTitle = new Link("link1", "https://example.com", null, null, LocalDateTime.now(), null, List.of(), ReadStatus.UNREAD, false, false);
     when(loadLinksPort.findLinksByIds(List.of("link1"))).thenReturn(List.of(linkWithNullTitle));
     when(questionAnswerPort.generateAnswer(anyString(), anyString())).thenReturn("answer");
 

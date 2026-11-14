@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 import io.javalin.Javalin;
-import io.javalin.testtools.JavalinTest;
 import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.AuthenticationException;
@@ -61,7 +60,7 @@ class AuthenticationControllerTest {
       cfg.routes.post("/api/v1/auth/register", authenticationController::register);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/register",
         """
@@ -100,7 +99,7 @@ class AuthenticationControllerTest {
       cfg.routes.post("/api/v1/auth/register", authenticationController::register);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/register",
         """
@@ -132,7 +131,7 @@ class AuthenticationControllerTest {
       cfg.routes.post("/api/v1/auth/register", authenticationController::register);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/register",
         """
@@ -176,7 +175,7 @@ class AuthenticationControllerTest {
       cfg.routes.post("/api/v1/auth/login", authenticationController::login);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/login",
         """
@@ -229,7 +228,7 @@ class AuthenticationControllerTest {
       cfg.routes.post("/api/v1/auth/login", authenticationController::login);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/login",
         """
@@ -271,7 +270,7 @@ class AuthenticationControllerTest {
       cfg.routes.post("/api/v1/auth/login", authenticationController::login);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/login",
         """
@@ -301,7 +300,7 @@ class AuthenticationControllerTest {
       cfg.routes.post("/api/v1/auth/login", authenticationController::login);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/login",
         """
@@ -346,7 +345,7 @@ class AuthenticationControllerTest {
       cfg.routes.post("/api/v1/auth/refresh", authenticationController::refreshToken);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/refresh",
         """
@@ -385,7 +384,7 @@ class AuthenticationControllerTest {
       cfg.routes.post("/api/v1/auth/refresh", authenticationController::refreshToken);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/refresh",
         """
@@ -413,7 +412,7 @@ class AuthenticationControllerTest {
       cfg.routes.post("/api/v1/auth/logout", authenticationController::logout);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post("/api/v1/auth/logout", "");
 
       assertThat(response.code()).isEqualTo(200);
@@ -448,7 +447,7 @@ class AuthenticationControllerTest {
       cfg.routes.post("/api/v1/auth/login", authenticationController::login);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/api/v1/auth/login",
         """

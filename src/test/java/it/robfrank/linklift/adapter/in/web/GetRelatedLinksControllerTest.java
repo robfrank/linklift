@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import io.javalin.Javalin;
-import io.javalin.testtools.JavalinTest;
 import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
@@ -52,7 +51,7 @@ class GetRelatedLinksControllerTest {
       cfg.routes.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/links/link-1/related");
 
       assertThat(response.code()).isEqualTo(200);
@@ -81,7 +80,7 @@ class GetRelatedLinksControllerTest {
       cfg.routes.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/links/link-1/related");
 
       assertThat(response.code()).isEqualTo(200);
@@ -99,7 +98,7 @@ class GetRelatedLinksControllerTest {
       cfg.routes.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/links/link-1/related");
 
       assertThat(response.code()).isEqualTo(401);
@@ -123,7 +122,7 @@ class GetRelatedLinksControllerTest {
       cfg.routes.get("/links/{linkId}/related", getRelatedLinksController::getRelatedLinks);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/links/non-existent/related");
 
       assertThat(response.code()).isEqualTo(404);

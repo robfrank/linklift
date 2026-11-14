@@ -2,6 +2,7 @@ package it.robfrank.linklift.adapter.out.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.arcadedb.Constants;
 import com.arcadedb.remote.RemoteDatabase;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import it.robfrank.linklift.application.domain.model.AuthToken;
@@ -25,7 +26,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class ArcadeAuthTokenRepositoryTest {
 
   @Container
-  private static final GenericContainer arcadeDBContainer = new GenericContainer("arcadedata/arcadedb:latest")
+  private static final GenericContainer arcadeDBContainer = new GenericContainer("arcadedata/arcadedb:" + Constants.getRawVersion())
     .withExposedPorts(2480)
     .withStartupTimeout(Duration.ofSeconds(90))
     .withEnv(

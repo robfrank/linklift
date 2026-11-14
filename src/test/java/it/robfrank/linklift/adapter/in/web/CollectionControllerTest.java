@@ -8,7 +8,6 @@ import static org.mockito.Mockito.*;
 
 import io.javalin.Javalin;
 import io.javalin.router.JavalinDefaultRoutingApi;
-import io.javalin.testtools.JavalinTest;
 import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.ErrorCode;
@@ -82,7 +81,7 @@ class CollectionControllerTest {
       cfg.routes.post("/collections", collectionController::createCollection);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/collections",
         """
@@ -113,7 +112,7 @@ class CollectionControllerTest {
       cfg.routes.post("/collections", collectionController::createCollection);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/collections",
         """
@@ -145,7 +144,7 @@ class CollectionControllerTest {
       cfg.routes.get("/collections", collectionController::listCollections);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/collections");
 
       assertThat(response.code()).isEqualTo(200);
@@ -170,7 +169,7 @@ class CollectionControllerTest {
       cfg.routes.get("/collections", collectionController::listCollections);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/collections");
 
       assertThat(response.code()).isEqualTo(200);
@@ -198,7 +197,7 @@ class CollectionControllerTest {
       cfg.routes.get("/collections/{id}", collectionController::getCollection);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/collections/col-123");
 
       assertThat(response.code()).isEqualTo(200);
@@ -223,7 +222,7 @@ class CollectionControllerTest {
       cfg.routes.get("/collections/{id}", collectionController::getCollection);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/collections/non-existent");
 
       assertThat(response.code()).isEqualTo(404);
@@ -240,7 +239,7 @@ class CollectionControllerTest {
       cfg.routes.post("/collections/{id}/links", collectionController::addLinkToCollection);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/collections/col-123/links",
         """
@@ -266,7 +265,7 @@ class CollectionControllerTest {
       cfg.routes.post("/collections/{id}/links", collectionController::addLinkToCollection);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.post(
         "/collections/non-existent/links",
         """
@@ -288,7 +287,7 @@ class CollectionControllerTest {
       cfg.routes.delete("/collections/{id}/links/{linkId}", collectionController::removeLinkFromCollection);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.delete("/collections/col-123/links/link-456");
 
       assertThat(response.code()).isEqualTo(204);
@@ -304,7 +303,7 @@ class CollectionControllerTest {
       cfg.routes.delete("/collections/{id}", collectionController::deleteCollection);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.delete("/collections/col-123");
 
       assertThat(response.code()).isEqualTo(204);
@@ -323,7 +322,7 @@ class CollectionControllerTest {
       cfg.routes.delete("/collections/{id}", collectionController::deleteCollection);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.delete("/collections/non-existent");
 
       assertThat(response.code()).isEqualTo(404);

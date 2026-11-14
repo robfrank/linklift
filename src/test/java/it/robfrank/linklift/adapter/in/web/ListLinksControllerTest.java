@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.javalin.Javalin;
-import io.javalin.testtools.JavalinTest;
 import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.ValidationException;
@@ -53,7 +52,7 @@ class ListLinksControllerTest {
       cfg.routes.get("/links", listLinksController::listLinks);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/links");
 
       assertThat(response.code()).isEqualTo(200);
@@ -86,7 +85,7 @@ class ListLinksControllerTest {
       cfg.routes.get("/links", listLinksController::listLinks);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/links?page=1&size=10&sortBy=title&sortDirection=ASC");
 
       assertThat(response.code()).isEqualTo(200);
@@ -118,7 +117,7 @@ class ListLinksControllerTest {
       cfg.routes.get("/links", listLinksController::listLinks);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/links?page=-1");
 
       assertThat(response.code()).isEqualTo(400);
@@ -147,7 +146,7 @@ class ListLinksControllerTest {
       cfg.routes.get("/links", listLinksController::listLinks);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/links");
 
       assertThat(response.code()).isEqualTo(200);
@@ -189,7 +188,7 @@ class ListLinksControllerTest {
       cfg.routes.get("/graph", listLinksController::getGraph);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/graph");
 
       assertThat(response.code()).isEqualTo(200);
@@ -212,7 +211,7 @@ class ListLinksControllerTest {
       cfg.routes.get("/graph", listLinksController::getGraph);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/graph");
 
       assertThat(response.code()).isEqualTo(401);
@@ -236,7 +235,7 @@ class ListLinksControllerTest {
       cfg.routes.get("/graph", listLinksController::getGraph);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.get("/graph");
 
       assertThat(response.code()).isEqualTo(200);

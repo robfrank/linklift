@@ -40,16 +40,7 @@ class AskControllerTest {
   @Test
   void ask_shouldReturnAnswer_whenAuthenticated() {
     // Arrange
-    var securityContext = new SecurityContext(
-      "user-123",
-      "testuser",
-      "test@example.com",
-      List.of(),
-      true,
-      null,
-      null,
-      null
-    );
+    var securityContext = new SecurityContext("user-123", "testuser", "test@example.com", List.of(), true, null, null, null);
     when(context.attribute("security.context")).thenReturn(securityContext);
     when(context.bodyAsClass(AskController.AskRequest.class)).thenReturn(new AskController.AskRequest("What is Java?"));
 

@@ -1,0 +1,7 @@
+- rule: java-developer
+  gate: lint
+  runs: owner
+  reason: "all approved (lint gate runs as owner at apply time)"
+  approved_by: user
+  approved_at: 2026-11-14
+  delta: fix-backend-build

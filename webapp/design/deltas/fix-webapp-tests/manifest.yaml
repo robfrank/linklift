@@ -3,11 +3,21 @@ title: Fix webapp Jest suites broken by Babel 8 (ESM-only presets)
 priority: medium
 maturity: intent
 baseline: 7b0d310d4f831e500337247dfca9d3cdce11cc08
+lane: light
 footprint:
-  assumes: []
-  changes: []
-dev_rules: []
-project_standards: []
+  assumes:
+    - NF-103
+    - NF-104
+  changes:
+    - id: NF-107
+      op: modify
+    - id: NF-108
+      op: modify
+dev_rules:
+  - typescript-developer
+project_standards:
+  - CLAUDE.md
+  - webapp/CLAUDE.md
 pins:
   harness: claude
   intent: v1

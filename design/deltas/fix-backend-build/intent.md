@@ -34,3 +34,4 @@ Priority high: a red trunk build. Light lane.
 None.
 
 ## Amendments
+- 2026-11-14 · user — Bind every JavalinTest-based test app to 127.0.0.1 (ideally through one shared helper), not only ListLinksControllerTest; fixing only the graph test rejected: the other controller tests would stay exposed to the same port collision. The java-developer lint gate (OpenRewrite dry run) runs as owner at apply time; applying the four recipe changes in production code rejected: outside a test-and-formatting fix.

@@ -639,3 +639,15 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+# product-architect workspace state
+.worktrees/
+.pa/
+.pa-session
+.pa-trunk
+design/.applying
+design/.regold-queue
+**/design/.regold-queue
+**/design/.applying
+design/.applying.d/
+**/design/.applying.d/
+.gate/

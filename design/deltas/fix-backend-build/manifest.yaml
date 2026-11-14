@@ -3,11 +3,20 @@ title: Fix the red backend build (prettier, Testcontainers image, graph 401 test
 priority: medium
 maturity: intent
 baseline: 87bcb091919465cda79261d42ac62fe8bb5208c4
+lane: light
 footprint:
-  assumes: []
-  changes: []
-dev_rules: []
-project_standards: []
+  assumes:
+    - RQ-026
+    - RQ-045
+  changes:
+    - id: NF-008
+      op: modify
+    - id: NF-FBB-001
+      op: add
+dev_rules:
+  - java-developer
+project_standards:
+  - CLAUDE.md
 pins:
   harness: claude
   intent: v1

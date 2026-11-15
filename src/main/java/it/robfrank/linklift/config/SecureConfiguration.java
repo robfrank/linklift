@@ -54,7 +54,7 @@ public final class SecureConfiguration {
     String secretFile = System.getenv(JWT_SECRET_FILE_ENV);
     if (secretFile != null && !secretFile.trim().isEmpty()) {
       try {
-        secret = Files.readString(Path.of(secretFile.trim()), StandardCharsets.UTF_8).trim();
+        secret = Files.readString(Path.of(secretFile.trim())).trim();
         if (isValidSecret(secret)) {
           logger.debug("JWT secret loaded from file: {}", secretFile);
           return secret;

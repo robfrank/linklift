@@ -1,5 +1,5 @@
 # Retire the separate webapp nginx image and deployment
-<!-- intent: draft -->
+<!-- intent: confirmed 2026-11-15 sha256:2a42144c8dd56364 -->
 
 ## Problem
 Once delta `serve-frontend-from-api` lands, the API container serves the built webapp. The webapp's own nginx image (`webapp/Dockerfile`, `webapp/nginx.conf`), its separate Kamal service (`webapp/config/deploy.yml`, `.github/workflows/kamal-deploy-webapp.yml`) and the `webapp` service in `docker-compose.yml` become unused, and the separate deploy never succeeded. Left in place they describe a deployment that does not exist.

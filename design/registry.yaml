@@ -1,11 +1,2 @@
-generated_against: 68f52047081ada0d7b5cc115574281c8f4fae313
+generated_against: 3737ec9e7e4292c55911e0a9ea62ef9886897432
 deltas:
-- id: fix-backend-build
-  title: Fix the red backend build (prettier, Testcontainers image, graph 401 test)
-  priority: high
-  maturity: applying
-  baseline: 8f2dbc105416ec5044a259ba8cfe516ab2233fd6
-  flag: clean
-  intersecting:
-    assumes: []
-    changes: []

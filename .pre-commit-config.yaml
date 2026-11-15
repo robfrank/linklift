@@ -34,8 +34,8 @@ repos:
     rev: v3.7.4
     hooks:
       - id: prettier
-        # product-architect design roots hold generated files; keep prettier off them
-        exclude: ^(design|webapp/design)/
+        # product-architect design roots hold generated files, and rules carry a smoke-test stamp; keep prettier off them
+        exclude: ^(design|webapp/design|\.agents/rules)/
         #            types: [java, xml]
         additional_dependencies:
           - prettier@3.3.3

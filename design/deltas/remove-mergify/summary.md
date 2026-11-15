@@ -15,6 +15,8 @@ No application code, CI workflow or Dependabot configuration changes. Bot pull r
 
 ## Changelog
 
+The repository no longer uses Mergify, so pull requests stop showing failing Mergify checks. Approved Dependabot pull requests labelled for auto-merge still merge through the existing Dependabot workflow; every other bot pull request is merged by a maintainer, like any other pull request.
+
 ## Notes
 
 - 2026-11-15 · author — no `specifications.md`: the delta adds no source file, function or CLI option, and deletes one configuration file.

@@ -1,4 +1,0 @@
-acks:
-  - check: code-provenance
-    match: .pre-commit-config.yaml
-    reason: repo tooling, not product code — prettier excluded from the design roots and .agents/rules (7b0d310, ceb294f) so generated design files and smoke-stamped rules are not reformatted; no delta's requirements cover CI hook config

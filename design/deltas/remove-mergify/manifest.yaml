@@ -160,3 +160,5 @@ effort:
   pre_impl: ef2fd6bbb7e15d289921f356d67f153164c647d9
   session: c454b9e2-5728-45f2-838d-1cd8871bfa04
 branch: feature/remove-mergify
+verify_log:
+  - {round: 1, attempt: 1, coverage: 0.0, coverage_scope: null, result: green, at: '2026-11-15T19:04:39+00:00'}

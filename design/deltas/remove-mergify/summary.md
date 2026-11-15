@@ -24,3 +24,4 @@ The repository no longer uses Mergify, so pull requests stop showing failing Mer
 - 2026-11-15 · author — the consequence that bot merges now run CI on `main` (no `[skip ci]`) follows from removing the rule; recorded as impact, not as a new requirement.
 - 2026-11-15 · fix — supersedes the entry above after intent Amendment 1: only maintainer-merged bot pull requests run CI on `main`; labelled, approved Dependabot pull requests keep merging through `.github/workflows/merge-dependabot.yml` with `[skip ci]`.
 - 2026-11-15 · gate — review: 2 round(s), lane light — blockers in round(s) 1.
+- 2026-11-15 · round 01 conductor — Round 01 deleted .mergify.yml (f80f4c2); T-no-mergify-config and T-ci-untouched hold, merge-dependabot.yml byte-identical. Not checkable from the tree: no Mergify checks on the next PR, which also needs the Mergify GitHub App uninstalled.

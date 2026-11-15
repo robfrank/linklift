@@ -1,17 +1,17 @@
 id: remove-mergify
 title: Remove the Mergify configuration
 priority: medium
-maturity: intent
+maturity: draft
 baseline: 78d549dad91cd97a1ecf58767f87965defed8c1f
 lane: light
 footprint:
   assumes: []
   changes:
-    - id: NF-RM-001
-      op: add
+  - id: NF-RM-001
+    op: add
 dev_rules: []
 project_standards:
-  - CLAUDE.md
+- CLAUDE.md
 pins:
   harness: claude
   intent: v1
@@ -24,3 +24,10 @@ pins:
   probe_kits: v1
   premises: v2
 premises: required
+authoring:
+  mode: fresh
+  question_rounds: 0
+  dispatch:
+    verified: true
+    model: claude-opus-5-5
+    label: Author remove-mergify delta

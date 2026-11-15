@@ -1,25 +1,39 @@
 id: serve-frontend-from-api
 title: Serve the frontend from the API container
 priority: medium
-maturity: intent
+maturity: draft
 baseline: bf70effeca018de21c8207899ba0d06b309654eb
 lane: light
 footprint:
   assumes:
-    - RQ-002
-    - RQ-005
-    - RQ-026
+  - RQ-002
+  - RQ-004
+  - RQ-005
+  - RQ-026
+  - NF-001
+  - NF-007
   changes:
-    - id: RQ-003
-      op: modify
-    - id: RQ-SFFA-001
-      op: add
-    - id: NF-SFFA-001
-      op: add
+  - id: RQ-003
+    op: modify
+  - id: RQ-SFFA-001
+    op: add
+  - id: NF-SFFA-001
+    op: add
+  - id: doc:operational-guides/deploy#interfaces-and-usage
+    op: modify
+surface:
+- src/main/java/it/robfrank/linklift/config/FrontendBundle.java
+- FrontendBundle
+- FrontendBundle.fromEnvValue
+- WebBuilder.withFrontend
+- LINKLIFT_WEBAPP_DIR
+- .dockerignore
+- src/test/java/it/robfrank/linklift/config/FrontendBundleTest.java
+- src/test/java/it/robfrank/linklift/adapter/in/web/FrontendServingTest.java
 dev_rules:
-  - java-developer
+- java-developer
 project_standards:
-  - CLAUDE.md
+- CLAUDE.md
 pins:
   harness: claude
   intent: v1
@@ -32,3 +46,10 @@ pins:
   probe_kits: v1
   premises: v2
 premises: required
+authoring:
+  mode: fresh
+  question_rounds: 0
+  dispatch:
+    verified: true
+    model: claude-opus-5-5
+    label: Author serve-frontend-from-api delta

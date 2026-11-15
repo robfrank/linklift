@@ -5,5 +5,5 @@
 
 | Requirement ID | Summary | Tags | Source Section | Round ID | Validating Tests | Operational Guides | Impl Status | Test Status | Notes |
 |---|---|---|---|---|---|---|---|---|---|
-| NF-FBB-001 | Every Java source under `src/main/java` and `src/test/java` is left untouched by prettier's check… | `build`, `ci`, `format` | `requirements.md#added` | `ROUND-00` | `T-format-check` | `general -> (no guide yet)` | Not Started | Not Started |  |
-| NF-008 | `./mvnw test` passes on a machine with a running Docker engine, and needs one: every ArcadeDB… | `build`, `guide:local-run` | `requirements.md#modified` | `ROUND-00` | `T-full-suite`, `T-graph-401-full-suite`, `T-image-full`, `T-image-sources`, `T-loopback-callers`, `T-loopback-helper` | `local-run -> (no guide yet)` | Not Started | Not Started |  |
+| NF-FBB-001 | Every Java source under `src/main/java` and `src/test/java` is left untouched by prettier's check… | `build`, `ci`, `format` | `requirements.md#added` | `ROUND-00` | `T-format-check` | `general -> (no guide yet)` | In Progress | In Progress |  |
+| NF-008 | `./mvnw test` passes on a machine with a running Docker engine, and needs one: every ArcadeDB… | `build`, `guide:local-run` | `requirements.md#modified` | `ROUND-00` | `T-full-suite`, `T-graph-401-full-suite`, `T-image-full`, `T-image-sources`, `T-loopback-callers`, `T-loopback-helper`, `T-loopback-stray-listener` | `local-run -> (no guide yet)` | In Progress | In Progress |  |

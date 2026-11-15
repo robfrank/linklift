@@ -6,7 +6,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import io.javalin.Javalin;
-import io.javalin.testtools.JavalinTest;
 import io.javalin.testtools.Response;
 import it.robfrank.linklift.adapter.in.web.error.GlobalExceptionHandler;
 import it.robfrank.linklift.application.domain.exception.LinkNotFoundException;
@@ -35,7 +34,7 @@ class DeleteContentControllerTest {
       cfg.routes.delete("/content/{linkId}", deleteContentController::deleteContent);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.delete("/content/link-123");
 
       assertThat(response.code()).isEqualTo(204);
@@ -53,7 +52,7 @@ class DeleteContentControllerTest {
       cfg.routes.delete("/content/{linkId}", deleteContentController::deleteContent);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       Response response = client.delete("/content/non-existent-link");
 
       assertThat(response.code()).isEqualTo(404);
@@ -67,7 +66,7 @@ class DeleteContentControllerTest {
       cfg.routes.delete("/content/{linkId}", deleteContentController::deleteContent);
     });
 
-    JavalinTest.test(app, (server, client) -> {
+    LoopbackJavalin.test(app, (server, client) -> {
       client.delete("/content/specific-link-id");
 
       var commandCaptor = ArgumentCaptor.forClass(DeleteContentCommand.class);

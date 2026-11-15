@@ -27,3 +27,8 @@ Backend build green again: Testcontainers tests use the full ArcadeDB image at t
 - 2026-11-14 · author — all work sits in round 00: its acceptance (every java-developer gate green) is the delta's outcome, so no feature round follows.
 - 2026-11-14 · author — supersedes the round-00 entry above: the acceptance is every java-developer gate green except lint, which the owner runs.
 - 2026-11-14 · gate — review: 2 round(s), lane light — blockers in round(s) 1 — 1 finding(s) were damage from a fix pass.
+- 2026-11-14 · gate — review: 2 round(s), lane light — blockers in round(s) 1.
+- 2026-11-14 · round 00 conductor — Gates green: dep-sync, format-check, type-check, test (513 run, 0 failures, 0 errors, 1 skipped); lint is owner-run per the approved override and was not run.
+- 2026-11-14 · round 00 conductor — Three consecutive full runs green (runs 3-5); the graph 401 test passed in all five runs. Run 2 failed once on a DatabaseInitializerTest Testcontainers readiness timeout (90 s startup cap) with the full arcadedata/arcadedb:26.11.1 image, not reproduced in four other runs; follow-up: raise withStartupTimeout on the container declarations (own delta).
+- 2026-11-14 · round 00 conductor — The 404 cause was never independently reproduced; the loopback-binding hypothesis is backed by T-loopback-stray-listener.
+- 2026-11-14 · round 00 conductor — SecurityIntegrationTest (package adapter.in.web.security) needed an explicit import of LoopbackJavalin; ArcadeAuthTokenRepositoryTest needed a com.arcadedb.Constants import.

@@ -90,7 +90,7 @@ docker-compose -f docker-compose-backend.yml up -d  # Backend only
 - **FakeEmbeddingGenerator**: Use for deterministic vector tests (no Ollama needed).
 - **Test base classes**: `ArcadeDbTestBase` for integration tests with automatic DB setup/cleanup.
 - **E2E tests are optional**: Gated behind `-Pe2e-tests` profile since they require Ollama.
-- **Controller tests**: Use `JavalinTest` for REST endpoint testing.
+- **Controller tests**: Use `LoopbackJavalin.test`, which wraps `JavalinTest`, for REST endpoint testing.
 - **Frontend tests**: Jest + React Testing Library + MSW for API mocking.
 
 ## Key Patterns

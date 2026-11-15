@@ -21,7 +21,7 @@
 | File | Responsibility | Key Functions | Entry Points |
 |------|----------------|---------------|--------------|
 | `src/test/java/it/robfrank/linklift/adapter/in/web/LoopbackJavalin.java` <!-- planned-artifact --> | Bind a JavalinTest app to loopback, then run it (spec `#loopback-test-apps`) | `test(Javalin, TestCase)` | JavalinTest-based tests |
-| `src/test/java/it/robfrank/linklift/adapter/in/web/LoopbackJavalinTest.java` <!-- planned-artifact --> | Tests the helper (row `T-loopback-helper`) | — | Surefire |
+| `src/test/java/it/robfrank/linklift/adapter/in/web/LoopbackJavalinTest.java` <!-- planned-artifact --> | Tests the helper (rows `T-loopback-helper`, `T-loopback-stray-listener`) | — | Surefire |
 | `src/test/java/it/robfrank/linklift/adapter/in/web/AuthenticationControllerTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
 | `src/test/java/it/robfrank/linklift/adapter/in/web/CollectionControllerTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
 | `src/test/java/it/robfrank/linklift/adapter/in/web/DeleteContentControllerTest.java` | Call `LoopbackJavalin.test`; drop the `JavalinTest` import | — | Surefire |
@@ -54,11 +54,12 @@ Behavioral, per the java-developer rule. This table is the only place the delta'
 | Test | Requirement IDs | Case | Assertion |
 |------|-----------------|------|-----------|
 | `T-format-check` | `NF-FBB-001` | java-developer `format-check` gate over `src/main/java src/test/java` | exits 0; prints no file |
-| `T-image-sources` | `NF-008` | `grep -rnE 'arcadedb-headless\|arcadedata/arcadedb:latest' src/test/java` | no match |
-| `T-image-full` | `NF-008` | `grep -rn 'arcadedata/arcadedb:" + Constants.getRawVersion()' src/test/java` | one match in each of `ArcadeDbContainer`, `DatabaseInitializerTest`, `AuthenticationIntegrationTest`, `ArcadeAuthTokenRepositoryTest` |
+| `T-image-sources` | `NF-008` | `grep -rn -e arcadedb-headless -e arcadedata/arcadedb:latest src/test/java` | no match |
+| `T-image-full` | `NF-008` | `grep -rn 'arcadedata/arcadedb:" + Constants.getRawVersion()' src/test/java` | at least one match in each of `ArcadeDbContainer`, `DatabaseInitializerTest`, `AuthenticationIntegrationTest`, `ArcadeAuthTokenRepositoryTest` |
 | `T-loopback-helper` | `NF-008` | `LoopbackJavalinTest`: run an app with one `GET /ping` route through `LoopbackJavalin.test` | inside the test case the Jetty `ServerConnector` host is `127.0.0.1` and `client.get("/ping")` answers 200 with body `pong` |
+| `T-loopback-stray-listener` | `NF-008` | `LoopbackJavalinTest`: inside `LoopbackJavalin.test` with the `/ping` app, bind a reuse-address `ServerSocket` on `127.0.0.1` at `app.port()` that answers any request 404, then `client.get("/ping")` | the bind fails with `BindException`, or `/ping` answers 200 `pong` |
 | `T-loopback-callers` | `NF-008` | `grep -rn 'JavalinTest.test(' src/test/java`; `grep -rl 'import io.javalin.testtools.JavalinTest;' src/test/java` | each: exactly one match, in `src/test/java/it/robfrank/linklift/adapter/in/web/LoopbackJavalin.java` <!-- planned-artifact --> |
-| `T-graph-401-full-suite` | `NF-008`, `RQ-026` | `ListLinksControllerTest.getGraph_shouldReturn401_whenUserNotAuthenticated` in each of three consecutive full `./mvnw test` runs | passes (401, message `Unauthorized access`) |
+| `T-graph-401-full-suite` | `NF-008`, `RQ-026` | `ListLinksControllerTest.getGraph_shouldReturn401_whenUserNotAuthenticated` in each of three consecutive full `./mvnw test` runs | passes (401, message `Unauthorized access`); a 404: spec `#loopback-test-apps` |
 | `T-full-suite` | `NF-008` | java-developer `test` gate with Docker running (an Ollama-pull failure: round 00 § Gates) | exit 0; Surefire reports 0 failures and 0 errors |
 
-Delta acceptance: every row of the round 00 gate table except lint, which the owner runs, reads green, and CI's `check` and `build` jobs pass on the merge commit.
+Delta acceptance: every row of the round 00 gate table except lint, which the owner runs, reads green locally. CI's `build` job runs `mvn -ntp verify`, which includes `VectorSearchE2ETest`'s Ollama pull, so CI going green after merge is the user's observation, not this delta's acceptance.

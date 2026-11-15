@@ -5,4 +5,4 @@
 
 | Requirement ID | Summary | Tags | Source Section | Round ID | Validating Tests | Operational Guides | Impl Status | Test Status | Notes |
 |---|---|---|---|---|---|---|---|---|---|
-| NF-RM-001 | The repository carries no Mergify configuration: none of `.mergify.yml`, `.mergify/config.yml` <!--… | `guide:general`, `ci` | `requirements.md#added` | `ROUND-01` | `T-ci-untouched`, `T-no-mergify-config` | `general -> (no guide yet)` | Not Started | Not Started |  |
+| NF-RM-001 | The repository carries no Mergify configuration, so no Mergify rule merges a pull request and… | `guide:general`, `ci` | `requirements.md#added` | `ROUND-01` | `T-ci-untouched`, `T-no-mergify-config` | `general -> (no guide yet)` | Not Started | Not Started |  |

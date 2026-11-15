@@ -261,3 +261,9 @@ Retrofit baseline of the LinkLift Java backend as built (Maven module at the rep
 - **NF-FBB-001** Every Java source under `src/main/java` and `src/test/java` is left untouched by prettier's check mode with `prettier@3.3.3` and `prettier-plugin-java@2.6.4` under the repo's `.prettierrc.js` (`printWidth: 160`), and CI enforces it: the `check` job of `.github/workflows/ci.yml` and of `.github/workflows/clean-code.yml` runs the pre-commit `prettier` hook, which fails on any Java file it would reformat, and each workflow's `build` job runs only after `check` passes.
   - **Tags**: `build`, `ci`, `format`
   - **Falsifier**: formatting only `AskControllerTest` and `AskQuestionServiceTest` while another unformatted Java file stays passes a spot check of those — ruled out by test row `T-format-check`.
+
+- **NF-RM-001** The repository carries no Mergify configuration, so no Mergify rule merges a pull request and Mergify posts no check for an invalid configuration. An approved `dependabot[bot]` pull request labelled `dependency_approved` is still merged by `.github/workflows/merge-dependabot.yml`, which stays as it is (its merge body keeps `[skip ci]`); every other approved bot pull request, from `github-actions[bot]` or from `dependabot[bot]` without that label, is merged by a maintainer, like any other pull request.
+  - **Locations**: none of the paths Mergify reads exists in the repository: `.mergify.yml`, `.mergify/config.yml` <!-- external-ref --> and `.github/mergify.yml` <!-- external-ref -->.
+  - **Tags**: `guide:general`, `ci`
+  - **Falsifier**: a change that empties `.mergify.yml` instead of deleting it keeps a Mergify configuration in the repository — ruled out by test row `T-no-mergify-config`.
+  - **Falsifier**: a change that also deletes or edits `.github/workflows/merge-dependabot.yml`, treating it as part of the Mergify setup, stops labelled Dependabot pull requests from merging — ruled out by test row `T-ci-untouched`.

@@ -1,7 +1,118 @@
 id: remove-mergify
 title: Remove the Mergify configuration
 priority: medium
-maturity: draft
+maturity: golden
+review:
+  rounds: 2
+  lane: light
+  verdict: golden-ready
+  date: '2026-11-15'
+  timing:
+    total_elapsed_s: 380.8
+    total_tokens: 14225445
+    rounds:
+    - n: 1
+      kind: round-1
+      elapsed_s: 225.6
+      tokens: null
+      tokens_source: transcript
+      subagent_tokens:
+        cache_creation: 204635
+        cache_read: 826896
+        dispatches: 3
+        duration_ms: 0
+        input: 32
+        labels:
+        - Author amendment pass remove-mergify
+        - Gap review round 1 remove-mergify (reset)
+        - Re-dispatch gap review remove-mergify
+        measured: 3
+        messages: 16
+        models:
+        - claude-opus-5-5
+        - claude-sonnet-5-5
+        output: 14346
+        tool_uses: 0
+        total: 1045909
+        unpriceable: {}
+      main_tokens:
+        cache_creation: 20256
+        cache_read: 7959849
+        input: 32
+        messages: 13
+        models:
+        - claude-opus-5-5
+        output: 12581
+        total: 7992718
+      findings: 3
+      blockers: 1
+      introduced_by_fix: 0
+      subagents: []
+    - n: 2
+      kind: fix-verification
+      elapsed_s: 25.4
+      tokens: null
+      tokens_source: transcript
+      subagent_tokens:
+        cache_creation: 83465
+        cache_read: 683139
+        dispatches: 2
+        duration_ms: 0
+        input: 28
+        labels:
+        - Fix round-1 findings remove-mergify
+        - Fix-verification round 2 remove-mergify
+        measured: 2
+        messages: 14
+        models:
+        - claude-opus-5-5
+        - claude-sonnet-5-5
+        output: 8913
+        tool_uses: 0
+        total: 775545
+        unpriceable: {}
+      main_tokens:
+        cache_creation: 9495
+        cache_read: 4397876
+        input: 18
+        messages: 7
+        models:
+        - claude-opus-5-5
+        output: 3884
+        total: 4411273
+      findings: 0
+      blockers: 0
+      introduced_by_fix: 0
+      subagents: []
+  promotion_declined:
+    findings:
+    - R1-1
+    reason: 'Stay light (Recommended): one-file deletion; the blocker is settled by the user''s amendment'
+  resolutions:
+    R1-1:
+      outcome: fixed
+      reason: 'NF-RM-001''s merge clause now states Amendment 1: approved dependabot[bot] PRs labelled
+        dependency_approved stay merged by the unchanged .github/workflows/merge-dependabot.yml (with
+        [skip ci], verified in the workflow); every other approved bot PR is merged by a maintainer. Added
+        a Falsifier that ties the kept workflow to the existing T-ci-untouched row (no new test row).
+        gen-docs reports the checklist up to date.'
+      round: 1
+    R1-2:
+      outcome: fixed
+      reason: What changes and Impact and risk now say only github-actions[bot] PRs and unlabelled Dependabot
+        PRs become maintainer-merged and run CI on main, and that labelled, approved Dependabot PRs keep
+        merging through merge-dependabot.yml with [skip ci] (intent Amendment 1). Notes are append-only,
+        so the old CI-on-main note stays as it was and a new dated entry supersedes it.
+      round: 1
+    R1-3:
+      outcome: fixed
+      reason: The Module & File Layout note now says .github/workflows/merge-dependabot.yml is kept on
+        purpose (intent Amendment 1, NF-RM-001) and protected by T-ci-untouched. The T-ci-untouched Case
+        cell names the workflow as neither deleted nor edited. The assertion is unchanged and no row was
+        added.
+      round: 1
+  dev_rules_sha: {}
+  sha: 4d4994230e83a9a2
 baseline: 78d549dad91cd97a1ecf58767f87965defed8c1f
 lane: light
 footprint:

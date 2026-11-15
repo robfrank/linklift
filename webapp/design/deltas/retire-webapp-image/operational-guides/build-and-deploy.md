@@ -3,8 +3,8 @@
 ## Interfaces and Usage {#interfaces-and-usage}
 
 - Production bundle: `npm run build` in `webapp/` (**NF-103**).
-- Deployment (**NF-104**): the webapp has no image or deployment of its own. It ships inside the API image and is deployed with the API by the `Deploy API` workflow (`.github/workflows/kamal-deploy-api.yml`, Kamal config `config/deploy.yml`). Building, running and deploying that image are procedures of the backend design root (`design/`).
-- Local full stack (**NF-104**): the root `docker-compose.yml` runs the API service `linklift`, which serves the app.
+- Deployment (**NF-104**): the webapp has no image or deployment of its own. Once `serve-frontend-from-api` has landed (this delta's apply precondition), it ships inside the API image and is deployed with the API by the `Deploy API` workflow (`.github/workflows/kamal-deploy-api.yml`, Kamal config `config/deploy.yml`). Building, running and deploying that image are procedures of the backend design root (`design/`).
+- Local full stack (**NF-104**): the root `docker-compose.yml` runs the API service `linklift` on port 7070, built from `Dockerfile.local`, which holds no webapp bundle; for the UI run `npm start` in `webapp/` beside it (**NF-102**).
 - CI: `.github/workflows/webapp-ci.yml` (**NF-108**).
 
 ## Configuration {#configuration}

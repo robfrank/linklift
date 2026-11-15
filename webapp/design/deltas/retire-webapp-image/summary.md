@@ -17,6 +17,8 @@ Once `serve-frontend-from-api` lands, the API container serves the bundle, and t
 
 ## Changelog
 
+The webapp no longer has its own nginx image or Kamal deployment: its production bundle now ships inside the API container and is deployed with the API. The local Docker Compose stack no longer starts a separate webapp container; run the UI locally with the webpack dev server next to the API.
+
 ## Notes
 
 - 2026-11-15 · author — `webapp/.kamal/` (secrets template and sample hooks) is removed with `webapp/config/deploy.yml`: it exists only for that Kamal service.
@@ -26,3 +28,4 @@ Once `serve-frontend-from-api` lands, the API container serves the bundle, and t
 - 2026-11-15 · author — no ADR is added (the light lane forbids one), so trunk ADR-004 (nginx serves the bundle) stays as written; the owner may want to mark it superseded.
 - 2026-11-15 · author — the apply-order constraint is carried by the implementation's apply precondition and test row `T-api-image-builds-webapp`, not by a requirement, because it is an ordering rule rather than observable behaviour.
 - 2026-11-15 · author — the commented-out `run docker-build` execution in `pom.xml` is left alone: it is inert and the root file belongs to the backend design root.
+- 2026-11-15 · review r1 — trunk `webapp/design/implementation.md` goes stale with this delta and is not in its footprint: the file-table row for `webapp/Dockerfile`, `webapp/nginx.conf`, `webapp/config/deploy.yml`, the `npm run docker-build` row of the commands table (**NF-104**), and the Testing Plan sentence naming `webapp/Dockerfile`; correct them at fold, as for ADR-004.

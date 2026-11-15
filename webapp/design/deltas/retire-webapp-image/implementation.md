@@ -27,11 +27,12 @@ Apply only after delta `serve-frontend-from-api` (backend design root) has lande
 | `webapp/nginx.conf` | removed: the image's nginx config (**NF-104**) | — | — |
 | `webapp/config/deploy.yml` | removed: the webapp Kamal service, together with the tracked `.kamal` directory beside `config/` (its secrets template and sample hooks) (**NF-104**) | — | — |
 | `.github/workflows/kamal-deploy-webapp.yml` | removed: the `Deploy Webapp` workflow (**NF-104**) | — | `workflow_dispatch` |
-| `docker-compose.yml` | delete the `webapp` service and nothing else (**NF-104**) | — | `docker compose up` |
+| `.github/dependabot.yml` | delete only the `package-ecosystem: docker` entry with `directory: /webapp`, which scans the removed `webapp/Dockerfile` (**NF-104**); the `npm` entry for `/webapp` stays | — | — |
+| `docker-compose.yml` | delete the `webapp` service and nothing else (**NF-104**); the root `README.md` drops `LinkLift Webapp` from the services `docker compose` starts and its "Web Interface" section points at the dev server (**NF-102**) instead of `http://localhost:80` | — | `docker compose up` |
 | `webapp/package.json` | delete the `docker-build` script line and nothing else (**NF-104**) | — | — |
 | `webapp/README.md` | the "Docker Integration" section says the bundle ships in the API image instead of describing an nginx container | — | — |
 
-No source file under `webapp/src`, no test, and neither `webapp/webpack.config.js` nor `webapp/.babelrc` changes (the intent's constraint; test row `T-no-source-change`). No backend or webapp test mentions Kamal, nginx or the `docker-build` script; see [test-impact.md](test-impact.md).
+The published `robfrank/linklift-webapp` image and repository secrets are operator-side and not touched; the root `.kamal/` belongs to the API deployment and stays. No source file under `webapp/src`, no test, and neither `webapp/webpack.config.js` nor `webapp/.babelrc` changes (the intent's constraint; test row `T-no-source-change`). No backend or webapp test mentions Kamal, nginx or the `docker-build` script; see [test-impact.md](test-impact.md).
 <!-- verify: git grep -l -i -e kamal -e docker-build -e nginx bf70effeca01 -- src/test webapp/src | wc -l == 0 -->
 <!-- blind spot: CI workflows and scripts outside src/test and webapp/src are not searched; T-no-webapp-deploy covers the workflows. -->
 
@@ -47,8 +48,8 @@ Behavioural checks over the repository and the toolchain; this table is the only
 
 | Test | Requirements | Case | Assertion |
 |------|--------------|------|-----------|
-| `T-api-image-builds-webapp` | `NF-104` | Before removing anything, read the root `Dockerfile` on `main` | It runs the webapp's `npm run build` and copies its `dist` output into the API image; if not, stop: `serve-frontend-from-api` has not landed |
-| `T-no-webapp-deploy` | `NF-104` | `ls` the four `webapp/` paths **NF-104** names; `grep -rl 'working-directory: ./webapp' .github/workflows`; read `scripts` in `webapp/package.json` | None of the paths exists, the grep finds no workflow, and there is no `docker-build` script |
+| `T-api-image-builds-webapp` | `NF-104` | Before removing anything, read the root `Dockerfile` on `main`; `git grep -l LINKLIFT_WEBAPP_DIR main -- src/main/java` | The Dockerfile runs the webapp's `npm run build` and copies its `dist` output into the API image, and the grep lists the API code that reads that bundle directory; if either fails, stop: `serve-frontend-from-api` has not landed |
+| `T-no-webapp-deploy` | `NF-104` | `ls` the four `webapp/` paths **NF-104** names; `grep -l 'kamal deploy' .github/workflows/*.yml`; read `scripts` in `webapp/package.json`; `grep -B1 'directory: /webapp' .github/dependabot.yml` | None of the paths exists, the first grep prints only `.github/workflows/kamal-deploy-api.yml`, there is no `docker-build` script, and the second grep shows only `package-ecosystem: npm` above `directory: /webapp` |
 | `T-compose-services` | `NF-104` | `docker compose -f docker-compose.yml config --services` | Prints exactly `arcadedb`, `ollama`, `ollama-init` and `linklift` |
 | `T-build-output` | `NF-103` | `cd webapp && npm run build` | `dist/bundle.js` and `dist/index.html` are produced |
 | `T-no-source-change` | `NF-102`, `NF-103` | `git diff --name-only main...HEAD -- webapp/src webapp/webpack.config.js webapp/.babelrc webapp/jest.config.js webapp/tsconfig.json` and `git diff main...HEAD -- webapp/package.json` | The first prints nothing; the second removes only the `docker-build` line |

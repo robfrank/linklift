@@ -45,10 +45,10 @@ public class OllamaQuestionAnswerAdapter implements QuestionAnswerPort {
 
       String prompt = buildPrompt(question, truncatedContext);
 
-      Map<String, Object> requestBody = new HashMap<>();
-      requestBody.put("model", modelName);
-      requestBody.put("prompt", prompt);
-      requestBody.put("stream", false);
+      Map<String, Object> requestBody = new HashMap<>(Map.of(
+        "model", modelName,
+        "prompt", prompt,
+        "stream", false));
 
       String jsonBody = objectMapper.writeValueAsString(requestBody);
 

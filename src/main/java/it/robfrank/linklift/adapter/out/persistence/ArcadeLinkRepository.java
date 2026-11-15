@@ -401,9 +401,9 @@ public class ArcadeLinkRepository {
           .map(count -> ((Number) count).longValue())
           .orElse(0L);
       } else {
-        List<Object> params = new ArrayList<>();
-        params.add(userId);
-        params.add(tagId);
+        List<Object> params = new ArrayList<>(List.of(
+          userId,
+          tagId));
         params.addAll(filter.params());
         return database
           .query(

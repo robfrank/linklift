@@ -10,8 +10,8 @@
 - Delta Requirement Checklist: `design/deltas/serve-frontend-from-api/requirement-checklist.md`
 - Delta Operational Guides: `design/deltas/serve-frontend-from-api/operational-guides/configuration.md`, `design/deltas/serve-frontend-from-api/operational-guides/deploy.md`
 - Footprint (from the manifest):
-  - assumes: `RQ-002`, `RQ-004`, `RQ-005`, `RQ-026`, `NF-001`, `NF-007`
-  - changes: `RQ-003` (modify), `RQ-SFFA-001` (add), `NF-SFFA-001` (add), `doc:operational-guides/deploy#interfaces-and-usage` (modify)
+  - assumes: `RQ-002`, `RQ-004`, `RQ-005`, `RQ-026`, `NF-001`, `NF-007`, `RQ-010`, `RQ-015`, `RQ-021`, `RQ-023`, `RQ-025`, `RQ-030`, `RQ-035`, `RQ-041`, `RQ-042`, `RQ-044`, `RQ-045`, `RQ-059`, `RQ-060`, `RQ-061`, `RQ-073`, `RQ-075`, `RQ-080`, `RQ-090`, `RQ-100`, `RQ-101`, `RQ-102`, `RQ-103`, `RQ-104`, `RQ-110`, `RQ-111`, `RQ-112`, `RQ-120`, `RQ-121`, `RQ-122`, `RQ-123`, `RQ-124`, `RQ-125`, `RQ-130`, `RQ-131`
+  - changes: `RQ-003` (modify), `RQ-SFFA-001` (add), `NF-SFFA-001` (add), `doc:operational-guides/deploy#interfaces-and-usage` (modify), `spec:specifications#http-surface` (modify)
 - Development Rules: `java-developer`
 - Project Standards: CLAUDE.md
 
@@ -23,7 +23,7 @@
 | `src/main/java/it/robfrank/linklift/config/WebBuilder.java` | Static files, `index.html` fallback and the bundle-dependent `/` route | `withFrontend(Optional<FrontendBundle>)`, `build()` | `Application.start`, tests |
 | `src/main/java/it/robfrank/linklift/Application.java` | Read `LINKLIFT_WEBAPP_DIR` in the existing start method and pass it to the builder | — | `main` |
 | `Dockerfile` | Multi-stage build: webapp, backend JAR, Temurin runtime | — | `kamal deploy`, `docker build .` |
-| `.dockerignore` <!-- planned-artifact --> | Keep local build outputs out of the build context | — | `docker build .` |
+| `Dockerfile.dockerignore` <!-- planned-artifact --> | Keep local build outputs out of the root `Dockerfile`'s build context only | — | `docker build .` |
 | `config/deploy.yml` | Kamal proxy host `linklift.arcadebrain.ai` | — | `kamal deploy` |
 | `CLAUDE.md` | Add `LINKLIFT_WEBAPP_DIR` to the Environment Variables table | — | — |
 | `src/test/java/it/robfrank/linklift/config/FrontendBundleTest.java` <!-- planned-artifact --> | Tests of `FrontendBundle.fromEnvValue` | — | Surefire |
@@ -41,7 +41,7 @@ Reversal: the plain-text `/` answer becomes conditional on there being no bundle
 
 ## Testing Plan
 
-Behavioural tests per the java-developer rule (JUnit Jupiter, AssertJ, HTTP-level through `LoopbackJavalin.test`). A "bundle" below is a JUnit `@TempDir` holding `index.html` (a unique marker string), `assets/app.js` <!-- external-ref --> and `api/x.txt` <!-- external-ref -->.
+Behavioural tests per the java-developer rule (JUnit Jupiter, AssertJ, HTTP-level through `LoopbackJavalin.test`). A "bundle" below is `FrontendBundle.fromEnvValue` of a JUnit `@TempDir` holding `index.html` (a unique marker string), `assets/app.js` <!-- external-ref --> and `api/x.txt` <!-- external-ref -->.
 
 | Test | Requirements | Case | Assertion |
 |------|--------------|------|-----------|
@@ -54,9 +54,10 @@ Behavioural tests per the java-developer rule (JUnit Jupiter, AssertJ, HTTP-leve
 | `T-no-bundle-404` | RQ-SFFA-001 | `GET /collections/42` without a bundle | 404 |
 | `T-anonymous` | RQ-SFFA-001, RQ-026 | builder with `withAuthorizationService` (Mockito-mocked ports) and a bundle, no `Authorization` header: `GET /collections/42` and `GET /assets/app.js` | both 200 with the expected bodies |
 | `T-up-metrics` | RQ-002, RQ-004 | `GET /up` and `GET /metrics` with a bundle | `/up` 200 with an empty body; `/metrics` 200 containing `jvm_memory_used_bytes` |
-| `T-from-env` | RQ-SFFA-001 | `fromEnvValue` with null, blank, a missing path, a directory without `index.html`, a regular file, and a directory with `index.html` | empty for the first five, a warning naming the value logged (logback `ListAppender`) for the last three of those, present with that directory for the sixth |
+| `T-from-env` | RQ-SFFA-001 | `fromEnvValue` with null, blank, a missing path, a directory without `index.html`, a regular file, and a directory with `index.html` | empty for the first five, a warning naming the value logged (logback `ListAppender`) for the last three of those, present with that directory's real path for the sixth |
 | `T-full-suite` | RQ-003, RQ-SFFA-001 | the rule's `test` gate | green, including `ObservabilityTest` (see `test-impact.md`) |
 | `T-image-contents` | NF-SFFA-001 | `docker build -t linklift-sffa .` at the repo root, then `docker run --rm --entrypoint sh linklift-sffa -c 'id -un; echo "$LINKLIFT_WEBAPP_DIR"; test -s /app/webapp/index.html && test -s /app/app.jar && java -version'` | build succeeds; prints `appuser` and `/app/webapp`; exit 0; `java -version` reports 25 |
+| `T-local-image` | NF-SFFA-001, NF-007 | `./mvnw -q -DskipTests package`, then `docker build -f Dockerfile.local .` at the repo root | build succeeds (its `COPY target/linklift-*.jar` finds the JAR) |
 | `T-deploy-config` | NF-SFFA-001 | `git diff` of `config/deploy.yml` against the pre-implementation ref | the only changed line is `proxy.host`, now `linklift.arcadebrain.ai` |
 
 Delta-specific acceptance after deploy (procedure: `operational-guides/deploy.md#frontend-smoke`): `curl -H 'Host: linklift.arcadebrain.ai' http://$HOST_IP/collections/42` returns the app's `index.html`.

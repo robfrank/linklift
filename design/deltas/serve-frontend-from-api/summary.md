@@ -1,5 +1,5 @@
 # Serve the frontend from the API container
-<!-- footprint: RQ-003 modify · RQ-SFFA-001 add · NF-SFFA-001 add · doc:operational-guides/deploy#interfaces-and-usage modify -->
+<!-- footprint: RQ-003 modify · RQ-SFFA-001 add · NF-SFFA-001 add · doc:operational-guides/deploy#interfaces-and-usage modify · spec:specifications#http-surface modify -->
 
 ## What changes
 
@@ -17,6 +17,8 @@ The frontend has never been deployed: Kamal ships only the API and the database,
 
 ## Changelog
 
+The API container now serves the React app at the site root, and app routes fall back to the app's index page, also after a refresh. The API answers exactly as before. One Kamal deploy ships the app and the API together at linklift.arcadebrain.ai. Without a bundle, the server behaves as it did before.
+
 ## Notes
 
 - 2026-11-15 · author — Host change: `linklift-api.arcadebrain.ai` becomes `linklift.arcadebrain.ai` in `config/deploy.yml` (NF-SFFA-001).
@@ -28,3 +30,5 @@ The frontend has never been deployed: Kamal ships only the API and the database,
 - 2026-11-15 · author — Added `RQ-004` (`/metrics`) and `NF-001` (shaded JAR) to the assumed requirements: the intent's constraints keep `/metrics` unchanged and the image's build stage relies on the JAR.
 - 2026-11-15 · author — Added `.dockerignore` so a local `docker build .` does not send `target/` or `webapp/node_modules/` <!-- external-ref --> into the context; `Dockerfile.local`, `src/main/docker/Dockerfile`, the `docker` Maven profile and the deploy workflow stay as they are.
 - 2026-11-15 · author — Path traversal outside the bundle directory is left to Javalin's static-file handler; no requirement states it.
+- 2026-11-15 · fix R1-1 — Supersedes the `.dockerignore` note above: the file is `Dockerfile.dockerignore`, read only for the root `Dockerfile`, because a root `.dockerignore` excluding `target/` would break `docker-compose up`, whose `Dockerfile.local` copies the JAR from `target/` (NF-007).
+- 2026-11-15 · gate — review: 2 round(s), lane light — blockers in round(s) 1 — 2 finding(s) were damage from a fix pass.

@@ -1,0 +1,29 @@
+# probe ENV-003 · 2026-11-15T21:24:16Z · exit 0 · runs auto · sha 263a7b16bebb
+# versions: javalin 7.2.4; openjdk version "27.0.1.0.2" 2026-10-21
+versions: javalin 7.2.4; openjdk version "27.0.1.0.2" 2026-10-21
+22:24:11.307 [main] INFO  io.javalin.Javalin - Static file handler added: StaticFileConfig(hostedPath=/, directory=/private/var/folders/bt/d234fd2551156nx33b64hhhc0000gn/T/sffa16938169754500837589, location=EXTERNAL, precompressMaxSize=-1, aliasCheck=null, headers={Cache-Control=max-age=0}, skipFileFunction=null, mimeTypes={}, roles=[]). File system location: 'file:///private/var/folders/bt/d234fd2551156nx33b64hhhc0000gn/T/sffa16938169754500837589/'
+22:24:11.352 [main] INFO  io.javalin.Javalin - Starting Javalin ...
+22:24:11.353 [main] INFO  org.eclipse.jetty.server.Server - jetty-12.1.14; built: 2026-10-02T05:48:05.032Z; git: 15cecbd757a2f6b0fdc6a8944f4c6d0020b17da0; jvm 27.0.1.0.2+1
+22:24:11.372 [main] INFO  o.e.j.s.DefaultSessionIdManager - Session workerName=node0
+22:24:11.374 [main] INFO  o.e.j.server.handler.ContextHandler - Started oeje10s.ServletContextHandler@67e28be3{ROOT,/,b=null,a=AVAILABLE,h=oeje10s.SessionHandler@e344ad3{STARTED}}
+22:24:11.376 [main] INFO  o.e.j.e.s.ServletContextHandler - Started oeje10s.ServletContextHandler@67e28be3{ROOT,/,b=null,a=AVAILABLE,h=oeje10s.SessionHandler@e344ad3{STARTED}}
+22:24:11.380 [main] INFO  o.e.jetty.server.AbstractConnector - Started oejs.ServerConnector@10667848{HTTP/1.1, (http/1.1)}{127.0.0.1:51635}
+22:24:11.383 [main] INFO  org.eclipse.jetty.server.Server - Started oejs.Server@44de94c3{STARTING}[12.1.14,sto=0] @30ms
+22:24:11.383 [main] INFO  io.javalin.Javalin -
+       __                  ___          _____
+      / /___ __   ______ _/ (_)___     /__  /
+ __  / / __ `/ | / / __ `/ / / __ \      / /
+/ /_/ / /_/ /| |/ / /_/ / / / / / /     / /
+\____/\__,_/ |___/\__,_/_/_/_/ /_/     /_/
+
+       https://javalin.io/documentation
+
+22:24:11.384 [main] INFO  io.javalin.Javalin - Javalin started in 52ms \o/
+22:24:11.384 [main] INFO  io.javalin.Javalin - Listening on http://127.0.0.1:51635/
+22:24:11.387 [main] INFO  io.javalin.Javalin - You are running Javalin 7.2.4 (released October 25, 2026).
+ok: a 404 error handler runs for an unmatched GET and replaces status, content type and body
+22:24:11.514 [main] INFO  io.javalin.Javalin - Stopping Javalin ...
+22:24:11.514 [main] INFO  org.eclipse.jetty.server.Server - Stopped oejs.Server@44de94c3{STOPPING}[12.1.14,sto=0]
+22:24:11.516 [main] INFO  o.e.jetty.server.AbstractConnector - Stopped oejs.ServerConnector@10667848{HTTP/1.1, (http/1.1)}{127.0.0.1:0}
+22:24:11.517 [main] INFO  o.e.j.e.s.ServletContextHandler - Stopped oeje10s.ServletContextHandler@67e28be3{ROOT,/,b=null,a=AVAILABLE,h=oeje10s.SessionHandler@e344ad3{STOPPED}}
+22:24:11.518 [main] INFO  io.javalin.Javalin - Javalin has stopped

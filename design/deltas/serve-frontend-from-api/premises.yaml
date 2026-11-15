@@ -1,0 +1,32 @@
+- id: ENV-001
+  claim: In Javalin 7.2.4 a matched route answers before a static file hosted at the same path
+  kind: framework
+  status: probe
+  runs: auto
+  probe: probes/ENV-001.sh
+  timeout: 300
+  cited_by: [RQ-002, RQ-004]
+- id: ENV-002
+  claim: In Javalin 7.2.4 an EXTERNAL static location hosted at / and given its directory's real path serves that directory's index.html for GET / and its nested files
+  kind: framework
+  status: probe
+  runs: auto
+  probe: probes/ENV-002.sh
+  timeout: 300
+  cited_by: [RQ-003, RQ-SFFA-001]
+- id: ENV-003
+  claim: In Javalin 7.2.4 a handler registered with routes.error(404, ...) runs for an unmatched GET and can replace its status, content type and body
+  kind: framework
+  status: probe
+  runs: auto
+  probe: probes/ENV-003.sh
+  timeout: 300
+  cited_by: [RQ-SFFA-001]
+- id: ENV-004
+  claim: In Javalin 7.2.4 a static location's skipFileFunction that returns true for a request path keeps the file at that path from being served
+  kind: framework
+  status: probe
+  runs: auto
+  probe: probes/ENV-004.sh
+  timeout: 300
+  cited_by: [RQ-SFFA-001]

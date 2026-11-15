@@ -24,3 +24,4 @@
 - `RQ-026` `/api/v1/*` authorization and JSON errors — relied upon unchanged; bundle files are served without this check because they are not under `/api/`.
 - `NF-001` `mvn package` produces the shaded executable JAR — relied upon by the image's Maven build stage.
 - `NF-007` the `Dockerfile.local` image — relied upon unchanged; the root `Dockerfile`'s runtime stage reuses its base image and user setup.
+- `RQ-010`, `RQ-015`, `RQ-021`, `RQ-023`, `RQ-025`, `RQ-030`, `RQ-035`, `RQ-041`, `RQ-042`, `RQ-044`, `RQ-045`, `RQ-059`, `RQ-060`, `RQ-061`, `RQ-073`, `RQ-075`, `RQ-080`, `RQ-090`, `RQ-100`, `RQ-101`, `RQ-102`, `RQ-103`, `RQ-104`, `RQ-110`, `RQ-111`, `RQ-112`, `RQ-120`, `RQ-121`, `RQ-122`, `RQ-123`, `RQ-124`, `RQ-125`, `RQ-130`, `RQ-131` — the API routes and exception handlers cited by the trunk `#http-surface` section, which the delta's specification restates with only its first sentence changed; relied upon unchanged.

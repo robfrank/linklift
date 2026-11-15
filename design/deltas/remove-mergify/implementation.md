@@ -19,7 +19,7 @@
 |------|----------------|---------------|--------------|
 | `.mergify.yml` | Deleted: the only Mergify configuration in the repository (`NF-RM-001`) | — | — |
 
-No other file changes: application code, `.github/workflows/` (including the Dependabot merge workflow `NF-RM-001` keeps) and the Dependabot configuration stay as they are. No source, test or workflow file names Mergify
+No other file changes: application code, `.github/workflows/` and the Dependabot configuration stay as they are. No source, test or workflow file names Mergify
 <!-- verify: grep -rIli mergify --exclude-dir=.git --exclude=.git --exclude-dir=design --exclude-dir=.pa --exclude-dir=node_modules --exclude=.mergify.yml . | wc -l == 0 -->
 (blind spot: repository settings and installed GitHub Apps live outside the tree; `webapp/node_modules` is skipped).
 
@@ -38,6 +38,6 @@ This table is the only place the delta's tests are stated. The change deletes on
 | Test | Requirement IDs | Case | Assertion |
 |------|-----------------|------|-----------|
 | `T-no-mergify-config` | `NF-RM-001` | After the change, probe each Mergify configuration location `NF-RM-001` names at the repository root | none of them exists (`test ! -e` exits 0 for each) |
-| `T-ci-untouched` | `NF-RM-001` | The change touches only the Mergify file; the Dependabot merge workflow is neither deleted nor edited | `git diff --name-only <pre-impl>..HEAD -- . ':!design'` lists exactly `.mergify.yml` |
+| `T-ci-untouched` | `NF-RM-001` | The change touches only the Mergify file | `git diff --name-only <pre-impl>..HEAD -- . ':!design'` lists exactly `.mergify.yml` |
 
 Delta-specific acceptance: the first pull request opened after the merge shows no `Mergify Merge Queue` or `Summary` check (observed on GitHub; depends on the user uninstalling the app or Mergify finding no configuration).

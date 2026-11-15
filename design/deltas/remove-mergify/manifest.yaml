@@ -1,7 +1,20 @@
 id: remove-mergify
 title: Remove the Mergify configuration
 priority: medium
-maturity: golden
+maturity: applying
+applying:
+  date: '2026-11-15'
+  rounds: 1
+  closed_at: '2026-11-15T19:03:46Z'
+  apply_review_path: unchanged-since-golden
+  review_record:
+    findings: {}
+    intent_findings: []
+    intent:
+      top: 6429a772cb5f48f1
+      amendments: 1
+      amendments_sha: f675d048b96b2d64
+  sha: 4d4994230e83a9a2
 review:
   rounds: 2
   lane: light
@@ -142,3 +155,10 @@ authoring:
     verified: true
     model: claude-opus-5-5
     label: Author remove-mergify delta
+effort:
+  started: 2026-11-15T19:03:25+00:00
+  pre_impl: ef2fd6bbb7e15d289921f356d67f153164c647d9
+  session: c454b9e2-5728-45f2-838d-1cd8871bfa04
+branch: feature/remove-mergify
+verify_log:
+  - {round: 1, attempt: 1, coverage: 0.0, coverage_scope: null, result: green, at: '2026-11-15T19:04:39+00:00'}

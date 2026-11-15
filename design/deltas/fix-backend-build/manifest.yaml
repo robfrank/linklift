@@ -213,3 +213,6 @@ branch: feature/fix-backend-build
 apply_authorization: grant 25bf14 (1/2)
 verify_log:
   - {round: 0, attempt: 1, coverage: 63.8, coverage_scope: null, result: green, at: '2026-11-14T22:58:07+00:00'}
+landed:
+  commits:
+  - 3737ec9e7e4292c55911e0a9ea62ef9886897432

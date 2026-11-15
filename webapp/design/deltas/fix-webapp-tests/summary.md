@@ -22,3 +22,7 @@ Webapp tests run again on Babel 8: Jest loads the project's own `babel-jest`, `r
 - 2026-11-14 · fixer — the same file's `webapp/README.md` documentation-conflict row also says "CI: Node 18"; the fold carries Node 24 there too.
 - 2026-11-14 · gate — review: 1 round(s), lane light — no blockers.
 - 2026-11-15 · gate — review: 1 round(s), lane light — no blockers.
+- 2026-11-15 · round 00 conductor — Gates green from webapp/: npm ci, npm run test:coverage (8/8 suites, 34/34 tests on Node 26.13.0), prettier lint/format-check; npm run build produced dist/bundle.js and dist/index.html (89 pre-existing webpack warnings). type-check is owner-run and was not run.
+- 2026-11-15 · round 00 conductor — Lockfile diff vs the baseline touches only node_modules/react-dom version, resolved, integrity and peerDependencies (react ^19.3.1); package.json unchanged. jest --showConfig shows the transform at webapp/node_modules/babel-jest/build/index.js.
+- 2026-11-15 · round 00 conductor — Not verified locally: the Node 24 Jest run (only Node 26 installed) and T-ci-green; both are proven by Webapp CI on the PR.
+- 2026-11-15 · round 00 conductor — Follow-up: webapp/CLAUDE.md still says TypeScript 5.9 (review R1-3, outside this delta).

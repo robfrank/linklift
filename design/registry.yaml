@@ -1,4 +1,4 @@
-generated_against: ef2fd6bbb7e15d289921f356d67f153164c647d9
+generated_against: a367204013496c2d9407b767cc5bb275f094b93b
 deltas:
 - id: remove-mergify
   title: Remove the Mergify configuration

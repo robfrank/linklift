@@ -3,7 +3,7 @@ deltas:
 - id: retire-webapp-image
   title: Retire the separate webapp nginx image and deployment
   priority: medium
-  maturity: draft
+  maturity: golden
   baseline: bf70effeca018de21c8207899ba0d06b309654eb
   flag: clean
   intersecting:

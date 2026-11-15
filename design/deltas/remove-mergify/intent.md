@@ -1,5 +1,5 @@
 # Remove the Mergify configuration
-<!-- intent: draft -->
+<!-- intent: confirmed 2026-11-15 sha256:6429a772cb5f48f1 -->
 
 ## Problem
 The repository carries a `.mergify.yml` whose one rule merges approved Dependabot and `github-actions[bot]` PRs with a `[skip ci]` message. Mergify has removed `commit_message_template`, so the configuration is now invalid and every PR shows two failing Mergify checks (`Mergify Merge Queue`, `Summary`). The user does not want Mergify any more.

@@ -3,11 +3,15 @@ title: Remove the Mergify configuration
 priority: medium
 maturity: intent
 baseline: 78d549dad91cd97a1ecf58767f87965defed8c1f
+lane: light
 footprint:
   assumes: []
-  changes: []
+  changes:
+    - id: NF-RM-001
+      op: add
 dev_rules: []
-project_standards: []
+project_standards:
+  - CLAUDE.md
 pins:
   harness: claude
   intent: v1

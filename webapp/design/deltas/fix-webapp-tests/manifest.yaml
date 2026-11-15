@@ -127,3 +127,27 @@ effort:
   session: c454b9e2-5728-45f2-838d-1cd8871bfa04
 branch: feature/fix-webapp-tests
 apply_authorization: grant 25bf14 (2/2)
+applying:
+  date: '2026-11-15'
+  rounds: 1
+  closed_at: '2026-11-15T10:34:28Z'
+  apply_review_path: full
+  review_record:
+    findings:
+      R1-1: 1794738752
+      R1-2: 1794738752
+      R1-3: 1794738752
+      R1-5: 1794738752
+    intent_findings: []
+    intent:
+      top: 8e627334e0a8db0a
+      amendments: 3
+      amendments_sha: bec1178741d2007f
+  sha: e382515cb2256dd0
+verify_log:
+  - round: 0
+    attempt: 1
+    coverage: 28.6
+    coverage_scope: null
+    result: green
+    at: '2026-11-15T10:36:34+00:00'

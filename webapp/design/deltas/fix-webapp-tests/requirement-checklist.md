@@ -5,6 +5,6 @@
 
 | Requirement ID | Summary | Tags | Source Section | Round ID | Validating Tests | Operational Guides | Impl Status | Test Status | Notes |
 |---|---|---|---|---|---|---|---|---|---|
-| NF-FWT-001 | Running `npx tsc` in `webapp/` under TypeScript 7 (the config sets `noEmit`) reports no error… | `build` | `requirements.md#added` | `ROUND-00` | `T-tsconfig-options` | `general -> (no guide yet)` | Not Started | Not Started |  |
-| NF-107 | `npm test` runs Jest in a jsdom environment, transforming sources with the project's own… | `test` | `requirements.md#modified` | `ROUND-00` | `T-ci-green`, `T-jest-all-suites-local`, `T-jest-transform-path`, `T-lock-react-versions` | `general -> (no guide yet)` | Not Started | Not Started |  |
-| NF-108 | The `Webapp CI` workflow runs on pushes and pull requests to `main` that touch `webapp/` and… | `ci`, `guide:build-and-deploy` | `requirements.md#modified` | `ROUND-00` | `T-ci-green`, `T-ci-node-24` | `build-and-deploy -> (no guide yet)` | Not Started | Not Started |  |
+| NF-FWT-001 | Running `npx tsc` in `webapp/` under TypeScript 7 (the config sets `noEmit`) reports no error… | `build` | `requirements.md#added` | `ROUND-00` | `T-tsconfig-options` | `general -> (no guide yet)` | In Progress | In Progress |  |
+| NF-107 | `npm test` runs Jest in a jsdom environment, transforming sources with the project's own… | `test` | `requirements.md#modified` | `ROUND-00` | `T-ci-green`, `T-jest-all-suites-local`, `T-jest-transform-path`, `T-lock-react-versions` | `general -> (no guide yet)` | In Progress | In Progress |  |
+| NF-108 | The `Webapp CI` workflow runs on pushes and pull requests to `main` that touch `webapp/` and… | `ci`, `guide:build-and-deploy` | `requirements.md#modified` | `ROUND-00` | `T-ci-green`, `T-ci-node-24` | `build-and-deploy -> (no guide yet)` | In Progress | In Progress |  |

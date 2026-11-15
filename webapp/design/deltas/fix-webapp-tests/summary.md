@@ -21,3 +21,4 @@ Webapp tests run again on Babel 8: Jest loads the project's own `babel-jest`, `r
 - 2026-11-14 · author — baseline `implementation.md` (Testing section) still says CI runs on Node 18 next to **NF-108**; the fold should carry the Node 24 wording.
 - 2026-11-14 · fixer — the same file's `webapp/README.md` documentation-conflict row also says "CI: Node 18"; the fold carries Node 24 there too.
 - 2026-11-14 · gate — review: 1 round(s), lane light — no blockers.
+- 2026-11-15 · gate — review: 1 round(s), lane light — no blockers.

@@ -1,5 +1,5 @@
 # Serve the frontend from the API container
-<!-- intent: draft -->
+<!-- intent: confirmed 2026-11-15 sha256:380ccc1ac4e24ed9 -->
 
 ## Problem
 The frontend is not deployed. Kamal deploys only the API (`linklift-api` on `linklift-api.arcadebrain.ai`) and the database; the separate nginx webapp service has never deployed successfully. The webapp calls the API at the relative path `/api/v1` and keeps its token in a header, so it works unchanged when served from the same origin as the API.

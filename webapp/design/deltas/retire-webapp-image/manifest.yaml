@@ -3,7 +3,7 @@ title: Retire the separate webapp nginx image and deployment
 priority: medium
 maturity: draft
 baseline: bf70effeca018de21c8207899ba0d06b309654eb
-lane: light
+lane: full
 footprint:
   assumes:
   - NF-101

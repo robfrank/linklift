@@ -3,11 +3,19 @@ title: Retire the separate webapp nginx image and deployment
 priority: medium
 maturity: intent
 baseline: bf70effeca018de21c8207899ba0d06b309654eb
+lane: light
 footprint:
-  assumes: []
-  changes: []
-dev_rules: []
-project_standards: []
+  assumes:
+    - NF-102
+    - NF-103
+  changes:
+    - id: NF-104
+      op: modify
+dev_rules:
+  - typescript-developer
+project_standards:
+  - CLAUDE.md
+  - webapp/CLAUDE.md
 pins:
   harness: claude
   intent: v1

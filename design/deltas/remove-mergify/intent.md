@@ -31,3 +31,4 @@ Priority medium. Light lane.
 None.
 
 ## Amendments
+- 2026-11-15 · user — Keep .github/workflows/merge-dependabot.yml: approved Dependabot PRs labelled dependency_approved are still merged by that workflow (with [skip ci]); every other bot PR, and any Dependabot PR without that label, is merged by a maintainer. Removing the workflow too rejected: only Mergify goes.

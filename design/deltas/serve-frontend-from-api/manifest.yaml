@@ -3,11 +3,23 @@ title: Serve the frontend from the API container
 priority: medium
 maturity: intent
 baseline: bf70effeca018de21c8207899ba0d06b309654eb
+lane: light
 footprint:
-  assumes: []
-  changes: []
-dev_rules: []
-project_standards: []
+  assumes:
+    - RQ-002
+    - RQ-005
+    - RQ-026
+  changes:
+    - id: RQ-003
+      op: modify
+    - id: RQ-SFFA-001
+      op: add
+    - id: NF-SFFA-001
+      op: add
+dev_rules:
+  - java-developer
+project_standards:
+  - CLAUDE.md
 pins:
   harness: claude
   intent: v1

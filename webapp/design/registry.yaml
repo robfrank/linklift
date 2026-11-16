@@ -1,4 +1,4 @@
-generated_against: 3530dc5a010415358b7135a6c2793a6785c27de8
+generated_against: 928801520cb430588266b86cd80a5bd0af9b979b
 deltas:
 - id: retire-webapp-image
   title: Retire the separate webapp nginx image and deployment

@@ -1,0 +1,4 @@
+acks:
+  - check: code-provenance
+    match: Dockerfile
+    reason: root Dockerfile and Dockerfile.dockerignore are declared in serve-frontend-from-api's implementation.md file plan (bare names, ambiguous with src/main/docker/Dockerfile); retire this ack with the fold

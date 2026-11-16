@@ -6,6 +6,7 @@ import io.javalin.Javalin;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.Test;
 class LoopbackJavalinTest {
 
   @Test
-  void test_shouldBindAppToLoopbackAndServeRequests() {
+  void should_bind_app_to_loopback_and_serve_requests() {
     Javalin app = Javalin.create(cfg -> cfg.routes.get("/ping", ctx -> ctx.result("pong")));
 
     LoopbackJavalin.test(app, (server, client) -> {
@@ -31,7 +32,7 @@ class LoopbackJavalinTest {
   }
 
   @Test
-  void test_shouldNotLetStrayListenerOnSamePortTakeConnections() {
+  void should_not_let_stray_listener_on_same_port_take_connections() {
     Javalin app = Javalin.create(cfg -> cfg.routes.get("/ping", ctx -> ctx.result("pong")));
     AtomicReference<ServerSocket> stray = new AtomicReference<>();
 
@@ -39,7 +40,7 @@ class LoopbackJavalinTest {
       try {
         ServerSocket socket = new ServerSocket();
         socket.setReuseAddress(true);
-        socket.bind(new java.net.InetSocketAddress(InetAddress.getByName("127.0.0.1"), server.port()));
+        socket.bind(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), server.port()));
         stray.set(socket);
         Thread.ofVirtual().start(() -> answer404(socket));
       } catch (BindException expected) {} catch (IOException e) {

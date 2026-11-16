@@ -16,6 +16,7 @@ import it.robfrank.linklift.application.domain.event.*;
 import it.robfrank.linklift.application.domain.service.*;
 import it.robfrank.linklift.application.port.in.*;
 import it.robfrank.linklift.config.DatabaseInitializer;
+import it.robfrank.linklift.config.FrontendBundle;
 import it.robfrank.linklift.config.SecureConfiguration;
 import it.robfrank.linklift.config.WebBuilder;
 import java.net.http.HttpClient;
@@ -280,6 +281,7 @@ public class Application {
 
     // Build and start web application
     Javalin app = new WebBuilder()
+      .withFrontend(FrontendBundle.fromEnvValue(System.getenv("LINKLIFT_WEBAPP_DIR")))
       .withAuthorizationService(authorizationService)
       .withAuthenticationController(authenticationController)
       .withLinkController(newLinkController)

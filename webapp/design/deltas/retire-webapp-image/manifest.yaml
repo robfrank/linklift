@@ -2,6 +2,19 @@ id: retire-webapp-image
 title: Retire the separate webapp nginx image and deployment
 priority: medium
 maturity: applying
+applying:
+  date: '2026-11-16'
+  rounds: 1
+  closed_at: '2026-11-16T12:29:50Z'
+  apply_review_path: unchanged-since-golden
+  review_record:
+    findings: {}
+    intent_findings: []
+    intent:
+      top: 2a42144c8dd56364
+      amendments: 0
+      amendments_sha: e3b0c44298fc1c14
+  sha: 6e59abbea973a82a
 review:
   rounds: 3
   lane: full

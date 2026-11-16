@@ -5,4 +5,4 @@
 
 | Requirement ID | Summary | Tags | Source Section | Round ID | Validating Tests | Operational Guides | Impl Status | Test Status | Notes |
 |---|---|---|---|---|---|---|---|---|---|
-| NF-104 | The webapp has no Docker image or deployment of its own: `webapp/` holds no `Dockerfile`… | `build`, `guide:build-and-deploy` | `requirements.md#modified` | `ROUND-01` | `T-api-image-builds-webapp`, `T-compose-services`, `T-no-webapp-deploy` | `build-and-deploy -> webapp/design/deltas/retire-webapp-image/operational-guides/build-and-deploy.md` | Not Started | Not Started |  |
+| NF-104 | The webapp has no Docker image or deployment of its own: `webapp/` holds no `Dockerfile`… | `build`, `guide:build-and-deploy` | `requirements.md#modified` | `ROUND-01` | `T-api-image-builds-webapp`, `T-compose-services`, `T-no-webapp-deploy` | `build-and-deploy -> webapp/design/deltas/retire-webapp-image/operational-guides/build-and-deploy.md` | In Progress | In Progress |  |

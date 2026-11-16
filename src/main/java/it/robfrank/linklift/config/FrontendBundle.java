@@ -30,7 +30,7 @@ public record FrontendBundle(Path directory) {
         return Optional.of(new FrontendBundle(directory.toRealPath()));
       }
     } catch (IOException | RuntimeException e) {
-      logger.debug("Cannot resolve frontend bundle directory '{}'", value, e);
+      logger.error("Cannot resolve frontend bundle directory '{}'", value, e);
     }
     logger.warn("LINKLIFT_WEBAPP_DIR '{}' is not a directory containing index.html; serving without the frontend", value);
     return Optional.empty();

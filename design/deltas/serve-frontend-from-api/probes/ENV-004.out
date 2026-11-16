@@ -1,15 +1,15 @@
-# probe ENV-004 · 2026-11-15T21:24:24Z · exit 0 · runs auto · sha d3350d4c9e5a
-# versions: javalin 7.2.4; openjdk version "27.0.1.0.2" 2026-10-21
-versions: javalin 7.2.4; openjdk version "27.0.1.0.2" 2026-10-21
-22:24:19.602 [main] INFO  io.javalin.Javalin - Static file handler added: StaticFileConfig(hostedPath=/, directory=/private/var/folders/bt/d234fd2551156nx33b64hhhc0000gn/T/sffa16533419441809355867, location=EXTERNAL, precompressMaxSize=-1, aliasCheck=null, headers={Cache-Control=max-age=0}, skipFileFunction=StaticProbe$$Lambda/0x000007f001290c00@18388a3c, mimeTypes={}, roles=[]). File system location: 'file:///private/var/folders/bt/d234fd2551156nx33b64hhhc0000gn/T/sffa16533419441809355867/'
-22:24:19.645 [main] INFO  io.javalin.Javalin - Starting Javalin ...
-22:24:19.646 [main] INFO  org.eclipse.jetty.server.Server - jetty-12.1.14; built: 2026-10-02T05:48:05.032Z; git: 15cecbd757a2f6b0fdc6a8944f4c6d0020b17da0; jvm 27.0.1.0.2+1
-22:24:19.664 [main] INFO  o.e.j.s.DefaultSessionIdManager - Session workerName=node0
-22:24:19.666 [main] INFO  o.e.j.server.handler.ContextHandler - Started oeje10s.ServletContextHandler@67e28be3{ROOT,/,b=null,a=AVAILABLE,h=oeje10s.SessionHandler@e344ad3{STARTED}}
-22:24:19.668 [main] INFO  o.e.j.e.s.ServletContextHandler - Started oeje10s.ServletContextHandler@67e28be3{ROOT,/,b=null,a=AVAILABLE,h=oeje10s.SessionHandler@e344ad3{STARTED}}
-22:24:19.672 [main] INFO  o.e.jetty.server.AbstractConnector - Started oejs.ServerConnector@10667848{HTTP/1.1, (http/1.1)}{127.0.0.1:51640}
-22:24:19.674 [main] INFO  org.eclipse.jetty.server.Server - Started oejs.Server@6411d3c8{STARTING}[12.1.14,sto=0] @28ms
-22:24:19.674 [main] INFO  io.javalin.Javalin -
+# probe ENV-004 · 2026-11-16T10:43:10Z · exit 0 · runs auto · sha d3350d4c9e5a
+# versions: javalin 7.2.4; openjdk version "25.0.2" 2026-01-20
+versions: javalin 7.2.4; openjdk version "25.0.2" 2026-01-20
+11:43:04.794 [main] INFO  io.javalin.Javalin - Static file handler added: StaticFileConfig(hostedPath=/, directory=/private/var/folders/bt/d234fd2551156nx33b64hhhc0000gn/T/sffa5176216148457755705, location=EXTERNAL, precompressMaxSize=-1, aliasCheck=null, headers={Cache-Control=max-age=0}, skipFileFunction=StaticProbe$$Lambda/0x000007fe0128c000@22d1886d, mimeTypes={}, roles=[]). File system location: 'file:///private/var/folders/bt/d234fd2551156nx33b64hhhc0000gn/T/sffa5176216148457755705/'
+11:43:04.827 [main] INFO  io.javalin.Javalin - Starting Javalin ...
+11:43:04.828 [main] INFO  org.eclipse.jetty.server.Server - jetty-12.1.14; built: 2026-10-02T05:48:05.032Z; git: 15cecbd757a2f6b0fdc6a8944f4c6d0020b17da0; jvm 25.0.2+10-jvmci-b01
+11:43:04.846 [main] INFO  o.e.j.s.DefaultSessionIdManager - Session workerName=node0
+11:43:04.848 [main] INFO  o.e.j.server.handler.ContextHandler - Started oeje10s.ServletContextHandler@431f1eaf{ROOT,/,b=null,a=AVAILABLE,h=oeje10s.SessionHandler@cb03411{STARTED}}
+11:43:04.850 [main] INFO  o.e.j.e.s.ServletContextHandler - Started oeje10s.ServletContextHandler@431f1eaf{ROOT,/,b=null,a=AVAILABLE,h=oeje10s.SessionHandler@cb03411{STARTED}}
+11:43:04.854 [main] INFO  o.e.jetty.server.AbstractConnector - Started oejs.ServerConnector@3e84111a{HTTP/1.1, (http/1.1)}{127.0.0.1:65535}
+11:43:04.855 [main] INFO  org.eclipse.jetty.server.Server - Started oejs.Server@73545b80{STARTING}[12.1.14,sto=0] @27ms
+11:43:04.855 [main] INFO  io.javalin.Javalin -
        __                  ___          _____
       / /___ __   ______ _/ (_)___     /__  /
  __  / / __ `/ | / / __ `/ / / __ \      / /
@@ -18,13 +18,13 @@ versions: javalin 7.2.4; openjdk version "27.0.1.0.2" 2026-10-21
 
        https://javalin.io/documentation
 
-22:24:19.674 [main] INFO  io.javalin.Javalin - Javalin started in 48ms \o/
-22:24:19.675 [main] INFO  io.javalin.Javalin - Listening on http://127.0.0.1:51640/
-22:24:19.678 [main] INFO  io.javalin.Javalin - You are running Javalin 7.2.4 (released October 25, 2026).
+11:43:04.856 [main] INFO  io.javalin.Javalin - Javalin started in 47ms \o/
+11:43:04.856 [main] INFO  io.javalin.Javalin - Listening on http://127.0.0.1:65535/
+11:43:04.859 [main] INFO  io.javalin.Javalin - You are running Javalin 7.2.4 (released October 25, 2026).
 ok: skipFileFunction keeps a file under /api/ from being served
 ok: skipFileFunction leaves other files served
-22:24:19.790 [main] INFO  io.javalin.Javalin - Stopping Javalin ...
-22:24:19.790 [main] INFO  org.eclipse.jetty.server.Server - Stopped oejs.Server@6411d3c8{STOPPING}[12.1.14,sto=0]
-22:24:19.792 [main] INFO  o.e.jetty.server.AbstractConnector - Stopped oejs.ServerConnector@10667848{HTTP/1.1, (http/1.1)}{127.0.0.1:0}
-22:24:19.793 [main] INFO  o.e.j.e.s.ServletContextHandler - Stopped oeje10s.ServletContextHandler@67e28be3{ROOT,/,b=null,a=AVAILABLE,h=oeje10s.SessionHandler@e344ad3{STOPPED}}
-22:24:19.793 [main] INFO  io.javalin.Javalin - Javalin has stopped
+11:43:04.962 [main] INFO  io.javalin.Javalin - Stopping Javalin ...
+11:43:04.962 [main] INFO  org.eclipse.jetty.server.Server - Stopped oejs.Server@73545b80{STOPPING}[12.1.14,sto=0]
+11:43:04.963 [main] INFO  o.e.jetty.server.AbstractConnector - Stopped oejs.ServerConnector@3e84111a{HTTP/1.1, (http/1.1)}{127.0.0.1:0}
+11:43:04.964 [main] INFO  o.e.j.e.s.ServletContextHandler - Stopped oeje10s.ServletContextHandler@431f1eaf{ROOT,/,b=null,a=AVAILABLE,h=oeje10s.SessionHandler@cb03411{STOPPED}}
+11:43:04.965 [main] INFO  io.javalin.Javalin - Javalin has stopped

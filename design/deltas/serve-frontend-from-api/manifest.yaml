@@ -2,6 +2,19 @@ id: serve-frontend-from-api
 title: Serve the frontend from the API container
 priority: medium
 maturity: applying
+applying:
+  date: '2026-11-16'
+  rounds: 1
+  closed_at: '2026-11-16T10:43:10Z'
+  apply_review_path: unchanged-since-golden
+  review_record:
+    findings: {}
+    intent_findings: []
+    intent:
+      top: 380ccc1ac4e24ed9
+      amendments: 0
+      amendments_sha: e3b0c44298fc1c14
+  sha: 96a3e6ba7c2f82b2
 review:
   rounds: 2
   lane: light

@@ -68,15 +68,6 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
-  webapp:
-    image: robfrank/linklift-webapp:latest
-    container_name: linklift-webapp
-    ports:
-      - "80:80"
-    depends_on:
-      - linklift
-    restart: unless-stopped
-
 volumes:
   arcadedb_data:
     driver: local

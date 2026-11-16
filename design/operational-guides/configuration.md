@@ -31,3 +31,7 @@ Fixed in code (no setting): HTTP port (RQ-001), ArcadeDB port, user, password an
 
 - A secret shorter than 32 bytes is ignored with a warning, then the next source is tried (RQ-150).
 - With the development fallback, every restart signs with a new secret and previously issued tokens stop verifying (RQ-150, RQ-024).
+
+## Frontend bundle {#frontend-bundle}
+
+`LINKLIFT_WEBAPP_DIR` (env, a directory path; unset by default) names the built React bundle the server serves (RQ-SFFA-001). The image built from the root `Dockerfile` sets it (NF-SFFA-001); leave it unset for tests and local JAR runs. A value that names no usable bundle is logged as a warning at startup and the server runs without the frontend (RQ-SFFA-001).

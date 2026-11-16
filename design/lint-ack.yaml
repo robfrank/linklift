@@ -2,6 +2,3 @@ acks:
   - check: code-provenance
     match: Dockerfile
     reason: root Dockerfile and Dockerfile.dockerignore are declared in serve-frontend-from-api's implementation.md file plan (bare names, ambiguous with src/main/docker/Dockerfile); retire this ack with the fold
-  - check: verify
-    match: serve-frontend-from-api/implementation.md:32
-    reason: pre-change count (no test asserted the "LinkLift" body before this delta); the delta's own FrontendServingTest now does, by design; retire this ack with the fold

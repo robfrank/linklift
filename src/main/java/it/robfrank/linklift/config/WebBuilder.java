@@ -1,7 +1,10 @@
 package it.robfrank.linklift.config;
 
 import io.javalin.Javalin;
+import io.javalin.http.ContentType;
 import io.javalin.http.HandlerType;
+import io.javalin.http.HttpStatus;
+import io.javalin.http.staticfiles.Location;
 import io.javalin.micrometer.MicrometerPlugin;
 import io.javalin.router.JavalinDefaultRoutingApi;
 import io.micrometer.core.instrument.Tags;
@@ -19,8 +22,12 @@ import it.robfrank.linklift.adapter.in.web.security.RequireAuthentication;
 import it.robfrank.linklift.adapter.in.web.security.RequirePermission;
 import it.robfrank.linklift.application.domain.model.Role;
 import it.robfrank.linklift.application.domain.service.AuthorizationService;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -38,6 +45,7 @@ public class WebBuilder {
   private AuthorizationService authorizationService;
   private JwtAuthenticationHandler jwtAuthenticationHandler;
   private RequireAuthentication requireAuthentication;
+  private Optional<FrontendBundle> frontend = Optional.empty();
   private final PrometheusMeterRegistry registry;
   private final JvmGcMetrics jvmGcMetrics;
 
@@ -62,6 +70,15 @@ public class WebBuilder {
     routeRegistrations.add(routes -> routes.before(jwtAuthenticationHandler));
 
     return this;
+  }
+
+  public WebBuilder withFrontend(Optional<FrontendBundle> frontend) {
+    this.frontend = frontend;
+    return this;
+  }
+
+  private static boolean isApiPath(String path) {
+    return path.equals("/api") || path.startsWith("/api/");
   }
 
   public WebBuilder withAuthenticationController(AuthenticationController authenticationController) {
@@ -280,9 +297,30 @@ public class WebBuilder {
       );
 
       // Base routes
-      config.routes.get("/", ctx -> ctx.result("LinkLift"));
+      if (frontend.isEmpty()) {
+        config.routes.get("/", ctx -> ctx.result("LinkLift"));
+      }
       config.routes.get("/up", ctx -> ctx.status(200));
       config.routes.get("/metrics", ctx -> ctx.result(registry.scrape()));
+
+      // Frontend bundle: static files, with index.html for unmatched non-API GETs
+      frontend.ifPresent(bundle -> {
+        config.staticFiles.add(staticFiles -> {
+          staticFiles.hostedPath = "/";
+          staticFiles.directory = bundle.directory().toString();
+          staticFiles.location = Location.EXTERNAL;
+          staticFiles.skipFileFunction = request -> isApiPath(request.getRequestURI());
+        });
+        config.routes.error(404, ctx -> {
+          if (ctx.method() == HandlerType.GET && !isApiPath(ctx.path())) {
+            try {
+              ctx.status(HttpStatus.OK).contentType(ContentType.TEXT_HTML).result(Files.readAllBytes(bundle.indexFile()));
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            }
+          }
+        });
+      });
 
       // Global exception handlers
       GlobalExceptionHandler.configure(config.routes);

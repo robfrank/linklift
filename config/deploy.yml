@@ -8,7 +8,7 @@ servers:
 
 proxy:
   ssl: false
-  host: linklift-api.arcadebrain.ai
+  host: linklift.arcadebrain.ai
   app_port: 7070
   healthcheck:
     path: /up

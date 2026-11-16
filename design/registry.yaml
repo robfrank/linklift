@@ -1,9 +1,9 @@
-generated_against: 3530dc5a010415358b7135a6c2793a6785c27de8
+generated_against: c6182e72bc56ab27519eaa9f44bdb86068b1e756
 deltas:
 - id: serve-frontend-from-api
   title: Serve the frontend from the API container
   priority: medium
-  maturity: golden
+  maturity: applying
   baseline: bf70effeca018de21c8207899ba0d06b309654eb
   flag: clean
   intersecting:

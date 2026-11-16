@@ -120,13 +120,14 @@ docker-compose -f docker-compose-backend.yml up -d  # Backend only
 
 ## Environment Variables
 
-| Variable                     | Purpose                  | Default                  |
-| ---------------------------- | ------------------------ | ------------------------ |
-| `LINKLIFT_JWT_SECRET`        | JWT signing secret       | (required)               |
-| `LINKLIFT_OLLAMA_URL`        | Ollama endpoint          | `http://localhost:11434` |
-| `LINKLIFT_OLLAMA_MODEL`      | Embedding model          | `all-minilm:l6-v2`       |
-| `LINKLIFT_OLLAMA_DIMENSIONS` | Vector dimensions        | `384`                    |
-| `linklift.arcadedb.host`     | ArcadeDB host (JVM prop) | `localhost`              |
+| Variable                     | Purpose                                                          | Default                               |
+| ---------------------------- | ---------------------------------------------------------------- | ------------------------------------- |
+| `LINKLIFT_JWT_SECRET`        | JWT signing secret                                               | (required)                            |
+| `LINKLIFT_OLLAMA_URL`        | Ollama endpoint                                                  | `http://localhost:11434`              |
+| `LINKLIFT_OLLAMA_MODEL`      | Embedding model                                                  | `all-minilm:l6-v2`                    |
+| `LINKLIFT_OLLAMA_DIMENSIONS` | Vector dimensions                                                | `384`                                 |
+| `LINKLIFT_WEBAPP_DIR`        | Built frontend bundle directory served at `/` (unset = API only) | (unset; the image sets `/app/webapp`) |
+| `linklift.arcadedb.host`     | ArcadeDB host (JVM prop)                                         | `localhost`                           |
 
 ## Design Deltas
 

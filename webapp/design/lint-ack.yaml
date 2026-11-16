@@ -1,7 +1,0 @@
-acks:
-  - check: citation
-    match: retire-webapp-image/
-    reason: the delta's own documents name the files it deletes (webapp/nginx.conf, webapp/config/deploy.yml, webapp/.kamal/, the webapp deploy workflow); retired by the fold
-  - check: code-provenance
-    match: webapp/.kamal/
-    reason: the tracked webapp/.kamal/ files are removed by retire-webapp-image (declared in its webapp/config/deploy.yml file-plan row and NF-104; per-file rows trip [surface]); remove this ack after the fold

@@ -1,4 +1,0 @@
-acks:
-  - check: code-provenance
-    match: kamal-deploy-webapp.yml
-    reason: .github/dependabot.yml, the webapp deploy workflow, README.md and docker-compose.yml are changed by delta retire-webapp-image in the webapp/design root (declared in its file plan), which this root cannot see; remove this ack after that fold

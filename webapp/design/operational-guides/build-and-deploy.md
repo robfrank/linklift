@@ -1,24 +1,22 @@
 # Operational Guide: Build and Deploy
 
-## Interfaces and Usage
+## Interfaces and Usage {#interfaces-and-usage}
 
 - Production bundle: `npm run build` in `webapp/` (**NF-103**).
-- Docker image: `npm run docker-build` in `webapp/`, which tags `robfrank/linklift-webapp` (**NF-104**). The root `docker-compose.yml` runs that image as the `webapp` service on host port 80, next to the API service named `linklift` that nginx proxies to.
-- Kamal: `webapp/config/deploy.yml` deploys the webapp as Kamal service `linklift` from image `robfrank/linklift` on registry `ghcr.io`, proxy host `linklift.arcadebrain.ai`, app port 80, health check path `/up`. The `Deploy Webapp` workflow (`.github/workflows/kamal-deploy-webapp.yml`) runs `kamal deploy` from `webapp/` on manual dispatch.
+- Deployment (**NF-104**): the webapp has no image or deployment of its own. Once `serve-frontend-from-api` has landed (this delta's apply precondition), it ships inside the API image and is deployed with the API by the `Deploy API` workflow (`.github/workflows/kamal-deploy-api.yml`, Kamal config `config/deploy.yml`). Building, running and deploying that image are procedures of the backend design root (`design/`).
+- Local full stack (**NF-104**): the root `docker-compose.yml` runs the API service `linklift` on port 7070, built from `Dockerfile.local`, which holds no webapp bundle; for the UI run `npm start` in `webapp/` beside it (**NF-102**).
 - CI: `.github/workflows/webapp-ci.yml` (**NF-108**).
 
-## Configuration
+## Configuration {#configuration}
 
-- The API upstream is fixed in `webapp/nginx.conf` (**NF-104**); the client base path is fixed in source (**NF-101**). Changing either needs a rebuild of the image.
-- Kamal secrets are read from `webapp/.kamal/secrets` and the workflow's repository secrets; their values are not part of this design.
+- The client base path is fixed in source (**NF-101**); changing it needs a rebuild of the API image (**NF-104**). How the API serves the bundle is configured in the backend design root.
 
-## Verification and Smoke Tests
+## Verification and Smoke Tests {#verification-and-smoke-tests}
 
-- After `npm run build`, `webapp/dist/` must contain `index.html` and `bundle.js` (**NF-103**).
-- Against a running container: a deep link such as `/collections` must return the app shell, not an nginx 404 (**NF-104**), and signing in must succeed, which proves the `/api/` proxy reaches the API (**RQ-520**).
+- After the production build, `webapp/dist/` must contain `index.html` and `bundle.js` (**NF-103**, **NF-104**).
+- Against a running API container (**NF-104**), the smoke test is the backend design root's; for the webapp, a deep link such as `/collections` must return the app shell and signing in must succeed (**RQ-520**).
 
-## Monitoring, Failure Modes, Rollback
+## Monitoring, Failure Modes, Rollback {#monitoring-failure-modes-rollback}
 
-- Sign-in failing with every page otherwise loading points at the `/api/` proxy: the upstream host from **NF-104** must resolve inside the container's network.
-- The Kamal health check path `/up` has no dedicated nginx location; it is answered by the `index.html` fallback of **NF-104**, so a passing check proves only that nginx serves files, not that the API is reachable.
-- Rollback is Kamal's standard redeploy of a previous image; this repository defines no webapp-specific rollback procedure.
+- The app shell and the API share one container (**NF-104**): if the API is down, the app does not load either.
+- Rollback is Kamal's standard redeploy of a previous API image; this repository defines no webapp-specific rollback procedure.

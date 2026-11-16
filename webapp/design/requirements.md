@@ -171,8 +171,10 @@ Behaviour of the LinkLift React webapp (`webapp/`) as built. Functional requirem
   - **Tags**: `guide:dev-server`
 - **NF-103** `npm run build` bundles `src/index.tsx` into the single file `dist/bundle.js` (no content hash) plus `dist/index.html`, transpiling JavaScript and TypeScript with Babel and no type check.
   - **Tags**: `build`, `guide:build-and-deploy`
-- **NF-104** The Docker image is built in two stages — `npm ci` and `npm run build` on `node:26-alpine`, then the `dist` output served by `nginx:alpine` on port 80 — and nginx answers unknown paths with `index.html`, gzips text, CSS, JSON, JavaScript and XML responses of at least 1000 bytes, and proxies `/api/` to `http://linklift:7070`.
+- **NF-104** The webapp has no Docker image or deployment of its own: `webapp/` holds no `Dockerfile`, `nginx.conf`, `config/deploy.yml` or `.kamal/` directory, `webapp/package.json` has no `docker-build` script, no workflow under `.github/workflows/` deploys the webapp, and the root `docker-compose.yml` defines no webapp service. The production bundle that `npm run build` produces (**NF-103**) is built by the root `Dockerfile` into the API image, and the API serves it; that serving is owned by the backend design root (`design/`).
   - **Tags**: `build`, `guide:build-and-deploy`
+  - **Falsifier**: deleting `webapp/Dockerfile` and `webapp/nginx.conf` but keeping the `webapp` compose service or the `Deploy Webapp` workflow passes a "no webapp image" check; ruled out by test row `T-no-webapp-deploy`.
+
 - **NF-105** Session tokens are kept in `localStorage` and sent as a bearer header; the webapp sets no cookies.
   - **Tags**: `auth`, `security`
 - **NF-106** Every link the webapp opens in a new tab carries `rel="noopener noreferrer"`.

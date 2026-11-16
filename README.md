@@ -47,8 +47,7 @@ LinkLift is a RESTful web service for managing web links with comprehensive CRUD
 
    - ArcadeDB (database)
    - Ollama (AI embeddings for vector search)
-   - LinkLift API
-   - LinkLift Webapp
+   - LinkLift API (also serves the web UI)
 
    **Note:** First start takes 2-3 minutes to pull the Ollama model (~23MB)
 
@@ -170,16 +169,10 @@ LinkLift follows **Hexagonal Architecture** (Ports and Adapters) with clear sepa
 
 ## Web Interface
 
-After starting the application with Docker Compose, you can access the web UI at:
+The API container serves the built web UI. For local development, start the webapp dev server (see below) and open:
 
 ```
-http://localhost:80
-```
-
-Or simply:
-
-```
-http://localhost
+http://localhost:3000
 ```
 
 The web interface allows you to view and add new links through a user-friendly React interface.

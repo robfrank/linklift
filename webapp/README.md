@@ -46,11 +46,7 @@ This will create a `dist` directory with the compiled application.
 
 ## Docker Integration
 
-This frontend application is designed to work in a Docker environment:
-
-- A Dockerfile is provided to build the application into an Nginx container
-- The Nginx configuration proxies API requests to the backend service
-- The application is integrated into the main docker-compose.yml file
+The webapp has no Docker image of its own. The root `Dockerfile` builds it (`npm run build`) and ships the bundle inside the API image, which serves it; the `docker-compose.yml` `linklift` service therefore provides both the API and the web UI.
 
 ## API Integration
 

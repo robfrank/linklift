@@ -1,7 +1,11 @@
 id: serve-frontend-from-api
 title: Serve the frontend from the API container
 priority: medium
-maturity: applying
+maturity: merged
+repair:
+- date: '2026-11-16'
+  sha: 5256f822b10ba6b3
+  repaired_from: 96a3e6ba7c2f82b2
 applying:
   date: '2026-11-16'
   rounds: 1
@@ -240,10 +244,17 @@ authoring:
     verified: true
     model: claude-opus-5-5
     label: Author serve-frontend-from-api delta
+branch: feature/serve-frontend-from-api
+verify_log:
+  - {round: 1, attempt: 1, coverage: 64.3, coverage_scope: null, result: green, at: '2026-11-16T10:51:07+00:00'}
+landed:
+  commits:
+  - 9f2fd0a73a3fa415150d668b0a65ebe7f4b828db
 effort:
   started: 2026-11-16T10:40:29+00:00
   pre_impl: 5916fab6707f7ba341c589ab104296720ad045ee
   session: c454b9e2-5728-45f2-838d-1cd8871bfa04
-branch: feature/serve-frontend-from-api
-verify_log:
-  - {round: 1, attempt: 1, coverage: 64.3, coverage_scope: null, result: green, at: '2026-11-16T10:51:07+00:00'}
+  rounds: 1
+  attempts: 1
+  coverage: 64.3
+  wall_minutes: 22.3

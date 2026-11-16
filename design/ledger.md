@@ -2,6 +2,61 @@
 
 A manager-readable history of what changed in this system and why: one entry per folded delta, newest first. Notes keep accumulating after the fold via note-delta.py.
 
+## 2026-11-16 · Serve the frontend from the API container (`serve-frontend-from-api`)
+
+### What changes
+
+The API server can serve the built React app. When the image points it at the app's build, the home page and every app route load the app, its assets come from the same server, and the API keeps answering exactly as before. The image Kamal deploys is now built from source in one multi-stage build and carries both the app and the API, and Kamal serves it under the friendlier host name.
+
+### Why
+
+The frontend has never been deployed: Kamal ships only the API and the database, and the separate nginx webapp service never deployed. The webapp already calls the API at a relative path, so serving it from the same origin needs no frontend change.
+
+### Impact and risk
+
+- The public host name changes; the new name needs DNS, which is out of scope.
+- A deploy now builds Node and Maven stages, so it takes longer than pulling a prebuilt image.
+- Without the bundle setting (tests, local runs, the Docker Hub image) the server behaves as before.
+
+### Changelog
+
+The API container now serves the React app at the site root, and app routes fall back to the app's index page, also after a refresh. The API answers exactly as before. One Kamal deploy ships the app and the API together at linklift.arcadebrain.ai. Without a bundle, the server behaves as it did before.
+
+### Notes
+
+- 2026-11-15 · author — Host change: `linklift-api.arcadebrain.ai` becomes `linklift.arcadebrain.ai` in `config/deploy.yml` (NF-SFFA-001).
+
+- 2026-11-15 · author — The bundle location is an environment variable, `LINKLIFT_WEBAPP_DIR`, set by the image; unset means no bundle and today's behaviour, including the plain-text `/` answer, so tests and local JAR runs need nothing.
+- 2026-11-15 · author — A value that names no directory with `index.html` starts the server without a bundle and logs a warning, instead of failing startup.
+- 2026-11-15 · author — The `index.html` fallback applies to `GET` only; other methods on unmatched paths keep their 404. Unmatched `/api` paths answer exactly as without a bundle, which is how the intent's "the API's JSON 404" is held: the design does not change that response.
+- 2026-11-15 · author — Javalin's `spaRoot` is not used because it would also answer unmatched `/api` paths with `index.html`; a `404` error handler limited to non-API `GET` requests is used instead.
+- 2026-11-15 · author — Added `RQ-004` (`/metrics`) and `NF-001` (shaded JAR) to the assumed requirements: the intent's constraints keep `/metrics` unchanged and the image's build stage relies on the JAR.
+- 2026-11-15 · author — Added `.dockerignore` so a local `docker build .` does not send `target/` or `webapp/node_modules/` <!-- external-ref --> into the context; `Dockerfile.local`, `src/main/docker/Dockerfile`, the `docker` Maven profile and the deploy workflow stay as they are.
+- 2026-11-15 · author — Path traversal outside the bundle directory is left to Javalin's static-file handler; no requirement states it.
+- 2026-11-15 · fix R1-1 — Supersedes the `.dockerignore` note above: the file is `Dockerfile.dockerignore`, read only for the root `Dockerfile`, because a root `.dockerignore` excluding `target/` would break `docker-compose up`, whose `Dockerfile.local` copies the JAR from `target/` (NF-007).
+- 2026-11-15 · gate — review: 2 round(s), lane light — blockers in round(s) 1 — 2 finding(s) were damage from a fix pass.
+- 2026-11-16 · round 01 conductor — Gates green on JDK 25: dep-sync, type-check, test (528 run, 0 failures, 0 errors, 1 skipped), format-check; lint is owner-run and was not run. New code covered by FrontendBundleTest (6) and FrontendServingTest (9).
+- 2026-11-16 · round 01 conductor — Root image: docker build succeeded; container runs as appuser with the bundle at /app/webapp on Temurin 25.0.1. Dockerfile.local still builds after ./mvnw package (T-local-image).
+- 2026-11-16 · round 01 conductor — Tests use io.javalin.testtools Request/Response (okhttp3 is not on the classpath), so POST bodies are plain strings and headers are read via response.headers().
+- 2026-11-16 · round 01 conductor — The prettier hook realigned the whole CLAUDE.md environment-variable table when the LINKLIFT_WEBAPP_DIR row was added.
+- 2026-11-16 · round 01 conductor — Verifier smoke test against a live ArcadeDB: / and /collections/42 return 200 text/html (index.html), /up returns 200, /api/v1/nope returns the API's 404 (text/plain), not index.html. The app needs ArcadeDB to start.
+
+
+### Effort
+- implementation rounds: 1
+- review rounds: 2
+- attempts: 1
+- coverage: 64%
+- tokens: 309k
+- wall-clock elapsed (includes idle, not a work measure): 22m
+- main agent: 19k generated over 33 messages
+- implementers: 23k generated over 4/4 dispatch(es)
+
+- 2026-11-16 · fold — repaired after merge: `96a3e6ba7c2f82b2` → `5256f822b10ba6b3` (scoped `gate.py --repair-review`); the folded design is `5256f822b10ba6b3`
+
+- 2026-11-16 · fold — provenance gap: changed on trunk since the last fold with no delta declaring them: `Dockerfile`, `Dockerfile.dockerignore`
+
+
 ## 2026-11-15 · Remove the Mergify configuration (`remove-mergify`)
 
 ### What changes

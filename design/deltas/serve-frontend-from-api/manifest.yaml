@@ -2,6 +2,10 @@ id: serve-frontend-from-api
 title: Serve the frontend from the API container
 priority: medium
 maturity: applying
+repair:
+- date: '2026-11-16'
+  sha: 5256f822b10ba6b3
+  repaired_from: 96a3e6ba7c2f82b2
 applying:
   date: '2026-11-16'
   rounds: 1
@@ -249,4 +253,4 @@ verify_log:
   - {round: 1, attempt: 1, coverage: 64.3, coverage_scope: null, result: green, at: '2026-11-16T10:51:07+00:00'}
 landed:
   commits:
-  - 6fd0d1de05affac038ebe243a4a738796068af34
+  - 928801520cb430588266b86cd80a5bd0af9b979b

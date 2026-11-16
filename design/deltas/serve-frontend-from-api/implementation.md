@@ -29,7 +29,7 @@
 | `src/test/java/it/robfrank/linklift/config/FrontendBundleTest.java` <!-- planned-artifact --> | Tests of `FrontendBundle.fromEnvValue` | — | Surefire |
 | `src/test/java/it/robfrank/linklift/adapter/in/web/FrontendServingTest.java` <!-- planned-artifact --> | HTTP tests of bundle serving through `LoopbackJavalin.test` | — | Surefire |
 
-Reversal: the plain-text `/` answer becomes conditional on there being no bundle. Test sources asserting that body: 0 <!-- verify: grep -rl '"LinkLift"' src/test | wc -l == 0 -->
+Reversal: the plain-text `/` answer becomes conditional on there being no bundle. Test sources asserting that body at the delta's baseline revision: 0 <!-- verify: git grep -l '"LinkLift"' bf70effeca018de21c8207899ba0d06b309654eb -- src/test | wc -l == 0 -->
 <!-- blind spot: literal text match in src/test only; a test reading the body through a constant would not match. -->
 , and `ObservabilityTest` builds a `WebBuilder` without a bundle, so it keeps today's routes.
 

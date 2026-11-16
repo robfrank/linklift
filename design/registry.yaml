@@ -1,4 +1,4 @@
-generated_against: e08cc71a2a98b04438eedda16f9bd0ea4a244794
+generated_against: c6182e72bc56ab27519eaa9f44bdb86068b1e756
 deltas:
 - id: serve-frontend-from-api
   title: Serve the frontend from the API container

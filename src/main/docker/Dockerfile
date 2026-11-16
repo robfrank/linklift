@@ -1,4 +1,4 @@
-FROM eclipse-temurin:25-alpine@sha256:541729c21f9308a68cebbe5a0627e4cd465dfe8980fc03bac0b2feaee57daafd
+FROM eclipse-temurin:25-alpine@sha256:c7c3d0bdf7f2bbc5a05a6712ed334d198360105634ea9adf76fca94f381b1e3f
 
 # Update packages
 RUN apk --no-cache -U upgrade

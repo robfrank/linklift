@@ -266,3 +266,6 @@ effort:
 branch: feature/retire-webapp-image
 verify_log:
   - {round: 1, attempt: 1, coverage: 28.6, coverage_scope: null, result: green, at: '2026-11-16T12:32:04+00:00'}
+landed:
+  commits:
+  - bd132baaaa2f87955f40b9c30a2829a92d8650a6

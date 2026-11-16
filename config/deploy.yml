@@ -32,6 +32,8 @@ env:
     LINKLIFT_OLLAMA_URL: "http://linklift-ollama:11434"
     LINKLIFT_OLLAMA_MODEL: "all-minilm:l6-v2"
     LINKLIFT_OLLAMA_DIMENSIONS: "384"
+  secret:
+    - LINKLIFT_JWT_SECRET
 
 ssh:
   user: player

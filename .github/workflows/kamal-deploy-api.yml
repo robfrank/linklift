@@ -28,6 +28,7 @@ jobs:
       KAMAL_REGISTRY_USERNAME: ${{ secrets.KAMAL_REGISTRY_USERNAME }}
       KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
       HOST_IP: ${{ secrets.HOST_IP }}
+      LINKLIFT_JWT_SECRET: ${{ secrets.LINKLIFT_JWT_SECRET }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 

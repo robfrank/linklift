@@ -32,3 +32,8 @@ The API container now serves the React app at the site root, and app routes fall
 - 2026-11-15 · author — Path traversal outside the bundle directory is left to Javalin's static-file handler; no requirement states it.
 - 2026-11-15 · fix R1-1 — Supersedes the `.dockerignore` note above: the file is `Dockerfile.dockerignore`, read only for the root `Dockerfile`, because a root `.dockerignore` excluding `target/` would break `docker-compose up`, whose `Dockerfile.local` copies the JAR from `target/` (NF-007).
 - 2026-11-15 · gate — review: 2 round(s), lane light — blockers in round(s) 1 — 2 finding(s) were damage from a fix pass.
+- 2026-11-16 · round 01 conductor — Gates green on JDK 25: dep-sync, type-check, test (528 run, 0 failures, 0 errors, 1 skipped), format-check; lint is owner-run and was not run. New code covered by FrontendBundleTest (6) and FrontendServingTest (9).
+- 2026-11-16 · round 01 conductor — Root image: docker build succeeded; container runs as appuser with the bundle at /app/webapp on Temurin 25.0.1. Dockerfile.local still builds after ./mvnw package (T-local-image).
+- 2026-11-16 · round 01 conductor — Tests use io.javalin.testtools Request/Response (okhttp3 is not on the classpath), so POST bodies are plain strings and headers are read via response.headers().
+- 2026-11-16 · round 01 conductor — The prettier hook realigned the whole CLAUDE.md environment-variable table when the LINKLIFT_WEBAPP_DIR row was added.
+- 2026-11-16 · round 01 conductor — Verifier smoke test against a live ArcadeDB: / and /collections/42 return 200 text/html (index.html), /up returns 200, /api/v1/nope returns the API's 404 (text/plain), not index.html. The app needs ArcadeDB to start.

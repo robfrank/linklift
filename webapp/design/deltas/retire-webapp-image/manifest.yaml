@@ -264,3 +264,5 @@ effort:
   pre_impl: 2e0aa9d9167af0be01a3793092e449386c92ce4a
   session: c454b9e2-5728-45f2-838d-1cd8871bfa04
 branch: feature/retire-webapp-image
+verify_log:
+  - {round: 1, attempt: 1, coverage: 28.6, coverage_scope: null, result: green, at: '2026-11-16T12:32:04+00:00'}

@@ -247,3 +247,6 @@ effort:
 branch: feature/serve-frontend-from-api
 verify_log:
   - {round: 1, attempt: 1, coverage: 64.3, coverage_scope: null, result: green, at: '2026-11-16T10:51:07+00:00'}
+landed:
+  commits:
+  - 6fd0d1de05affac038ebe243a4a738796068af34

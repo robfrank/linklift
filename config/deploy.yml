@@ -28,8 +28,9 @@ builder:
   arch: amd64
 env:
   clear:
-    JAVA_OPTS: "-Xmx2G -Dlinklift.arcadedb.host=linklift-arcadedb"
-    LINKLIFT_OLLAMA_URL: "http://linklift-ollama:11434"
+    # Kamal names accessory containers <service>-<accessory>
+    JAVA_OPTS: "-Xmx2G -Dlinklift.arcadedb.host=linklift-api-arcadedb"
+    LINKLIFT_OLLAMA_URL: "http://linklift-api-ollama:11434"
     LINKLIFT_OLLAMA_MODEL: "all-minilm:l6-v2"
     LINKLIFT_OLLAMA_DIMENSIONS: "384"
   secret:

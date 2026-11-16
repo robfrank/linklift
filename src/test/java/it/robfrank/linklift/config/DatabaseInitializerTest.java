@@ -47,4 +47,22 @@ class DatabaseInitializerTest {
     assertThat(schema.existsType("Content")).isTrue();
     assertThat(schema.getType("Content").getProperty("linkId").getType()).isEqualTo(Type.STRING);
   }
+
+  @Test
+  @DisplayName("initializing an already initialized database succeeds and creates no duplicates")
+  void initializeDatabaseTwice() {
+    DatabaseInitializer initializer = new DatabaseInitializer(arcadeDBContainer.getHost(), arcadeDBContainer.getMappedPort(2480), "root", "playwithdata");
+
+    initializer.initializeDatabase();
+    initializer.initializeDatabase();
+
+    RemoteDatabase db = new RemoteDatabase(arcadeDBContainer.getHost(), arcadeDBContainer.getMappedPort(2480), "linklift", "root", "playwithdata");
+    assertThat(count(db, "SELECT count(*) AS c FROM Role")).isEqualTo(3L);
+    assertThat(count(db, "SELECT count(*) AS c FROM User WHERE id = 'system_user'")).isEqualTo(1L);
+    assertThat(count(db, "SELECT count(*) AS c FROM HasRole WHERE @out.id = 'system_user' AND @in.name = 'USER'")).isEqualTo(1L);
+  }
+
+  private static long count(RemoteDatabase db, String sql) {
+    return db.query("sql", sql).next().<Number>getProperty("c").longValue();
+  }
 }

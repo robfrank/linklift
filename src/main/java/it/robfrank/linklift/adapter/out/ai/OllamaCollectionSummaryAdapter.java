@@ -39,10 +39,10 @@ public class OllamaCollectionSummaryAdapter implements CollectionSummaryService 
     try {
       String prompt = buildPrompt(collection, links);
 
-      Map<String, Object> requestBody = new HashMap<>();
-      requestBody.put("model", modelName);
-      requestBody.put("prompt", prompt);
-      requestBody.put("stream", false);
+      Map<String, Object> requestBody = new HashMap<>(Map.of(
+        "model", modelName,
+        "prompt", prompt,
+        "stream", false));
 
       String jsonBody = objectMapper.writeValueAsString(requestBody);
 
